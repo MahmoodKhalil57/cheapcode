@@ -1,0 +1,185 @@
+# cheapcode - burhan-shape plan
+#
+# Encodes the load-bearing claims, falsifiers, and confidence (@>=0.XX)
+# of the cheapcode thesis. Companion: plan/CONFIDENCE.md (research-driven
+# confidence calibration). Top-level discharge: cheapcode_v1_ships.
+#
+# Confidence levels (per burhan README + mizaj rule 01 falsifier-first):
+#   @>=0.85  research- or measurement-backed; high confidence
+#   @>=0.70  substrate-aligned; transfer-precedent receipt exists
+#   @>=0.50  honest prior; khazina atom 0015 transfer-overstated default
+#   @>=0.30  speculative; CONFIDENCE.md research must lift before reliance
+#
+# Structure:
+#   Section O   - observation claims (default False; flip to True when measurement falsifies)
+#   Section A   - backend axis (cheapllm v1 inheritance)
+#   Section B   - propagation thesis (gated on EXPERIMENT-0)
+#   Section C   - substrate-tools-as-inference-time-calibration (qls -> cheapcode bridge)
+#   Section D   - maintenance discipline (project-meta, git-tracked)
+#   Section E   - competitive comparison (research-gated; CONFIDENCE.md)
+#   Section F   - composed theorems
+#   Section G   - top-level discharge claim
+#
+# Each thesis claim's value is `not obs_X` so composition tracks evidence:
+# when an observation claim is flipped to True, the dependent theses go False,
+# theorem assumptions break, and the discharge claim's audit chain fails loudly.
+
+# ============================================================
+# SECTION O - observation claims (defaults False = not yet falsified)
+# ============================================================
+
+# A - backend axis observations
+claim obs_cheapllm_cost_ratio_gt_quarter: Bool @>=0.99 = False
+claim obs_cheapllm_p50_gt_gpt55: Bool @>=0.99 = False
+claim obs_cheapllm_ctx_lt_gpt55: Bool @>=0.99 = False
+claim obs_cheapllm_tb18_lt_30pct: Bool @>=0.99 = False
+
+# B - propagation observations
+claim obs_experiment_0_fail: Bool @>=0.99 = False
+claim obs_shared_module_breaks_smoke: Bool @>=0.99 = False
+claim obs_khatim_overlays_were_maintainable: Bool @>=0.99 = False
+
+# C - substrate-tools observations
+claim obs_truthfulqa_delta_lt_2pp: Bool @>=0.99 = False
+claim obs_recall_delta_lt_5pp: Bool @>=0.99 = False
+claim obs_design_audit_delta_lt_5pp: Bool @>=0.99 = False
+claim obs_4_tools_perf_regress: Bool @>=0.99 = False
+
+# D - maintenance observations
+claim obs_loc_gt_500_within_4_weeks: Bool @>=0.99 = False
+claim obs_plan_files_gt_5: Bool @>=0.99 = False
+claim obs_rebase_backlog_gt_2_weeks: Bool @>=0.99 = False
+
+# E - competitive observations
+claim obs_codex_cost_le_cheapcode: Bool @>=0.99 = False
+claim obs_codex_latency_le_cheapcode: Bool @>=0.99 = False
+claim obs_codex_capability_ge_cheapcode: Bool @>=0.99 = False
+claim obs_vanilla_opencode_capability_ge_cheapcode: Bool @>=0.99 = False
+claim obs_claude_code_cost_le_cheapcode: Bool @>=0.99 = False
+claim obs_aider_cost_le_cheapcode: Bool @>=0.99 = False
+claim obs_terminus_cost_le_cheapcode: Bool @>=0.99 = False
+claim obs_goose_cost_le_cheapcode: Bool @>=0.99 = False
+
+# ============================================================
+# SECTION A - backend axis (inherited from cheapllm v1)
+# ============================================================
+
+claim cheapllm_cheaper_proven: Bool @>=0.95 = not obs_cheapllm_cost_ratio_gt_quarter
+falsified_when obs_cheapllm_cost_ratio_gt_quarter
+
+claim cheapllm_faster_proven: Bool @>=0.95 = not obs_cheapllm_p50_gt_gpt55
+falsified_when obs_cheapllm_p50_gt_gpt55
+
+claim cheapllm_more_context_proven: Bool @>=0.85 = not obs_cheapllm_ctx_lt_gpt55
+falsified_when obs_cheapllm_ctx_lt_gpt55
+
+claim cheapllm_smart_axis_pending: Bool @>=0.50 = not obs_cheapllm_tb18_lt_30pct
+falsified_when obs_cheapllm_tb18_lt_30pct
+
+# ============================================================
+# SECTION B - harness propagation thesis
+# ============================================================
+
+claim layer_1_propagation_holds: Bool @>=0.65 = not obs_experiment_0_fail
+falsified_when obs_experiment_0_fail
+
+claim layer_2_propagation_acceptable_fallback: Bool @>=0.80 = not obs_shared_module_breaks_smoke
+falsified_when obs_shared_module_breaks_smoke
+
+claim layer_3_propagation_unmaintainable: Bool @>=0.90 = not obs_khatim_overlays_were_maintainable
+falsified_when obs_khatim_overlays_were_maintainable
+
+# ============================================================
+# SECTION C - substrate tools as inference-time calibration
+# ============================================================
+
+claim claim_shape_addon_lifts_truthfulness: Bool @>=0.50 = not obs_truthfulqa_delta_lt_2pp
+falsified_when obs_truthfulqa_delta_lt_2pp
+
+claim daftar_tools_lift_cross_session: Bool @>=0.55 = not obs_recall_delta_lt_5pp
+falsified_when obs_recall_delta_lt_5pp
+
+claim mizaj_consult_tool_lifts_design_quality: Bool @>=0.45 = not obs_design_audit_delta_lt_5pp
+falsified_when obs_design_audit_delta_lt_5pp
+
+claim minimal_tool_set_avoids_tool_spam: Bool @>=0.70 = not obs_4_tools_perf_regress
+falsified_when obs_4_tools_perf_regress
+
+# ============================================================
+# SECTION D - maintenance discipline (project-meta)
+# ============================================================
+
+claim source_file_budget_holds: Bool @>=0.75 = not obs_loc_gt_500_within_4_weeks
+falsified_when obs_loc_gt_500_within_4_weeks
+
+claim plan_dir_budget_holds: Bool @>=0.85 = not obs_plan_files_gt_5
+falsified_when obs_plan_files_gt_5
+
+claim weekly_rebase_cadence_holds: Bool @>=0.65 = not obs_rebase_backlog_gt_2_weeks
+falsified_when obs_rebase_backlog_gt_2_weeks
+
+# ============================================================
+# SECTION E - competitive comparison (CONFIDENCE.md research-gated)
+# ============================================================
+
+claim cheapcode_beats_codex_on_cost: Bool @>=0.30 = not obs_codex_cost_le_cheapcode
+falsified_when obs_codex_cost_le_cheapcode
+
+claim cheapcode_beats_codex_on_latency: Bool @>=0.30 = not obs_codex_latency_le_cheapcode
+falsified_when obs_codex_latency_le_cheapcode
+
+claim cheapcode_beats_codex_on_capability: Bool @>=0.30 = not obs_codex_capability_ge_cheapcode
+falsified_when obs_codex_capability_ge_cheapcode
+
+claim cheapcode_beats_vanilla_opencode_on_capability: Bool @>=0.40 = not obs_vanilla_opencode_capability_ge_cheapcode
+falsified_when obs_vanilla_opencode_capability_ge_cheapcode
+
+claim cheapcode_beats_claude_code_on_cost: Bool @>=0.55 = not obs_claude_code_cost_le_cheapcode
+falsified_when obs_claude_code_cost_le_cheapcode
+
+claim cheapcode_beats_aider_on_cost: Bool @>=0.45 = not obs_aider_cost_le_cheapcode
+falsified_when obs_aider_cost_le_cheapcode
+
+claim cheapcode_beats_terminus_on_cost: Bool @>=0.30 = not obs_terminus_cost_le_cheapcode
+falsified_when obs_terminus_cost_le_cheapcode
+
+claim cheapcode_beats_goose_on_cost: Bool @>=0.40 = not obs_goose_cost_le_cheapcode
+falsified_when obs_goose_cost_le_cheapcode
+
+# ============================================================
+# SECTION F - composed theorems
+#
+# Burhan's parser allows exactly ONE `assume` clause per theorem
+# (parser.py:195 - assumption variable is overwritten by each line).
+# Multiple-condition assumptions therefore compose via Python `and`.
+# proves clauses use `True` literal so theorem evaluation does not
+# require additional named claims.
+# ============================================================
+
+theorem harness_uplift_visible_in_all_clients
+  assume layer_1_propagation_holds and claim_shape_addon_lifts_truthfulness
+  proves True
+  by audit experiment-0-and-2
+
+theorem cheapcode_outperforms_named_alternatives
+  assume cheapllm_cheaper_proven and cheapllm_faster_proven and cheapllm_more_context_proven and cheapllm_smart_axis_pending and cheapcode_beats_codex_on_cost and cheapcode_beats_codex_on_latency and cheapcode_beats_codex_on_capability and cheapcode_beats_vanilla_opencode_on_capability
+  proves True
+  by audit competitive-scorecard
+
+theorem cheapcode_maintainable_long_term
+  assume source_file_budget_holds and plan_dir_budget_holds and weekly_rebase_cadence_holds
+  proves True
+  by audit project-meta
+
+# ============================================================
+# SECTION G - top-level discharge claim
+#
+# UNDISCHARGED in confidence terms (@>=0.30 floor). The cite chain
+# evaluates True today only because Section E observations all default
+# False. As CONFIDENCE.md research lands, observations either stay False
+# (claim survives) or flip True (claim falsified, theorem assumption
+# fails, discharge errors). Either outcome is informative.
+# ============================================================
+
+claim cheapcode_v1_ships: Bool @>=0.30 = cite cheapcode_outperforms_named_alternatives
+falsified_when obs_experiment_0_fail
