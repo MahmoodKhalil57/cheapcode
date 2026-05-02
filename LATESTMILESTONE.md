@@ -4,6 +4,49 @@
 
 ---
 
+## M0.6 — daftar Sahih extension shipped + audit-verify wired (2026-05-02)
+
+### What was completed
+
+- **Daftar Sahih extension shipped** at daftar repo (~/apps/daftar/, separate commit). Implements the proposal from M0.5 as Option A (minimal-change, kind-extension via metadata_json):
+  - `src/sahih.ts` (~330 LoC) — types, validators, `saveSegment`, `getSegmentBySlug`, `gradeSegment`, `naskhSegment`, `querySegments`, `exportSegmentsAsBn`, `verifySegmentChains`, `lexicon`
+  - `src/cli.ts` extended with `sahih` subcommand routing 8 sub-subcommands (add/query/grade/naskh/export/verify/show/lexicon)
+  - `tests/sahih.test.ts` — 11 tests covering round-trip, duplicate rejection, sahih-empty-isnad rejection, slug validation, re-grade with history, naskh bidirectional links, query filters, export shape, verify resolved/missing, lexicon classification. Full daftar suite 19/19 pass.
+  - `README.md` updated with the new entry kind + subsystem pointer.
+- **`tools/audit-verify.sh`** wired (~75 LoC bash). Walks every `by audit <tag>` line in `plan/facts/*.bn`, classifies each tag (resolved / offline / missing) per source-class heuristics. Closes the khazina atom 0007 gap (anti-fabrication via artifact verification).
+- **First audit-verify run on cheapcode**: 26 resolved (mizaj rules, khazina atoms, cheapllm receipts, archived khatim/sanad refs), 22 offline (daftar cross-shard notes + arXiv URLs — known limitations), **0 missing**. Chain integrity OK across all current `plan/facts/*.bn`.
+
+### What was learned
+
+The Sahih extension implementation validated the M0.5 architectural decision: keeping the discipline in mizaj (rules 11 + 14) and the storage in daftar (this extension) leaves burhan unchanged. The CLI surface fell out cleanly; no parser work needed.
+
+The audit-verify tool surfaces the asymmetry between L1 (filesystem-resolvable, automatic) and L3 (URL, requires network). Currently 22 of 48 audit tags are URL/cross-shard — they're tracked as "offline" not "missing", but a future `--network` flag could raise the resolution rate.
+
+The duplicate-slug rejection in `saveSegment` enforces the Sahih methodology principle that each segment has a unique attribution; updates go through `gradeSegment` or `naskhSegment`, both of which append to history.
+
+### Honest concerns
+
+- **Existing `plan/facts/*.bn` lemmas not yet promoted to daftar sahih segments.** They're authored as burhan lemmas with `by audit <tag>` but haven't been migrated through the daftar sahih CLI. Need a one-pass promotion script (or do it manually in a future M0.x). Without promotion, the daftar sahih layer is empty for cheapcode itself.
+- **`exportSegmentsAsBn` output not yet wired into `tools/burhan-validate.sh`.** The end-to-end pipeline (daftar export → concat → burhan validate) requires one more shell-level integration. Trivial follow-up.
+- **No `--network` mode in audit-verify yet.** L3 arXiv URLs and L4 vendor pages stay marked offline. Adding curl-based verification is straightforward when needed.
+- **Body-bn newline interpretation** in CLI takes `\n` literal escapes — works for shell quoting but not idiomatic JSON; document or add `--body-bn-stdin`.
+
+### Plan changes implied
+
+- M0.7 candidate: write a one-pass promotion script that reads `plan/facts/*.bn` and creates corresponding daftar sahih segments in cheapcode's shard. Each lemma gets an isnad entry derived from its `by audit` tag.
+- M0.x candidate: extend `tools/burhan-validate.sh` to optionally consume `daftar sahih export` output instead of raw fact files.
+- Continuing: research-driven L3 lifts per CONFIDENCE.md pointer (sub-7B inference-time prompt papers).
+
+### Pointer for the next agent
+
+Three open paths in leverage order:
+
+1. **One-pass promotion of `plan/facts/*.bn` to daftar sahih segments** — would populate the cheapcode daftar shard with 48+ authenticated lemmas + provide first cross-project corroboration test.
+2. **Continue research batch (sub-7B inference-time papers)** — lifts Section C confidences honestly; bounded per atom 0015.
+3. **Wire `daftar sahih export` into `tools/burhan-validate.sh`** — closes the export-then-validate loop.
+
+---
+
 ## M0.5 — mizaj rule 14 (auth grade bounds confidence) + Sahih extension design (2026-05-02)
 
 ### What was completed
