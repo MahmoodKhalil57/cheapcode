@@ -12,13 +12,23 @@
 # The arithmetic is in tools/joint-confidence.ts (audit tag
 # `cheapcode-joint-confidence-computation`). This file is the burhan-shape
 # audit that cites it.
+#
+# CURRENT STATE (M2.1, 2026-05-03):
+# - Joint confidence: 0.648 (was 0.46 at M0.9 authoring; lifted via
+#   M1.6 5-umbrella refactor + M1.7-1.9 research synthesis + M2.0 Phase 0)
+# - Post-research-only ceiling: 0.648 (we're at the ceiling)
+# - Post-full-L1-measurement ceiling: 0.839
+# - Target @>=0.99999: still structurally unreachable per atom 0015
+#   compositional dilution; honest math in tools/joint-confidence.ts
+# The audit conclusions hold; the specific number was updated.
 
 # === Observations (defaults preserve current state) ===
 
 # This observation flips True if joint-confidence.ts shows the target IS
 # structurally reachable via measurement (i.e., post_measurement_joint >=
-# target). At authoring time (2026-05-02), it is False — joint caps at
-# ~0.46 against target 0.99999.
+# target). At authoring time (2026-05-02), it was False; at M2.1 update
+# (2026-05-03), it remains False — joint caps at ~0.84 (post-full-
+# measurement) against target 0.99999.
 claim obs_target_99999_reachable_via_measurement_alone: Bool @>=0.99 = False
 
 # This observation flips True if any audit step in the calibration-audit

@@ -21,9 +21,10 @@ Every research session must:
 
 1. **Cite specific sources** — URL + access date + relevant quote/measurement.
 2. **Map the source to a named [`PLAN.bn`](PLAN.bn) claim.**
-3. **Update the corresponding `@>=0.XX` value in [`PLAN.bn`](PLAN.bn).** Edit the value, do not delete the claim.
-4. **Add a dated `## Revision YYYY-MM-DD` section** below summarizing the delta and why.
-5. **Daftar receipt:**
+3. **Run GRADE 5-domain pre-flight** (per SPEC Revision 2026-05-02g — adoption 2). For each L3+ source, check: risk-of-bias / inconsistency / indirectness / imprecision / publication-bias. If any domain triggers, downgrade the source's tier by 1 step before applying the mizaj-16 formula. This is the discipline that catches over-statements like cheapllm-v1's 7× atom-0015 firings.
+4. **Update the corresponding `@>=0.XX` value in [`PLAN.bn`](PLAN.bn).** Edit the value, do not delete the claim.
+5. **Add a dated `## Revision YYYY-MM-DD` section** below summarizing the delta and why.
+6. **Daftar receipt:**
    ```
    bun ~/apps/daftar/bin/daftar add note \
      --project="/home/mk/apps/cheapcode" \

@@ -66,7 +66,7 @@ If both passes converge (PASS criteria + internal cross-model consistently catch
 - `runs/experiment-1-attempt-1/baseline-raw-gpt55.jsonl` — per-task baseline metrics
 - `runs/experiment-1-attempt-1/wrapper-cheapcode-auto.jsonl` — per-task wrapper metrics
 - `runs/experiment-1-attempt-1/3-axis-comparison.md` — the headline ratios (cost / latency / completion)
-- `runs/experiment-1-attempt-1/verdict.md` — outcome + kill-criterion citation
+- `runs/experiment-1-attempt-1/verdict.md` — outcome + kill-criterion citation, structured per Model Cards format (Mitchell et al. 2019; SPEC Revision 2026-05-02g adoption 1) sections "Quantitative analyses" + "Caveats and recommendations". Verdict feeds directly into Phase 4 README without restructuring.
 
 ## Daftar receipt
 

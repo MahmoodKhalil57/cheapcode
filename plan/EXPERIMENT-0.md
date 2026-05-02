@@ -1,10 +1,19 @@
 # EXPERIMENT-0 — propagation-point discriminating experiment
 
-**Status:** pre-registered. Kill-criteria written before the experiment runs.
+**Status:** **SUPERSEDED 2026-05-03** by M1.0 architectural pivot + M1.7 research finding. Retained per atom 0007 (anti-fabrication via artifact verification) and mizaj 14 (daif/mawdu retention principle) — never delete superseded work; mark and keep as audit trail.
 
-**Substrate:** Khazīna atom 0011 (smallest-distinguishing-experiment-first), Mizaj rule 01 (falsifier-first), Mizaj rule 02 (generate-before-select). Daftar receipt to be added on completion.
+**Why superseded:**
+- M1.0 pivot recast cheapcode as a 5-model surgical add to opencode's existing OpenRouter provider, rather than a wrapper-vs-fork-vs-patch-series choice this experiment was meant to discriminate.
+- M1.7 research confirmed opencode upstream's `provider.ts` already special-cases OpenRouter (lines 102/403/1343) AND opencode docs confirm "Bundled / NPM-installed / Custom Loaders" provider-extension architecture. The propagation thesis is L1-source-readable supported at `@>=0.97` (umbrella 3) without needing this experiment to run.
+- The original F1 falsifier ("a feature added at server/shared layer is inherited by all 4 upstream client surfaces without per-client overlays") is now considered cleared by the M1.7 docs synthesis + Khātim's M7.1.2 negative-knowledge L1.
 
-**Gates:** falsifier F1 from [`../SPEC.md`](../SPEC.md). PASS unlocks the fork; FAIL halts the project.
+**Original document preserved below for audit context. Do NOT execute.**
+
+---
+
+**Substrate (original):** Khazīna atom 0011 (smallest-distinguishing-experiment-first), Mizaj rule 01 (falsifier-first), Mizaj rule 02 (generate-before-select). Daftar receipt to be added on completion.
+
+**Gates (original):** falsifier F1 from [`../SPEC.md`](../SPEC.md). PASS unlocks the fork; FAIL halts the project.
 
 ---
 

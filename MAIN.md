@@ -6,19 +6,14 @@ The one-page summary. Update the bracketed `[fields]` as the project moves. Don'
 
 ## Goal
 
-A working `cheapcode` binary — a small spin-off of opencode — that on hard reasoning tasks (TB-medium / TB-hard slice) is **cheaper, faster, AND smarter** than calling GPT-5.5 directly. All three at once, measured, with the numbers cited in the README.
+A working `cheapcode` binary — a small spin-off of opencode — that on hard reasoning tasks (TB-medium / TB-hard multistep slice) is **cheaper, faster, AND smarter** than calling GPT-5.5 directly. All three at once, measured, with the numbers cited in the README.
 
 Concrete deliverables:
 
 - A binary that runs on the operator's laptop
 - It exposes 5 new "models" when OpenRouter is connected: `cheap`, `cheap-fast`, `smart`, `smart-fast`, `auto`
-- A measured 3-axis scorecard in the README that compares cheapcode vs raw GPT-5.5
-- A small open-source fork of [opencode](https://github.com/sst/opencode) that the operator can rebase against upstream weekly without pain
-- A working binary that's cheaper, faster, AND smarter than raw GPT-5.5 on hard reasoning — **measured and cited**, not claimed
-- Routing to a cheap AI for routine work (~30× cheaper than GPT-5.5)
-- A long-context option (2 million words at $0.37 per call)
-- Honest documentation of when cheapcode is best vs when it isn't
-- A model smarter than frontier models at multistep hard tasks
+- A measured 3-axis scorecard in the README, structured as a [Model Card](https://arxiv.org/abs/1810.03993) — the documentation standard used by HuggingFace / Meta / Google / OpenAI
+- A small open-source fork of [opencode](https://github.com/sst/opencode) (pinned at v1.14.33) that the operator can rebase against upstream weekly without pain
 
 ---
 
@@ -86,23 +81,32 @@ Each phase has a falsifier gate in [SPEC.md](SPEC.md) Revision 2026-05-02f. If a
 
 ## Confidence
 
-**~65%** that the plan succeeds within the $10 / 24h limits as of 2026-05-02 — **lifted from ~17% by refactoring to 5 load-bearing umbrella claims** (M1.6, substrate-driven per atom 0011 + mizaj 02/07), then **+6pp from three research rounds + one honesty-verification probe** (Snell ICLR 2025, EMNLP CAI papers, SWE-bench leaderboard, METR, opencode docs, opencode-vscode-ide thin-fork pattern, Cognition Devin compound architecture, plus a cheap honesty probe that *caught and corrected* a 0.7pp over-statement — verifying-honesty-not-claim, per operator's atom-0010 frame).
+**~65%** that the plan succeeds within the $10 / 24h limits as of 2026-05-03 (Phase 0 complete, Phase 1 awaiting GO). Lifted from **~17% → ~65%** by: refactoring to 5 load-bearing umbrella claims (M1.6, substrate-driven per atom 0011 + mizaj 02/07), three parallel research rounds (Snell ICLR 2025, EMNLP CAI papers, SWE-bench leaderboard, METR, opencode docs, Cognition Devin), one honesty-verification probe (caught + corrected a 0.7pp over-statement on cpkt9762/opencode-vscode-ide), and Phase 0 final lock with no umbrella drops.
 
 | State                                              | Joint confidence | What you'd need                                         |
 | -------------------------------------------------- | ---------------- | ------------------------------------------------------- |
-| Today, post-refactor + max research                | **~65%**         | Already done                                            |
-| After full measurement on 5 umbrellas              | **~84%**         | Run EXPERIMENT-1 + 3 small probes (~$10, fits envelope) |
-| Target `@>=0.99999`                                | unreachable      | Structural cap                                          |
+| Today, post-refactor + max research + Phase 0 lock | **~65%**         | Already done                                            |
+| After Phase 2 EXPERIMENT-1 PASS                    | **~74%**         | Phase 2 runs ($5, 3h, fits envelope)                    |
+| After full measurement on 5 umbrellas              | **~84%**         | EXPERIMENT-1 + 3 small probes                           |
+| Target `@>=0.99999`                                | unreachable      | Structural cap (compositional dilution per atom 0015)   |
 
 ### The 5 load-bearing umbrellas
 
-Each has **direct** evidence at its tier ceiling — not derived from sub-claim composition. Joint = 0.95 × 0.85 × 0.95 × 0.85 × 0.94 ≈ 0.613.
+Each has **direct** evidence at its tier ceiling — not derived from sub-claim composition. Joint = 0.95 × 0.85 × 0.97 × 0.88 × 0.94 ≈ **0.648**.
 
 1. **cheapllm capability inherited** — L1 in-house (cheapllm v1 daftar). `@>=0.95`
-2. **auto-wrapper beats raw frontier on multistep** — L3 mutawatir: Snell ICLR 2025 + 3 EMNLP 2025 CAI papers + AlphaCode-2 + SWE-bench Verified leaderboard + METR evaluations + Optimal Self-Consistency 2025 + Adaptive Test-Time Compute + Forest-of-Thought + Self-Consistency 2022 + Difficulty-Adaptive 2025. **9+ independent groups at L3 ceiling.** Plus production deployment evidence: Anthropic Claude Code uses orchestrator + sub-agents pattern, NVIDIA NeMo Agent Toolkit productizes compound systems. `@>=0.85`
-3. **provider-registry propagation** — Multi-source L1: opencode source-readable + docs + 6.5M monthly users + 150K GitHub stars + extension ecosystem (awesome-opencode, OpenAgentsControl). 4+ independent L1 sources, near-ceiling. `@>=0.97`
-4. **surgical maintainability** — L1 multi-source: Khātim/Sanad post-mortem (negative-knowledge) + cpkt9762/opencode-vscode-ide thin-fork *pattern* (verified by cheap honesty probe — pattern documented in repo, operational long-term success NOT verified). `@>=0.88`
+2. **auto-wrapper beats raw frontier on multistep** — L3 mutawatir: Snell ICLR 2025 + 3 EMNLP 2025 CAI papers + AlphaCode-2 + SWE-bench Verified leaderboard + METR + Optimal Self-Consistency 2025 + Adaptive Test-Time Compute + Forest-of-Thought + Self-Consistency 2022 + Difficulty-Adaptive 2025. **9+ independent groups at L3 ceiling.** Plus production deployment: Anthropic Claude Code orchestrator+sub-agents, Cognition Devin explicitly compound, NVIDIA NeMo Agent Toolkit. `@>=0.85`
+3. **provider-registry propagation** — Multi-source L1: opencode source + docs + 6.5M monthly users + 150K GitHub stars + extension ecosystem. v1.14.30 added DeepSeek compatibility upstream — strengthens directly. `@>=0.97`
+4. **surgical maintainability** — L1 multi-source: Khātim/Sanad post-mortem (negative-knowledge) + cpkt9762/opencode-vscode-ide thin-fork *pattern* (verified by cheap honesty probe — pattern documented; operational long-term success NOT verified). `@>=0.88`
 5. **cost ratio vs competitors** — L1+L2: OpenAI Codex pricing + cheapllm-v1 in-house receipts, direct arithmetic. `@>=0.94`
+
+### Substrate-discipline standards adopted (M2.1)
+
+Three battle-tested parallel standards locked in [SPEC](SPEC.md) Revision 2026-05-02g:
+
+- **[Model Cards](https://arxiv.org/abs/1810.03993)** (Mitchell et al. 2019) — Phase 4 README format. Standard structure used by HuggingFace + Meta + Google + OpenAI.
+- **[GRADE](https://www.cochrane.org/learn/courses-and-resources/cochrane-methodology/grade)** (Cochrane / WHO / NICE) — 5-domain downgrade checklist (risk-of-bias / inconsistency / indirectness / imprecision / publication-bias) applied as research-synthesis pre-flight. **This catches the failure mode cheapllm-v1 hit 7× in their session — research-supported claims that don't replicate.**
+- **[ADR Nygard format](https://adr.github.io/)** — milestone entries: Title / Status / Context / Decision / Consequences / Pointer.
 
 ### Honest research finding (validates M1.0 architecture)
 
