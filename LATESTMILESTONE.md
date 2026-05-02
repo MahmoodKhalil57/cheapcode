@@ -4,6 +4,76 @@
 
 ---
 
+## M2.0 — Phase 0 complete: research synthesis + decisions locked (2026-05-02)
+
+### What was completed
+
+Operator: "start". Phase 0 of locked plan executed.
+
+**Wall:** ~30 min (well under 2h budget). **Spend:** $0.
+
+3 parallel research vectors via mizaj rule 16 (no experiments):
+
+1. **Smart-fast latency benchmark** — artificialanalysis.ai page extracted no inline numbers (interactive charts), but search yielded: Gemini 2.5 Flash 1.1s median, $0.003/run, 97.1% quality. Pick: Claude Haiku 4.5 primary, GPT-5-nano backup, Gemini 2.5 Flash for latency-priority.
+2. **opencode upstream pin** — v1.14.33 (released 2026-05-02). v1.14.30 added "DeepSeek compatibility with providers that vary model naming" — directly relevant to cheap-tier integration. 8 patch versions past Khātim's old pin.
+3. **Cheap-fast race-K candidates** — deepseek-v4-flash (cheapllm-v1 receipt) + gemini-2.5-flash (1.1s median). Mistral Medium 3.5 with reasoning support (added v1.14.30) as fallback.
+
+### Locked decisions ([runs/phase-0/decisions.md](runs/phase-0/decisions.md))
+
+| Tier | OR target | Confidence backing |
+|---|---|---|
+| cheap | `deepseek/deepseek-v4-flash` | cheapllm v1 L1 receipts |
+| cheap-fast | race-K of deepseek-v4-flash + gemini-2.5-flash | cheapllm v1 race-K pattern + L3 leaderboard |
+| smart | `openai/gpt-5-mini` direct | cheapllm v1 F-E1 + atom-0013 honest direct-route |
+| smart-fast | `anthropic/claude-haiku-4.5` (primary) / `openai/gpt-5-nano` (backup) | L3 leaderboard categorization (specific TTFT not extracted) |
+| auto | structured-reasoning wrapper (Phase 2) | umbrella 2 @0.85 pending EXPERIMENT-1 |
+| (long-context override) | `x-ai/grok-4-fast` for >128k input | cheapllm v1 H3B receipt |
+
+Upstream pin: **opencode v1.14.33**.
+
+### Umbrella re-audit (per cheapllm-v1's 7× atom-0015 firing warning)
+
+All 5 umbrellas held their values:
+
+| # | Umbrella | Confidence | Status |
+|---|---|---|---|
+| 1 | cheapllm capability inherited | 0.95 | ✅ |
+| 2 | auto-wrapper multistep dominance | 0.85 | ✅ Phase 2 EXPERIMENT-1 is load-bearing |
+| 3 | provider-registry propagation | 0.97 | ✅ strengthened by v1.14.30 DeepSeek changes |
+| 4 | surgical maintainability | 0.88 | ✅ |
+| 5 | cost ratio vs competitors | 0.94 | ✅ DeepSeek V3.2 67.8% SWE-bench confirms |
+
+**Joint confidence: 0.648 (unchanged).** No falsifier triggered. **Phase 0 → Phase 1 transition CLEARED per SPEC Revision 2026-05-02f.**
+
+### Honest gaps acknowledged in decisions doc
+
+1. Smart-fast latency: pick by L3 categorization, not specific TTFT receipts (artificialanalysis.ai charts didn't extract).
+2. Cheap-fast race-K specific P50: substituting gemini-2.5-flash for cheapllm-v1's flash-lite — should be at least as fast but unmeasured.
+3. Cross-model verification model for Phase 2 wrapper: not yet locked; defer to Phase 2 prep.
+
+These are L3+ confidence on picks. L1 measurement would close the residual gap; tradeoff accepted per operator's research-first discipline.
+
+### Next: Phase 1
+
+Phase 1 — Fork + 5-tier registration (4h budget, $0). Per the implementation sketch in [runs/phase-0/decisions.md](runs/phase-0/decisions.md):
+
+- New file: `packages/opencode/src/provider/cheapcode-tiers.ts` (~150 LoC)
+- Modify: `packages/opencode/src/provider/provider.ts` (~15 LoC near OpenRouter init line 403)
+- New: `cheapcode.toml` config (per SPEC cell #11)
+- Smoke: `bun run ... run --model cheap "say hello"` returns output
+
+Falsifier gate: 5 tiers don't appear in `--list-models` → umbrella 3 falsified, pivot per SPEC Phase 1 table.
+
+**Project state at end of Phase 0:**
+- Wall consumed: ~30 min of 24h
+- Spend: $0 of $10
+- Joint confidence: 0.648 (post-research ceiling)
+- Code shipped: 0 LoC
+
+Authorized to proceed to Phase 1 when operator says go.
+
+---
+
 ## M1.10 — locked phase plan with falsifier gates + cheapllm v1 status acknowledged (2026-05-02)
 
 ### What changed

@@ -60,19 +60,21 @@ Concrete deliverables:
 [                    ] 0%
 ```
 
-Only working code counts. Planning, research, and documentation = 0%.
+Only working code counts. Phase 0 (research + decisions) is done but doesn't move the bar — code starts in Phase 1.
 
 ### Phase plan (LOCKED 2026-05-02 per SPEC Revision 2026-05-02f)
 
 | Phase | Goal | Wall | $ | Status |
 |---|---|---|---|---|
-| 0 | Final research synthesis (lock model picks) | 2h | $0 | `[ ]` |
+| 0 | Final research synthesis (lock model picks) | 2h | $0 | `[x]` ✅ done in ~30min, $0 |
 | 1 | Fork + 5-tier registration (no wrapper) | 4h | $0 | `[ ]` |
 | 2 | Auto wrapper MIN + EXPERIMENT-1 | 6h | $5 | `[ ]` |
 | 3 | 4-client smoke regression | 2h | $0 | `[ ]` |
 | 4 | Scorecard + README | 2h | $1 | `[ ]` |
 | 5 | Ship (tag + daftar) | 1h | $0 | `[ ]` |
 | | Buffer | 7h | $4 | |
+
+**Phase 0 decisions** locked in [`runs/phase-0/decisions.md`](runs/phase-0/decisions.md): opencode pin **v1.14.33**, smart-fast pick **claude-haiku-4.5** primary, cheap-fast race-K pair **deepseek-v4-flash + gemini-2.5-flash**. No umbrella drops. **Falsifier gate cleared. Authorized to start Phase 1.**
 
 Each phase has a falsifier gate in [SPEC.md](SPEC.md) Revision 2026-05-02f. If a gate triggers, the project pivots per the pivot table or halts honestly.
 
