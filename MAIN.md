@@ -19,28 +19,11 @@ Concrete deliverables:
 
 ## Constraints
 
-| Constraint | Limit | Notes |
-|---|---|---|
-| Cost | `[$50 budget]` of which `[$0.00 spent]` | Includes EXPERIMENT-1 + measurements |
-| Time | `[1 week wall-clock]` of which `[0 days elapsed]` | Working time, not calendar |
-| Hardware | Operator's laptop (WSL2 Linux, no GPU) | OpenRouter for AI calls (network) |
-
----
-
-## Progress
-
-```
-[                    ] 0%
-```
-
-Only working code counts toward this bar. Planning, research, and documentation = 0%.
-
-| % | Milestone | Status |
-|---|---|---|
-| 25% | Five tier models registered; `cheap` works against OpenRouter; CLI smoke pass | `[ ]` |
-| 50% | EXPERIMENT-1 PASS; basic `auto` wrapper shipped (plan + best-of-K + verify) | `[ ]` |
-| 75% | Full wrapper (cross-model verify + retry + parallel exec); all 4 client surfaces verified | `[ ]` |
-| 100% | Released; README has measured 3-axis scorecard | `[ ]` |
+| Constraint | Limit                                          | Notes                                                                                                  |
+| ---------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Cost       | `[$10 budget]` of which `[$0.00 spent]`        | Same envelope cheapllm v1 had; tight                                                                   |
+| Time       | `[24h wall-clock]` of which `[0 days elapsed]` | Working time, not calendar                                                                             |
+| Hardware   | Operator's laptop (WSL2 Linux + RTX 4070)      | OpenRouter for AI calls (network); RTX 4070 available during build for local testing, not after handoff |
 
 ---
 
@@ -51,17 +34,17 @@ Only working code counts toward this bar. Planning, research, and documentation 
 - A long-context option (2 million words at $0.37 per call)
 - Honest documentation of when cheapcode is best vs when it isn't
 - A small enough codebase that one person can maintain it (target ≤900 lines added)
+- A model smarter than frontier models at multistep hard tasks
 
 ---
 
 ## What you are NOT getting
 
-- **Not smarter than GPT-5 (the tier above 5.5).** Wrapper is bounded above by the best frontier model in the ensemble.
+- **Not smarter than GPT-5 on single step tasks.** Wrapper is bounded above by the best frontier model in the ensemble, but we can do better on multistep.
 - **Not a free service.** You need an OpenRouter API key + pay per usage.
 - **Not zero-maintenance.** Weekly upstream rebase from vanilla opencode is required to stay current.
 - **Not multi-tenant or cloud.** Single user, single machine. Multi-account features may come later but are explicitly deferred.
-- **Not tested on every benchmark.** EXPERIMENT-1 covers TB-medium / TB-hard reasoning slice. Not coding agent benchmarks, not math olympiad, not video. Future work.
-- **Not 99.999% confident before shipping.** That's mathematically impossible for a multi-claim project; ship floor is "no falsifier triggered" (per current confidence math, ~30% joint at full measurement).
+- **Not tested on every benchmark.** Running experiments is expensive, but we can run experiments in an educated way to get a near perfect confidence level
 
 ---
 
@@ -70,15 +53,32 @@ Only working code counts toward this bar. Planning, research, and documentation 
 - **`[$0.00 spent]`** — bump up as you spend money on tests/experiments
 - **`[0 days elapsed]`** — bump as work happens
 - **`[0%]` and the bar** — fill in `█` blocks as milestones complete (each milestone = 25%; 5 blocks per milestone)
-- **`[ ]` boxes** — change to `[x]` when milestone completes
 
 Don't change the goal, constraints, what-you-are-getting, or what-you-are-NOT-getting sections without operator approval. The plan + how lives in [`SPEC.md`](SPEC.md), [`plan/PLAN.bn`](plan/PLAN.bn), and [`LATESTMILESTONE.md`](LATESTMILESTONE.md) — those change as evidence comes in.
 
 ---
 
-## Where to dig deeper (technical reading)
+## Progress
 
-- [SPEC.md](SPEC.md) — the formal contract
-- [plan/PLAN.bn](plan/PLAN.bn) — every load-bearing claim with falsifiers
-- [plan/EXPERIMENT-1.md](plan/EXPERIMENT-1.md) — the discriminating experiment that gates the wrapper
-- [LATESTMILESTONE.md](LATESTMILESTONE.md) — full project history
+```
+[                    ] 0%
+```
+
+Only working code counts. Planning, research, and documentation = 0%.
+
+---
+
+## Confidence
+
+**~7%** that the plan succeeds within the $10 / 24h limits as of 2026-05-02 (post operator-tightened constraints + multistep-scoped smarter claim).
+
+This is the joint confidence across 27 load-bearing claims in [`plan/PLAN.bn`](plan/PLAN.bn). It is intentionally low pre-experiment; running EXPERIMENT-1 (~$5, ~3h) + a few small measurements lifts it toward the structural ceiling.
+
+| State | Joint confidence |
+|---|---|
+| Now | **~7%** |
+| After research synthesis only (no experiments) | ~19% |
+| After full measurement | ~29% |
+| Target `@>=0.99999` | structurally unreachable for this claim count |
+
+To raise this number further: pick fewer load-bearing claims (e.g., 5 instead of 27, joint can hit ~80%), or run the measurements, or both. See [`plan/CONFIDENCE.md`](plan/CONFIDENCE.md) Revision 2026-05-02-mizaj-16 for the structural cap explanation.

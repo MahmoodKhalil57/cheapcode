@@ -4,6 +4,73 @@
 
 ---
 
+## M1.4 — operator-tightened constraints + multistep-only smarter claim (2026-05-02)
+
+### What changed (operator-direct edit to MAIN.md)
+
+Operator edited MAIN.md with three material updates that propagate upstream:
+
+**1. Constraints tightened.** Cost cap $10 (was $50), wall-clock 24h (was 1 week). RTX 4070 GPU available during build but not after handoff.
+
+**2. Smarter claim refined to multistep-only.** New "What you ARE getting": *"A model smarter than frontier models at multistep hard tasks."* New "What you are NOT getting": *"Not smarter than GPT-5 on single step tasks."* This is the sharper claim — multistep is where decomposition + best-of-K + cross-model verification + retry leverage compounds; single-step is bounded by best-frontier-in-ensemble.
+
+**3. Confidence section added.** Operator left it as `x%` for me to fill.
+
+### Upstream propagation
+
+- [`SPEC.md`](SPEC.md) Revision 2026-05-02e — constraints + multistep distinction locked.
+- [`plan/EXPERIMENT-1.md`](plan/EXPERIMENT-1.md) — budget cut from ≤$50 to ≤$5; wall-clock from ≤6h to ≤3h; N from 30 to 10 multistep tasks; single-step explicitly excluded.
+- [`plan/PLAN.bn`](plan/PLAN.bn) — main load-bearing claim renamed `cheapcode_auto_3_axis_dominance_on_multistep_over_raw_frontier`; confidence lifted from `@>=0.55` to `@>=0.65` because the tighter multistep scope is more defensible (per atom 0015 — narrower claim transfers from literature with higher fidelity).
+- [`tools/joint-confidence.ts`](tools/joint-confidence.ts) — claim renamed; confidence updated.
+- [`MAIN.md`](MAIN.md) Confidence section filled with current joint (~7%).
+
+### Joint confidence delta from M1.3
+
+| Metric | M1.3 | **M1.4** |
+|---|---|---|
+| Joint, current correlated | 0.058 | **0.068** |
+| Joint, research-only ceiling | 0.194 | 0.194 |
+| Joint, full-measurement ceiling | 0.291 | 0.291 |
+
+The +0.01 lift comes from refining the load-bearing claim's scope (multistep-only is more defensible). The ceilings unchanged because they're set by the structure, not the per-claim values.
+
+### Honest implications of the tightening
+
+- **$10 budget = same envelope cheapllm v1 had.** It worked there because cheapllm's hot path is mostly free (cheap base model). cheapcode similarly: hot path is wrapper code (free) + EXPERIMENT-1 ($5) + small measurements (~$3 total). Margin: $2.
+- **24h wall-clock = MIN-tier wrapper or nothing.** Cells #14 + #18 cap at MIN. EXPECTED tier (≤900 LoC, ≤700 LoC wrapper) and IDEAL tier are deferred to post-v1 unless the wrapper can be authored quickly enough.
+- **RTX 4070 during build = potential for local cheap-tier baseline runs in EXPERIMENT-1.** Could reduce some OpenRouter spend. Not committed; opportunistic.
+- **Multistep-only claim = stronger and tighter.** We're no longer claiming smarter on single-step (which was indefensible). Now claiming smarter where ensemble methods leverage compounds. More honest, more defensible, slightly higher confidence.
+
+### Honest concerns
+
+- **24h is aggressive.** cheapllm v1 shipped its 4-axis-receipts within 24h but it's a leaner project (model wrapper, not full harness). cheapcode's wrapper requires plan-decompose + verifier + best-of-K wiring — that's harder to land in 24h. MIN-tier wrapper is achievable; EXPECTED is a stretch.
+- **EXPERIMENT-1 at N=10 has wider CIs.** ±16pp on completion rate. Sufficient for the 10pp lift target but tight. PARTIAL outcomes more likely.
+- **Confidence still ~7% pre-experiment.** Per atom 0015, the ceiling stays at ~29% even with full measurement. Not a 99.999% plan.
+
+### Plan changes implied
+
+- EXPERIMENT-1 must run inside the $10 envelope. ~$5 per run; if PARTIAL, one retry at ~$2 fits. Beyond that, halt.
+- 24h envelope demands the MIN-tier wrapper (~350 LoC); EXPECTED is post-v1.
+- The multistep-only scoping means EXPERIMENT-1's task selection must filter to TB tasks with multi-step structure (typically those marked TB-medium or TB-hard with explicit sub-task decomposition). Single-step tasks excluded from baseline + wrapper runs.
+
+### Pointer for the next agent
+
+Three operator decisions still open (now constrained by the tightening):
+
+1. **Run EXPERIMENT-1 inside $5 / 3h envelope?** This is now the load-bearing first move — fits inside the $10 budget with margin.
+2. **Pick MIN-tier wrapper for v1?** EXPECTED is unreachable in 24h.
+3. **Confidence reframe pick.** Same three options as M0.9: accept ~29% ceiling / reduce N / track failures.
+
+Highest-leverage next move: EXPERIMENT-1 at N=10 multistep tasks. Decides the wrapper claim alive/dead inside the $10 / 24h envelope.
+
+---
+
+## M1.3 — research-equivalence formula + 5 claims lifted via synthesis (2026-05-02)
+
+(See git log for M1.3 details. The operator edit triggering M1.4 came after M1.3 committed at `cheapcode@6ee31f8`.)
+
+---
+
 ## M1.2 — 3-axis comprehensive-dominance refactor (2026-05-02)
 
 ### What changed (operator pushback on M1.1's modesty)

@@ -14,9 +14,9 @@ Can `cheapcode-auto` (the wrapper using GPT-5.5 + Claude Opus + Gemini-pro inter
 
 - **Cheaper:** wrapper cost ÷ raw cost ≤ 0.30 (3× cheaper or better)
 - **Faster:** wrapper P50 latency ÷ raw P50 latency ≤ 0.70 (30% faster or better)
-- **Smarter:** wrapper completion rate ÷ raw completion rate ≥ 1.10 (10% higher or better)
+- **Smarter (multistep only):** wrapper completion rate ÷ raw completion rate ≥ 1.10 (10% higher or better) on **multistep hard reasoning tasks specifically**
 
-All three simultaneously. If any axis misses, the comprehensive-dominance claim is falsified on that axis.
+All three simultaneously. If any axis misses, the comprehensive-dominance claim is falsified on that axis. Single-step tasks are explicitly out of scope (Revision 2026-05-02e); we don't claim smarter there.
 
 ## Why this specific shape
 
@@ -46,11 +46,13 @@ Per atom 0013 (calibration-as-credential): we don't claim "smarter than GPT-5.5"
 | **PARTIAL** | 2 of 3 axes meet target | Re-frame claim to those 2 axes. Drop the missed-axis claim. |
 | **FAIL** | ≤1 of 3 axes meets target, OR completion rate below baseline | Comprehensive-dominance claim is dead. Revert SPEC Revision 2026-05-02d; ship cheapcode at M1.0's narrower niche. |
 
-## Cost / time budget
+## Cost / time budget (revised 2026-05-02e per operator-tightened limits)
 
-- Wall-clock: ≤ 6 hours (run automated; 30 tasks × ~7 min = 3.5h, plus analysis + retry on flaky)
-- Spend: ≤ $50 (raw GPT-5.5 baseline ≈ $5–10; wrapper ≈ $15–25 for K=3 + cross-model on 30 tasks; analysis margin $15)
+- Wall-clock: ≤ 3 hours (run automated; 10 tasks × ~10 min = ~2h, plus analysis)
+- Spend: ≤ **$5** (raw GPT-5.5 baseline ≈ $2 on 10 multistep tasks; wrapper ≈ $2 for K=3 + cross-model; margin $1)
 - Halt: if budget exceeds 1.5× without resolution, the wrapper is structurally too expensive — collapse to FAIL outcome.
+
+**Scope narrowing per Revision 2026-05-02e:** N=10 multistep tasks (TB-medium / TB-hard with explicit multi-step structure) instead of N=30 generic. This is enough to discriminate the comprehensive-dominance claim with a 95% binomial CI of ±0.16 on completion rate — sufficient when the target is ≥1.10× baseline (10pp lift). Single-step TB tasks excluded.
 
 ## Why this is sufficient (atom 0010 cross-witness applies twice)
 

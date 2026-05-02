@@ -39,7 +39,7 @@ const CLAIMS: Claim[] = [
   { name: "verifier_hook_catches_50pct_of_wrong_answers", c: 0.94, tier: "L1+L3-research-synthesized", group: "auto-wrapper" },
   { name: "cross_witness_pattern_lifts_hard_reasoning", c: 0.80, tier: "L3-research-synthesized", group: "auto-wrapper" },
   { name: "plan_decompose_amortizes_smart_calls", c: 0.80, tier: "L3-research-synthesized", group: "auto-wrapper" },
-  { name: "cheapcode_auto_3_axis_dominance_over_raw_frontier", c: 0.55, tier: "L1-EXPERIMENT-1-pending", group: "hard-reasoning-claim" },
+  { name: "cheapcode_auto_3_axis_dominance_on_multistep_over_raw_frontier", c: 0.65, tier: "L1-EXPERIMENT-1-pending-multistep", group: "hard-reasoning-claim" },
   { name: "best_of_k_3_lifts_completion_5_to_15pct", c: 0.85, tier: "L3-research-synthesized-mutawatir", group: "ensemble-methods" },
   { name: "cross_model_verification_lifts_over_self_verify", c: 0.80, tier: "L3-research-synthesized", group: "ensemble-methods" },
   { name: "parallel_leaf_execution_keeps_latency_below_raw", c: 0.89, tier: "L1+L3-research-synthesized", group: "ensemble-methods" },

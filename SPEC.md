@@ -176,6 +176,36 @@ Burhan's CLI takes one file. The validation script concatenates `plan/facts/*.bn
 
 ---
 
+## Revision 2026-05-02e — operator-tightened constraints + multistep-only smarter claim
+
+Operator updated MAIN.md with three material changes that propagate upstream:
+
+**1. Constraints tightened:**
+
+| Constraint | Old | New |
+|---|---|---|
+| Cost | $50 | **$10** (same envelope as cheapllm v1) |
+| Time | ~1 week | **24h wall-clock** |
+| Hardware | laptop only | **laptop + RTX 4070 during build** (not after handoff) |
+
+**Implications:**
+
+- EXPERIMENT-1 budget cuts from ≤$50 to ≤$5 (one-fifth the previous). Smaller N (10 tasks instead of 30), tighter run.
+- 24h envelope = MIN-tier wrapper or nothing. Cells #14 and #18 cap at MIN.
+- RTX 4070 available during build means local model serving for testing is on the table — could reduce per-experiment OpenRouter cost via local cheap-tier baseline runs. Post-handoff, only OpenRouter (no local GPU dependency).
+
+**2. Smarter claim is now MULTISTEP-only.**
+
+The honest claim refines: cheapcode is smarter than raw GPT-5.5 on **multistep hard reasoning** specifically — not on single-step tasks. Single-step is bounded by the best frontier model in the ensemble (you can't make GPT-5 smarter than itself on a single call). Multistep is where decomposition + best-of-K + cross-model verification + retry leverage compounds.
+
+This is a *tighter* claim with *higher* defensibility. Per atom 0013, the disclosure of single-step boundedness IS the credential — we don't pretend ensemble methods break the single-call ceiling.
+
+**3. EXPERIMENT-1 scope narrows accordingly.**
+
+Pre-registered task slice changes from "TB-medium / TB-hard generic" to "TB-medium / TB-hard MULTISTEP slice." Single-step TB tasks are excluded from the comprehensive-dominance claim. Falsifier on single-step axis is dropped (we don't claim it).
+
+---
+
 ## Revision 2026-05-02b — architectural pivot: 5-model surgical add, no separate cheapllm process
 
 Operator clarified: cheapllm is a thin wrapper around OpenRouter; the right cheapcode shape is **not** to plug an external cheapllm process into opencode, but to bake five tier-shaped synthetic models (`cheap`, `cheap-fast`, `smart`, `smart-fast`, `auto`) directly into opencode's provider registry, activated when an OpenRouter provider is detected. Knowledge transfer from cheapllm + iai is what makes these defaults defensible.
