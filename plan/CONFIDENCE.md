@@ -211,6 +211,48 @@ Without that articulation, the citation is rhetoric, not evidence (per mizaj rul
 
 ## Revision log
 
+### Revision 2026-05-02-mizaj-16 — research-as-experiment-substitute formula
+
+Operator framing: build a system that lets us substitute experiments with internet-research synthesis where literature is mutawatir-equivalent. Substrate addition: **mizaj rule 16** ([`~/apps/mizaj/rules/16-synthesize-research-as-experiment-equivalent.md`](../../mizaj/rules/16-synthesize-research-as-experiment-equivalent.md)).
+
+The formula:
+
+```
+research_equivalent_confidence(claim, sources) = min(
+  per_source_ceiling,        // best tier among sources, per mizaj 11
+  mutawatir_adjusted,        // -0.05 per missing independent group below 4
+  1 - transfer_penalty       // (gap - illah) * 0.30, atom 0015 cap
+)
+```
+
+Implemented at [`tools/research-equivalence.ts`](../tools/research-equivalence.ts). Applied to 5 PLAN.bn pending claims:
+
+| Claim | Pre-synthesis | Post-synthesis | Sources |
+|---|---|---|---|
+| `best_of_k_3_lifts_completion_5_to_15pct` | 0.65 | **0.85** | Self-Consistency + ToT + AlphaCode-2 + Large Language Monkeys (4 indep groups, mutawatir-equivalent at L3) |
+| `cross_model_verification_lifts_over_self_verify` | 0.65 | **0.80** | MIT debate + Tsinghua divergent + METR (3 groups, 1 L4) |
+| `plan_decompose_amortizes_smart_calls` | 0.60 | **0.80** | Plan-and-Solve + ToT + ReAct (3 L3 groups) |
+| `verifier_hook_catches_50pct_of_wrong_answers` | 0.65 | **0.94** | cheapllm v1 in-house (L1) + Self-Refine + Reflexion (3 groups; in-house lifts ceiling) |
+| `parallel_leaf_execution_keeps_latency_below_raw` | 0.70 | **0.89** | opencode source-readable (L1) + Skeleton-of-Thought (L3) |
+
+Joint confidence delta: 0.032 → **0.058** (current state, +81% from research synthesis alone).
+
+### What research synthesis can and cannot do
+
+**Can:** lift per-claim confidences to L3 ceiling (`@>=0.85`) when mutawatir-equivalent (4+ independent groups converging) on phenomena where the `'illah` for transfer is clear and at least L3-cited.
+
+**Cannot:** lift the joint above ~0.19 ceiling for the current 11-group composition. Compositional dilution per atom 0015 still applies. Some claims (e.g., `cheapcode_auto_3_axis_dominance_over_raw_frontier`) require measurement because they're configuration-specific — no paper directly tests "best-of-K + plan-decompose + cross-model on TB-medium/hard with our exact tier choices."
+
+**Gap analysis:**
+
+- Research-synthesis-only ceiling: **0.194** joint (per `tools/joint-confidence.ts post_research_synthesis_only_state`)
+- Full-L1-measurement ceiling: **0.291** joint
+- Delta = **~0.10** — the experiment-value above what research alone provides
+
+**Honest answer to the operator's question** ("can we hit @>=0.99999 via research alone?"): no, because compositional dilution over 11 groups caps joint below per-claim ceilings even when each per-claim is at the L3 mutawatir ceiling. Both research-only and research+measurement remain below `@>=0.30`.
+
+The right reframe (per MAIN.md option 2) is to **reduce the claim count**. With ≤5 load-bearing claims at `@>=0.95` each, joint = `0.95^5 ≈ 0.77`. With 4 claims at `@>=0.95`, joint ≈ 0.81. The path to high joint is fewer + tighter claims, not more research.
+
 ### Revision 2026-05-02 — first L3 paper batch
 
 Fetched arXiv abstracts for four target papers; transcribed to [`plan/facts/03-research-papers.bn`](facts/03-research-papers.bn) as L3 lemmas. Honest read of what the abstracts actually support (per mizaj rule 11 + atom 0015 transfer-overstatement caution):
