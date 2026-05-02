@@ -1,0 +1,56 @@
+# plan/facts/06-test-time-compute-bleeding-edge.bn
+#
+# Bleeding-edge L3 papers on test-time compute, self-consistency, and
+# best-of-N (2025-2026). Adds 3 new independent groups to umbrella 2's
+# evidence chain. Already at L3 mutawatir ceiling (0.85) so doesn't
+# lift past ceiling, but strengthens the witness count from 6 to 9+
+# independent groups - belt-and-suspenders for the load-bearing claim.
+#
+# Per mizaj rule 11: L3 peer-reviewed papers cap at 0.85.
+# Per mizaj rule 14: 9+ independent groups = mutawatir-equivalent.
+
+# === Optimal Self-Consistency (Nov 2025, arxiv 2511.12309) ===
+
+# Power-law scaling for self-consistency with novel Blend-ASC algorithm
+# Independent group from Snell, AlphaCode-2, etc.
+lemma optimal_self_consistency_power_law_scaling_2025
+  proves True
+  by audit arxiv-2511-12309-optimal-self-consistency
+
+# === Adaptive Test-Time Compute Allocation ===
+
+# Level 3 (hard) questions: largest self-consistency gains +7.2-8.5pp
+# going from 1 to 16 samples. Direct support for "best-of-K on hard
+# questions" claim with specific numbers in our 5-15pp claim range.
+lemma adaptive_test_time_compute_hard_questions_7_to_8_5pp_lift
+  proves True
+  by audit arxiv-2604-14853-adaptive-test-time-compute
+
+# === Forest-of-Thought (Dec 2024, arxiv 2412.09078) ===
+
+# Multi-path test-time compute method, independent group
+lemma forest_of_thought_test_time_compute_scaling_2024
+  proves True
+  by audit arxiv-2412-09078-forest-of-thought
+
+# === Self-Consistency original (Wang Mar 2022, arxiv 2203.11171) ===
+
+# 18% accuracy improvement on math reasoning vs vanilla CoT
+lemma self_consistency_18pct_lift_math_reasoning_2022
+  proves True
+  by audit arxiv-2203-11171-self-consistency-18pct
+
+# === Difficulty-Adaptive Self-Consistency (NAACL 2025) ===
+
+# Cost-efficient version of self-consistency
+lemma difficulty_adaptive_self_consistency_naacl_2025
+  proves True
+  by audit aclanthology-2025-findings-naacl-383
+
+# === Survey of Test-Time Compute ===
+
+# Survey paper covering the entire test-time compute landscape -
+# strong synthesis evidence for the field's maturity
+lemma survey_test_time_compute_intuitive_to_deliberate_2025
+  proves True
+  by audit arxiv-2501-02497-survey-test-time-compute

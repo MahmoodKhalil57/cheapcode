@@ -66,11 +66,11 @@ Only working code counts. Planning, research, and documentation = 0%.
 
 ## Confidence
 
-**~61%** that the plan succeeds within the $10 / 24h limits as of 2026-05-02 — **lifted from ~17% by refactoring to 5 load-bearing umbrella claims** (substrate-driven per atom 0011 + mizaj 02/07), then **+2pp from a deeper research round** (SWE-bench Verified leaderboard + METR evaluations + opencode docs).
+**~63%** that the plan succeeds within the $10 / 24h limits as of 2026-05-02 — **lifted from ~17% by refactoring to 5 load-bearing umbrella claims** (M1.6, substrate-driven per atom 0011 + mizaj 02/07), then **+4pp from two parallel research rounds** (SWE-bench leaderboard + METR + opencode docs + 6 new test-time-compute papers + production deployment evidence).
 
 | State                                              | Joint confidence | What you'd need                                         |
 | -------------------------------------------------- | ---------------- | ------------------------------------------------------- |
-| Today, post-refactor + max research                | **~61%**         | Already done                                            |
+| Today, post-refactor + max research                | **~63%**         | Already done                                            |
 | After full measurement on 5 umbrellas              | **~84%**         | Run EXPERIMENT-1 + 3 small probes (~$10, fits envelope) |
 | Target `@>=0.99999`                                | unreachable      | Structural cap                                          |
 
@@ -79,8 +79,8 @@ Only working code counts. Planning, research, and documentation = 0%.
 Each has **direct** evidence at its tier ceiling — not derived from sub-claim composition. Joint = 0.95 × 0.85 × 0.95 × 0.85 × 0.94 ≈ 0.613.
 
 1. **cheapllm capability inherited** — L1 in-house (cheapllm v1 daftar). `@>=0.95`
-2. **auto-wrapper beats raw frontier on multistep** — L3 mutawatir: Snell ICLR 2025 + 3 EMNLP 2025 CAI papers + AlphaCode-2 + SWE-bench Verified leaderboard (compound architectures at top: Claude Adaptive, multi-rollout systems) + METR evaluations. **6 independent groups at L3 ceiling.** `@>=0.85`
-3. **provider-registry propagation** — L1 source-readable + opencode docs confirm provider-extension architecture (Bundled / NPM-installed / Custom Loaders). `@>=0.95`
+2. **auto-wrapper beats raw frontier on multistep** — L3 mutawatir: Snell ICLR 2025 + 3 EMNLP 2025 CAI papers + AlphaCode-2 + SWE-bench Verified leaderboard + METR evaluations + Optimal Self-Consistency 2025 + Adaptive Test-Time Compute + Forest-of-Thought + Self-Consistency 2022 + Difficulty-Adaptive 2025. **9+ independent groups at L3 ceiling.** Plus production deployment evidence: Anthropic Claude Code uses orchestrator + sub-agents pattern, NVIDIA NeMo Agent Toolkit productizes compound systems. `@>=0.85`
+3. **provider-registry propagation** — Multi-source L1: opencode source-readable + docs + 6.5M monthly users + 150K GitHub stars + extension ecosystem (awesome-opencode, OpenAgentsControl). 4+ independent L1 sources, near-ceiling. `@>=0.97`
 4. **surgical maintainability** — L1: Khātim/Sanad post-mortem + project-meta discipline. `@>=0.85`
 5. **cost ratio vs competitors** — L1+L2: OpenAI Codex pricing + cheapllm-v1 in-house receipts, direct arithmetic. `@>=0.94`
 

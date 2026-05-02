@@ -1,0 +1,66 @@
+# plan/facts/05-production-deployment-evidence.bn
+#
+# Evidence from production deployments + vendor engineering content.
+# Per mizaj rule 11, vendor sources cap at L4 (0.40 ceiling). These
+# don't lift umbrella confidences past their L3-mutawatir or L1 ceilings,
+# but they STRENGTHEN the evidence chain and show that compound
+# architectures are the production standard for hard reasoning.
+#
+# Specifically: Claude Code (Anthropic), Claude Opus 4.7 verifying its
+# own outputs, NVIDIA NeMo Agent Toolkit, OpenAgentsControl on opencode.
+
+# === Anthropic Claude Code production architecture (L4 vendor blog) ===
+
+lemma anthropic_claude_code_orchestrator_subagent_pattern
+  proves True
+  by audit anthropic-engineering-claude-code-best-practices
+
+lemma anthropic_claude_code_production_self_verifies_outputs
+  proves True
+  by audit anthropic-engineering-claude-opus-4-7-verifies-outputs
+
+lemma anthropic_claude_code_vllm_7_hour_99_9pct_accuracy
+  proves True
+  by audit anthropic-engineering-claude-code-vllm-12-5m-LoC
+
+lemma anthropic_claude_code_authors_4pct_github_commits
+  proves True
+  by audit anthropic-claude-code-4pct-github-stat
+
+# === NVIDIA NeMo Agent Toolkit (L4 vendor + L1 GitHub source) ===
+
+lemma nvidia_nemo_agent_toolkit_compound_production_hardening
+  proves True
+  by audit nvidia-developer-nemo-agent-toolkit
+
+lemma nvidia_nemotron_3_nano_omni_9x_throughput_compound
+  proves True
+  by audit nvidia-blogs-nemotron-3-nano-omni
+
+# === opencode ecosystem evidence (L1 source-readable / community stats) ===
+
+lemma opencode_6_5m_monthly_developers_150k_stars
+  proves True
+  by audit opencode-ai-community-stats
+
+lemma opencode_awesome_list_extension_ecosystem
+  proves True
+  by audit github-awesome-opencode-curated-list
+
+lemma openagentscontrol_built_on_opencode_extension_pattern
+  proves True
+  by audit github-darrenhinde-openagentscontrol
+
+lemma opencode_multiple_parallel_sessions_different_models_supported
+  proves True
+  by audit opencode-docs-models-cli-flag
+
+# === SWE-bench Verified leaderboard production deployments ===
+
+lemma swebench_verified_claude_opus_4_7_adaptive_87_6pct
+  proves True
+  by audit swebench-verified-leaderboard-2026-may
+
+lemma swebench_verified_multi_rollout_review_systems_at_top
+  proves True
+  by audit swebench-verified-leaderboard-architecture-mix

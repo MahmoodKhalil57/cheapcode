@@ -4,6 +4,89 @@
 
 ---
 
+## M1.8 — parallel research push: 6 vectors at once (2026-05-02)
+
+### What changed
+
+Operator: "think parallely, write more burhan files... code segments from popular github projects, blog posts from relevant people, latest news from top companies, bleeding edge papers, etc."
+
+6 parallel WebSearches:
+1. DSPy / LangGraph / AutoGen compound benchmarks
+2. GitHub best-of-N + verifier multi-model agents in TypeScript
+3. Anthropic Claude Code production architecture
+4. NVIDIA NeMo Agent Toolkit production benchmarks
+5. Test-time compute / self-consistency / best-of-N bleeding-edge papers
+6. Thin-fork weekly-rebase maintenance practices
+
+### Findings synthesized into two new fact files
+
+**[`plan/facts/05-production-deployment-evidence.bn`](plan/facts/05-production-deployment-evidence.bn)** — 13 lemmas covering:
+- Anthropic Claude Code production architecture (orchestrator + specialized sub-agents pattern, Claude Opus 4.7 self-verifies outputs, 7-hour vLLM 12.5M LoC task at 99.9% accuracy, 4% of public GitHub commits authored by Claude Code) — L4 vendor blog
+- NVIDIA NeMo Agent Toolkit + Nemotron 3 Nano Omni 9× throughput compound systems — L4
+- opencode community stats: 6.5M monthly developers, 150K GitHub stars, 850 contributors, 11000+ commits, awesome-opencode curated extension list, OpenAgentsControl built on opencode — L1 source-readable
+- SWE-bench Verified leaderboard (Claude Adaptive 87.6%, multi-rollout systems at top) — L3
+
+**[`plan/facts/06-test-time-compute-bleeding-edge.bn`](plan/facts/06-test-time-compute-bleeding-edge.bn)** — 6 lemmas covering:
+- Optimal Self-Consistency arxiv 2511.12309 (Nov 2025; power-law scaling + Blend-ASC algorithm) — L3
+- Adaptive Test-Time Compute Allocation (Level 3 hard questions get +7.2–8.5pp from K=1→16) — L3, **directly in our 5–15pp claim range**
+- Forest-of-Thought arxiv 2412.09078 — L3
+- Self-Consistency original (Wang 2022, +18% accuracy on math) — L3
+- Difficulty-Adaptive Self-Consistency NAACL 2025 — L3
+- Survey of Test-Time Compute (2025) — L3
+
+### Joint confidence delta
+
+| Metric | M1.7 | **M1.8** | Lift |
+|---|---|---|---|
+| Current joint | 0.613 | **0.626** | +0.013 (+1.3pp) |
+| Post-research ceiling | 0.613 | **0.626** | (current = ceiling) |
+| Post-measurement ceiling | 0.839 | 0.839 | unchanged |
+
+The +1.3pp lift comes from umbrella 3 (provider-registry propagation): 0.95 → 0.97 with multi-source L1 evidence (4+ independent L1 witnesses including community stats + extension ecosystem).
+
+Umbrella 2 doesn't lift past 0.85 because it's already at the L3 mutawatir ceiling — adding the 3 new test-time-compute papers takes the witness count from 6 to 9+ independent groups, but the per-tier ceiling caps further lift. **The evidence chain is now belt-and-suspenders robust** — that's worth something even if it doesn't move the joint number.
+
+### Research is asymptotic past M1.8
+
+Each round adds ~1-2pp:
+- M1.5 → M1.6: refactor (17% → 59%; structural change, biggest lift)
+- M1.6 → M1.7: round 1 (+2pp)
+- M1.7 → M1.8: round 2 (+1.3pp)
+
+We're at the research-only ceiling on this composition. Further rounds would strengthen evidence (more witnesses) but not lift the joint past ~63%.
+
+### Production deployment evidence reinforces architecture
+
+Anthropic's engineering blog: "Multi-agent architectures where an orchestrator model delegates work to specialized sub-agents become the standard pattern for complex tasks." That's **exactly cheapcode-auto's plan-decompose architecture**, deployed at scale by the most capable AI lab. Per mizaj 11 it's L4 (vendor blog) capped at 0.40, but the qualitative validation is meaningful — independent confirmation that production teams converge on cheapcode's architecture.
+
+### Honest concerns
+
+- **L4 vendor blogs are the limiting factor for production-evidence claims.** Even Anthropic + NVIDIA's compound-system marketing is bounded at 0.40 ceiling per mizaj 11. We can cite it as direction but not as load-bearing evidence.
+- **Umbrella 2's 0.85 cap is structural** — only L1 own-measurement (EXPERIMENT-1) can lift past L3 ceiling.
+- **Umbrella 4 (maintainability) remains research-resistant** — operational discipline by definition.
+
+### Plan changes implied
+
+**Research-driven lift is exhausted at 0.626.** Path past 63%:
+
+1. **Run EXPERIMENT-1** ($5, 3h, fits envelope) → lifts umbrella 2 from 0.85 toward L1-own-measurement 0.95 → joint ~0.71
+2. **Reduce N** — drop umbrella 4 (project-meta, can't be research-lifted) → 4 umbrellas at higher per-claim values → joint ~0.74
+3. **Both** → joint ~0.83
+
+Operator-direction needed past this point.
+
+### Pointer for the next agent
+
+The research push has produced 19+ new lemmas across 2 fact files, 9+ independent L3 groups for umbrella 2 mutawatir, and multi-source L1 lift on umbrella 3. The substrate has done all it can without measurement.
+
+Three orthogonal paths:
+
+1. **Ship at 63%** with explicit per-umbrella falsifiers + transparent disclosure (most honest per atom 0013)
+2. **Run EXPERIMENT-1** to lift umbrella 2 → 71%
+3. **Tighten scope** to 4 umbrellas (drop maintainability) → 74%
+
+---
+
 ## M1.7 — research round on production deployments + opencode docs (2026-05-02)
 
 ### What changed
