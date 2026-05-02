@@ -491,6 +491,102 @@ Per mizaj rule 02 (generate-before-select) + mizaj 07 (stack-default-not-neutral
 
 ---
 
+## Revision 2026-05-03h — substrate-as-deterministic-verifier-head + EXPERIMENT-1 arm split
+
+Operator: "consider that our substrate tool is an abstract attempt at that super tiny model."
+
+This reframe is load-bearing. It lands a Phase-2-architecture decision and adds an arm to EXPERIMENT-1 that wasn't there before.
+
+### The reframe
+
+The substrate suite (mizaj rules + burhan claim-shape + khazīna atom retrieval + daftar isnad-chain + atom-0010 cross-witness + atom-0015 transfer-overstated detector) is the **symbolic equivalent of what a learned tiny model's verifier-class heads would produce**. Concretely:
+
+| Learned-model component | Substrate equivalent | Cost |
+|---|---|---|
+| Confidence head | burhan `@>=N` claim shape | 0 params |
+| Calibration / source-tier | mizaj 11 (L1-L5) + GRADE 5-domain | 0 params |
+| Verifier / refusal gate | mizaj 14 (sahih/hasan/daif/mawdu) + daftar isnad | 0 params |
+| Memory / RAG | khazīna atoms with 5-gate admission | 0 params |
+| Drift detector | atom 0015 (transfer-overstated) firings | 0 params |
+| Cross-witness honesty | atom 0010 pipeline | 0 params |
+
+Substrate ops are file-I/O scale (10s of ms to seconds), deterministic, fully auditable. They produce signals **not present in any frontier model** — burhan-shape isnad-chain confidence calibration with named falsifiers.
+
+### Convergent-evolution credential
+
+Two independent traditions arrived at tiered-source authentication for multi-step claims: the muḥaddithūn (sahih/hasan/daif + isnad chain, ~9th c.) and Cochrane GRADE (L1-L5 + 5-domain checklist, ~2004). 1100 years apart, no transmission channel, different goals. Both produce auditable confidence calibration on multi-step claims with chain-of-provenance. Per AAPI's b-shape (convergent-evolution-without-contact), this is structural evidence the substrate is operating on something more general than either tradition's specific framing.
+
+### Why this addresses cheapllm v1's smart-axis miss
+
+cheapllm v1 went 33.3% vs GPT-5.5's 82.0% on TB-3. Per Snell ICLR 2025, test-time compute scales **when you have a strong verifier**. cheapllm v1's verify-hook was a regex/heuristic stub. Substrate-as-verifier provides: per-step source-tier scoring (mizaj 11), authentication-grade on each load-bearing receipt (mizaj 14), cross-witness conflict surfacing (atom 0010), transfer-overstated extrapolation flagging (atom 0015). That is the missing critic.
+
+### Architectural adoption — Phase 2 wrapper revised
+
+Phase 2's auto-tier wrapper integrates substrate as a verifier pass between best-of-K synthesis and cross-model verification:
+
+1. Plan-decompose with `smart` → emits **burhan-shape plan** (claims + falsifiers + receipts)
+2. Execute leaves at `cheap` parallel → each leaf produces a sub-claim with citation
+3. **Substrate verifier pass (NEW):**
+   - `audit-verify.sh` walks isnad chains
+   - `joint-confidence.ts` recomputes per-step
+   - atom-0015 detector on transfer/extrapolation steps
+   - GRADE 5-domain on any L3+ source cited
+4. Best-of-K=3 frontier synthesis filtered by substrate score
+5. Cross-MODEL synthesis only if substrate confidence ≥ threshold; else retry-with-feedback
+
+The substrate runs on the build host (and at runtime, on the user's local machine) — no GPU, no params, no marginal token cost.
+
+### Pre-registered falsifier (the load-bearing falsifier)
+
+The substrate-as-deterministic-verifier-head claim is a hypothesis until measured. It earns its place in cheapcode only if EXPERIMENT-1 shows it adds marginal signal beyond the wrapper alone. Adding an arm split:
+
+- **Arm A:** cheapcode `auto` wrapper WITHOUT substrate verifier pass
+- **Arm B:** cheapcode `auto` wrapper WITH substrate verifier pass
+
+```
+claim SUBSTRATE_MARGINAL_LIFT: completion-rate(Arm B) - completion-rate(Arm A)
+  >= 5 percentage points on EXPERIMENT-1's TB-multistep slice. @>=0.55
+falsified_when measured (B - A) <= 5pp on N=10 multistep slice.
+cheapest_probe: EXPERIMENT-1 itself, with the arm split costing roughly
+  one extra verifier-pass per task (∼$0.50 incremental on N=10).
+action_if_falsified: ship cheapcode auto WITHOUT substrate verifier
+  pass. Substrate stays as build-time discipline only, NOT as runtime
+  verifier head. Atom 0015 fires on the substrate-as-runtime-verifier
+  hypothesis.
+```
+
+The 0.55 prior is honestly modest — substrate-as-verifier is a hypothesis, not a foregone conclusion. The 5pp threshold is large enough to be meaningful given EXPERIMENT-1's N=10 binomial CI, and small enough that a real signal should clear it.
+
+### Honest limitations (recorded for symmetry with cheapllm v1's IDEAL_GAP.md)
+
+- Substrate verifies **provenance / consistency**, not **factual world-truth**. A burhan-shape-correct claim that's wrong about a Python API still passes the substrate.
+- Substrate ops are file-I/O scale, not μs. The wrapper picks up real latency (single-digit seconds per task on top of base wrapper). This is budgeted against the "fast" axis target in EXPERIMENT-1.
+- The substrate is operator-tuned — embeds operator's blind spots. Atom 0015 fired 7× in cheapllm v1 and was caught; the unfired ones are unknown unknowns.
+
+### Substrate citations for this revision
+
+- Khazīna atom 0016 (substrate-as-deterministic-verifier-head) — drafted with this revision; primary anchor.
+- Khazīna atom 0010 (cross-witness honesty pipeline) — the substrate is itself an instance.
+- Khazīna atom 0015 (research-pipeline overstates base-model-specific transfer) — the falsifier action_if_falsified is explicitly atom-0015-firing.
+- Mizaj rule 11, 14, 16 — the substrate's calibration-axis primitives.
+- Snell ICLR 2025, AAPI CLAUDE.md b-shape (convergent-evolution-without-contact).
+
+### Cell update — new cell #19 (substrate verifier integration LoC)
+
+| # | Constraint | MIN | EXPECTED | IDEAL |
+|---|---|---|---|---|
+| 19 | Substrate-verifier integration LoC (subset of cell #14, distinct from #18 wrapper) | ≤ 100 LoC (call existing `audit-verify.sh` + `joint-confidence.ts` from wrapper) | ≤ 200 LoC (add per-step substrate scoring helper) | ≤ 300 LoC (full substrate-side scoring + retry-with-substrate-feedback) |
+
+The integration is a thin call-out to substrate tools that already exist. Most LoC is glue.
+
+### Joint-confidence implication
+
+If EXPERIMENT-1 shows substrate-marginal-lift ≥5pp, the post-measurement ceiling lifts modestly because umbrella 2 (auto-wrapper multistep dominance @0.85) gains a structural reinforcement. Recompute at Phase 2 close.
+
+If EXPERIMENT-1 shows substrate-marginal-lift <5pp, joint stays where it was; the substrate stays as a build-time-only discipline, and atom 0016 carries `failed_transformations` evidence.
+
+---
+
 ## Sign-off
 
 This SPEC takes effect once committed. Refinements after that require a new dated section (`## Revision YYYY-MM-DD`) plus a falsifier explaining why the change is load-bearing. The original matrix stays; nothing edits in place.

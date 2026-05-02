@@ -1,10 +1,10 @@
-# EXPERIMENT-1 — 3-axis comprehensive-dominance experiment (revised 2026-05-02d)
+# EXPERIMENT-1 — 3-axis comprehensive-dominance experiment (revised 2026-05-03h)
 
 **Status:** pre-registered. Kill-criteria written before the experiment runs.
 
-**Substrate:** Khazīna atom 0011 (smallest-distinguishing-experiment-first), Mizaj rule 01 (falsifier-first), Khazīna atom 0010 (blinded-independent-witness pass — applied as cross-MODEL verifier inside the wrapper).
+**Substrate:** Khazīna atom 0011 (smallest-distinguishing-experiment-first), Khazīna atom 0010 (blinded-independent-witness pass — applied as cross-MODEL verifier), Khazīna atom 0016 (substrate-as-deterministic-verifier-head — the arm-split hypothesis), Mizaj rule 01 (falsifier-first), Mizaj rule 11/14 (substrate calibration axes used inside the verifier pass).
 
-**Gates:** the 3-axis comprehensive-dominance claim in [`SPEC.md`](../SPEC.md) Revision 2026-05-02d. PASS unlocks the structured-reasoning wrapper as a load-bearing tier; FAIL collapses cheapcode to cheapllm v1's narrower niche framing.
+**Gates:** the 3-axis comprehensive-dominance claim in [`SPEC.md`](../SPEC.md) Revision 2026-05-02d, plus the substrate-marginal-lift claim in Revision 2026-05-03h. PASS-A on the 3-axis claim unlocks the wrapper. PASS-B (substrate adds ≥5pp marginal lift) unlocks substrate-verifier as a runtime head; PASS-A-only with FAIL-B keeps substrate as build-time discipline only.
 
 ---
 
@@ -26,17 +26,30 @@ Per atom 0013 (calibration-as-credential): we don't claim "smarter than GPT-5.5"
 
 ## Procedure
 
-1. **Pin baseline:** raw GPT-5.5 single-call on N=20 TB-medium + N=10 TB-hard tasks. Record completion rate, cost-per-task, P50 latency. Use cheapllm's existing TB harness; this is L1.
-2. **Pin wrapper version (MIN tier, ~350 LoC):**
+1. **Pin baseline:** raw GPT-5.5 single-call on the multistep slice. Record completion rate, cost-per-task, P50 latency. Use cheapllm's existing TB harness; this is L1.
+2. **Pin Arm A — wrapper without substrate verifier (MIN tier, ~350 LoC):**
    - Plan-decompose call (1× frontier-tier per task, GPT-5.5)
    - Execute leaves in parallel at cheap-tier (deepseek-v4-flash)
    - Best-of-K=3 synthesis at frontier-tier (3× GPT-5.5 samples)
    - Cross-model verifier (1× Claude Opus or Gemini-pro)
-   - Retry once with explicit feedback if verifier disagrees
-3. **Run wrapper on same N=30 task slice.** Record same metrics.
-4. **Compute three ratios.** All three must clear targets for PASS.
+   - Retry once with explicit feedback if cross-model verifier disagrees
+3. **Pin Arm B — Arm A + substrate verifier pass (≤100 additional LoC, cell #19):**
+   - Same pipeline as Arm A through best-of-K synthesis
+   - **Insert substrate verifier pass** between best-of-K and cross-model verifier:
+     - `tools/audit-verify.sh` walks isnad chains in any cited receipt
+     - `tools/joint-confidence.ts` recomputes per-step
+     - atom-0015 transfer-overstated detector on extrapolation steps
+     - GRADE 5-domain check on any L3+ source cited in synthesis
+   - If substrate confidence < threshold: retry-with-substrate-feedback (1× max, before cross-model verifier runs)
+   - Cross-model verifier and final retry as in Arm A
+4. **Run baseline + Arm A + Arm B on same N=10 multistep slice.** Same prompts, same task order, same model versions. Record per-task completion + cost + latency for each arm.
+5. **Compute four numbers:**
+   - Three ratios for Arm A vs raw baseline (cost / latency / completion) — the comprehensive-dominance claim.
+   - One delta for Arm B vs Arm A (completion-rate difference, in pp) — the substrate-marginal-lift claim.
 
 ## Pre-registered kill-criteria
+
+### Arm A — comprehensive-dominance claim (Arm A vs raw baseline)
 
 | Outcome | Definition | Action |
 |---|---|---|
@@ -46,13 +59,24 @@ Per atom 0013 (calibration-as-credential): we don't claim "smarter than GPT-5.5"
 | **PARTIAL** | 2 of 3 axes meet target | Re-frame claim to those 2 axes. Drop the missed-axis claim. |
 | **FAIL** | ≤1 of 3 axes meets target, OR completion rate below baseline | Comprehensive-dominance claim is dead. Revert SPEC Revision 2026-05-02d; ship cheapcode at M1.0's narrower niche. |
 
-## Cost / time budget (revised 2026-05-02e per operator-tightened limits)
+### Arm B — substrate-marginal-lift claim (Arm B vs Arm A)
 
-- Wall-clock: ≤ 3 hours (run automated; 10 tasks × ~10 min = ~2h, plus analysis)
-- Spend: ≤ **$5** (raw GPT-5.5 baseline ≈ $2 on 10 multistep tasks; wrapper ≈ $2 for K=3 + cross-model; margin $1)
-- Halt: if budget exceeds 1.5× without resolution, the wrapper is structurally too expensive — collapse to FAIL outcome.
+Per SPEC Revision 2026-05-03h. The substrate-as-runtime-verifier-head hypothesis is the one being tested here, separately from Arm A's comprehensive-dominance claim. The two are independent — Arm B can PASS while Arm A FAILs and vice versa.
 
-**Scope narrowing per Revision 2026-05-02e:** N=10 multistep tasks (TB-medium / TB-hard with explicit multi-step structure) instead of N=30 generic. This is enough to discriminate the comprehensive-dominance claim with a 95% binomial CI of ±0.16 on completion rate — sufficient when the target is ≥1.10× baseline (10pp lift). Single-step TB tasks excluded.
+| Outcome | Definition | Action |
+|---|---|---|
+| **PASS-B-CLEAR** | completion-rate(Arm B) − completion-rate(Arm A) ≥ 10pp on N=10 multistep slice; latency ratio Arm B / Arm A ≤ 1.30 (substrate adds ≤30% latency) | Ship `auto` with substrate verifier pass on by default. Atom 0016 admitted to khazīna with successful evidence. |
+| **PASS-B-NARROW** | (B − A) ≥ 5pp AND latency ratio ≤ 1.30 | Ship `auto` with substrate verifier pass on by default; disclose narrow margin. |
+| **PASS-B-LATENCY-COST** | (B − A) ≥ 5pp BUT latency ratio > 1.30 | Ship `auto` with substrate verifier off by default, on by config flag. Disclose the cost/quality trade in scorecard. |
+| **FAIL-B** | (B − A) < 5pp regardless of latency | Substrate stays as build-time-only discipline. Revert SPEC Revision 2026-05-03h's runtime integration. Atom 0015 fires on the substrate-as-runtime-verifier hypothesis; atom 0016 records `failed_transformations` evidence. |
+
+## Cost / time budget (revised 2026-05-03h per arm split)
+
+- Wall-clock: ≤ 3 hours (run automated; 10 tasks × ~10 min × 3 arms ≈ 2.5h; plus analysis)
+- Spend: ≤ **$5** (raw GPT-5.5 baseline ≈ $2; Arm A ≈ $2 for K=3 + cross-model; Arm B adds ≈ $0.50 — substrate ops are free, only the optional retry-with-substrate-feedback adds tokens; margin $0.50)
+- Halt: if budget exceeds 1.5× without resolution, the wrapper is structurally too expensive — collapse to FAIL outcome on whichever arm overran.
+
+**Scope narrowing per Revision 2026-05-02e:** N=10 multistep tasks (TB-medium / TB-hard with explicit multi-step structure). This discriminates the Arm A comprehensive-dominance claim with a 95% binomial CI of ±0.16 on completion rate — sufficient when the target is ≥1.10× baseline. For Arm B vs Arm A, paired-difference at N=10 has a tighter CI (each task is its own control), so the 5pp threshold is detectable.
 
 ## Why this is sufficient (atom 0010 cross-witness applies twice)
 
@@ -64,9 +88,11 @@ If both passes converge (PASS criteria + internal cross-model consistently catch
 ## Artifacts
 
 - `runs/experiment-1-attempt-1/baseline-raw-gpt55.jsonl` — per-task baseline metrics
-- `runs/experiment-1-attempt-1/wrapper-cheapcode-auto.jsonl` — per-task wrapper metrics
-- `runs/experiment-1-attempt-1/3-axis-comparison.md` — the headline ratios (cost / latency / completion)
-- `runs/experiment-1-attempt-1/verdict.md` — outcome + kill-criterion citation, structured per Model Cards format (Mitchell et al. 2019; SPEC Revision 2026-05-02g adoption 1) sections "Quantitative analyses" + "Caveats and recommendations". Verdict feeds directly into Phase 4 README without restructuring.
+- `runs/experiment-1-attempt-1/arm-a-no-substrate.jsonl` — per-task wrapper metrics WITHOUT substrate verifier pass
+- `runs/experiment-1-attempt-1/arm-b-with-substrate.jsonl` — per-task wrapper metrics WITH substrate verifier pass
+- `runs/experiment-1-attempt-1/3-axis-comparison.md` — Arm A vs baseline (cost / latency / completion ratios)
+- `runs/experiment-1-attempt-1/substrate-marginal.md` — Arm B vs Arm A (paired completion-rate delta + latency overhead)
+- `runs/experiment-1-attempt-1/verdict.md` — combined outcome (Arm A verdict + Arm B verdict) + kill-criterion citation, structured per Model Cards format (Mitchell et al. 2019; SPEC Revision 2026-05-02g adoption 1) sections "Quantitative analyses" + "Caveats and recommendations". Verdict feeds directly into Phase 4 README without restructuring. Atom 0016 evidence (successful or failed transformation) updated based on Arm B verdict.
 
 ## Daftar receipt
 
@@ -85,6 +111,8 @@ bun ~/apps/daftar/bin/daftar add note \
 
 ## Halt condition for the larger plan
 
-Per Mizaj rule 01: if EXPERIMENT-1 returns FAIL, the wrapper LoC investment (cells #14, #18 in SPEC) is unjustified. Revert SPEC Revision 2026-05-02d's wrapper provisions; ship cheapcode v1 with cheapllm v1's narrow niche framing only.
+Per Mizaj rule 01: if **Arm A** returns FAIL, the wrapper LoC investment (cells #14, #18 in SPEC) is unjustified. Revert SPEC Revision 2026-05-02d's wrapper provisions; ship cheapcode v1 with cheapllm v1's narrow niche framing only.
 
-If EXPERIMENT-1 returns PARTIAL, reframe claims to the 2 axes that passed. Don't ship a comprehensive-dominance README that 1 axis falsifies.
+If **Arm A** returns PARTIAL, reframe claims to the 2 axes that passed. Don't ship a comprehensive-dominance README that 1 axis falsifies.
+
+If **Arm B** returns FAIL, ship cheapcode without substrate-runtime-verifier integration. Revert SPEC Revision 2026-05-03h's runtime cell (#19); substrate stays as build-time discipline. Atom 0016 records `failed_transformations` evidence and atom 0015 fires on the substrate-as-runtime-verifier hypothesis — the project keeps its calibration-discipline credibility precisely BECAUSE the negative result is reported, not hidden.
