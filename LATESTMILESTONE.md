@@ -4,6 +4,86 @@
 
 ---
 
+## M1.10 — locked phase plan with falsifier gates + cheapllm v1 status acknowledged (2026-05-02)
+
+### What changed
+
+Operator: "lets start by locking in the plan from the start and setting falsifications along the way... any 'experiments' we run will count towards the wallclock... supplement with internet research along the way to not run redundant experiments."
+
+Plus cheapllm v1 status update at 23:32 BST: 93% complete, projected ship ~50–80 min, **atom 0015 fired 7 times in their session**, smart-axis honestly disclosed at 11–33% vs GPT-5.5's 82%, Q2 finding showed K=1 alone OUTPERFORMS K=1+router on hard tasks (router net-hurt).
+
+### Locked phase plan (SPEC.md Revision 2026-05-02f)
+
+6 sequential phases, ~17h cumulative wall-clock, ~$6 spend, with explicit falsifier gates:
+
+| # | Phase | Wall | $ | Falsifier gate |
+|---|---|---|---|---|
+| 0 | Final research synthesis | 2h | $0 | Any umbrella drops materially → HALT |
+| 1 | Fork + 5-tier registration | 4h | $0 | 5 tiers don't appear in `--list-models` → umbrella 3 falsified, pivot |
+| 2 | Auto wrapper MIN + EXPERIMENT-1 | 6h | $5 | EXPERIMENT-1 verdict (PASS-EXPECTED / PASS-MIN / PARTIAL / FAIL) determines path |
+| 3 | 4-client smoke regression | 2h | $0 | Any client fails → umbrella 3 actually falsified |
+| 4 | Scorecard + README | 2h | $1 | Measured contradicts SPEC targets without honest reframe → mizaj 04 violation |
+| 5 | Ship | 1h | $0 | (administrative) |
+
+Buffer: 7h, $4. Project-level halts: 22h+ wall with Phase 2 not started, $9+ spend before Phase 4, any umbrella confidence drop in Phase 0, upstream architecture change.
+
+**Mizaj 16 enforced:** before any experiment, the agent runs a research-synthesis check. If literature can answer with ≥0.85 confidence, **skip the experiment**. Experiments count toward 24h envelope; research is free.
+
+### PLAN.bn additions
+
+Section P (phase observations) added — 7 observation claims + 6 phase-success claims + 4 project-halt observations. All entered as supporting evidence; the discharge claim still cites the 5 umbrellas.
+
+### cheapllm v1 status acknowledged
+
+Per the operator's update, cheapllm v1's session showed **atom 0015 fired 7 times**:
+
+1. Phase 0 — substrate prompt no transfer
+2. Phase 0.1 — substrate prompt liability at higher difficulty
+3. H0b-1 — cheap base ALREADY frontier on TB-easy (inverted prior)
+4. F-D — reasoning_details streaming-only (not in TB workflow)
+5. H4 META-meta — prior consults assumed all-LLM-bound
+6. H6 META — H5 said "don't build verifier hook on n=1"; F-J2 inverted
+7. **Q2 — the ROUTER ITSELF over-stated transfer; K=1 alone outperforms K=1+router on hard tasks**
+
+That last finding is materially relevant to cheapcode: a router-on-cheap-base for hard reasoning under-performed K=1 on the same base. **It does NOT directly refute cheapcode-auto's claim** (cheapcode-auto uses frontier models internally for best-of-K + cross-MODEL verification, not cheap-base + router) — but it is a strong substrate-discipline signal that test-time-compute thesis transfer is *more* overstated than the literature claims.
+
+For cheapcode's umbrella 2 (auto-wrapper multistep dominance), the implication is: **stay at 0.85 (L3 mutawatir ceiling) per atom 0015**; do NOT lift past that without EXPERIMENT-1 measurement on cheapcode's specific frontier-ensemble architecture. Phase 2 of the locked plan is exactly this measurement.
+
+### What cheapcode inherits from cheapllm v1
+
+Once cheapllm v1 ships (~00:30 BST today):
+
+- **L1 in-house verifier hook** — cheapllm's verifier hook IS LIVE in their running proxy (committed d616876). cheapcode can cite this directly as L1 evidence for the verifier-hook component of umbrella 2 (already lifted via mizaj 16 to 0.94 in M1.5).
+- **L1 in-house honest-niche framing receipt** — cheapllm's "3 undeniable axes + honest miss disclosure on smart" pattern (atom 0013) is the template cheapcode should follow.
+- **L1 receipts of atom 0015 transfer-overstatement** — 7 firings means cheapcode should be MORE conservative on transfer claims, not less. Per atom 0015: every research-synthesis lift in cheapcode's PLAN.bn should be re-audited for soft over-statement before EXPERIMENT-1.
+
+### Joint confidence (unchanged from M1.9)
+
+Current: **0.648** (~65%). Post-research ceiling: 0.648. Post-measurement ceiling: 0.839. The phase lock doesn't change the joint — it adds explicit gates and a sequenced path past 65%.
+
+### Honest concerns
+
+- **The cheapllm v1 atom-0015 firing rate (7×) is high.** Each firing was a research-supported claim that didn't replicate under measurement. cheapcode's research synthesis may have similar over-statements that we haven't yet caught. The phase plan's mizaj-16-before-experiment discipline is the mitigation, but operator should weigh that risk before committing to all 17h.
+- **EXPERIMENT-1 in Phase 2 is the load-bearing test.** All the research synthesis lifts to 65% are bounded by L3 ceiling. Lifting past that requires direct measurement on cheapcode's specific architecture. If EXPERIMENT-1 returns PARTIAL or FAIL, the wrapper code reverts and we ship cheapcode at the narrower 5-tier niche (per Phase 2 pivot table).
+- **24h envelope is tight.** cheapllm v1 is at 89% wall-clock (21h26m of 24h) at 93% completion — it's running close to the limit. cheapcode at the same scope budget will be similarly tight.
+
+### Plan changes implied
+
+The plan is LOCKED. Further changes require operator approval + a SPEC revision section. The next move is **start Phase 0**: final research synthesis + locking model picks for cheap-fast and smart-fast tiers. ~2h, $0.
+
+### Pointer for the next agent
+
+Phase 0 starts now. The agent runs final research on:
+1. cheap-fast model picks (race-K candidates from current OR catalog)
+2. smart-fast latency benchmark (haiku-4.5 vs gpt-5-nano vs gemini-flash via artificialanalysis.ai)
+3. opencode upstream version pin (latest stable tag as of fork day)
+
+Pre-phase research-synthesis check per mizaj 16: do these questions have published answers we can cite? If yes, skip the lookup. If no, do the lookup. NO EXPERIMENTS in Phase 0.
+
+If Phase 0 surfaces any umbrella-falsifying evidence, HALT before Phase 1 and reconsider per SPEC project-halt conditions.
+
+---
+
 ## M1.9 — research round 3 + cheap honesty-verification probe (2026-05-02)
 
 ### What changed

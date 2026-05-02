@@ -62,6 +62,24 @@ Concrete deliverables:
 
 Only working code counts. Planning, research, and documentation = 0%.
 
+### Phase plan (LOCKED 2026-05-02 per SPEC Revision 2026-05-02f)
+
+| Phase | Goal | Wall | $ | Status |
+|---|---|---|---|---|
+| 0 | Final research synthesis (lock model picks) | 2h | $0 | `[ ]` |
+| 1 | Fork + 5-tier registration (no wrapper) | 4h | $0 | `[ ]` |
+| 2 | Auto wrapper MIN + EXPERIMENT-1 | 6h | $5 | `[ ]` |
+| 3 | 4-client smoke regression | 2h | $0 | `[ ]` |
+| 4 | Scorecard + README | 2h | $1 | `[ ]` |
+| 5 | Ship (tag + daftar) | 1h | $0 | `[ ]` |
+| | Buffer | 7h | $4 | |
+
+Each phase has a falsifier gate in [SPEC.md](SPEC.md) Revision 2026-05-02f. If a gate triggers, the project pivots per the pivot table or halts honestly.
+
+**Project halt conditions** (independent of phase): wall-clock 22h+ with Phase 2 not started, cumulative spend $9+ before Phase 4, any umbrella's research-equivalent confidence drops during Phase 0, or upstream opencode provider architecture changes mid-project.
+
+**Mizaj 16 discipline:** before any experiment in any phase, the agent MUST run a research-synthesis check. If research can answer with ≥0.85 confidence, skip the experiment. **Experiments count toward the 24h envelope; research is free.**
+
 ---
 
 ## Confidence

@@ -296,6 +296,133 @@ Both are inherited as substrate-graded sahih segments (per mizaj 14); their rece
 
 ---
 
+## Revision 2026-05-02f — locked phase sequence with falsifier gates
+
+Operator: "lock in the plan from the start, set falsifications along the way, any experiments count toward 24h wall-clock, supplement with research to avoid redundant experiments."
+
+The plan is now LOCKED at 6 sequential phases. Each phase has explicit time + cost budget, a falsifier gate, and a pivot path if the gate triggers. **Any experiment in any phase counts toward the 24h envelope.** Each phase MUST consult research synthesis (mizaj rule 16) BEFORE running an experiment — if research can answer the question, no experiment runs.
+
+### Phase budget table (locked)
+
+| # | Phase | Wall | Cost | Cumulative wall | Cumulative cost |
+|---|---|---|---|---|---|
+| 0 | Final research synthesis | 2h | $0 | 2h | $0 |
+| 1 | Fork + 5-tier registration (no wrapper) | 4h | $0 | 6h | $0 |
+| 2 | Auto wrapper MIN + EXPERIMENT-1 | 6h | $5 | 12h | $5 |
+| 3 | Smoke regression on 4 clients | 2h | $0 | 14h | $5 |
+| 4 | Scorecard + README | 2h | $1 | 16h | $6 |
+| 5 | Ship | 1h | $0 | 17h | $6 |
+| | Buffer | 7h | $4 | 24h | $10 |
+
+### Phase 0 — Final research synthesis
+
+**Goal:** lock cheap-fast and smart-fast model picks; lock minimal-LoC implementation sketch; final mizaj-16 sweep on remaining open umbrellas.
+
+**Process:** WebSearch + WebFetch on the 2-3 questions still open (specific OR-catalog models for cheap-fast race-K + smart-fast latency probe). NO experiments here.
+
+**Falsifier gate (HALT condition):** if research surfaces evidence that any umbrella's confidence is materially below current values (e.g., a recent paper falsifies the test-time-compute thesis), HALT the project and re-evaluate. Operator-direction required to proceed.
+
+**Output:** `runs/phase-0/decisions.md` with locked model picks + sketch.
+
+### Phase 1 — Fork + 5-tier registration (no wrapper)
+
+**Goal:** working cheapcode binary that exposes 5 tier models when OpenRouter is connected. NO auto-wrapper yet (deferred to Phase 2).
+
+**Process:**
+1. `git format-patch | git am`-friendly fork of `~/apps/opencode-upstream/` at pinned tag.
+2. New module `packages/opencode/src/provider/cheapcode-tiers.ts` (~150 LoC).
+3. Modification ~15 LoC in `packages/opencode/src/provider/provider.ts` to register the 5 tier models when OpenRouter loads.
+4. CLI smoke: `opencode run --model cheap "say hello"` returns output.
+
+**Falsifier gate (Phase 1 → Phase 2 transition):**
+
+- If 5 tier models do NOT appear in `opencode --list-models` output → umbrella 3 actually falsified. **Pivot:** investigate plugin-only path (`opencode.json` pointer) as fallback; if also fails, halt and reconsider.
+- If LoC for the change exceeds 350 (MIN cell #14) → architectural review required before continuing. The wrapper budget in Phase 2 is at risk.
+
+**Output:** working cheapcode v0.1 binary (5 tiers, no wrapper).
+
+### Phase 2 — Auto wrapper MIN + EXPERIMENT-1
+
+**Goal:** auto tier with structured-reasoning wrapper (plan-decompose + best-of-K=3 + verifier; no cross-model yet — that's IDEAL tier per cell #18). Run EXPERIMENT-1 to test the 3-axis dominance claim.
+
+**Process:**
+1. Implement wrapper logic in `cheapcode-tiers.ts` (incremental ~150 LoC, total ~300 LoC).
+2. Run EXPERIMENT-1 per [`plan/EXPERIMENT-1.md`](plan/EXPERIMENT-1.md): N=10 multistep TB-medium/hard tasks, baseline raw GPT-5.5, wrapper at MIN tier, ≤$5 ≤3h.
+3. **Pre-experiment research check (mizaj 16):** if a synthesizable result already exists for the exact axis being measured, skip the experiment for that axis.
+
+**Falsifier gate (Phase 2 → Phase 3 transition):**
+
+| EXPERIMENT-1 outcome | Action |
+|---|---|
+| **PASS-IDEAL** (3-axis hit, N=30 hypothetical) | Not reachable in MIN-tier; treat as PASS-EXPECTED |
+| **PASS-EXPECTED** (3-axis hit, N=10) | **Continue to Phase 3 with full wrapper.** Joint approaches ~0.84 |
+| **PASS-MIN** (narrow margins) | **Continue with disclosed narrow margins.** Joint ~0.74 |
+| **PARTIAL** (2 of 3 axes pass) | **Reframe to 2-axis claim, continue to Phase 3 with reframed scope.** Joint ~0.70 |
+| **FAIL** (≤1 axis passes OR cost overrun) | **Revert wrapper code; continue to Phase 3 with 5 tiers only and disclose narrower niche.** Joint ~0.59 |
+
+**Output:** wrapper code + 3-axis EXPERIMENT-1 verdict + scorecard data.
+
+### Phase 3 — Smoke regression on 4 clients
+
+**Goal:** verify 5 tiers (and wrapper if Phase 2 PASS) inherit cleanly to CLI / TUI / web / desktop.
+
+**Process:**
+1. Bring up local opencode server.
+2. Run smoke test from each client: invoke `cheap` tier, observe output.
+3. Verify model list includes all 5 tiers in each client.
+4. **Pre-test research check:** if opencode docs already prove inheritance for the client class, skip that client's smoke test.
+
+**Falsifier gate:**
+- Any client surface fails to see the 5 tiers → **umbrella 3 actually falsified** despite 0.97 research confidence. Halt; investigate; if not quickly fixable, ship CLI-only with disclosed gap.
+
+**Output:** 4-client smoke matrix (4× green or honest gap disclosure).
+
+### Phase 4 — Scorecard + README
+
+**Goal:** measured 3-axis scorecard cited in README. Honest disclosure of what passed and what didn't.
+
+**Process:**
+1. Compute final cost/latency/completion ratios from EXPERIMENT-1 + Phase 3 data.
+2. Write README with scorecard table + cited competitors (Codex pricing per fact 04).
+3. Disclose narrow margins or failed axes per Phase 2 outcome.
+
+**Falsifier gate:**
+- If measured ratios in README contradict the SPEC's targets without explicit reframing → mizaj 04 (separate-stated-from-revealed) violation. Hold ship; honestly reframe before ship.
+
+**Output:** README with 4-axis honest scorecard.
+
+### Phase 5 — Ship
+
+**Goal:** v1.0.0 tag + daftar receipt + handoff.
+
+**Process:**
+1. `git tag v1.0.0` on the cheapcode fork.
+2. Daftar receipt: `bun ~/apps/daftar/bin/daftar add note --project="/home/mk/apps/cheapcode" --title="cheapcode v1.0.0 shipped"`.
+3. Update MAIN.md progress to 100% with final joint confidence number.
+
+**No falsifier gate** — Phase 5 is administrative wrap-up. If reached, the project shipped.
+
+### Cross-phase research-first discipline (mizaj 16 enforced)
+
+**Before any experiment in any phase**, the agent MUST:
+1. Run a research synthesis check on the question being measured.
+2. If a citation chain at L3 mutawatir or L1 already answers the question with sufficient confidence (≥0.85), **skip the experiment** and cite the synthesis instead.
+3. If research is inconclusive AND the experiment would cost <2% of remaining wall-clock, run it.
+4. If research is inconclusive AND experiment cost >2% remaining wall-clock, run an even smaller probe first (e.g., N=3 instead of N=10).
+
+This is the operator's instruction: experiments count toward the 24h envelope; research is free; do research first.
+
+### Project-level halt conditions
+
+The whole project halts (not just a phase pivots) under any of:
+
+- **Wall-clock at 22h+ with Phase 2 not started** — too aggressive a target; honestly admit and ship narrower.
+- **Cumulative spend at $9+ before Phase 4** — budget breach; honestly disclose and ship.
+- **Any umbrella's research-equivalent confidence drops materially during Phase 0** — research uncovered a structural problem; reconsider the plan's load-bearing assumptions.
+- **opencode upstream changes provider extension architecture between fork-time and Phase 3** — rebase pain higher than budgeted; assess.
+
+---
+
 ## Sign-off
 
 This SPEC takes effect once committed. Refinements after that require a new dated section (`## Revision YYYY-MM-DD`) plus a falsifier explaining why the change is load-bearing. The original matrix stays; nothing edits in place.
