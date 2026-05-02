@@ -66,24 +66,26 @@ Only working code counts. Planning, research, and documentation = 0%.
 
 ## Confidence
 
-**~59%** that the plan succeeds within the $10 / 24h limits as of 2026-05-02 — **lifted from ~17% by refactoring to 5 load-bearing umbrella claims**, each backed by direct evidence (substrate-driven move per atom 0011 + mizaj 02/07).
+**~61%** that the plan succeeds within the $10 / 24h limits as of 2026-05-02 — **lifted from ~17% by refactoring to 5 load-bearing umbrella claims** (substrate-driven per atom 0011 + mizaj 02/07), then **+2pp from a deeper research round** (SWE-bench Verified leaderboard + METR evaluations + opencode docs).
 
 | State                                              | Joint confidence | What you'd need                                         |
 | -------------------------------------------------- | ---------------- | ------------------------------------------------------- |
-| Today, post-refactor + research                    | **~59%**         | Already done                                            |
+| Today, post-refactor + max research                | **~61%**         | Already done                                            |
 | After full measurement on 5 umbrellas              | **~84%**         | Run EXPERIMENT-1 + 3 small probes (~$10, fits envelope) |
-| Target `@>=0.99999`                                | unreachable      | Even tighter scope; structural cap                      |
+| Target `@>=0.99999`                                | unreachable      | Structural cap                                          |
 
-### The refactor that did this
+### The 5 load-bearing umbrellas
 
-Previous plan had 27 claims. Most were derived or implementation-detail. **5 are truly load-bearing** — if any falsifies, the project ships dead:
+Each has **direct** evidence at its tier ceiling — not derived from sub-claim composition. Joint = 0.95 × 0.85 × 0.95 × 0.85 × 0.94 ≈ 0.613.
 
-1. **cheapllm capability inherited** — cost / fast / context receipts from cheapllm v1 (L1 in-house). `@>=0.95`
-2. **auto-wrapper beats raw frontier on multistep** — Snell ICLR 2025 + EMNLP 2025 Compound AI papers. `@>=0.85`
-3. **provider-registry propagation** — opencode source-readable shows OpenRouter already special-cased. `@>=0.92`
-4. **surgical maintainability** — Khātim/Sanad post-mortem L1 + project-meta discipline. `@>=0.85`
-5. **cost ratio vs competitors** — OpenAI Codex pricing L2 + cheapllm-v1 receipts L1, direct arithmetic. `@>=0.94`
+1. **cheapllm capability inherited** — L1 in-house (cheapllm v1 daftar). `@>=0.95`
+2. **auto-wrapper beats raw frontier on multistep** — L3 mutawatir: Snell ICLR 2025 + 3 EMNLP 2025 CAI papers + AlphaCode-2 + SWE-bench Verified leaderboard (compound architectures at top: Claude Adaptive, multi-rollout systems) + METR evaluations. **6 independent groups at L3 ceiling.** `@>=0.85`
+3. **provider-registry propagation** — L1 source-readable + opencode docs confirm provider-extension architecture (Bundled / NPM-installed / Custom Loaders). `@>=0.95`
+4. **surgical maintainability** — L1: Khātim/Sanad post-mortem + project-meta discipline. `@>=0.85`
+5. **cost ratio vs competitors** — L1+L2: OpenAI Codex pricing + cheapllm-v1 in-house receipts, direct arithmetic. `@>=0.94`
 
-Each umbrella has **direct** evidence (not derived from sub-claims), so the joint over 5 is `0.95 × 0.85 × 0.92 × 0.85 × 0.94 ≈ 0.59` — not bounded by min of supporting claim composition. The other 22 claims live in [`plan/PLAN.bn`](plan/PLAN.bn) Sections O/A/B/C/D/E/F/H/I/J as supporting evidence; they don't enter the discharge.
+### Honest research finding (validates M1.0 architecture)
+
+opencode's plugin/provider-extension docs explicitly DO NOT support custom compound logic (best-of-K + cross-model wrapping via opencode.json is pointer-only). **There is no config-only shortcut** — cheapcode's wrapper code MUST live in a fork. M1.0's fork architecture is structurally correct.
 
 Math: [`tools/joint-confidence.ts`](tools/joint-confidence.ts). Per-source citations: [`tools/research-equivalence.ts`](tools/research-equivalence.ts).

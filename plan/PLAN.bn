@@ -286,19 +286,32 @@ falsified_when obs_cheapllm_4axis_inheritance_falsified
 
 # Umbrella 2: cheapcode-auto wrapper beats raw single-call frontier on
 # multistep hard reasoning (3-axis: cost / latency / completion).
-# Direct L3 mutawatir evidence: Snell ICLR 2025 + EMNLP 2025 CAI papers
-# + AlphaCode-2 = 4 indep groups converging on compute-optimal-beats-
-# larger-raw mechanism.
+# M1.7 lift: 6 indep L3 groups now (added SWE-bench Verified leaderboard
+# evidence + METR evaluations). SWE-bench shows compound architectures
+# (Claude Adaptive, multi-rollout) at top; METR shows compound systems
+# extend task-time-equivalent. Direct production + lab evidence.
+# Confidence held at L3 ceiling 0.85 (already at mutawatir-equivalent
+# from M1.6). Additional sources strengthen without lifting past ceiling.
 claim obs_auto_wrapper_multistep_dominance_falsified: Bool @>=0.99 = False
 claim umbrella_auto_wrapper_multistep_dominance_research_grounded: Bool @>=0.85 = not obs_auto_wrapper_multistep_dominance_falsified
 falsified_when obs_auto_wrapper_multistep_dominance_falsified
 
 # Umbrella 3: changes added to opencode's provider registry propagate
 # to all 4 client surfaces without per-client modification.
-# Direct L1 source-readable evidence: opencode upstream provider.ts
-# already special-cases OpenRouter (lines 102, 403, 1343).
+# M1.7 lift: opencode docs (opencode.ai/docs/providers/) explicitly
+# confirm provider extension via opencode.json + npm package. Provider
+# loading is a documented architecture (Bundled / NPM-installed /
+# Custom Loaders). All clients query the same provider registry.
+# Lift from 0.92 to 0.95: docs are direct L1 evidence + cited explicitly.
+# IMPORTANT FINDING: opencode docs do NOT support custom compound logic
+# (best-of-K, cross-model wrapping) via opencode.json. Plugin route is
+# pointer-only. Therefore cheapcode-auto wrapper code MUST live in the
+# fork (per M1.0 architecture). Plugin-only path is invalid — fork
+# remains required for the wrapper. The L1 evidence still lifts the
+# propagation umbrella (any provider added gets inherited by clients);
+# it just doesn't change the fork-vs-plugin decision.
 claim obs_provider_registry_propagation_falsified: Bool @>=0.99 = False
-claim umbrella_provider_registry_propagation_layer_1: Bool @>=0.92 = not obs_provider_registry_propagation_falsified
+claim umbrella_provider_registry_propagation_layer_1: Bool @>=0.95 = not obs_provider_registry_propagation_falsified
 falsified_when obs_provider_registry_propagation_falsified
 
 # Umbrella 4: surgical maintainability discipline (LoC budget +

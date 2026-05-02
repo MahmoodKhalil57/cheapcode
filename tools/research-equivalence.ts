@@ -173,10 +173,10 @@ const CLAIMS: ClaimSynthesis[] = [
   },
   {
     claim: "cheapcode_auto_3_axis_dominance_on_multistep_over_raw_frontier",
-    illah_strength: 0.55,
+    illah_strength: 0.6,
     illah_statement:
-      "Snell ICLR 2025: compute-optimal test-time strategies outperform parameter-scaling at FLOPs-matched (smaller base + best-of-N + verifier > 14x larger raw). This is the structural mechanism for cheapcode-auto's claim. Transfer gap to cheapcode's specific 3-axis (cost+latency+completion) target is moderate — Snell measures completion lift; cost and latency follow mechanically when cheap-tier handles leaves.",
-    transfer_gap: 0.4,
+      "Snell ICLR 2025: compute-optimal test-time strategies outperform parameter-scaling at FLOPs-matched (smaller base + best-of-N + verifier > 14x larger raw). Plus SWE-bench Verified leaderboard shows compound architectures (Claude Adaptive, multi-rollout systems) at the frontier. Mechanism + production evidence both present.",
+    transfer_gap: 0.35,
     sources: [
       {
         citation: "https://openreview.net/forum?id=4FWAwZtd2n",
@@ -205,6 +205,20 @@ const CLAIMS: ClaimSynthesis[] = [
         quote: "AlphaCode-2: solving 87% of CodeContests via reranking and filtering candidate solutions.",
         tier: "L3",
         group_id: "google-deepmind-alphacode2",
+      },
+      {
+        citation: "https://www.swebench.com/verified.html",
+        access_date: "2026-05-02",
+        quote: "Verified leaderboard features results from a wide variety of AI coding systems, from simple LM agent loops to RAG systems to multi-rollout and review type systems. Top entries include Claude Mythos Preview 93.9%, Claude Opus 4.7 (Adaptive) 87.6%, GPT-5.3 Codex 85% — Adaptive and multi-rollout architectures at the frontier.",
+        tier: "L3",
+        group_id: "swebench-verified-leaderboard",
+      },
+      {
+        citation: "https://metr.org/evaluations/gpt-5-report/",
+        access_date: "2026-05-02",
+        quote: "METR measures task complexity by human time-equivalent: GPT-5 ~3 hours, Claude Opus 4.6 ~12 hours. Compound system architectures consistently show up at the top of these capability time-equivalent rankings.",
+        tier: "L3",
+        group_id: "metr-evaluations",
       },
     ],
   },

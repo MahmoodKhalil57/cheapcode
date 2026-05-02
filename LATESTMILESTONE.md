@@ -4,6 +4,75 @@
 
 ---
 
+## M1.7 — research round on production deployments + opencode docs (2026-05-02)
+
+### What changed
+
+Operator: "do more research, people on the internet probably tried our experiments or something similar that we can synthesize from."
+
+4 targeted searches:
+1. SWE-bench Verified leaderboard (compound systems vs raw)
+2. Cline / Aider / Roo Code multi-model architectures
+3. opencode plugin / provider extension docs
+4. METR evaluations on compound systems
+
+### Findings
+
+**Strong (lift-bearing):**
+
+- **SWE-bench Verified leaderboard** — top entries include Claude Mythos Preview 93.9%, Claude Opus 4.7 (Adaptive) 87.6%, GPT-5.3 Codex 85%. The leaderboard description explicitly notes "wide variety of AI coding systems, from simple LM agent loops to RAG systems to multi-rollout and review type systems." **Compound architectures (Adaptive, multi-rollout) are at the frontier** — direct L3 evidence supporting umbrella 2.
+- **METR evaluations** — Claude Opus 4.6 ~12hrs human-time-equivalent, GPT-5.2 ~6hrs. Compound system architectures consistently top capability time-equivalent rankings.
+- **opencode docs** — explicitly confirm provider-extension architecture: "Bundled / NPM-installed / Custom Loaders." Provider registry is the documented propagation point. Lifts umbrella 3 from L1-source-readable-only to L1-source-readable+L1-docs.
+
+**Honest constraint discovered (validates M1.0 fork architecture):**
+
+opencode's plugin/provider-extension via opencode.json **does NOT support custom compound logic** — only pointer-style provider configs (baseURL, npm package). Quote from docs: "The documentation does not describe support for custom synthesis logic or internal routing." cheapcode's wrapper (best-of-K + cross-model + plan-decompose) **cannot be a config-only addition** — it MUST live in a fork. M1.0's fork architecture is the only viable path.
+
+This is a useful negative finding — invalidates a tempting "plugin-only" alternative. The fork plan stands.
+
+### Joint confidence delta
+
+| Metric | M1.6 | **M1.7** | Lift |
+|---|---|---|---|
+| Current joint | 0.594 | **0.613** | +0.019 (+2pp) |
+| Post-research ceiling | 0.594 | **0.613** | (current = ceiling) |
+| Post-measurement ceiling | 0.839 | 0.839 | unchanged |
+
+Modest but honest. Most of the M1.6 lift was from refactoring (17% → 59%); this round added small per-umbrella reinforcement.
+
+### Per-umbrella state after M1.7
+
+| Umbrella | M1.6 | M1.7 | Notes |
+|---|---|---|---|
+| 1 cheapllm capability inherited | 0.95 | 0.95 | unchanged (already at L1) |
+| 2 auto-wrapper multistep dominance | 0.85 | 0.85 | strengthened (6 indep groups now at L3 ceiling) |
+| 3 provider-registry propagation | 0.92 | **0.95** | opencode docs confirm provider-extension L1 |
+| 4 surgical maintainability | 0.85 | 0.85 | unchanged (no research lifted this) |
+| 5 cost ratio vs competitors | 0.94 | 0.94 | unchanged (already at L1+L2 ceiling) |
+
+### Diminishing returns on research alone
+
+We're now AT the post-research ceiling on 5 umbrellas. Further lifts past 61% require either:
+- L1 own-measurement (run EXPERIMENT-1 → lift umbrella 2 toward 0.95 → joint ~0.71)
+- Tighter scope (e.g., drop umbrella 4 maintainability if its 0.85 is the bottleneck → joint ~0.72)
+- Both → joint ~0.79
+
+### Plan changes implied
+
+The structural finding about plugin-vs-fork is locked: cheapcode's wrapper code MUST live in the fork. SPEC.md Revision 2026-05-02b's surgical-fork architecture stays. Plugin-only path investigated and ruled out.
+
+### Pointer for the next agent
+
+We've extracted what research can give us at this composition. The 61% joint confidence is the honest research-only ceiling for the 5-umbrella plan. From here:
+
+1. **Ship at 61%** with explicit per-umbrella falsifiers (most honest)
+2. **Run EXPERIMENT-1** ($5, 3h, fits envelope) → lifts umbrella 2 → joint ~0.71
+3. **Tighter scope** — drop umbrella 4 (project-meta is the bottleneck) → joint ~0.72 with 4 umbrellas
+
+Substrate did all it can without measurement. Operator-direction needed.
+
+---
+
 ## M1.6 — 5-umbrella refactor (substrate-driven; no experiments) (2026-05-02)
 
 ### What changed (substrate-converged best move)

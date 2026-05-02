@@ -38,7 +38,7 @@ type Claim = { name: string; c: number; tier: string; group: string };
 const UMBRELLA_CLAIMS: Claim[] = [
   { name: "umbrella_cheapllm_capability_inherited", c: 0.95, tier: "L1-cheapllm-v1-receipts", group: "umbrella-1" },
   { name: "umbrella_auto_wrapper_multistep_dominance_research_grounded", c: 0.85, tier: "L3-mutawatir-snell-cai", group: "umbrella-2" },
-  { name: "umbrella_provider_registry_propagation_layer_1", c: 0.92, tier: "L1-source-readable", group: "umbrella-3" },
+  { name: "umbrella_provider_registry_propagation_layer_1", c: 0.95, tier: "L1-source-readable+docs", group: "umbrella-3" },
   { name: "umbrella_surgical_maintainability_lessons_inherited", c: 0.85, tier: "L1-khatim-sanad-postmortem", group: "umbrella-4" },
   { name: "umbrella_cheapcode_cost_ratio_vs_competitors", c: 0.94, tier: "L1+L2-direct-arithmetic", group: "umbrella-5" },
 ];
@@ -159,7 +159,7 @@ const umbrella = independentJoint(UMBRELLA_CLAIMS);
 const UMBRELLA_POST_RESEARCH_CEILINGS: Record<string, number> = {
   "umbrella-1": 0.95,
   "umbrella-2": 0.85,
-  "umbrella-3": 0.92,
+  "umbrella-3": 0.95, // M1.7 lift: opencode docs confirm provider-registry propagation L1
   "umbrella-4": 0.85,
   "umbrella-5": 0.94,
 };
