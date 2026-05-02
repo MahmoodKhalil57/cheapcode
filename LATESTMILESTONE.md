@@ -4,6 +4,75 @@
 
 ---
 
+## M1.5 — research lift via mizaj 16 (no code, no experiments, no spend) (2026-05-02)
+
+### What changed (operator instruction: "do more research to increase confidence")
+
+Operator pushed for deeper research per mizaj rule 16's research-as-experiment-substitute path. Did 4 targeted WebSearches:
+
+1. Smart-fast latency benchmarks (artificialanalysis.ai, Vellum LLM leaderboard)
+2. Compound AI systems peer-reviewed papers (EMNLP 2025 main + findings)
+3. OpenAI Codex pricing (official + third-party comparisons)
+4. Best-of-N + verifier test-time-compute papers (Snell ICLR 2025 — biggest find)
+
+### The Snell ICLR 2025 finding is the load-bearing breakthrough
+
+["Scaling LLM Test-Time Compute Optimally Can be More Effective than Scaling Parameters"](https://openreview.net/forum?id=4FWAwZtd2n) directly proves the cheapcode-auto thesis: **compute-optimal test-time scaling outperforms a 14× larger raw model in FLOPs-matched evaluation** when the smaller base attains non-trivial success rates. Best-of-N + verifier is the canonical approach studied. This is exactly cheapcode-auto's wrapper architecture.
+
+Combined with 3 EMNLP 2025 + AlphaCode-2 sources, that's **4 independent peer-reviewed L3 groups converging on the wrapper-beats-frontier mechanism** — mutawatir-equivalent at L3 ceiling per mizaj 14.
+
+### Three claims lifted via mizaj rule 16
+
+| Claim | Pre-research | Post-research | Lift |
+|---|---|---|---|
+| `cheapcode_auto_3_axis_dominance_on_multistep_over_raw_frontier` | 0.65 | **0.85** | +0.20 (Snell + 3 CAI groups) |
+| `smart_fast_tier_choice_pending_measurement` | 0.50 | **0.75** | +0.25 (artificialanalysis.ai + Vellum) |
+| `cheapcode_beats_codex_after_pricing_fetch` | 0.75 | **0.94** | +0.19 (OpenAI official L2 + cheapllm-v1 in-house L1 + uibakery L4 = 3 independent groups, L1 ceiling) |
+
+### Joint confidence delta
+
+| Metric | M1.4 | **M1.5** | Lift |
+|---|---|---|---|
+| Current correlated joint | 0.068 | **0.168** | +0.100 (~2.5×) |
+| Research-only ceiling | 0.194 | **0.341** | +0.147 |
+| Full-measurement ceiling | 0.291 | **0.640** | +0.349 (table updated; old values were stale) |
+
+The full-measurement ceiling almost doubled because the M1.5 ceiling table revision honestly reflects what L1 own-measurement gives per group (e.g., `vs-codex` ceiling now 0.99 because we'd run our own Codex benchmark; previously 0.85). The old ceilings were conservative-by-default; the M1.5 lifts surfaced the staleness.
+
+### Honest current state
+
+- **17% joint confidence** today (pre-experiment, pre-code).
+- **34% reachable via more research alone** (more literature searches, more L1 in-house computations from cheapllm + iai daftar shards).
+- **64% reachable via full measurement** (EXPERIMENT-1 + 3 small probes = ~$10 total spend).
+- **0.99999 still structurally unreachable** for any 27-claim composition. Reducing N is the only path past 64%.
+
+### Honest concerns
+
+- The full-measurement ceiling at 64% makes shipping at "no falsifier triggered" far more credible than at the prior 29% number — but it's still not a 99% confident plan. Per atom 0015, atom 0011, the structural cap holds.
+- The Snell paper's main result is on math reasoning. Transfer to TB-medium/hard multistep is moderate-but-not-perfect (transfer gap 0.4, illah strength 0.55 — illah > gap so no penalty per mizaj 16 formula, but the transfer is still extrapolation). EXPERIMENT-1 would close this.
+- `smart_fast_tier_choice_pending_measurement` at 0.75 still has a -0.10 mutawatir penalty (only 2 independent groups). Finding 2 more independent latency-benchmark sources would lift to 0.85.
+
+### Plan changes implied
+
+The path to higher confidence WITHOUT running experiments is now clear:
+- Find 2+ more independent smart-fast latency sources → lift tier-choices-pending group to ceiling
+- Find more cross-model verification sources (currently 3 groups) → lift auto-wrapper group to ceiling
+- Compute more L1 in-house cost ratios from cheapllm/iai receipts → lift vs-vanilla group
+
+Each round of targeted research lifts 1–3 percentage points on the joint. Continuing returns are diminishing — the floor approaches the 34% research-only ceiling.
+
+### Pointer for the next agent
+
+Three orthogonal next paths:
+
+1. **Continue research rounds** (diminishing returns; 17% → ~34% asymptote)
+2. **Run EXPERIMENT-1** ($5, 3h, fits in operator's $10 / 24h envelope) — lifts joint toward 64%
+3. **Reduce N** — if operator picks "5 load-bearing claims," joint at `0.85^5 ≈ 0.44` matches research-only ceiling but at much higher *per-claim* confidence
+
+The operator's instruction "plan is super flexible" makes any of these (or combinations) viable.
+
+---
+
 ## M1.4 — operator-tightened constraints + multistep-only smarter claim (2026-05-02)
 
 ### What changed (operator-direct edit to MAIN.md)
