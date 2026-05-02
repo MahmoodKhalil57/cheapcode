@@ -312,10 +312,24 @@ falsified_when obs_provider_registry_propagation_falsified
 
 # Umbrella 4: surgical maintainability discipline (LoC budget +
 # weekly rebase + zero new packages + zero cross-process protocols).
-# Direct L1 own evidence: Khātim/Sanad post-mortem receipts +
-# project-meta discipline tracked in repo.
+# M1.9 lift WITH HONEST CORRECTION: 2+ L1 sources but with caveats.
+# - Khātim/Sanad post-mortem L1 (own negative-knowledge: what failed)
+# - cpkt9762/opencode-vscode-ide L1 source-readable: thin-fork pattern
+#   IS documented ("fork-only code under .../contrib/opencode/ and
+#   well-scoped integration points") — VERIFIED via cheap honesty
+#   probe (atom 0010 cross-witness on our own synthesis).
+#
+# HONESTY-VERIFICATION CORRECTION (atom 0015 + 0010):
+# Claims about "actively maintained" and "weekly rebase cadence" for
+# cpkt9762 were NOT supported by the repo's actual content — only the
+# pattern documentation. So evidence is "the thin-fork pattern is
+# documented as design intent" not "the pattern has been operationally
+# proven over time at this fork." Lift from 0.85 -> 0.88 (not 0.89);
+# illah strength reduced from 0.7 to 0.55 because we don't have
+# evidence the pattern actually succeeds long-term, only that it's
+# the design intent.
 claim obs_surgical_maintainability_falsified: Bool @>=0.99 = False
-claim umbrella_surgical_maintainability_lessons_inherited: Bool @>=0.85 = not obs_surgical_maintainability_falsified
+claim umbrella_surgical_maintainability_lessons_inherited: Bool @>=0.88 = not obs_surgical_maintainability_falsified
 falsified_when obs_surgical_maintainability_falsified
 
 # Umbrella 5: cost ratio against named competitors. Direct L1+L2

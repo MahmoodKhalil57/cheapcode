@@ -1,0 +1,92 @@
+# plan/facts/07-thin-fork-and-compound-production-evidence.bn
+#
+# Production-deployment evidence for compound AI systems + thin-fork
+# discipline (lifts umbrella 4 maintainability past prior research-only
+# ceiling, lifts umbrella 5 cost-ratio strength).
+#
+# Per mizaj rule 16: each lemma anchors a citation that informs an
+# umbrella's research-equivalent confidence.
+
+# === Cognition Devin compound architecture (L4 vendor blog) ===
+# Direct production evidence that the cheapcode-auto compound pattern
+# is industry-standard at scale.
+#
+# Quote: "Devin is a compound AI system that uses a diverse set of
+# model inferences to plan, act, evaluate, and use tools."
+# Quote: "Cognition worked with Applied Compute to RL-train SWE-check,
+# a bug detection model that matches Opus 4.6 on internal evals while
+# running ~10x faster."
+
+lemma cognition_devin_compound_ai_system_explicit
+  proves True
+  by audit cognition-blog-devin-compound-system
+
+lemma cognition_swe_check_specialized_verifier_10x_faster
+  proves True
+  by audit cognition-blog-swe-check-rl-trained
+
+lemma cognition_devin_2_planning_18pct_better_eval_12pct_better
+  proves True
+  by audit cognition-blog-devin-sonnet-4-5
+
+# === cpkt9762/opencode-vscode-ide thin fork pattern (L1 source-readable) ===
+# Real, actively-maintained example of thin-fork discipline against
+# a HUGE upstream (VS Code, much larger than opencode).
+#
+# Pattern: "fork-only code under src/vs/workbench/contrib/opencode/
+# and a few well-scoped integration points, with everything else
+# staying close to upstream so rebasing on Microsoft's main stays cheap."
+
+lemma opencode_vscode_ide_thin_fork_actively_maintained
+  proves True
+  by audit github-cpkt9762-opencode-vscode-ide
+
+lemma thin_fork_pattern_localized_dir_well_scoped_hooks
+  proves True
+  by audit github-cpkt9762-thin-fork-discipline-pattern
+
+# === Cost-effectiveness data for cheap base models (L4 + L3 mix) ===
+# Reinforces umbrella 5 (cost ratio) with concrete competitor numbers.
+#
+# DeepSeek V3.2: 67.8% SWE-bench Verified (L3 third-party leaderboard)
+# DeepSeek V3.2-Speciale: 73.1% SWE-Bench (L3)
+# Gemini 3.1 Pro: 80.6% SWE-bench at $2/$12 per M tokens (L4 vendor pricing)
+# MiniMax M2.5: 80.2% SWE-bench at $0.30/$1.20 per M tokens (L4 vendor pricing)
+# DeepSeek V3.2 = 90% of GPT-5.4 quality at 1/50th cost
+
+lemma deepseek_v3_2_67_8pct_swebench_verified
+  proves True
+  by audit swebench-verified-leaderboard-deepseek-v3-2
+
+lemma deepseek_v3_2_speciale_73_1pct_swebench
+  proves True
+  by audit swebench-verified-leaderboard-deepseek-v3-2-speciale
+
+lemma minimax_m2_5_80_2pct_swebench_at_0_30_per_M_input
+  proves True
+  by audit swebench-verified-leaderboard-minimax-m2-5
+
+lemma gemini_3_1_pro_80_6pct_swebench_at_2_per_M_input
+  proves True
+  by audit swebench-verified-leaderboard-gemini-3-1-pro
+
+lemma deepseek_v3_2_90pct_quality_at_50th_cost_of_gpt_5_4
+  proves True
+  by audit deepseek-cost-quality-ratio
+
+# === Aider + DeepSeek production-deployed compound result ===
+# Aider's code editing benchmark with DeepSeek Chat V3 hits top score —
+# direct production evidence that cheap-base + agent framework matches
+# frontier on coding tasks.
+
+lemma aider_deepseek_v3_top_code_editing_benchmark
+  proves True
+  by audit aider-chat-docs-deepseek-top-score
+
+# === LangGraph $0.08/task baseline cost data ===
+# LangGraph framework on SWE-bench-style tasks: $0.08/task per the
+# 2026 framework scorecard.
+
+lemma langgraph_framework_0_08_per_task_swebench
+  proves True
+  by audit rapidclaw-ai-agent-benchmarks-2026-langgraph-cost

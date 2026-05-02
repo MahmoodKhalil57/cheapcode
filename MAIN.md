@@ -66,11 +66,11 @@ Only working code counts. Planning, research, and documentation = 0%.
 
 ## Confidence
 
-**~63%** that the plan succeeds within the $10 / 24h limits as of 2026-05-02 — **lifted from ~17% by refactoring to 5 load-bearing umbrella claims** (M1.6, substrate-driven per atom 0011 + mizaj 02/07), then **+4pp from two parallel research rounds** (SWE-bench leaderboard + METR + opencode docs + 6 new test-time-compute papers + production deployment evidence).
+**~65%** that the plan succeeds within the $10 / 24h limits as of 2026-05-02 — **lifted from ~17% by refactoring to 5 load-bearing umbrella claims** (M1.6, substrate-driven per atom 0011 + mizaj 02/07), then **+6pp from three research rounds + one honesty-verification probe** (Snell ICLR 2025, EMNLP CAI papers, SWE-bench leaderboard, METR, opencode docs, opencode-vscode-ide thin-fork pattern, Cognition Devin compound architecture, plus a cheap honesty probe that *caught and corrected* a 0.7pp over-statement — verifying-honesty-not-claim, per operator's atom-0010 frame).
 
 | State                                              | Joint confidence | What you'd need                                         |
 | -------------------------------------------------- | ---------------- | ------------------------------------------------------- |
-| Today, post-refactor + max research                | **~63%**         | Already done                                            |
+| Today, post-refactor + max research                | **~65%**         | Already done                                            |
 | After full measurement on 5 umbrellas              | **~84%**         | Run EXPERIMENT-1 + 3 small probes (~$10, fits envelope) |
 | Target `@>=0.99999`                                | unreachable      | Structural cap                                          |
 
@@ -81,7 +81,7 @@ Each has **direct** evidence at its tier ceiling — not derived from sub-claim 
 1. **cheapllm capability inherited** — L1 in-house (cheapllm v1 daftar). `@>=0.95`
 2. **auto-wrapper beats raw frontier on multistep** — L3 mutawatir: Snell ICLR 2025 + 3 EMNLP 2025 CAI papers + AlphaCode-2 + SWE-bench Verified leaderboard + METR evaluations + Optimal Self-Consistency 2025 + Adaptive Test-Time Compute + Forest-of-Thought + Self-Consistency 2022 + Difficulty-Adaptive 2025. **9+ independent groups at L3 ceiling.** Plus production deployment evidence: Anthropic Claude Code uses orchestrator + sub-agents pattern, NVIDIA NeMo Agent Toolkit productizes compound systems. `@>=0.85`
 3. **provider-registry propagation** — Multi-source L1: opencode source-readable + docs + 6.5M monthly users + 150K GitHub stars + extension ecosystem (awesome-opencode, OpenAgentsControl). 4+ independent L1 sources, near-ceiling. `@>=0.97`
-4. **surgical maintainability** — L1: Khātim/Sanad post-mortem + project-meta discipline. `@>=0.85`
+4. **surgical maintainability** — L1 multi-source: Khātim/Sanad post-mortem (negative-knowledge) + cpkt9762/opencode-vscode-ide thin-fork *pattern* (verified by cheap honesty probe — pattern documented in repo, operational long-term success NOT verified). `@>=0.88`
 5. **cost ratio vs competitors** — L1+L2: OpenAI Codex pricing + cheapllm-v1 in-house receipts, direct arithmetic. `@>=0.94`
 
 ### Honest research finding (validates M1.0 architecture)

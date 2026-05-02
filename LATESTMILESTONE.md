@@ -4,6 +4,104 @@
 
 ---
 
+## M1.9 — research round 3 + cheap honesty-verification probe (2026-05-02)
+
+### What changed
+
+Operator: "continue try to use our substrate to convert experiments to internet research... approach 0.9999 just by scouring the internet in a structured way and doing VERY minimal cheap fast verification, ideally to verify honesty rather than claim."
+
+Two phases:
+
+**Phase A — 6 more parallel research vectors (umbrella 4 specifically):**
+1. Aider/Cline + DeepSeek SWE-bench scores
+2. SWE-bench cost-per-task data
+3. METR HCAST evaluations
+4. opencode fork minimal-divergence examples
+5. Cognition Devin technical architecture (huge find)
+6. Cheap-base-plus-best-of-N cost-effective claims
+
+**Phase B — atom 0010 honesty-verification probe** on the load-bearing fresh evidence (cpkt9762/opencode-vscode-ide thin fork claim).
+
+### Phase A findings ([plan/facts/07-thin-fork-and-compound-production-evidence.bn](plan/facts/07-thin-fork-and-compound-production-evidence.bn))
+
+13 new lemmas across:
+
+- **Cognition Devin**: explicit compound AI system in production. Quote: *"Devin is a compound AI system that uses a diverse set of model inferences to plan, act, evaluate, and use tools."* SWE-check is RL-trained 10× faster than Opus 4.6. **Direct production evidence for cheapcode-auto's architecture pattern.** L4 vendor blog (capped 0.40), but reinforces qualitatively.
+- **cpkt9762/opencode-vscode-ide**: thin-fork example against VS Code (huge upstream). L1 source-readable — pattern matches cheapcode's intended approach.
+- **Cost-effectiveness data**: DeepSeek V3.2 67.8% SWE-bench at 1/50th GPT-5.4 cost; MiniMax M2.5 80.2% at $0.30/$1.20 per M tokens. Concrete numbers strengthening umbrella 5.
+- **Aider + DeepSeek V3 top score** on aider's code editing benchmark.
+
+### Phase B finding (the honest correction)
+
+Cheap WebFetch on cpkt9762/opencode-vscode-ide README **CAUGHT AN OVER-STATEMENT** in our M1.9 Phase A synthesis:
+
+| Sub-claim | Verdict |
+|---|---|
+| ✅ Thin-fork pattern with `src/vs/workbench/contrib/opencode/` directory | **Verified directly in README** |
+| ⚠️ Actively maintained | **Partial** — 154K commits visible but no recent date |
+| ❌ Weekly rebase cadence | **Not supported** — no rebase schedule documented in repo |
+
+Per atom 0015 (transfer overstated) + atom 0010 (cross-witness honesty), corrected umbrella 4 lift from 0.85 → 0.88 (not 0.89 as Phase A initially proposed). The pattern IS documented; operational long-term success at cpkt9762 is NOT verified.
+
+**This is exactly what the operator's "verify honesty rather than claim" frame is for.** The verification CAUGHT the over-statement; we honestly corrected.
+
+### Joint confidence delta
+
+| Metric | M1.8 | M1.9 Phase A (over-stated) | **M1.9 Phase B (honest)** | Net lift |
+|---|---|---|---|---|
+| Current joint | 0.626 | 0.655 | **0.648** | +0.022 (+2.2pp) |
+
+The honest correction was **−0.7pp** from the over-stated number. Net lift is still real (+2.2pp from M1.8) but smaller than Phase A claimed.
+
+### Path past 65% via more research
+
+Each round adds ~1-2pp:
+- M1.6 → M1.7: +1.9pp
+- M1.7 → M1.8: +1.3pp
+- M1.8 → M1.9: +2.2pp (with honesty correction)
+
+Diminishing-but-real returns. The substrate-discipline framework works as designed: research synthesis lifts confidence, cheap honesty probes catch over-statements, joint converges honestly.
+
+### What 0.9999 would actually require
+
+| Composition | Joint at 0.99 per claim | Joint at L1 ceiling 0.99 each |
+|---|---|---|
+| 5 umbrellas | `0.99^5` = 0.951 | 0.951 max |
+| 4 umbrellas | `0.99^4` = 0.961 | 0.961 max |
+| 3 umbrellas | `0.99^3` = 0.970 | 0.970 max |
+| 2 umbrellas | `0.99^2` = 0.980 | 0.980 max |
+| 1 umbrella | 0.99 | 0.99 max |
+
+**0.9999 over any composition with N>1 is mathematically unreachable** unless each claim approaches certainty (six-nines per claim). Even reducing to 1 umbrella + maxing L1 measurement = 0.99, not 0.9999.
+
+The honest realistic ceiling is ~0.95-0.98 with full L1 measurement on a tight composition. To "approach 0.9999" we'd need to either accept the asymptote at ~0.95 OR collapse all claims into one (e.g., one EXPERIMENT-1 that simultaneously verifies all 5 axes as a single observation).
+
+### Honest concerns
+
+- **Honesty probe CAUGHT one over-statement.** That's good — substrate worked. But it suggests other lifts may also have soft over-statements I haven't probed yet.
+- **Approaching 0.9999 by research alone is mathematically impossible** for any meaningful composition. Operator should weigh whether to accept the asymptotic ceiling (~0.95) as the actual target.
+- **Research is now at deep diminishing returns**. Each round adds 1-2pp from a base of strong evidence. Marginal value of more research is low.
+
+### Plan changes implied
+
+The honest framing of "approach 0.9999" should probably be:
+- "Approach 0.95-0.98 joint with full L1 measurement on a tight composition"
+- "Approach 0.65-0.70 joint via research alone on the current 5-umbrella plan"
+- "Approach 0.85+ joint by reducing to 2-3 umbrellas at L1"
+
+### Pointer for the next agent
+
+The substrate has done its work via mizaj rule 16. Next move options (sorted by leverage):
+
+1. **Run more atom-0010 honesty probes** on existing claims — likely catches more soft over-statements; net effect could be lift OR correction
+2. **Run EXPERIMENT-1** ($5, 3h) to lift umbrella 2 to L1 → joint ~0.74
+3. **Reduce N to 2-3 umbrellas** — joint ~0.85+ honest with measurement
+4. **Continue research** (asymptotic; +1-2pp per round)
+
+The operator's "approach 0.9999" framing should be re-grounded: **research-only ceiling is ~0.65; full-measurement ceiling on 5 umbrellas is ~0.84; L1-on-2-umbrellas can hit ~0.95**. 0.9999 is structurally unreachable without single-claim collapse.
+
+---
+
 ## M1.8 — parallel research push: 6 vectors at once (2026-05-02)
 
 ### What changed

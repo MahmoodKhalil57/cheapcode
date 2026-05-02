@@ -39,7 +39,7 @@ const UMBRELLA_CLAIMS: Claim[] = [
   { name: "umbrella_cheapllm_capability_inherited", c: 0.95, tier: "L1-cheapllm-v1-receipts", group: "umbrella-1" },
   { name: "umbrella_auto_wrapper_multistep_dominance_research_grounded", c: 0.85, tier: "L3-mutawatir-snell-cai", group: "umbrella-2" },
   { name: "umbrella_provider_registry_propagation_layer_1", c: 0.97, tier: "L1-multi-source-mature-ecosystem", group: "umbrella-3" },
-  { name: "umbrella_surgical_maintainability_lessons_inherited", c: 0.85, tier: "L1-khatim-sanad-postmortem", group: "umbrella-4" },
+  { name: "umbrella_surgical_maintainability_lessons_inherited", c: 0.88, tier: "L1-khatim-sanad+opencode-vscode-ide-pattern-only-not-operational", group: "umbrella-4" },
   { name: "umbrella_cheapcode_cost_ratio_vs_competitors", c: 0.94, tier: "L1+L2-direct-arithmetic", group: "umbrella-5" },
 ];
 
@@ -160,7 +160,7 @@ const UMBRELLA_POST_RESEARCH_CEILINGS: Record<string, number> = {
   "umbrella-1": 0.95,
   "umbrella-2": 0.85,
   "umbrella-3": 0.97, // M1.8 lift: 4+ indep L1 sources (source + docs + community stats + extension ecosystem)
-  "umbrella-4": 0.85,
+  "umbrella-4": 0.88, // M1.9 honesty-corrected: pattern documented but operational claim NOT verified at cpkt9762
   "umbrella-5": 0.94,
 };
 const UMBRELLA_POST_MEASUREMENT_CEILINGS: Record<string, number> = {
