@@ -74,17 +74,49 @@ falsified_when obs_long_context_grok_4_fast_unmeasured
 # SECTION B - auto router (iai-receipt-backed)
 # ============================================================
 
-# Apophatic routing per iai + cheapllm v1 task-type detection:
-# - long-context (>128k) -> grok-4-fast (cheapllm H3B receipt)
-# - hard-reasoning detected -> smart-tier direct (no cheap-base pretense)
-# - default -> cheap-tier
-claim auto_router_apophatic_pattern_works: Bool @>=0.80 = not obs_auto_router_apophatic_pattern_fails
+# Auto tier is now a STRUCTURED-REASONING WRAPPER per SPEC Revision
+# 2026-05-02c. Components:
+#   - long-context (>128k) -> grok-4-fast (cheapllm H3B receipt)
+#   - hard-reasoning -> plan-decompose (smart) + execute-leaves (cheap)
+#                       + verify (smart) + cross-witness (smart blind)
+#                       + retry-with-feedback
+#   - default -> cheap
+
+claim auto_wrapper_apophatic_routing_works: Bool @>=0.80 = not obs_auto_router_apophatic_pattern_fails
 falsified_when obs_auto_router_apophatic_pattern_fails
 
-# Honest-niche claim per atom 0013: cheapcode's competitive credibility
-# rests on transparent niche dominance, not weakly-best-overall pretense.
-# cheapllm v1 H6 Q3-A established the niche; cheapcode inherits.
-claim honest_niche_dominance_over_weakly_best_overall: Bool @>=0.90 = not obs_smart_tier_or_model_unmeasured
+# Verifier hook inherited from cheapllm v1 (just shipped at d616876).
+# Pre-registered: catches >=50% of confident-wrong outputs on a 20-task probe.
+claim obs_verifier_hook_catches_lt_50pct_wrong: Bool @>=0.99 = False
+claim verifier_hook_catches_50pct_of_wrong_answers: Bool @>=0.65 = not obs_verifier_hook_catches_lt_50pct_wrong
+falsified_when obs_verifier_hook_catches_lt_50pct_wrong
+
+# Cross-witness pattern (atom 0010) applied to hard reasoning:
+# second smart-tier pass that did not see the first synthesis.
+# Pre-registered: convergence on >=70% of TB-medium/hard tasks.
+claim obs_cross_witness_convergence_lt_70pct: Bool @>=0.99 = False
+claim cross_witness_pattern_lifts_hard_reasoning: Bool @>=0.55 = not obs_cross_witness_convergence_lt_70pct
+falsified_when obs_cross_witness_convergence_lt_70pct
+
+# Plan-decompose-and-execute amortizes smart-tier calls across decomposition.
+# Pre-registered: smart-tier call count grows O(log N) not O(N) on TB-medium/hard.
+claim obs_plan_decompose_smart_calls_grow_linearly: Bool @>=0.99 = False
+claim plan_decompose_amortizes_smart_calls: Bool @>=0.60 = not obs_plan_decompose_smart_calls_grow_linearly
+falsified_when obs_plan_decompose_smart_calls_grow_linearly
+
+# THE LOAD-BEARING HARD-REASONING CLAIM:
+# cheapcode-auto on TB-medium/hard achieves >=90% of raw GPT-5.5
+# completion rate at <=80% of raw GPT-5.5 cost. Pre-registered
+# falsifier in plan/EXPERIMENT-1.md.
+claim obs_cheapcode_auto_below_90pct_or_above_80pct_cost: Bool @>=0.99 = False
+claim cheapcode_auto_dominates_cost_adjusted_hard_reasoning: Bool @>=0.50 = not obs_cheapcode_auto_below_90pct_or_above_80pct_cost
+falsified_when obs_cheapcode_auto_below_90pct_or_above_80pct_cost
+
+# Honest-niche claim REFRAMED: now includes hard-reasoning per cost.
+# Per atom 0013, the disclosure of the cost-adjustment qualifier IS
+# the credential - we don't claim raw-quality dominance; we claim
+# cost-adjusted dominance backed by the wrapper's amortization.
+claim honest_niche_dominance_includes_cost_adjusted_hard_reasoning: Bool @>=0.85 = not obs_smart_tier_or_model_unmeasured
 falsified_when obs_smart_tier_or_model_unmeasured
 
 # ============================================================
@@ -146,7 +178,7 @@ claim khatim_negative_knowledge_anchor: Bool @>=0.99 = cite khatim_1152_ts_tsx_f
 # ============================================================
 
 theorem cheapcode_v2_is_surgical_and_inherits_cheapllm_receipts
-  assume cheap_tier_uses_deepseek_v4_flash and cheap_fast_uses_race_k_cheapllm_strategy and smart_tier_routes_directly_to_capable_model and long_context_uses_grok_4_fast and auto_router_apophatic_pattern_works and honest_niche_dominance_over_weakly_best_overall and provider_registry_propagation_holds and or_provider_inheritance_safe and surgical_fork_loc_budget_holds and upstream_files_modified_within_budget and weekly_rebase_holds and cheapllm_receipts_anchor and cheapllm_context_anchor and iai_router_pattern_anchor and transfer_overstated_anchor and mizaj_substrate_anchor and khatim_negative_knowledge_anchor
+  assume cheap_tier_uses_deepseek_v4_flash and cheap_fast_uses_race_k_cheapllm_strategy and smart_tier_routes_directly_to_capable_model and long_context_uses_grok_4_fast and auto_wrapper_apophatic_routing_works and verifier_hook_catches_50pct_of_wrong_answers and cross_witness_pattern_lifts_hard_reasoning and plan_decompose_amortizes_smart_calls and cheapcode_auto_dominates_cost_adjusted_hard_reasoning and honest_niche_dominance_includes_cost_adjusted_hard_reasoning and provider_registry_propagation_holds and or_provider_inheritance_safe and surgical_fork_loc_budget_holds and upstream_files_modified_within_budget and weekly_rebase_holds and cheapllm_receipts_anchor and cheapllm_context_anchor and iai_router_pattern_anchor and transfer_overstated_anchor and mizaj_substrate_anchor and khatim_negative_knowledge_anchor
   proves True
   by audit cheapcode-v2-surgical-architecture
 

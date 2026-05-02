@@ -4,6 +4,86 @@
 
 ---
 
+## M1.1 — refactor for hard-reasoning honest claim (2026-05-02)
+
+### What changed (operator-driven refactor)
+
+Operator asked: refactor everything so cheapcode can also be honestly claim "best at high-end multi-step reasoning." Previously cheapcode explicitly disclaimed this territory (per cheapllm v1's H6 Q3-A niche framing — cheapllm-smart's 11.1% on TB-medium/hard).
+
+The refactor lifts `auto` from a task-type router into a **structured-reasoning wrapper** that earns the hard-reasoning claim on a **cost-adjusted basis**:
+
+1. Plan-decompose with smart-tier (1 call)
+2. Execute leaves at cheap-tier (N cheap calls)
+3. Verify with smart-tier (1 call)
+4. Cross-witness pass with smart-tier blind (1 call) — atom 0010 application
+5. Retry-with-feedback if verifier disagrees (1 retry max)
+
+Total smart-tier calls per hard task: ~3 vs raw-frontier's 1 at full price. The wrapper's claim is cost-adjusted dominance — beating raw frontier per-correct-task while sacrificing raw-quality (which is structurally bounded by base-model capability, atom 0015).
+
+### Architectural deltas from M1.0
+
+| Aspect | M1.0 | M1.1 |
+|---|---|---|
+| `auto` shape | task-type router (apophatic) | structured-reasoning wrapper |
+| Honest claim | low-cost loops + long-context only | + cost-adjusted hard reasoning |
+| Wrapper LoC budget | n/a | new cell #18: ≤200/400/600 LoC |
+| Total LoC budget | ≤200/350/500 | ≤350/600/900 |
+| Load-bearing falsifier | none | EXPERIMENT-1 (cost-adjusted hard reasoning) |
+| Substrate atoms cited | 0011, 0013, 0015 | + 0010 cross-witness (now load-bearing in wrapper) |
+
+### Files updated
+
+- [`SPEC.md`](SPEC.md) Revision 2026-05-02c with the structured-reasoning wrapper, expanded LoC budgets, new cell #18.
+- [`plan/PLAN.bn`](plan/PLAN.bn) with 5 new claims (verifier-hook-catches-50pct, cross-witness-pattern-lifts-hard-reasoning, plan-decompose-amortizes, cheapcode-auto-dominates-cost-adjusted-hard-reasoning, honest-niche-includes-cost-adjusted-hard-reasoning) and 4 new observations.
+- [`plan/EXPERIMENT-1.md`](plan/EXPERIMENT-1.md) — pre-registered cost-adjusted hard-reasoning experiment with PASS/PARTIAL/MARGINAL/FAIL kill criteria.
+- [`tools/joint-confidence.ts`](tools/joint-confidence.ts) updated: 24 claims, 10 groups.
+- [`MAIN.md`](MAIN.md) rewritten (HS-readable) with the new pitch, including the honest "claim drops confidence until measured" framing.
+
+### Joint confidence delta
+
+| Metric | M1.0 (5-model surgical pivot) | M1.1 (after refactor) |
+|---|---|---|
+| Claim count | 19 | 24 |
+| Joint, current | 0.139 | **0.045** (DROPPED — honest: new claim is unmeasured) |
+| Joint, post-measurement ceiling | 0.448 | **0.355** (DROPPED — more claims = more dilution) |
+| Bottleneck | tier-choices-pending @ 0.50 | hard-reasoning-claim @ 0.50 (EXPERIMENT-1 gate) |
+
+**Adding the hard-reasoning claim costs confidence today.** That's the substrate-discipline payoff per atom 0015: a claim doesn't auto-lift confidence just because we wrote it down. The pre-registered EXPERIMENT-1 is the gate that earns the confidence back if the wrapper actually works.
+
+### Honest tradeoff acknowledged
+
+The refactor doubles wrapper code (~300-400 LoC vs ~150 LoC) and adds 5 load-bearing claims. The structural cap on joint confidence dropped from 45% to 36%. Three paths from here:
+
+1. **Run EXPERIMENT-1.** PASS lifts the hard-reasoning claim from 0.50 to 0.85 (its post-measurement ceiling), bringing joint up. FAIL kills the claim and reverts to M1.0's narrower niche.
+2. **Skip EXPERIMENT-1, ship narrower.** Revert this refactor; ship M1.0's 5-tier surgical add without the wrapper. Lower ambition, higher confidence floor.
+3. **Cut other claims to compensate.** Drop `cheap-fast` and `smart-fast` from v1 if the operator decides 3 tiers + auto-wrapper is the right scope.
+
+### Honest concerns
+
+- The hard-reasoning claim is currently a **hypothesis backed by atom citations**, not a measurement. EXPERIMENT-1 is load-bearing.
+- LoC budget doubles. Trade-off accepted in SPEC; operator should weigh.
+- No L1 measurements yet for any of the 5 new claims; all sit at 0.50–0.65.
+
+### Plan changes implied
+
+Whichever path operator picks dictates the next loop:
+
+- If **option 1** (run EXPERIMENT-1): allocate ~$20 + 4 hours; pre-register the verdict + run the baseline + run the wrapper; record outcome.
+- If **option 2** (skip and ship narrower): revert PLAN.bn + SPEC + MAIN.md to M1.0 state; commit a "M1.1-reverted" milestone.
+- If **option 3** (cut tiers): rewrite SPEC's tier table to 3 tiers + auto-wrapper; recompute joint.
+
+### Pointer for the next agent
+
+Three operator decisions still open:
+
+1. **Time target.** The wrapper adds ~12 hours of work post-EXPERIMENT-1.
+2. **AI testing budget.** ~$30–50 for full validation including EXPERIMENT-1.
+3. **Confidence reframe / scope decision.** Run EXPERIMENT-1, skip and ship narrower, or cut tiers.
+
+Highest-leverage next move regardless of decision: **EXPERIMENT-1**. It's the falsifier that decides whether the hard-reasoning claim is alive or dead. Even if the operator chooses to ship narrower, running EXPERIMENT-1 first is cheap insurance against a future "should we have tried?" regret.
+
+---
+
 ## M1.0 — architectural pivot: 5-model surgical add + honest niche (2026-05-02)
 
 ### What changed (operator-driven pivot)
