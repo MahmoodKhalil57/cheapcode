@@ -1,0 +1,104 @@
+# plan/facts/01-substrate-citations.bn
+#
+# L1 substrate citations — own files-of-record. Per mizaj rule 11
+# (tier-the-source-before-citing), these are L1 sources because we own
+# the files and transcription is auditable; ceiling @>=0.99.
+#
+# Each lemma anchors a specific substrate primitive that PLAN.bn or
+# downstream facts can cite. Audit-tag format: <substrate>-<file>-<short-tag>.
+
+# ============================================================
+# Mizaj rules
+# ============================================================
+
+lemma mizaj_01_falsifier_first
+  proves True
+  by audit mizaj-rules-01-state-falsifier-first
+
+lemma mizaj_02_generate_before_select
+  proves True
+  by audit mizaj-rules-02-generate-before-select
+
+lemma mizaj_04_stated_vs_revealed
+  proves True
+  by audit mizaj-rules-04-separate-stated-from-revealed
+
+lemma mizaj_05_cite_the_illah
+  proves True
+  by audit mizaj-rules-05-cite-the-illah
+
+lemma mizaj_07_stack_default_not_neutral
+  proves True
+  by audit mizaj-rules-07-stack-default-is-not-neutral
+
+lemma mizaj_11_tier_the_source_before_citing
+  proves True
+  by audit mizaj-rules-11-tier-the-source-before-citing
+
+lemma mizaj_13_no_transmission_without_isnad
+  proves True
+  by audit mizaj-rules-13-do-not-claim-transmission-without-isnad
+
+# ============================================================
+# Khazina atoms
+# ============================================================
+
+lemma khazina_atom_0007_anti_fabrication_via_artifact_verification
+  proves True
+  by audit khazina-atoms-0007
+
+lemma khazina_atom_0008_runtime_anchored_claim_shape
+  proves True
+  by audit khazina-atoms-0008
+
+lemma khazina_atom_0010_blinded_independent_witness_pass
+  proves True
+  by audit khazina-atoms-0010
+
+lemma khazina_atom_0011_smallest_distinguishing_experiment_first
+  proves True
+  by audit khazina-atoms-0011
+
+lemma khazina_atom_0013_calibration_discipline_as_credential_substitute
+  proves True
+  by audit khazina-atoms-0013
+
+lemma khazina_atom_0015_research_pipeline_overstates_base_model_transfer
+  proves True
+  by audit khazina-atoms-0015
+
+# ============================================================
+# Khatim/Sanad post-mortem (own negative-knowledge)
+# ============================================================
+
+lemma khatim_1152_ts_tsx_files_in_packages
+  proves True
+  by audit khatim-find-packages-ts-tsx-count-1152
+
+lemma khatim_fork_md_minimal_divergence_posture
+  proves True
+  by audit khatim-fork-md-rebase-posture
+
+lemma khatim_m7_1_2_seven_upstream_overlay_diffs
+  proves True
+  by audit khatim-latestmilestone-m7-1-2
+
+lemma sanad_25_plan_files_in_plan_dir
+  proves True
+  by audit sanad-plan-dir-ls-25-files
+
+lemma sanad_m7_4_self_diagnosis_plan_drift
+  proves True
+  by audit sanad-latestmilestone-m7-4
+
+# ============================================================
+# Vanilla opencode architecture (gleaned from upstream + Khatim FORK.md)
+# ============================================================
+
+lemma vanilla_opencode_uses_local_server_client_split
+  proves True
+  by audit khatim-fork-md-derived-server-client
+
+lemma vanilla_opencode_ships_cli_tui_web_desktop_clients
+  proves True
+  by audit khatim-fork-md-derived-client-list

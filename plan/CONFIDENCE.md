@@ -142,9 +142,9 @@ Fill from credibility-laddered sources only (cite URL + access date inline; mark
 
 **Capability cells: prefer "run ourselves" over published vendor numbers** wherever the tool is open-source enough to run locally with cheapllm. Vendor-published capability numbers are L4 (vendor blog) at best; running locally is L1 (own measurement).
 
-### Source-credibility ladder (mizaj 04 + 13 — careful, not gullible)
+### Source-credibility ladder (canonical: mizaj rule 11 — careful, not gullible)
 
-Every cited source must be tagged with its credibility tier. Lower tiers are not banned; they are bracketed.
+The canonical ladder is now formalized at [`~/apps/mizaj/rules/11-tier-the-source-before-citing.md`](../../mizaj/rules/11-tier-the-source-before-citing.md) (mizaj M11). The cheapcode-specific application is reproduced below for self-contained reference. Every cited source must be tagged with its credibility tier. Lower tiers are not banned; they are bracketed.
 
 | Tier | What | Treatment |
 |---|---|---|

@@ -181,6 +181,24 @@ claim cheapbench_zero_marginal_cost: Bool @>=0.85 = not obs_cheapbench_marginal_
 falsified_when obs_cheapbench_marginal_cost_gt_zero
 
 # ============================================================
+# SECTION I - cited evidence anchors (L1 substrate + receipts)
+#
+# Multi-file architecture: lemmas live in plan/facts/*.bn and are
+# concatenated before PLAN.bn at validation time via tools/burhan-validate.sh.
+# Each cite claim's confidence is bounded above by mizaj rule 11's
+# tier ceiling for the cited source class. L1 ceiling is @>=0.99.
+# ============================================================
+
+claim mizaj_substrate_solid_l1: Bool @>=0.99 = cite mizaj_01_falsifier_first
+claim khazina_substrate_solid_l1: Bool @>=0.99 = cite khazina_atom_0011_smallest_distinguishing_experiment_first
+claim khatim_negative_knowledge_solid_l1: Bool @>=0.99 = cite khatim_1152_ts_tsx_files_in_packages
+claim vanilla_opencode_arch_solid_l1: Bool @>=0.99 = cite vanilla_opencode_uses_local_server_client_split
+
+claim cheapllm_cost_evidence_l1: Bool @>=0.99 = cite cheapllm_per_task_cost_0032_on_tb_easy
+claim cheapllm_latency_evidence_l1: Bool @>=0.99 = cite cheapllm_p50_latency_2_24s_on_61_calls
+claim cheapllm_context_evidence_l1: Bool @>=0.99 = cite cheapllm_niah_2m_pass_grok_4_fast
+
+# ============================================================
 # SECTION F - composed theorems
 #
 # Burhan's parser allows exactly ONE `assume` clause per theorem
@@ -196,7 +214,7 @@ theorem harness_uplift_visible_in_all_clients
   by audit experiment-0-and-2
 
 theorem cheapcode_outperforms_named_alternatives
-  assume cheapllm_cheaper_proven and cheapllm_faster_proven and cheapllm_more_context_proven and cheapllm_smart_axis_pending and cheapcode_smart_on_cheapbench and cheapbench_uses_public_data_only and cheapbench_zero_marginal_cost and cheapcode_beats_codex_on_cost and cheapcode_beats_codex_on_latency and cheapcode_beats_codex_on_capability and cheapcode_beats_vanilla_opencode_on_capability
+  assume cheapllm_cheaper_proven and cheapllm_faster_proven and cheapllm_more_context_proven and cheapllm_smart_axis_pending and cheapcode_smart_on_cheapbench and cheapbench_uses_public_data_only and cheapbench_zero_marginal_cost and cheapcode_beats_codex_on_cost and cheapcode_beats_codex_on_latency and cheapcode_beats_codex_on_capability and cheapcode_beats_vanilla_opencode_on_capability and cheapllm_cost_evidence_l1 and cheapllm_latency_evidence_l1 and cheapllm_context_evidence_l1 and mizaj_substrate_solid_l1 and khazina_substrate_solid_l1 and khatim_negative_knowledge_solid_l1 and vanilla_opencode_arch_solid_l1
   proves True
   by audit competitive-scorecard
 

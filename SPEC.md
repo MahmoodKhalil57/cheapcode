@@ -162,6 +162,18 @@ Substrate: mizaj rule 07 (stack-default-is-not-neutral) — TB is the popular de
 
 cheapbench MUST be pre-registered (atom 0011) before any cheapcode run, and gold answers MUST derive from the public data's own structure (not LLM-generated synthesis). See [`plan/CHEAPBENCH.md`](plan/CHEAPBENCH.md) for full design.
 
+**4. Cell #8 clarification — `plan/` budget governs top-level only.**
+
+Cell #8 (plan files: MIN 1 / EXPECTED ≤3 / IDEAL ≤5) governs **top-level architectural plan files** at `plan/*.{md,bn}`. Citation-fact files at `plan/facts/*.bn` are a separate concern: they hold L1 substrate + measurement receipts that PLAN.bn cites via burhan's `cite` mechanism, and they grow with research without inflating architectural-decision surface. Each fact file is scoped to one credibility tier or one source class (per mizaj rule 11).
+
+**5. New substrate dependency: mizaj rule 11.**
+
+This SPEC now depends on mizaj rule 11 (tier-the-source-before-citing) as the canonical credibility ladder. Confidence updates in [`plan/PLAN.bn`](plan/PLAN.bn) MUST cite a source tier per M11 before raising any `@>=0.XX` value. CONFIDENCE.md reproduces the ladder for self-containment but the canonical version is the mizaj rule.
+
+**6. Multi-file burhan via [`tools/burhan-validate.sh`](tools/burhan-validate.sh).**
+
+Burhan's CLI takes one file. The validation script concatenates `plan/facts/*.bn` (sorted) before `plan/PLAN.bn`, so lemmas in fact files are registered in the lemma store before PLAN.bn citations evaluate. Run `tools/burhan-validate.sh` instead of `python3 -m burhan.cli plan/PLAN.bn` directly.
+
 ---
 
 ## Sign-off

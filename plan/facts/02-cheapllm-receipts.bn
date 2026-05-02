@@ -1,0 +1,85 @@
+# plan/facts/02-cheapllm-receipts.bn
+#
+# L1 own-measurement receipts from ~/apps/cheapllm/. Per mizaj rule 11,
+# these are L1 because we ran the measurements ourselves with daftar
+# receipts; ceiling @>=0.95+.
+#
+# Each lemma anchors a specific measured number that PLAN.bn Section A
+# (backend axis) can cite. Audit tags reference cheapllm daftar note IDs
+# or result-archive paths.
+
+# ============================================================
+# Cost axis - cheapllm cheaper than GPT-5.5
+# ============================================================
+
+lemma cheapllm_per_task_cost_0032_on_tb_easy
+  proves True
+  by audit cheapllm-results-tb-easy-cost-0032
+
+lemma cheapllm_26x_cheaper_than_gpt55_on_tb_easy
+  proves True
+  by audit cheapllm-readme-headline-26x
+
+# ============================================================
+# Latency axis - cheapllm faster than GPT-5.5
+# ============================================================
+
+lemma cheapllm_p50_latency_2_24s_on_61_calls
+  proves True
+  by audit cheapllm-f-e3-p50-receipt
+
+lemma cheapllm_p95_latency_under_2_6s
+  proves True
+  by audit cheapllm-f-e3-p95-receipt
+
+lemma gpt55_p50_latency_5_to_15s_published
+  proves True
+  by audit cheapllm-spec-comparison-table
+
+# ============================================================
+# Context axis - cheapllm 2M tokens vs GPT-5.5 1.05M
+# ============================================================
+
+lemma cheapllm_niah_2m_pass_grok_4_fast
+  proves True
+  by audit cheapllm-daftar-note-b407ce2c9a
+
+lemma cheapllm_niah_1_5m_pass_grok_4_fast
+  proves True
+  by audit cheapllm-daftar-note-0f5b3930b5
+
+lemma cheapllm_2m_call_cost_0_37
+  proves True
+  by audit cheapllm-daftar-note-b407ce2c9a-cost
+
+lemma cheapllm_2m_call_latency_4_1s
+  proves True
+  by audit cheapllm-daftar-note-b407ce2c9a-latency
+
+# ============================================================
+# Smart axis - F-H3 K=1 baseline pending
+# Placeholder: smart-axis lemma added once measurement lands.
+# Until then, PLAN.bn cheapllm_smart_axis_pending stays @>=0.50.
+# ============================================================
+
+# (intentionally empty)
+
+# ============================================================
+# Methodology receipts - failures we honored honestly
+# ============================================================
+
+lemma cheapllm_phase_0_substrate_prompt_red_halt
+  proves True
+  by audit cheapllm-daftar-note-6909d844db
+
+lemma cheapllm_phase_0_1_substrate_prompt_zero_lift
+  proves True
+  by audit cheapllm-daftar-note-e0fc94abbf
+
+lemma cheapllm_f_d_reasoning_details_0_of_94
+  proves True
+  by audit cheapllm-daftar-note-b26c8f5990
+
+lemma cheapllm_f_a_slice_integrity_pass_at_90pct
+  proves True
+  by audit cheapllm-daftar-note-2e544f3611

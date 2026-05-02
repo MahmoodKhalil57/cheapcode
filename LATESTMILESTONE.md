@@ -4,6 +4,51 @@
 
 ---
 
+## M0.3 — multi-file burhan + mizaj rule 11 + L1 fact files (2026-05-02)
+
+### What was completed
+
+- **Substrate extension (mizaj):** added [`~/apps/mizaj/rules/11-tier-the-source-before-citing.md`](../../mizaj/rules/11-tier-the-source-before-citing.md) — formalizes the L1–L5 source-credibility ladder as a portable mizaj rule. The `11` slot was previously a numbering gap. Replaces ad-hoc inline ladder in CONFIDENCE.md with a citable substrate primitive.
+- **Multi-file burhan architecture:** [`tools/burhan-validate.sh`](tools/burhan-validate.sh) concatenates `plan/facts/*.bn` (sorted) before `plan/PLAN.bn` so lemmas register in the lemma store before PLAN.bn citations evaluate. Burhan's native CLI takes one file; this externalizes facts without forking burhan.
+- **Two L1 fact files seeded:**
+  - [`plan/facts/01-substrate-citations.bn`](plan/facts/01-substrate-citations.bn) — 19 lemmas anchoring mizaj rules, khazina atoms, Khātim/Sanad post-mortem evidence, and vanilla opencode architecture (all L1, ceiling `@>=0.99`).
+  - [`plan/facts/02-cheapllm-receipts.bn`](plan/facts/02-cheapllm-receipts.bn) — 13 lemmas anchoring cheapllm's measured cost / latency / context numbers and methodology receipts (all L1).
+- **PLAN.bn Section I added:** 7 `cite`-anchored claims at `@>=0.99`, pulling in lemmas from the two fact files. Top theorem `cheapcode_outperforms_named_alternatives` extended to require these citation claims as assumptions.
+- **CONFIDENCE.md:** replaced ad-hoc ladder ownership with a one-line pointer to the canonical mizaj 11.
+- **SPEC.md:** Revision 2026-05-02 extended with four new sub-revisions (cell 8 clarification, mizaj 11 dependency, multi-file burhan posture, fact-file pattern).
+- **Validation:** `tools/burhan-validate.sh` returns `True`.
+
+### What was learned
+
+The architecture splits cheapcode's pre-registration into two layers cleanly:
+
+- **Architectural plans** (`plan/*.{md,bn}`) — what we're going to do, why, and under what falsifiers. Bounded by SPEC cell #8 (≤5 IDEAL) so plan-creep can't outpace decision-discipline.
+- **Citation facts** (`plan/facts/*.bn`) — what we already know to be true, with audit-tagged provenance per mizaj rule 11. Grows with research; not bounded by cell #8 because each addition is a leaf, not a branch.
+
+Adding mizaj rule 11 (rather than inlining the ladder in CONFIDENCE.md) makes the credibility discipline portable to the operator's other calibration-discipline projects (qls, iai, future cohort) — exactly the substrate-pairing rationale in `~/apps/khazina/CLAUDE.md`.
+
+### Honest concerns
+
+- **L1 audit tags reference paths and daftar IDs we have not yet asserted exist.** The `by audit cheapllm-daftar-note-b407ce2c9a` style tags are documentary; burhan does not verify the audit target. Future research pass should add a `tools/audit-verify.sh` that walks audit tags and confirms each target file/note actually exists. Per khazina atom 0007, citation needs an artifact; we have not yet wired that runtime check.
+- **Section I claims duplicate Section A's confidence intent at higher tiers.** This is intentional (the cite chain enters the top theorem distinctly from the observation-chain), but it doubles the surface PLAN.bn carries. If duplication becomes friction, fold Section A theses to use `cite` directly — atom 0011 says wait for the friction signal before refactoring.
+- **Smart-axis fact slot is empty in `02-cheapllm-receipts.bn`.** Until cheapllm's F-H3 K=1 baseline lands, `cheapllm_smart_axis_pending` stays `@>=0.50`. This bounds the discharge claim's confidence below the operator's `@>=0.95` target until cheapllm v1 ships.
+
+### Plan changes implied
+
+- Next research batch: add `plan/facts/03-research-papers.bn` covering L3 academic citations (TruthfulQA, ReAct, Toolformer, Constitutional AI). Each lemma carries `@>=0.85` ceiling per mizaj 11 L3.
+- Subsequent: `plan/facts/04-vendor-pricing.bn` for L2 competitor pricing (OpenAI Codex, Anthropic Claude Code, Aider docs, Goose, Continue). `@>=0.80` ceiling for cost cells.
+- Defer L1 own-measurement of open-source competitors (Aider, Goose, Continue) until EXPERIMENT-0 PASS — no point measuring before the propagation thesis is validated.
+
+### Pointer for the next agent
+
+Before any code lands:
+1. Read mizaj rule 11 to internalize the credibility ladder.
+2. Validate the current state with `tools/burhan-validate.sh` — must return `True`.
+3. Continue research-driven confidence lifting per CONFIDENCE.md — start with L3 papers (TruthfulQA, ReAct), since these lift Section C's substrate-tools claims furthest without measurement.
+4. Every confidence update PR must list source URL → tier → quote → access date in the daftar receipt.
+
+---
+
 ## M0.2 — operator decisions locked + cheapbench design (2026-05-02)
 
 ### What was completed
