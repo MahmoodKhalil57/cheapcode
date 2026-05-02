@@ -39,6 +39,10 @@ lemma mizaj_13_no_transmission_without_isnad
   proves True
   by audit mizaj-rules-13-do-not-claim-transmission-without-isnad
 
+lemma mizaj_14_authentication_grade_bounds_confidence
+  proves True
+  by audit mizaj-rules-14-authentication-grade-bounds-confidence
+
 # ============================================================
 # Khazina atoms
 # ============================================================

@@ -4,6 +4,49 @@
 
 ---
 
+## M0.5 — mizaj rule 14 (auth grade bounds confidence) + Sahih extension design (2026-05-02)
+
+### What was completed
+
+- Substrate extension: [`~/apps/mizaj/rules/14-authentication-grade-bounds-confidence.md`](../../mizaj/rules/14-authentication-grade-bounds-confidence.md). Codifies the sahih/hasan/daif/mawdu authentication ladder derived from `Ulum al-hadith` as a portable mizaj rule. Companion to rule 11 (source-class axis); together they bound confidence on both axes (source × chain integrity).
+- [`plan/facts/01-substrate-citations.bn`](plan/facts/01-substrate-citations.bn) — added `mizaj_14_authentication_grade_bounds_confidence` lemma.
+- [`plan/CONFIDENCE.md`](plan/CONFIDENCE.md) — Source-credibility ladder section now references mizaj 14 as the chain-integrity-axis companion to mizaj 11. Notes that M14 governs the daftar↔burhan handoff once the Sahih extension lands.
+- Burhan validates `True`.
+
+### What was learned
+
+The operator's framing — "mizaj is the language between daftar and burhan, if it needs extension you can update it" — clarified the three-layer substrate architecture cheapcode was already implicitly relying on:
+
+| Layer | Sahih analog | cheapcode artifact |
+|---|---|---|
+| Storage of authenticated facts | hadith collections (Bukhari/Muslim) | daftar (now with Sahih extension proposed) |
+| Methodology / bridge language | `Usul al-fiqh` | mizaj rules (11 + 14 are the canonical pair) |
+| Composition of derived claims | `Fiqh` (jurisprudence) | burhan (PLAN.bn theorems) |
+
+This means the daftar Sahih extension (storing graded segments) and burhan (consuming confidence-bounded citations) can stay small; the discipline lives in mizaj. **Burhan was not extended** — its existing comment convention is sufficient for grade documentation, and grade-driven confidence-capping happens at the daftar→burhan handoff via the mizaj rule, not inside burhan's parser.
+
+### Honest concerns
+
+- **daftar Sahih extension still unimplemented.** Mizaj rule 14 defines the discipline; daftar's storage + grading + isnad-verification CLI is the remaining work. Gated on operator's explicit go.
+- **Audit-verify still queued.** `tools/audit-verify.sh` to walk every isnad target and flag broken chains is needed before sahih grade can be claimed for anything in `plan/facts/`. Khazīna atom 0007 (anti-fabrication via artifact verification) is the substrate driver.
+- **Cross-project corroboration needs a slug-naming convention.** Two daftar shards independently witnessing the same fact requires identical slugs. Either enforce uniqueness or namespace; design choice deferred to the daftar Sahih implementation turn.
+
+### Plan changes implied
+
+- Next implementation candidate (gated on operator go): daftar Sahih extension per the design proposal (Option A — minimal-change, kind-extension via metadata_json).
+- Concurrent: `tools/audit-verify.sh` to walk audit targets in `plan/facts/*.bn` and confirm each resolves; this becomes the gating pre-condition for promoting any fact to sahih grade.
+- Continuing research: 2024–2026 papers on inference-time prompt-shape uplift on sub-7B models, per [`plan/CONFIDENCE.md`](plan/CONFIDENCE.md) Revision 2026-05-02 pointer.
+
+### Pointer for the next agent
+
+Three open paths, in order of leverage:
+
+1. **Implement daftar Sahih extension** (substantial; ~200-300 LoC + tests) — promotes the proposal from design to operating system. Operator approval required.
+2. **Write `tools/audit-verify.sh`** (small; ~40 LoC) — closes the atom 0007 gap; pre-requisite for sahih-grade promotion.
+3. **Continue L3 research batch** — find 2024-2026 papers with stronger `'illah` to cheapllm's setting (sub-7B inference-time prompt shape).
+
+---
+
 ## M0.4 — first L3 paper batch + honest confidence deltas (2026-05-02)
 
 ### What was completed

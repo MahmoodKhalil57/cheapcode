@@ -146,6 +146,8 @@ Fill from credibility-laddered sources only (cite URL + access date inline; mark
 
 The canonical ladder is now formalized at [`~/apps/mizaj/rules/11-tier-the-source-before-citing.md`](../../mizaj/rules/11-tier-the-source-before-citing.md) (mizaj M11). The cheapcode-specific application is reproduced below for self-contained reference. Every cited source must be tagged with its credibility tier. Lower tiers are not banned; they are bracketed.
 
+**Companion rule (chain-integrity axis):** [`~/apps/mizaj/rules/14-authentication-grade-bounds-confidence.md`](../../mizaj/rules/14-authentication-grade-bounds-confidence.md) (mizaj M14) defines the parallel sahih/hasan/daif/mawdu authentication grading derived from `Ulum al-hadith`. Source-class (M11 — L1..L5) and chain-integrity (M14 — sahih..mawdu) bound confidence simultaneously; the lower ceiling wins. M14 governs the daftar↔burhan handoff once the daftar Sahih extension lands.
+
 | Tier | What | Treatment |
 |---|---|---|
 | **L1 — Own measurement** | Numbers we generated against pre-registered tasks, on our hardware, with daftar receipts | Ground truth. `@>=0.90`+ achievable. |
