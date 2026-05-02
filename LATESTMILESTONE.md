@@ -4,6 +4,50 @@
 
 ---
 
+## M0.4 — first L3 paper batch + honest confidence deltas (2026-05-02)
+
+### What was completed
+
+- WebFetched arXiv abstracts for four foundational papers: TruthfulQA (Lin et al. ACL 2022), ReAct (Yao et al. ICLR 2023), Toolformer (Schick et al. arXiv 2023), Constitutional AI (Bai et al. Anthropic 2022).
+- [`plan/facts/03-research-papers.bn`](plan/facts/03-research-papers.bn) — 13 lemmas anchoring each paper's headline result, methodology, and tier classification. Per mizaj 11: TruthfulQA / ReAct / Toolformer = L3, Constitutional AI = L4 (Anthropic tech report, not peer-reviewed).
+- [`plan/PLAN.bn`](plan/PLAN.bn) Section C confidence updates:
+  - `claim_shape_addon_lifts_truthfulness` `@>=0.50 → @>=0.55` (+0.05; TruthfulQA validates benchmark, not method)
+  - `daftar_tools_lift_cross_session` `@>=0.55 → @>=0.65` (+0.10; ReAct, but bounded by PaLM-540B → cheapllm transfer gap)
+  - `mizaj_consult_tool_lifts_design_quality` unchanged at `@>=0.45` (Constitutional AI is L4 + wrong mechanism)
+  - `minimal_tool_set_avoids_tool_spam` unchanged at `@>=0.70` (Toolformer abstract has no tool-count ablation)
+- [`plan/CONFIDENCE.md`](plan/CONFIDENCE.md) — Revision 2026-05-02 captures the per-paper findings + honest caveats per mizaj rule 05 (`'illah` missing or weak in each transfer).
+- Burhan validates `True` after the additions.
+
+### What was learned
+
+The four foundational papers establish the *target benchmarks* and *related shapes* but do **not** validate cheapcode's specific inference-time substrate-tools mechanism. TruthfulQA recommends training-time fine-tuning. ReAct measured on 540B. Constitutional AI is RLAIF training-time. Toolformer is fine-tuning. **None directly support inference-time substrate prompts on a sub-7B model**, which is exactly cheapcode's setting.
+
+This is the operator's "be careful not to be gullible" discipline working as intended. The papers are real, peer-reviewed in three of four cases, and widely cited — but they do not transfer their results to cheapcode's setting, and naming that gap honestly is the substrate-discipline payoff.
+
+The `@>=0.95` confidence target on Section C claims is therefore **structurally bounded above by `@>=0.70`** until our own L1 measurement on cheapllm provides direct evidence. We can keep researching to lift Section A/B/D/E/H further, but Section C ships at the bounded confidence unless EXPERIMENT-2 (claim-shape uplift probe) lands a direct measurement.
+
+### Honest concerns
+
+- **Big gap between target and ceiling on Section C.** Operator wants `@>=0.95`; pure-research ceiling on inference-time-substrate-tools-on-cheapllm is `@>=0.70` until measurement. Either accept the gap, run EXPERIMENT-2, or downgrade target on Section C alone.
+- **L4-classification of Constitutional AI may need revisiting** if Anthropic publishes a peer-reviewed version, or if a major journal/conference reproduces. Re-tier in that case.
+- **Audit-tag verification not yet wired.** `tools/audit-verify.sh` still queued.
+
+### Plan changes implied
+
+- Next research batch should look for **2024–2026 papers on inference-time prompt-shape uplift on sub-7B models** (Phi, Llama-small, Mistral-small). Those have higher-`'illah` transfer to cheapllm and could lift Section C confidence further without measurement.
+- After that, `plan/facts/04-vendor-pricing.bn` for L2 competitor pricing (Codex, Claude Code, Aider, Goose, Continue, Cursor, Devin).
+- EXPERIMENT-2 (claim-shape uplift probe on cheapllm) is now on the critical path for Section C `@>=0.95`.
+
+### Pointer for the next agent
+
+Continue research per [`plan/CONFIDENCE.md`](plan/CONFIDENCE.md) Revision 2026-05-02 "Next research batch" pointer. Each fetch must:
+1. Tier the source per mizaj rule 11 (cite tier inline)
+2. Quote the relevant claim or measurement verbatim
+3. Name the `'illah` (structural reason transfer holds) or honestly note its absence
+4. Update PLAN.bn `@>=0.XX` only by the amount the cited evidence + tier ceiling actually supports
+
+---
+
 ## M0.3 — multi-file burhan + mizaj rule 11 + L1 fact files (2026-05-02)
 
 ### What was completed

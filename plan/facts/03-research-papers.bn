@@ -1,0 +1,118 @@
+# plan/facts/03-research-papers.bn
+#
+# L3 academic citations for substrate-tools claims (Section C of PLAN.bn).
+# Per mizaj rule 11, L3 ceiling is @>=0.85 if methodology transfers, less
+# per khazina atom 0015 (transfer overstated by default).
+#
+# Each lemma anchors a specific finding from a paper. Audit tag is the
+# arXiv ID. Honest caveats follow each paper's lemmas because the
+# papers' methodologies do not directly transfer to cheapcode's
+# inference-time substrate-tools setting; "be careful not to be gullible"
+# (operator instruction 2026-05-02).
+#
+# Source provenance summary:
+#   - TruthfulQA: ACL 2022 peer-reviewed -> L3
+#   - ReAct: ICLR 2023 peer-reviewed -> L3
+#   - Toolformer: arXiv preprint, widely cited -> L3 (treat as academic)
+#   - Constitutional AI: Anthropic technical report, not peer-reviewed -> L4
+
+# ============================================================
+# TruthfulQA - Lin Hilton Evans ACL 2022 (arXiv:2109.07958)
+# ============================================================
+
+lemma truthfulqa_paper_exists_l3_acl_2022
+  proves True
+  by audit arxiv-2109-07958-acl-2022-fetched-2026-05-02
+
+lemma truthfulqa_finds_largest_models_least_truthful
+  proves True
+  by audit arxiv-2109-07958-quote-largest-models-least-truthful
+
+lemma truthfulqa_authors_recommend_training_time_finetuning
+  proves True
+  by audit arxiv-2109-07958-quote-finetuning-recommendation
+
+# CAVEAT: TruthfulQA's authors recommend TRAINING-time intervention,
+# not inference-time prompt-shape addons. cheapcode's claim-shape
+# addon is inference-time. The paper validates the BENCHMARK we want
+# to use to MEASURE cheapcode's claim-shape addon, not the method
+# itself. Confidence transfer to `claim_shape_addon_lifts_truthfulness`
+# is capped per atom 0015.
+
+# ============================================================
+# ReAct - Yao et al. ICLR 2023 (arXiv:2210.03629)
+# ============================================================
+
+lemma react_paper_exists_l3_iclr_2023
+  proves True
+  by audit arxiv-2210-03629-iclr-2023-fetched-2026-05-02
+
+lemma react_alfworld_uplift_34pp_absolute_over_imitation
+  proves True
+  by audit arxiv-2210-03629-quote-alfworld-34pp
+
+lemma react_webshop_uplift_10pp_absolute_over_baseline
+  proves True
+  by audit arxiv-2210-03629-quote-webshop-10pp
+
+lemma react_methodology_interleaves_reasoning_and_acting
+  proves True
+  by audit arxiv-2210-03629-quote-methodology
+
+# CAVEAT: ReAct's published experiments used large-scale PaLM. The
+# abstract does not confirm small-model transfer; cheapllm is much
+# smaller than PaLM-540B. Per atom 0015 (transfer overstated by
+# default), ReAct's uplift caps cheapcode's
+# `daftar_tools_lift_cross_session` confidence at the bounded-transfer
+# tier, not the L3 ceiling.
+
+# ============================================================
+# Toolformer - Schick et al. (arXiv:2302.04761)
+# ============================================================
+
+lemma toolformer_paper_exists_l3_arxiv_2023
+  proves True
+  by audit arxiv-2302-04761-fetched-2026-05-02
+
+lemma toolformer_uses_self_supervised_tool_call_training
+  proves True
+  by audit arxiv-2302-04761-quote-methodology
+
+lemma toolformer_taught_5_tools_calc_qa_search2_translate_calendar
+  proves True
+  by audit arxiv-2302-04761-quote-tool-list
+
+lemma toolformer_headline_competitive_with_larger_models_handwavy
+  proves True
+  by audit arxiv-2302-04761-quote-competitive
+
+# CAVEAT: Toolformer's mechanism is TRAINING-time fine-tuning;
+# cheapcode uses inference-time tool-calling. Different mechanism.
+# Abstract provides no ablation on tool-count effects, so does not
+# confirm or refute `minimal_tool_set_avoids_tool_spam`. The "5 tools"
+# observation is descriptive, not prescriptive. Insufficient to lift
+# `minimal_tool_set` claim above its current @>=0.70.
+
+# ============================================================
+# Constitutional AI - Bai et al. arXiv:2212.08073
+# Anthropic technical report (NOT peer-reviewed).
+# Per mizaj 11, this is L4 (vendor technical report) ceiling @>=0.40.
+# ============================================================
+
+lemma constitutional_ai_paper_exists_l4_anthropic_arxiv_2022
+  proves True
+  by audit arxiv-2212-08073-fetched-2026-05-02-l4-vendor-report
+
+lemma constitutional_ai_methodology_rlaif_training_time
+  proves True
+  by audit arxiv-2212-08073-quote-methodology
+
+lemma constitutional_ai_uses_principles_in_critique_loop
+  proves True
+  by audit arxiv-2212-08073-quote-principles
+
+# CAVEAT: Constitutional AI is L4 (Anthropic technical report, not
+# peer-reviewed). Methodology is TRAINING-time RLAIF with constitutional
+# critique. cheapcode's `mizaj_consult` is INFERENCE-time rule lookup.
+# Different mechanism + lower source tier. Does not lift
+# `mizaj_consult_tool_lifts_design_quality` above its current @>=0.45.

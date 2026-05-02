@@ -209,4 +209,19 @@ Without that articulation, the citation is rhetoric, not evidence (per mizaj rul
 
 ## Revision log
 
-(Empty. Add `## Revision YYYY-MM-DD` sections below as research lands.)
+### Revision 2026-05-02 — first L3 paper batch
+
+Fetched arXiv abstracts for four target papers; transcribed to [`plan/facts/03-research-papers.bn`](facts/03-research-papers.bn) as L3 lemmas. Honest read of what the abstracts actually support (per mizaj rule 11 + atom 0015 transfer-overstatement caution):
+
+| Paper | Tier | Direct support for cheapcode's claim? | Confidence delta |
+|---|---|---|---|
+| TruthfulQA — Lin et al. ACL 2022 ([arXiv:2109.07958](https://arxiv.org/abs/2109.07958)) | L3 peer-reviewed | **Weak.** Authors recommend training-time fine-tuning, not inference-time prompt shape. Validates the *benchmark*, not the *method* | `claim_shape_addon_lifts_truthfulness` `@>=0.50 → @>=0.55` (+0.05) |
+| ReAct — Yao et al. ICLR 2023 ([arXiv:2210.03629](https://arxiv.org/abs/2210.03629)) | L3 peer-reviewed | **Moderate.** ALFWorld +34pp absolute, WebShop +10pp absolute — but on PaLM-540B; small-model transfer not validated in the abstract | `daftar_tools_lift_cross_session` `@>=0.55 → @>=0.65` (+0.10) |
+| Toolformer — Schick et al. ([arXiv:2302.04761](https://arxiv.org/abs/2302.04761)) | L3 (preprint, widely cited) | **None for tool-spam claim.** Abstract has no tool-count ablation. 5-tool experiment is descriptive, not prescriptive | `minimal_tool_set_avoids_tool_spam` unchanged at `@>=0.70` |
+| Constitutional AI — Bai et al. ([arXiv:2212.08073](https://arxiv.org/abs/2212.08073)) | **L4** (Anthropic technical report, not peer-reviewed) | **Weak + wrong tier.** Training-time RLAIF mechanism, not inference-time rule lookup | `mizaj_consult_tool_lifts_design_quality` unchanged at `@>=0.45` |
+
+**Methodology note (mizaj rule 05 — cite-the-illah):** for each paper, the `'illah` (structural reason for transfer) is missing or weak. TruthfulQA uses training-time loss; cheapcode's claim-shape addon is inference-time. ReAct uses 540B model; cheapllm is much smaller. The methodologies do not share their load-bearing mechanism, so transfer is bounded by the gap.
+
+**Conclusion:** the four foundational papers establish the *target benchmarks and shapes* but do not validate cheapcode's specific inference-time substrate-tools mechanism. The `@>=0.95` confidence target on Section C claims is structurally bounded above by `@>=0.70` until our own L1 measurement on cheapllm provides direct evidence.
+
+**Next research batch:** look for 2024–2026 papers specifically on inference-time CoT / prompt-shape uplift on sub-7B models (Phi family, Llama-small, Mistral-small). Those would have higher-`'illah` transfer to cheapllm. Daftar receipt for each.

@@ -101,10 +101,22 @@ falsified_when obs_khatim_overlays_were_maintainable
 # SECTION C - substrate tools as inference-time calibration
 # ============================================================
 
-claim claim_shape_addon_lifts_truthfulness: Bool @>=0.50 = not obs_truthfulqa_delta_lt_2pp
+# Confidence updates 2026-05-02 from facts/03-research-papers.bn:
+# - TruthfulQA (Lin ACL 2022) validates the benchmark target but
+#   recommends training-time intervention, not inference-time prompt
+#   shape -> +0.05 lift only.
+# - ReAct (Yao ICLR 2023) shows interleaved reasoning+tools beats
+#   reasoning-only, but on PaLM-540B; small-model transfer not
+#   validated -> +0.10 lift, capped well below L3 ceiling.
+# - Constitutional AI (Bai 2022) is L4 vendor + training-time
+#   mechanism -> 0 lift on mizaj_consult.
+# - Toolformer (Schick 2023) abstract has no tool-count ablation
+#   -> 0 lift on minimal_tool_set.
+
+claim claim_shape_addon_lifts_truthfulness: Bool @>=0.55 = not obs_truthfulqa_delta_lt_2pp
 falsified_when obs_truthfulqa_delta_lt_2pp
 
-claim daftar_tools_lift_cross_session: Bool @>=0.55 = not obs_recall_delta_lt_5pp
+claim daftar_tools_lift_cross_session: Bool @>=0.65 = not obs_recall_delta_lt_5pp
 falsified_when obs_recall_delta_lt_5pp
 
 claim mizaj_consult_tool_lifts_design_quality: Bool @>=0.45 = not obs_design_audit_delta_lt_5pp
