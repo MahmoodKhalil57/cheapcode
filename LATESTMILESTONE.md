@@ -6,6 +6,59 @@
 
 ---
 
+## M3.0 — Phase 1 ships: zero-patch 5-tier provider package (2026-05-02)
+
+### Status
+
+Accepted. Phase 1 deliverables on disk; falsifier gate at L1 (source-readable) confirmed; L3 (binary `--list-models`) deferred to Phase 3 smoke regression by SPEC.
+
+### Context
+
+SPEC Revision 2026-05-02g locked Phase 1 at 4h wall-clock + $0 spend with one falsifier: "5 tiers don't appear in `--list-models` → umbrella 3 falsified."
+
+Two architectural paths on the table at Phase 1 entry:
+
+1. **Patch opencode upstream** — modify provider.ts at L102/L422/L1370 to register the 5 tiers natively. Weekly-rebase pain proportional to upstream churn near those lines.
+2. **Ship as npm-loadable AI SDK provider package** — load via opencode.json's documented `provider.<id>.npm` field. Zero patches; rebase cost is zero for Phase 1 surface.
+
+Path 2 fits umbrella 4 (maintainability @0.88, partly grounded in cpkt9762/opencode-vscode-ide thin-fork pattern) better. Path 1 may be needed for Phase 2's auto-wrapper compound logic — that decision is deferred.
+
+### Decision
+
+Phase 1 ships as **`@cheapcode/ai-sdk-provider`** v0.1.0-phase-1 — a Vercel AI SDK provider exposing 5 synthetic tier IDs (`cheap`, `cheap-fast`, `smart`, `smart-fast`, `auto`) routing to OpenRouter. ZERO patches to opencode upstream.
+
+Five files added under [cheapcode/](.):
+
+- [src/cheapcode-tiers.ts](src/cheapcode-tiers.ts) (214 LoC, within cell #14 350-LoC MIN budget)
+- [package.json](package.json), [cheapcode.toml](cheapcode.toml), [opencode.json.example](opencode.json.example)
+- [tools/build.sh](tools/build.sh) — Phase 1 verification (no API calls, $0)
+
+Phase 0 model picks: cheap → deepseek-v4-flash, smart → gpt-5-mini, smart-fast → claude-haiku-4.5, auto → STUB routes to cheap (Phase 2 wraps), long-context override → grok-4-fast above 128k tokens.
+
+Phase 1 falsifier disposition: **PARTIAL PASS at L1.** All 5 tier IDs present in source AND in opencode.json.example. Type-check + binary `--list-models` deferred to Phase 3 — Phase 1's $0 envelope precluded `bun install`.
+
+### Consequences
+
+**Good:**
+- Weekly rebase is a no-op for Phase 1 surface (no opencode source touched).
+- Thin-package shape under cell #14 LoC budget with headroom.
+- Phase 2 architectural pick (wrapper integration surface) preserved — not foreclosed by a Phase 1 patch.
+
+**Bad / honest tradeoffs:**
+- Falsifier gate not yet end-to-end exercised. Phase 1 evidence is L1 (source-readable), not L3 (binary). Phase 3 may still falsify.
+- Auto tier is a STUB routing to cheap. Until Phase 2 + EXPERIMENT-1, the "auto" name is honest in surface but doesn't yet deliver 3-axis dominance.
+- TypeScript type-resolution against `@openrouter/ai-sdk-provider` unverified — that's L2, deferred to Phase 3.
+
+**Joint confidence:** unchanged at 0.648 (research-only ceiling). Phase 1 produces an artifact but doesn't exercise a measurement falsifier. Lift toward the 0.839 post-measurement ceiling requires Phase 2 (EXPERIMENT-1) + Phase 3 (4-client smoke).
+
+### Pointer for next agent
+
+Phase 2 entry conditions + details: [runs/phase-1/result.md](runs/phase-1/result.md).
+
+Open Phase 2 design question: does the auto-wrapper live (a) inside the npm package as a wrapped `auto` tier handler, or (b) as a separate code-level integration in opencode? Re-read opencode's request-handling extension surface before picking. Phase 2 budget: 6h, $5.
+
+---
+
 ## M2.1 — adopt 3 parallel standards (Model Cards / GRADE / ADR) (2026-05-02)
 
 ### What changed (Status: Accepted)

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "cheapcode": {
+      "npm": "@cheapcode/ai-sdk-provider",
+      "name": "cheapcode tiers",
+      "options": {
+        "apiKey": "{env:OPENROUTER_API_KEY}"
+      },
+      "models": {
+        "cheap": {
+          "name": "cheap (deepseek-v4-flash)",
+          "tools": true
+        },
+        "cheap-fast": {
+          "name": "cheap-fast (race-K, Phase 2 enables gemini partner)",
+          "tools": true
+        },
+        "smart": {
+          "name": "smart (gpt-5-mini direct)",
+          "tools": true
+        },
+        "smart-fast": {
+          "name": "smart-fast (claude-haiku-4.5)",
+          "tools": true
+        },
+        "auto": {
+          "name": "auto (Phase 1 stub → cheap; Phase 2 wraps)",
+          "tools": true
+        }
+      }
+    }
+  }
+}
