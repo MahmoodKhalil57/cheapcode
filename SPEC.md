@@ -190,21 +190,32 @@ Upstream `packages/opencode/src/provider/provider.ts` already special-cases Open
 - Modification: ~15 LoC inside `provider.ts` near the OpenRouter init block — when openrouter loads, register the 5 synthetic tier models alongside the upstream catalog.
 - One config in `cheapcode.toml`: per-tier OR model overrides for operator customization.
 
-**Honest niche framing (per cheapllm v1 H6 Q3-A and atom 0013 — disclosure IS the credential):**
+**Honest 3-axis comprehensive-dominance claim (revised 2026-05-02d):**
 
-`smart` and `smart-fast` tiers route directly to actual capable models. We do NOT replicate cheapllm-smart's router-based lift on cheap base, because cheapllm's own measurement (F-J2 11.1% on TB-medium/hard) shows the router-on-cheap-base under-performs for high-end multi-step reasoning.
+`smart` and `smart-fast` tiers route directly to actual capable models — but the `auto` tier goes further: it is a **structured-reasoning wrapper that uses frontier models internally** (GPT-5.5 / Claude Opus / Gemini-pro / etc. via OpenRouter) and combines them with ensemble + verification techniques to beat **raw single-frontier-model calls on all three axes simultaneously**: cost, latency, and completion rate.
 
-But cheapcode goes one step further than cheapllm v1: `auto` tier is a **structured-reasoning wrapper** that targets cost-adjusted dominance on high-end multi-step reasoning. The wrapper combines:
+The structural reason this is achievable: when an agent is allowed to spend more compute on planning + verification + cross-model checking, well-documented results show 5–15% completion-rate lift on hard reasoning benchmarks vs single-call frontier (AlphaCode-2 vs raw Gemini, METR's verification-augmented Claude evals). The wrapper's task is to capture that lift while routing routine work to cheap-tier so that *average* cost stays below frontier.
 
-1. **Plan decomposition** — smart-tier produces the plan; cheap-tier executes leaves
-2. **Verifier hook** (cheapllm v1 just shipped this; we inherit) — catches confident-wrong outputs
-3. **Cross-witness convergence** (Khazīna atom 0010) — second smart-tier pass that did not see the first synthesis; convergence is the high-trust signal
-4. **Retry-with-feedback** — verifier-flagged outputs get explicit feedback + re-execution
-5. **Long-context retrieval** — when input >128k, route through grok-4-fast for context-bound steps
+Wrapper components:
 
-The honest claim becomes: **cost-adjusted dominance on high-end multi-step reasoning** — cheapcode-auto produces ≥90% of raw frontier completion rate at ≤80% of raw frontier cost. Quality is bounded by the smart-tier base model (we cannot make it smarter than it is); the wrapper's contribution is *amortizing smart-tier calls across decomposition + cross-witness*, which lets us spend less per task at near-frontier quality.
+1. **Task-type detection** — routine → cheap tier (most calls); long-context → grok-4-fast; hard-reasoning → ensemble loop
+2. **Plan decomposition** — smart-tier produces the plan; cheap-tier executes leaves in parallel where possible
+3. **Best-of-K sampling** — K=3 frontier samples on the synthesis step
+4. **Cross-model verification** (Khazīna atom 0010) — verifier is a *different* frontier model than the synthesizer; disagreement triggers retry
+5. **Retry-with-feedback** — verifier-flagged outputs get explicit feedback + re-execution (max 1 retry)
+6. **Tool-augmented retrieval** — for context-heavy sub-tasks, grok-4-fast pulls relevant context
 
-Pre-registered falsifier: see [`plan/EXPERIMENT-1.md`](plan/EXPERIMENT-1.md). If cheapcode-auto on TB-medium/hard cannot beat raw GPT-5.5 on cost-adjusted task completion, the hard-reasoning claim is dead and we revert to cheapllm v1's narrower niche framing.
+Honest claim: **cheapcode is alot cheaper, alot faster, AND smarter than raw GPT-5.5** on hard reasoning, all three axes simultaneously, on a pre-registered TB-medium/hard slice. Per atom 0013, disclosure of HOW (multi-model ensemble + verifier + plan-decompose, all transparent) is the credential.
+
+Quantitative targets (pre-registered, see [`plan/EXPERIMENT-1.md`](plan/EXPERIMENT-1.md)):
+
+| Axis | Target ratio (wrapper ÷ raw GPT-5.5) | Honest framing |
+|---|---|---|
+| Cost per task | ≤ 0.30 | "3× cheaper or better" |
+| Latency P50 | ≤ 0.70 | "30% faster or better" |
+| Completion rate on TB-medium/hard | ≥ 1.10 | "10% higher or better" |
+
+Falsifier: any axis missing its target = HARD-REASONING claim falsified on that axis. All three must hold for the comprehensive-dominance claim to ship.
 
 Per-tier defaults (cheapllm v1 L1 receipts):
 
@@ -214,7 +225,7 @@ Per-tier defaults (cheapllm v1 L1 receipts):
 | `cheap-fast` | race-K of `deepseek-v4-flash` + `*-flash-lite` (cheapllm-fast strategy) | cheapllm v1 race-K probe; 2.24s P50, no router |
 | `smart` | `openai/gpt-5-mini` direct | cheapllm v1 F-E1; honest "user pays for capability"; no router-pretending |
 | `smart-fast` | `anthropic/claude-haiku-4.5` or `openai/gpt-5-nano` | TBD — needs ≤2× latency benchmark vs `smart` |
-| `auto` | **structured-reasoning wrapper**: long-context → `grok-4-fast`; hard-reasoning → plan-decompose (`smart`) + execute-leaves (`cheap`) + verify (`smart`) + cross-witness (`smart` blind) + retry-with-feedback; default → `cheap` | iai router design + cheapllm verifier hook + Khazīna atom 0010 cross-witness pattern |
+| `auto` | **3-axis-dominance wrapper**: long-context → `grok-4-fast`; hard-reasoning → plan-decompose + parallel-execute-leaves at cheap-tier + best-of-K=3 frontier synthesis + cross-MODEL verification (different frontier model from synthesizer) + retry-with-feedback; default → `cheap`. Frontier models in the ensemble include GPT-5.5, Claude Opus, Gemini-pro — not bounded by single-model capability. | iai router design + cheapllm verifier hook + Khazīna atom 0010 + ensemble-method literature (AlphaCode-2, METR verification-augmented Claude) |
 
 Long-context special case (per cheapllm H3B receipt): when input >128k tokens, route through `x-ai/grok-4-fast` regardless of cheap/smart selection. NIAH 2M PASS at $0.37/call.
 
@@ -226,17 +237,23 @@ Long-context special case (per cheapllm H3B receipt): when input >128k tokens, r
 
 Khātim's M7.1.2 multi-account web UI was the highest-cost-of-divergence move it made (`packages/app/` mirroring + 7 upstream-overlay diffs). cheapcode v1 ships single-account-per-provider; multi-account is **deferred** as a SHARED-MODULE addition to be earned by demand, not authored speculatively. Per mizaj rule 07 (stack-default-not-neutral) — multi-account is a default we explicitly reject for v1.
 
-**Cells #14–#18 — surgical-fork discipline (revised 2026-05-02c for structured-reasoning wrapper):**
+**Cells #14–#18 — surgical-fork discipline (revised 2026-05-02d for 3-axis comprehensive-dominance wrapper):**
 
 | # | Constraint | MIN | EXPECTED | IDEAL |
 |---|---|---|---|---|
-| 14 | Maintained code in cheapcode (excl. upstream tree) | ≤ 350 LoC | ≤ 600 LoC | ≤ 900 LoC |
+| 14 | Maintained code in cheapcode (excl. upstream tree) | ≤ 500 LoC | ≤ 900 LoC | ≤ 1400 LoC |
 | 15 | Files modified in upstream tree | ≤ 1 | ≤ 2 | ≤ 2 |
 | 16 | New top-level packages | 0 | 0 | 0 |
 | 17 | Cross-process protocols | 0 | 0 | 0 |
-| 18 | `auto` wrapper code (subset of #14) | ≤ 200 LoC (basic plan+verify) | ≤ 400 LoC (full loop with retry+cross-witness) | ≤ 600 LoC (with adaptive K + tool-augmented retrieval) |
+| 18 | `auto` wrapper code (subset of #14) | ≤ 350 LoC (plan+verify+best-of-K) | ≤ 700 LoC (cross-model + retry + parallel exec) | ≤ 1000 LoC (adaptive K + tool-augmented retrieval) |
 
-LoC budget ~doubled from Revision 2026-05-02b to admit the structured-reasoning wrapper. The wrapper is what earns the hard-reasoning claim; without it, we'd be back to cheapllm v1's narrower niche. Per atom 0011, the LoC bump is justified by a discriminating experiment (EXPERIMENT-1) that gates the larger LoC commitment — if the experiment fails on a minimal version, IDEAL-tier wrapper code is never written.
+LoC budget bumped again (M1.1 → M1.2) to admit cross-model ensemble + best-of-K + parallel execution. Per atom 0011 (smallest-distinguishing-experiment-first), each tier of LoC is gated by a measurement that earns it:
+
+- MIN tier (≤350 LoC wrapper): EXPERIMENT-1's basic kill-criteria must PASS — wrapper hits all 3 axis targets on a 10-task probe.
+- EXPECTED tier (≤700 LoC wrapper): EXPECTED kill-criteria — wrapper hits 3-axis targets on a 30-task probe with cross-model verification active.
+- IDEAL tier (≤1000 LoC wrapper): IDEAL kill-criteria — wrapper hits 3-axis targets on a 50-task probe across coding + reasoning + math sub-domains.
+
+If MIN tier fails, no further LoC budgeted. If EXPECTED fails, ship at MIN. The LoC budget IS the falsifier-gated commitment per Khazīna atom 0011.
 
 This is dramatically tighter than the prior cell #1 (≤500/1000/2000 LoC). The pivot earns it by collapsing the harness layer into a provider extension.
 

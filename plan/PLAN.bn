@@ -104,13 +104,35 @@ claim obs_plan_decompose_smart_calls_grow_linearly: Bool @>=0.99 = False
 claim plan_decompose_amortizes_smart_calls: Bool @>=0.60 = not obs_plan_decompose_smart_calls_grow_linearly
 falsified_when obs_plan_decompose_smart_calls_grow_linearly
 
-# THE LOAD-BEARING HARD-REASONING CLAIM:
-# cheapcode-auto on TB-medium/hard achieves >=90% of raw GPT-5.5
-# completion rate at <=80% of raw GPT-5.5 cost. Pre-registered
-# falsifier in plan/EXPERIMENT-1.md.
-claim obs_cheapcode_auto_below_90pct_or_above_80pct_cost: Bool @>=0.99 = False
-claim cheapcode_auto_dominates_cost_adjusted_hard_reasoning: Bool @>=0.50 = not obs_cheapcode_auto_below_90pct_or_above_80pct_cost
-falsified_when obs_cheapcode_auto_below_90pct_or_above_80pct_cost
+# THE LOAD-BEARING 3-AXIS COMPREHENSIVE-DOMINANCE CLAIM (M1.2):
+# cheapcode-auto on TB-medium/hard beats raw GPT-5.5 on ALL THREE
+# axes simultaneously: cost <=0.30x, latency <=0.70x, completion >=1.10x.
+# The wrapper uses GPT-5.5 + Claude Opus + Gemini-pro internally
+# (best-of-K=3 + cross-MODEL verification + retry-with-feedback).
+# Per ensemble literature (AlphaCode-2, METR verification-augmented),
+# multi-model ensembles consistently lift hard-benchmark completion 5-15%.
+# Pre-registered falsifier: plan/EXPERIMENT-1.md
+claim obs_cheapcode_auto_misses_any_3_axis_target: Bool @>=0.99 = False
+claim cheapcode_auto_3_axis_dominance_over_raw_frontier: Bool @>=0.55 = not obs_cheapcode_auto_misses_any_3_axis_target
+falsified_when obs_cheapcode_auto_misses_any_3_axis_target
+
+# Best-of-K=3 sampling on hard tasks lifts completion vs single-sample.
+# Transferred from AlphaCode-2 + METR literature; bounded per atom 0015.
+claim obs_best_of_k_no_lift_on_hard_tasks: Bool @>=0.99 = False
+claim best_of_k_3_lifts_completion_5_to_15pct: Bool @>=0.65 = not obs_best_of_k_no_lift_on_hard_tasks
+falsified_when obs_best_of_k_no_lift_on_hard_tasks
+
+# Cross-MODEL verification (different model than synthesizer) catches
+# errors single-model verification misses. Atom 0010 application.
+claim obs_cross_model_verification_no_lift_over_self_verify: Bool @>=0.99 = False
+claim cross_model_verification_lifts_over_self_verify: Bool @>=0.65 = not obs_cross_model_verification_no_lift_over_self_verify
+falsified_when obs_cross_model_verification_no_lift_over_self_verify
+
+# Parallel execution of decomposed leaves keeps average latency below
+# raw single-call. Critical for the "alot faster" axis.
+claim obs_parallel_leaf_execution_no_latency_benefit: Bool @>=0.99 = False
+claim parallel_leaf_execution_keeps_latency_below_raw: Bool @>=0.70 = not obs_parallel_leaf_execution_no_latency_benefit
+falsified_when obs_parallel_leaf_execution_no_latency_benefit
 
 # Honest-niche claim REFRAMED: now includes hard-reasoning per cost.
 # Per atom 0013, the disclosure of the cost-adjustment qualifier IS
@@ -178,7 +200,7 @@ claim khatim_negative_knowledge_anchor: Bool @>=0.99 = cite khatim_1152_ts_tsx_f
 # ============================================================
 
 theorem cheapcode_v2_is_surgical_and_inherits_cheapllm_receipts
-  assume cheap_tier_uses_deepseek_v4_flash and cheap_fast_uses_race_k_cheapllm_strategy and smart_tier_routes_directly_to_capable_model and long_context_uses_grok_4_fast and auto_wrapper_apophatic_routing_works and verifier_hook_catches_50pct_of_wrong_answers and cross_witness_pattern_lifts_hard_reasoning and plan_decompose_amortizes_smart_calls and cheapcode_auto_dominates_cost_adjusted_hard_reasoning and honest_niche_dominance_includes_cost_adjusted_hard_reasoning and provider_registry_propagation_holds and or_provider_inheritance_safe and surgical_fork_loc_budget_holds and upstream_files_modified_within_budget and weekly_rebase_holds and cheapllm_receipts_anchor and cheapllm_context_anchor and iai_router_pattern_anchor and transfer_overstated_anchor and mizaj_substrate_anchor and khatim_negative_knowledge_anchor
+  assume cheap_tier_uses_deepseek_v4_flash and cheap_fast_uses_race_k_cheapllm_strategy and smart_tier_routes_directly_to_capable_model and long_context_uses_grok_4_fast and auto_wrapper_apophatic_routing_works and verifier_hook_catches_50pct_of_wrong_answers and cross_witness_pattern_lifts_hard_reasoning and plan_decompose_amortizes_smart_calls and cheapcode_auto_3_axis_dominance_over_raw_frontier and best_of_k_3_lifts_completion_5_to_15pct and cross_model_verification_lifts_over_self_verify and parallel_leaf_execution_keeps_latency_below_raw and honest_niche_dominance_includes_cost_adjusted_hard_reasoning and provider_registry_propagation_holds and or_provider_inheritance_safe and surgical_fork_loc_budget_holds and upstream_files_modified_within_budget and weekly_rebase_holds and cheapllm_receipts_anchor and cheapllm_context_anchor and iai_router_pattern_anchor and transfer_overstated_anchor and mizaj_substrate_anchor and khatim_negative_knowledge_anchor
   proves True
   by audit cheapcode-v2-surgical-architecture
 

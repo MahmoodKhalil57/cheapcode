@@ -4,6 +4,85 @@
 
 ---
 
+## M1.2 — 3-axis comprehensive-dominance refactor (2026-05-02)
+
+### What changed (operator pushback on M1.1's modesty)
+
+Operator: "we shouldnt be aiming to achieve ≥90% of raw GPT-5.5 if we are allowed to use gpt 5.5 and other models, we should build our system so that it is ALOT CHEAPER, ALOT FASTER, and SMARTER."
+
+The point lands. M1.1 framed the claim as "cost-adjusted dominance with quality bounded by smart-tier base model." But if the wrapper can call frontier models internally (GPT-5.5, Claude Opus, Gemini-pro), it ISN'T bounded by single-model capability — best-of-K + cross-model ensemble + verifier consistently lifts hard-benchmark scores 5–15% in the literature (AlphaCode-2 beat raw Gemini; METR's verification-augmented Claude evals).
+
+The honest claim is therefore **3-axis comprehensive dominance over raw single-call GPT-5.5**: cheaper AND faster AND smarter, simultaneously, on hard reasoning.
+
+### Architectural deltas from M1.1
+
+| Aspect | M1.1 | M1.2 |
+|---|---|---|
+| Honest claim shape | cost-adjusted dominance, raw quality bounded | 3-axis comprehensive dominance over raw frontier |
+| Wrapper components | plan + verify + cross-witness + retry | + best-of-K + cross-MODEL (not cross-witness) + parallel exec |
+| Wrapper LoC budget (cell #18) | 200/400/600 | **350/700/1000** |
+| Total LoC budget (cell #14) | 350/600/900 | **500/900/1400** |
+| EXPERIMENT-1 kill-criteria | wrapper completion ≥90% AND cost ≤80% (cost-adjusted) | wrapper cost ≤30% AND latency ≤70% AND completion ≥110% (all 3 axes) |
+| Frontier models in ensemble | gpt-5-mini only | GPT-5.5 + Claude Opus + Gemini-pro |
+
+### Files updated
+
+- [`SPEC.md`](SPEC.md) Revision 2026-05-02d — comprehensive-dominance claim, 3-axis targets, expanded LoC cells, falsifier-gated tier discipline (each LoC tier unlocked by a measurement).
+- [`plan/PLAN.bn`](plan/PLAN.bn) — replaced cost-adjusted-dominance claim with `cheapcode_auto_3_axis_dominance_over_raw_frontier`. Added `best_of_k_3_lifts_completion_5_to_15pct`, `cross_model_verification_lifts_over_self_verify`, `parallel_leaf_execution_keeps_latency_below_raw`.
+- [`plan/EXPERIMENT-1.md`](plan/EXPERIMENT-1.md) — rewritten with PASS-IDEAL / PASS-EXPECTED / PASS-MIN / PARTIAL / FAIL outcomes; budget bumped to ≤6 hours / ≤$50.
+- [`tools/joint-confidence.ts`](tools/joint-confidence.ts) — 27 claims, 11 groups.
+- [`MAIN.md`](MAIN.md) rewritten (HS-readable) with the bold pitch + honest "claim drops confidence with bigger ambition" framing.
+
+### Joint confidence delta
+
+| Metric | M1.0 | M1.1 | M1.2 |
+|---|---|---|---|
+| Claim count | 19 | 24 | **27** |
+| Joint, current | 0.139 | 0.045 | **0.032** |
+| Joint, post-measurement ceiling | 0.448 | 0.355 | **0.291** |
+| Bottleneck | tier-choices @ 0.50 | hard-reasoning @ 0.50 | hard-reasoning @ 0.55 + ensemble-methods @ 0.65 |
+
+**Adding the bigger ambition keeps lowering the ceiling.** Compositional dilution per atom 0015. Each new load-bearing claim multiplies through. The ceiling drops from 0.45 (M1.0) → 0.36 (M1.1) → 0.29 (M1.2). Per atom 0011, the larger LoC commitment is gated by EXPERIMENT-1 outcomes — if MIN tier fails, no further code is written.
+
+### Honest tradeoff
+
+| Axis | Pre-M1.2 framing | Post-M1.2 framing | Tradeoff |
+|---|---|---|---|
+| Ambition | cost-adjusted dominance only | comprehensive dominance | **+** bolder claim, **−** lower joint until measured |
+| LoC | ≤900 IDEAL | ≤1400 IDEAL | **−** more maintenance surface |
+| Falsifier difficulty | 2 ratios (completion + cost) | 3 ratios (cost + latency + completion) | **+** stronger falsifier, **−** harder to PASS |
+| Comp. ceiling | 0.36 | 0.29 | **−** lower joint cap from N grows |
+
+Operator instruction is the gate: bigger ambition is wanted; the substrate enforces honest math against it.
+
+### Honest concerns
+
+- **3-axis target is demanding.** All three ratios must clear simultaneously. PARTIAL outcomes are likely; SPEC accepts that and reframes to cleared axes.
+- **Ensemble lift is research-transfer, not in-domain measured.** Atom 0015 says transfer is overstated by default. The 5–15% lift might land at the low end for our slice.
+- **LoC creep.** ≤1400 is the IDEAL ceiling; falsifier-gated discipline keeps actual write below MIN unless measurement justifies more.
+
+### Plan changes implied
+
+- EXPERIMENT-1 is now load-bearing AT THREE AXES. Outcomes:
+  - PASS-IDEAL: ship full wrapper, 3-axis claim defensible
+  - PASS-EXPECTED: ship MIN-tier wrapper, 3-axis claim narrower
+  - PASS-MIN: ship MIN-tier wrapper with disclosed narrow margins
+  - PARTIAL: reframe claim to cleared axes (likely cheaper + faster, drop smarter)
+  - FAIL: revert SPEC Revision 2026-05-02d; ship cheapcode at M1.0 narrower niche
+- The path from 0% → 100% progress is now: 5-tier registration → EXPERIMENT-1 → wrapper MIN → wrapper EXPECTED → ship.
+
+### Pointer for the next agent
+
+Three operator decisions still open:
+
+1. **Time target.** ~1 week worst-case for full v1 (gated by EXPERIMENT-1 outcomes).
+2. **AI testing budget.** ~$50 for EXPERIMENT-1 + 4 smaller measurements.
+3. **Confidence-target reframe / scope.** Run EXPERIMENT-1 (commits to wrapper LoC), or ship M1.0-narrower (skip wrapper entirely), or cut other tiers.
+
+The single highest-leverage measurement: **EXPERIMENT-1**. Decides whether the M1.2 wrapper code is worth writing. Even if operator picks ship-narrower, running EXPERIMENT-1 first is cheap insurance against future regret.
+
+---
+
 ## M1.1 — refactor for hard-reasoning honest claim (2026-05-02)
 
 ### What changed (operator-driven refactor)
