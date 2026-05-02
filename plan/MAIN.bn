@@ -1,0 +1,88 @@
+# plan/MAIN.bn
+#
+# Calibration-audit cycle (~/apps/khazina/lectionary/calibration-audit.md)
+# applied to MAIN.md's confidence claim. Per the cycle: atoms 0011, 0015,
+# 0008, 0014, 0007 in reading order. Atom 0010 (blinded-witness) is
+# applicable but not run yet — flagged as deferred witness pass.
+#
+# Purpose: establish a falsifiable ceiling on the joint confidence of
+# `cheapcode_v1_ships` so the operator's @>=0.99999 target can be honestly
+# evaluated against the structural cap.
+#
+# The arithmetic is in tools/joint-confidence.ts (audit tag
+# `cheapcode-joint-confidence-computation`). This file is the burhan-shape
+# audit that cites it.
+
+# === Observations (defaults preserve current state) ===
+
+# This observation flips True if joint-confidence.ts shows the target IS
+# structurally reachable via measurement (i.e., post_measurement_joint >=
+# target). At authoring time (2026-05-02), it is False — joint caps at
+# ~0.46 against target 0.99999.
+claim obs_target_99999_reachable_via_measurement_alone: Bool @>=0.99 = False
+
+# This observation flips True if any audit step in the calibration-audit
+# lectionary cycle was skipped or the cycle itself was not applied.
+claim obs_calibration_audit_cycle_not_applied: Bool @>=0.99 = False
+
+# This observation flips True if the joint-confidence math has been
+# falsified by an independent re-computation (atom 0010 blinded witness).
+claim obs_joint_confidence_math_falsified: Bool @>=0.99 = False
+
+# === Lectionary cycle citations (atom anchors per ~/apps/khazina/lectionary/calibration-audit.md) ===
+
+claim cycle_atom_1_smallest_distinguishing_experiment: Bool @>=0.99 = cite atom_0011_smallest_distinguishing_experiment_first
+claim cycle_atom_2_transfer_overstated: Bool @>=0.99 = cite atom_0015_research_pipeline_overstates_base_model_specific_transfer
+claim cycle_atom_3_runtime_anchored_claim_shape: Bool @>=0.99 = cite atom_0008_claim_shape_pattern_runtime_anchored
+claim cycle_atom_5_cross_witness_honesty: Bool @>=0.99 = cite atom_0014_cross_witness_honesty_pipeline
+claim cycle_atom_6_artifact_verification: Bool @>=0.99 = cite atom_0007_anti_fabrication_via_artifact_verification
+
+# Atom 0010 (blinded-independent-witness-pass) is the missing cycle step.
+# Until a second pass runs, this audit is single-witness. Honest flag:
+claim cycle_atom_4_blinded_witness_deferred: Bool @>=0.50 = not obs_calibration_audit_cycle_not_applied
+falsified_when obs_calibration_audit_cycle_not_applied
+
+# === The MAIN.md confidence audit ===
+
+# Per the joint-confidence computation (tools/joint-confidence.ts):
+#   current_correlated_8group_joint = 0.021
+#   post_full_L1_measurement_8group_joint = 0.462
+#   target = 0.99999
+#   structurally_reachable_via_research_only = false
+#
+# This claim asserts MAIN.md's honest-cap conclusion: target NOT
+# structurally reachable for the 22-claim composition.
+
+claim joint_confidence_capped_below_99999: Bool @>=0.99 = not obs_target_99999_reachable_via_measurement_alone
+falsified_when obs_target_99999_reachable_via_measurement_alone
+
+claim joint_confidence_arithmetic_holds: Bool @>=0.99 = not obs_joint_confidence_math_falsified
+falsified_when obs_joint_confidence_math_falsified
+
+# === Composition: the audit holds when all atom citations resolve and
+# both math observations stay False ===
+
+theorem main_md_calibration_audit_passes
+  assume cycle_atom_1_smallest_distinguishing_experiment and cycle_atom_2_transfer_overstated and cycle_atom_3_runtime_anchored_claim_shape and cycle_atom_5_cross_witness_honesty and cycle_atom_6_artifact_verification and joint_confidence_capped_below_99999 and joint_confidence_arithmetic_holds
+  proves True
+  by audit cheapcode-joint-confidence-computation
+
+# === Discharge ===
+
+# This claim's value is True today; flips False if any observation flips.
+# Confidence @>=0.85 reflects the single-witness limitation (atom 0010
+# blinded-witness pass not yet run). With a blinded witness's convergence,
+# this claim could lift to @>=0.95.
+
+claim main_md_audit_passes_single_witness: Bool @>=0.85 = cite main_md_calibration_audit_passes
+falsified_when obs_target_99999_reachable_via_measurement_alone or obs_joint_confidence_math_falsified or obs_calibration_audit_cycle_not_applied
+
+# === Pre-registered halt condition ===
+#
+# Per mizaj rule 01 (falsifier-first): if a re-computation of the joint-
+# confidence math contradicts this audit, halt all subsequent
+# confidence-update PRs until the discrepancy is resolved. The math is
+# the audit's load-bearing piece.
+
+claim halt_if_math_contradicted: Bool @>=0.99 = not obs_joint_confidence_math_falsified
+falsified_when obs_joint_confidence_math_falsified

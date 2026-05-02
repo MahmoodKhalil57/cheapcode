@@ -28,11 +28,11 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 HOME_DIR="${HOME}"
 
 shopt -s nullglob
-FACT_FILES=("$ROOT"/plan/facts/*.bn)
+FACT_FILES=("$ROOT"/plan/facts/*.bn "$ROOT"/plan/*.bn)
 shopt -u nullglob
 
 if [ ${#FACT_FILES[@]} -eq 0 ]; then
-  echo "no plan/facts/*.bn files; nothing to verify"
+  echo "no plan/*.bn files; nothing to verify"
   exit 0
 fi
 
@@ -91,6 +91,22 @@ verify_tag() {
 
   elif [[ "$tag" =~ ^arxiv-[0-9]+-[0-9]+ ]]; then
     echo "OFFLINE: $tag (URL verification requires network; mizaj 11 L3)"
+    return 2
+
+  elif [[ "$tag" == cheapcode-joint-confidence-computation ]]; then
+    if [ -f "$ROOT/tools/joint-confidence.ts" ]; then
+      echo "RESOLVED: $tag -> tools/joint-confidence.ts"; return 0
+    fi
+    missing_list+=("$file:$line  $tag (tools/joint-confidence.ts not found)"); return 1
+
+  elif [[ "$tag" == calibration-audit-* ]]; then
+    if [ -f "$HOME_DIR/apps/khazina/lectionary/calibration-audit.md" ]; then
+      echo "RESOLVED: $tag -> khazina/lectionary/calibration-audit.md"; return 0
+    fi
+    missing_list+=("$file:$line  $tag (lectionary cycle not found)"); return 1
+
+  elif [[ "$tag" == experiment-0-and-2 || "$tag" == competitive-scorecard || "$tag" == project-meta ]]; then
+    echo "ADVISORY: $tag (theorem-level audit category; documentary, not file-resolvable)"
     return 2
 
   else

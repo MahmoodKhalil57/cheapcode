@@ -4,6 +4,77 @@
 
 ---
 
+## M0.9 — MAIN.md + calibration-audit applied + honest @>=0.99999 cap (2026-05-02)
+
+### What was completed
+
+- [`MAIN.md`](MAIN.md) — operator-readable one-page view: goal, time target (proposed; awaits operator confirmation), limits, current confidence (~2% joint with math), the structural cap on `@>=0.99999`, progress bar (currently 0%, all-planning-and-research-counts-as-zero per operator instruction), what carries the most lift, reading order.
+- [`tools/joint-confidence.ts`](tools/joint-confidence.ts) — reproducible computation of joint confidence from PLAN.bn's 22 top-theorem assumptions. Three views: independent-22-claim, correlated-8-group (more honest), post-full-L1-measurement-ceiling. Surfaces bottleneck groups.
+- [`plan/MAIN.bn`](plan/MAIN.bn) — calibration-audit lectionary cycle applied to MAIN.md's confidence claim. Cites atoms 0011, 0015, 0008, 0014, 0007 (atom 0010 deferred — the blinded-witness pass is the missing cycle step). Pre-registers halt-condition: if joint-confidence math is contradicted by independent re-computation, halt.
+- [`tools/burhan-validate.sh`](tools/burhan-validate.sh) extended to validate ALL top-level `plan/*.bn` files (PLAN.bn + MAIN.bn), each concatenated with the shared facts/.
+- [`tools/audit-verify.sh`](tools/audit-verify.sh) extended with new patterns: `cheapcode-joint-confidence-computation`, `calibration-audit-*`, theorem-level documentary tags (advisory-only). Result: 51 resolved / 17 offline / 0 missing across both PLAN.bn and MAIN.bn.
+
+### What was learned
+
+The honest math: `@>=0.99999` is structurally unreachable for the current 22-claim composition.
+
+| State | Joint confidence |
+|---|---|
+| Today | ~0.021 (correlated 8-group) or ~0.0015 (independent 22-claim) |
+| After full L1 measurement on bottleneck groups | ~0.462 |
+| Required per claim for 5-nines joint over 22 indep | `@>=0.99999955` (six nines) |
+| Required per group for 5-nines joint over 8 corr | `@>=0.99999875` (six nines) |
+
+Per mizaj rule 11, L1 ceiling per claim is `@>=0.95-0.99`. **No single research source provides six nines.** The compositional dilution is a consequence of `claim_A AND claim_B AND ...` — each "AND" is a confidence multiplication, and the joint cannot exceed the product.
+
+This is mizaj rule 04 (separate-stated-from-revealed) in action: stated target `@>=0.99999` reveals a cap of `~0.46` joint at full measurement. The right move is reframing the goal:
+
+1. **Per-claim `@>=0.95` + "no falsifier triggered"** as the practical ship criterion (achievable with L1 measurement)
+2. **Reduce N** — restate SPEC with fewer load-bearing claims (4 instead of 22 brings `0.95^4 ≈ 0.81` joint within reach)
+3. **Sequential discharge** — accept "no falsifier triggered" rather than "proven at 5 nines"
+
+Bottleneck groups identified by [`tools/joint-confidence.ts`](tools/joint-confidence.ts):
+
+- `vs-codex` @ 0.30 — needs vendor pricing fetch (cheap)
+- `vs-vanilla-opencode` @ 0.40 — L1-measurable cheap (run vanilla against cheapbench)
+- `cheapllm-smart-axis` @ 0.50 — wait for cheapllm F-H3 K=1
+- `cheapcode-harness` @ 0.50 — needs EXPERIMENT-0 + EXPERIMENT-2
+
+Lifting all four takes joint from 2% to ~46% — a 23× increase. That's the right ambition shape.
+
+### Honest concerns
+
+- **Single-witness audit.** The calibration-audit cycle's atom-0010 (blinded-independent-witness-pass) was NOT run on this audit. The math + conclusion is single-witness. A blinded second pass — by a different model not seeing this analysis — would either confirm or discover a flaw in the joint-confidence computation. Flagged in MAIN.bn as `cycle_atom_4_blinded_witness_deferred`.
+- **Time + token-cost limits unset.** MAIN.md proposes envelopes; operator confirmation is the next gate.
+- **Confidence-target reframe not yet accepted.** MAIN.md proposes 3 reframings; operator must pick one (or reject and accept the structural cap as a hard constraint).
+
+### Plan changes implied
+
+Whichever reframe operator picks dictates the next loop:
+
+- If **option 1** (per-claim `@>=0.95` + no-falsifier): proceed with measurement-driven research per CONFIDENCE.md, target ~0.46 joint as the ship floor.
+- If **option 2** (reduce N): rewrite SPEC.md cells to a smaller load-bearing claim set.
+- If **option 3** (sequential discharge): reframe progress bar around falsifier-triggered events.
+
+### Pointer for the next agent
+
+Three operator decisions surface before more work:
+
+1. **Time target.** MIN/EXPECTED/IDEAL envelopes per MAIN.md proposal, or different.
+2. **Token-cost budget for cheapcode.** Currently unset.
+3. **Confidence-target reframe.** Pick option 1, 2, or 3 from MAIN.md.
+
+After confirmation, the highest-leverage research/measurement is in this order:
+
+1. L2 vendor-pricing fetch for hosted competitors (Codex, Claude Code, Cursor, Devin) — lifts `vs-codex` group fast and cheap.
+2. EXPERIMENT-0 — gates the propagation thesis; lifts the cheapcode-harness group.
+3. L1 own-measurement of vanilla opencode + cheapllm against cheapbench — lifts `vs-vanilla` to L1.
+4. Wait for cheapllm F-H3 K=1 — lifts cheapllm-smart-axis.
+
+Per atom 0010 (blinded-independent-witness): a second-pass review of the joint-confidence math would tighten the audit further. Defer until other work pressures it.
+
+---
+
 ## M0.8 — substrate-completion sweep (2026-05-02)
 
 ### What was completed
