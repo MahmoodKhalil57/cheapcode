@@ -4,6 +4,71 @@
 
 ---
 
+## M0.8 — substrate-completion sweep (2026-05-02)
+
+### What was completed
+
+Five sequential loops on the four-tool substrate to bring it to a state where further direct work yields diminishing returns.
+
+**Loop 1 — atom seed backfill.** All 15 khazīna atoms now carry compressed `seed` fields per SCHEMA 0.2.0 discipline (≤30 words). The 4 most-cited (0008, 0011, 0013, 0015) had seeds from M0.7; backfilled 0001–0007, 0009, 0010, 0012, 0014. `bin/khazina-export-burhan` emits the seed for every atom.
+
+**Loop 2 — daftar Sahih promotion.** Wrote [`tools/promote-to-sahih.ts`](tools/promote-to-sahih.ts) — a one-pass migration script that reads every lemma in `plan/facts/*.bn` and creates a corresponding daftar sahih segment. **64 segments promoted** to cheapcode's shard with grade distribution: 50 sahih (substrate citations + cheapllm receipts + khazīna atom lemmas), 11 hasan (research papers — TruthfulQA / ReAct / Toolformer per mizaj 11 L3 ceiling), 3 daif (Constitutional AI L4 vendor tech report). Idempotent (re-run promotes 0, skips 64).
+
+**Loop 3 — daftar cross-shard verification.** Initial chain-verify reported 8 broken chains (the cheapllm-daftar-note-* references). Root cause: `verifyIsnadLink` treated all `daftar:` prefixes as "unverifiable_offline" without actually trying to resolve. Extended the function to recognize `daftar:<project-shortname>:note-XXXX` format and call `getEntry()` on the named project's shard. Post-fix: **64/64 chains intact**. Daftar suite 19/19 pass; no regressions.
+
+**Loop 4 — lectionary scaffolding.** Created `~/apps/khazina/lectionary/` with two curated atom reading-cycles:
+- `calibration-audit.md` — 6 atoms (0011 → 0015 → 0008 → 0010 → 0014 → 0007) for confidence-review work
+- `architecture-decision.md` — 7 atoms (0011 → 0005 → 0006 → 0001 → 0007 → 0009 → 0012) for design proposals
+
+Plus `bin/khazina-lectionary` CLI (reads cycle, outputs atoms in order with per-atom `'illah` and seeds; JSON output for substrate-tool consumption). The Qur'anic-muqaṭṭaʿāt M:N seed-to-surah mapping is the structural inspiration; cycles capture the same pattern for atoms-to-contexts.
+
+**Loop 5 — operational closure.**
+- Updated `tools/audit-verify.sh` to resolve `cheapllm-daftar-note-*` tags via the daftar API. Result: **50 resolved, 14 offline (just arXiv URLs), 0 missing** (up from 26 resolved, 22 offline).
+- Added [`~/apps/mizaj/rules/INDEX.md`](../../mizaj/rules/INDEX.md) — at-a-glance index of all 14 mizaj rules with companion-rule pairings (M11+M14, M01+M05, M07+M02, M13+M14, M15+M11).
+
+### Cross-tool state at M0.8
+
+| Tool | State |
+|---|---|
+| daftar | 64 sahih segments in cheapcode shard (50 sahih / 11 hasan / 3 daif), 64/64 chains intact, cross-shard verify implemented, full suite 19/19 pass |
+| mizaj | 14 rules + INDEX.md; 11/14/15 are the cheapcode-load-bearing trio |
+| burhan | unchanged (Round 1 + concat-tool + comment convention sufficient); validates True over PLAN.bn + 4 fact files = 98 lemmas |
+| khazīna | 15 atoms all with seeds; 2 lectionary cycles; 4 bin scripts (new-atom, match-problem, khazina-export-burhan, khazina-lectionary); SCHEMA 0.2.1 |
+
+### What was learned
+
+The four-tool coupling now closes end-to-end without ceremony gaps:
+1. Burhan plan claims cite atom lemmas (Section J in PLAN.bn)
+2. Atom lemmas reference khazīna atoms via audit tags
+3. Audit tags resolve via `tools/audit-verify.sh` (filesystem) or daftar's cross-shard `verifyIsnadLink` (cross-project)
+4. Each lemma is mirrored as a daftar sahih segment (per mizaj 14 grading)
+5. Lectionary cycles compose atoms for reasoning contexts (per mizaj 15)
+6. Mizaj rules govern source-tier (11), chain-grade (14), and atom-consultation (15) discipline at every step
+
+Diminishing returns past this point: the remaining substrate work is either premature (per [`khazīna/plan/07-maintenance-disciplines.md`](../../khazina/plan/07-maintenance-disciplines.md) deferred items — access-cost tracking, hot/cold gradient, cross-atom pointers — all gated on catalog growth or measurement infrastructure) or ceremony (more lectionary cycles before they earn their use; more atom-seed compression past the current discipline floor).
+
+### Honest concerns
+
+- **arXiv URLs still offline** — 14 audit tags map to arxiv.org URLs that audit-verify treats as offline. Adding `--network` mode to `audit-verify.sh` (curl HEAD on each URL) would close this gap; deferred because it's small QoL not load-bearing.
+- **Lectionary cycles are unproven.** Two cycles defined; neither has been applied yet to a real audit/decision. The cycle-level falsifier (does applying the cycle measurably reduce wrong-conclusion incidents?) is pending real use.
+- **The `cheapcode` work itself remains gated on EXPERIMENT-0** — the substrate is now strong, but the propagation thesis still needs the discriminating experiment before any opencode fork is touched.
+
+### Plan changes implied
+
+- Substrate work pauses here unless a specific gap surfaces during cheapcode application.
+- Next cheapcode loop returns focus to the propagation thesis: run EXPERIMENT-0 (gates the fork-vs-wrapper question), or continue research-driven confidence lifts on Section E + H.
+- When/if the catalog grows past ~30 atoms, revisit the deferred maintenance-discipline items (access cost, hot/cold, cross-atom pointers).
+
+### Pointer for the next agent
+
+Substrate is at completion. Three orthogonal next paths:
+
+1. **Run EXPERIMENT-0** — the propagation thesis test that gates the cheapcode fork. Out of further substrate work; into measurement.
+2. **Continue Section E research** — sub-7B inference-time prompt papers (per [`plan/CONFIDENCE.md`](plan/CONFIDENCE.md) revision pointer); lifts cheapcode confidence honestly.
+3. **Apply a lectionary cycle to a real cheapcode audit** — proves the cycle's claim by use; closes the cycle-level falsifier.
+
+---
+
 ## M0.7 — khazina connection: atoms as compressed unlocks (2026-05-02)
 
 ### What was completed

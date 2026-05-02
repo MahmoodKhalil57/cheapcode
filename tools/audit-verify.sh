@@ -67,8 +67,15 @@ verify_tag() {
     else missing_list+=("$file:$line  $tag (no cheapllm/SPEC.md)"); return 1; fi
 
   elif [[ "$tag" == cheapllm-daftar-note-* ]]; then
-    echo "OFFLINE: $tag (daftar cross-shard verification not implemented)"
-    return 2
+    local noteId
+    noteId=$(echo "$tag" | grep -oE 'note-[a-f0-9]+' | head -1)
+    if [ -z "$noteId" ]; then
+      missing_list+=("$file:$line  $tag (no note-id pattern)"); return 1
+    fi
+    if bun "$HOME_DIR/apps/daftar/bin/daftar" list --project="$HOME_DIR/apps/cheapllm" 2>/dev/null | grep -q "\"$noteId\""; then
+      echo "RESOLVED: $tag -> daftar:cheapllm:$noteId"; return 0
+    fi
+    missing_list+=("$file:$line  $tag (daftar entry $noteId not found in cheapllm shard)"); return 1
 
   elif [[ "$tag" == cheapllm-results-* || "$tag" == cheapllm-f-* ]]; then
     if [ -d "$HOME_DIR/apps/cheapllm/results" ]; then echo "RESOLVED: $tag -> cheapllm/results/ (exists; specific file not pattern-matched)"; return 0
