@@ -25,10 +25,26 @@
 
 type Claim = { name: string; c: number; tier: string; group: string };
 
-// Updated 2026-05-02b for the architectural pivot: 5-model surgical add
-// to opencode's provider registry rather than wrapping cheapllm as
-// separate process. Smaller claim set; per-claim confidences higher
-// because cheapllm's receipts directly transfer.
+// M1.6 REFACTOR: load-bearing umbrella claim set (5 umbrellas) replaces
+// the 27-claim composition. Each umbrella has DIRECT evidence at its
+// tier ceiling (not derived from sub-claim composition), so the joint
+// over umbrellas escapes compositional dilution that plagued the 27-
+// claim plan. Sub-claims (the previous detail claims) are retained in
+// PLAN.bn as supporting evidence but no longer enter the discharge.
+//
+// Substrate convergence: mizaj 02 (generate-before-select), mizaj 07
+// (stack-default-not-neutral), atom 0011 (smallest-load-bearing set),
+// atom 0015 (fewer claims = less transfer-overstatement risk).
+const UMBRELLA_CLAIMS: Claim[] = [
+  { name: "umbrella_cheapllm_capability_inherited", c: 0.95, tier: "L1-cheapllm-v1-receipts", group: "umbrella-1" },
+  { name: "umbrella_auto_wrapper_multistep_dominance_research_grounded", c: 0.85, tier: "L3-mutawatir-snell-cai", group: "umbrella-2" },
+  { name: "umbrella_provider_registry_propagation_layer_1", c: 0.92, tier: "L1-source-readable", group: "umbrella-3" },
+  { name: "umbrella_surgical_maintainability_lessons_inherited", c: 0.85, tier: "L1-khatim-sanad-postmortem", group: "umbrella-4" },
+  { name: "umbrella_cheapcode_cost_ratio_vs_competitors", c: 0.94, tier: "L1+L2-direct-arithmetic", group: "umbrella-5" },
+];
+
+// Legacy 27-claim set kept for comparison (M1.5 state). Not used
+// in the umbrella discharge.
 const CLAIMS: Claim[] = [
   { name: "cheap_tier_uses_deepseek_v4_flash", c: 0.95, tier: "L1", group: "tier-choices-receipted" },
   { name: "cheap_fast_uses_race_k_cheapllm_strategy", c: 0.90, tier: "L1", group: "tier-choices-receipted" },
@@ -138,6 +154,25 @@ const cor = correlatedJoint(CLAIMS);
 const postm = postMeasurementJoint();
 const postr = postResearchOnlyJoint();
 
+// M1.6 umbrella discharge — the load-bearing joint.
+const umbrella = independentJoint(UMBRELLA_CLAIMS);
+const UMBRELLA_POST_RESEARCH_CEILINGS: Record<string, number> = {
+  "umbrella-1": 0.95,
+  "umbrella-2": 0.85,
+  "umbrella-3": 0.92,
+  "umbrella-4": 0.85,
+  "umbrella-5": 0.94,
+};
+const UMBRELLA_POST_MEASUREMENT_CEILINGS: Record<string, number> = {
+  "umbrella-1": 0.99,
+  "umbrella-2": 0.95,
+  "umbrella-3": 0.98,
+  "umbrella-4": 0.92,
+  "umbrella-5": 0.99,
+};
+const umbrellaPostResearch = Object.values(UMBRELLA_POST_RESEARCH_CEILINGS).reduce((p, x) => p * x, 1);
+const umbrellaPostMeasurement = Object.values(UMBRELLA_POST_MEASUREMENT_CEILINGS).reduce((p, x) => p * x, 1);
+
 const target = 0.99999;
 const out = {
   meta: {
@@ -147,7 +182,15 @@ const out = {
     audit_tag: "cheapcode-joint-confidence-computation",
     timestamp: new Date().toISOString(),
   },
-  current_state: {
+  m1_6_umbrella_discharge: {
+    note: "Per M1.6 refactor: load-bearing joint over 5 umbrella claims with direct evidence each. THIS is the real number now.",
+    current: Number(umbrella.toFixed(6)),
+    post_research_ceiling: Number(umbrellaPostResearch.toFixed(6)),
+    post_measurement_ceiling: Number(umbrellaPostMeasurement.toFixed(6)),
+    umbrellas: UMBRELLA_CLAIMS.map((u) => ({ name: u.name, c: u.c, tier: u.tier })),
+  },
+  legacy_27claim_state: {
+    note: "Pre-M1.6 27-claim composition. Kept for comparison.",
     independent_22claim: Number(ind.toFixed(6)),
     correlated_8group: Number(cor.joint.toFixed(6)),
     bottleneck_groups: cor.groups

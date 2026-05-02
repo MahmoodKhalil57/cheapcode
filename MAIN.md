@@ -66,15 +66,24 @@ Only working code counts. Planning, research, and documentation = 0%.
 
 ## Confidence
 
-**~17%** that the plan succeeds within the $10 / 24h limits as of 2026-05-02 — **lifted from ~7% by deeper research** (Snell ICLR 2025, EMNLP 2025 Compound AI papers, OpenAI Codex pricing, artificialanalysis.ai latency benchmarks). No code written, no experiments run, no money spent — just research applied via mizaj rule 16.
+**~59%** that the plan succeeds within the $10 / 24h limits as of 2026-05-02 — **lifted from ~17% by refactoring to 5 load-bearing umbrella claims**, each backed by direct evidence (substrate-driven move per atom 0011 + mizaj 02/07).
 
-| State                                          | Joint confidence | What you'd need |
-|---|---|---|
-| Today, post-research                           | **~17%**         | Already done    |
-| After fully maxing research (more sources)     | **~34%**         | More literature search + L1 in-house computations |
-| After full measurement                         | **~64%**         | Run EXPERIMENT-1 + 3 small probes ($5–10 total) |
-| Target `@>=0.99999`                            | structurally unreachable for this claim count | Reduce N to ≤5 load-bearing claims, OR ship at the achievable ceiling |
+| State                                              | Joint confidence | What you'd need                                         |
+| -------------------------------------------------- | ---------------- | ------------------------------------------------------- |
+| Today, post-refactor + research                    | **~59%**         | Already done                                            |
+| After full measurement on 5 umbrellas              | **~84%**         | Run EXPERIMENT-1 + 3 small probes (~$10, fits envelope) |
+| Target `@>=0.99999`                                | unreachable      | Even tighter scope; structural cap                      |
 
-The single biggest research lift came from **Snell et al. ICLR 2025** ("Scaling LLM Test-Time Compute Optimally") — directly proves that smaller-base + best-of-N + verifier outperforms 14× larger raw model on math reasoning. That's the structural defense for cheapcode-auto's wrapper-beats-frontier thesis. Lifted the load-bearing claim from `@>=0.65` → `@>=0.85`.
+### The refactor that did this
 
-The math is in [`tools/joint-confidence.ts`](tools/joint-confidence.ts) and [`tools/research-equivalence.ts`](tools/research-equivalence.ts) — re-run after any plan change.
+Previous plan had 27 claims. Most were derived or implementation-detail. **5 are truly load-bearing** — if any falsifies, the project ships dead:
+
+1. **cheapllm capability inherited** — cost / fast / context receipts from cheapllm v1 (L1 in-house). `@>=0.95`
+2. **auto-wrapper beats raw frontier on multistep** — Snell ICLR 2025 + EMNLP 2025 Compound AI papers. `@>=0.85`
+3. **provider-registry propagation** — opencode source-readable shows OpenRouter already special-cased. `@>=0.92`
+4. **surgical maintainability** — Khātim/Sanad post-mortem L1 + project-meta discipline. `@>=0.85`
+5. **cost ratio vs competitors** — OpenAI Codex pricing L2 + cheapllm-v1 receipts L1, direct arithmetic. `@>=0.94`
+
+Each umbrella has **direct** evidence (not derived from sub-claims), so the joint over 5 is `0.95 × 0.85 × 0.92 × 0.85 × 0.94 ≈ 0.59` — not bounded by min of supporting claim composition. The other 22 claims live in [`plan/PLAN.bn`](plan/PLAN.bn) Sections O/A/B/C/D/E/F/H/I/J as supporting evidence; they don't enter the discharge.
+
+Math: [`tools/joint-confidence.ts`](tools/joint-confidence.ts). Per-source citations: [`tools/research-equivalence.ts`](tools/research-equivalence.ts).

@@ -105,7 +105,7 @@ verify_tag() {
     fi
     missing_list+=("$file:$line  $tag (lectionary cycle not found)"); return 1
 
-  elif [[ "$tag" == experiment-0-and-2 || "$tag" == competitive-scorecard || "$tag" == project-meta || "$tag" == cheapcode-v2-surgical-architecture || "$tag" == cheapcode-research-equivalence-computation ]]; then
+  elif [[ "$tag" == experiment-0-and-2 || "$tag" == competitive-scorecard || "$tag" == project-meta || "$tag" == cheapcode-v2-surgical-architecture || "$tag" == cheapcode-research-equivalence-computation || "$tag" == cheapcode-v3-load-bearing-discharge ]]; then
     echo "ADVISORY: $tag (theorem-level audit category; documentary, not file-resolvable)"
     return 2
 
