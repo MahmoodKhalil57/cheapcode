@@ -423,6 +423,74 @@ The whole project halts (not just a phase pivots) under any of:
 
 ---
 
+## Revision 2026-05-02g — adopt 3 battle-tested parallel standards
+
+Operator: "see if there are well supported and tested parallel standards online that we can use to make our plan better."
+
+Surveyed substrate suite parallels: W3C PROV, GRADE, Model Cards, Datasheets for Datasets, ADRs, Toulmin model, PRISMA. Adopted the three with highest leverage at lowest cost; deferred others with explicit rationale.
+
+### Adoption 1 — Model Cards (Mitchell et al. 2019) for Phase 4 README
+
+Phase 4's scorecard now structures the README per the [Model Cards format](https://arxiv.org/abs/1810.03993). Standard sections:
+
+1. **Model details** — name, version, author, type, training algorithms / parameters, license
+2. **Intended use** — primary use cases, primary users, out-of-scope use cases
+3. **Factors** — relevant groups, instrumentation, environment
+4. **Metrics** — model performance measures, decision thresholds, variation approaches
+5. **Evaluation data** — datasets, motivation, preprocessing
+6. **Training data** — (n/a for cheapcode wrapper; routes to upstream models)
+7. **Quantitative analyses** — unitary results, intersectional results
+8. **Ethical considerations** — data use, human life impact, mitigations, risks/harms, use cases sensitive
+9. **Caveats and recommendations** — what we don't know, recommendations for use
+
+Adoption rationale: Hugging Face + Meta + Google + OpenAI all use Model Cards. The format is immediately recognizable to ML researchers and aligns expectations. Zero plan-change cost (just a README template). Atom 0013 alignment: explicit caveats section IS the calibration credential.
+
+### Adoption 2 — GRADE downgrade criteria checklist for research synthesis
+
+[GRADE](https://www.cochrane.org/learn/courses-and-resources/cochrane-methodology/grade) (adopted by WHO, NICE, Cochrane, BMJ, 20+ orgs) has 5 explicit domains for downgrading evidence quality:
+
+| Domain | What to check |
+|---|---|
+| Risk of bias | Study design + execution flaws |
+| Inconsistency | Heterogeneity of effect estimates across studies |
+| Indirectness | Different population / intervention / outcomes from claim |
+| Imprecision | Wide confidence intervals / small N |
+| Publication bias | Cherry-picked or vendor-published results |
+
+**Application:** Augment [`tools/research-equivalence.ts`](tools/research-equivalence.ts)'s formula with a GRADE-checklist pre-flight: for each cited source at L3, run the 5-domain check; downgrade tier by 1 step if any domain triggers. Exposes over-statements like cheapllm-v1's 7× atom-0015 firings BEFORE they enter the joint.
+
+This complements (does not replace) mizaj rule 11. Mizaj 11 = source-class axis (L1-L5). GRADE = evidence-quality axis (downgrades within tier). Both apply.
+
+### Adoption 3 — ADR (Nygard format) for LATESTMILESTONE entries
+
+[ADR (Architectural Decision Records)](https://adr.github.io/) format by Michael Nygard is a 5-section structure: Title / Status / Context / Decision / Consequences.
+
+We're already approximating this in milestone entries. Locking the format going forward:
+
+```markdown
+## MN.X — <Title> (YYYY-MM-DD)
+
+### What changed (Status: Accepted / Superseded / Deprecated)
+### What was learned (Context)
+### Decision (the locked move)
+### Consequences (good + bad)
+### Pointer for the next agent
+```
+
+Adoption rationale: ADR is an established software-engineering standard. Aligning makes our decision log readable to engineers outside this project without context.
+
+### Deferred standards (with rationale)
+
+| Standard | Why deferred |
+|---|---|
+| **W3C PROV** | Substantial substrate change to daftar Sahih's `isnad` schema; low current benefit (no PROV consumers in scope). Revisit if interop with research data tools becomes load-bearing. |
+| **Toulmin model** (claim/warrant/backing) | Would inflate burhan parser; current concat-tool + claim/falsifier/cite is sufficient at this scale. Revisit if claim-shape complexity grows. |
+| **PRISMA full** (27-item systematic-review checklist) | Overkill for cheapcode's ≤20-source synthesis scope; light pieces already in CONFIDENCE.md. Revisit if cheapcode publishes a meta-analysis-style scorecard. |
+
+Per mizaj rule 02 (generate-before-select) + mizaj 07 (stack-default-not-neutral): these aren't "rejected forever" — they're triaged with explicit thresholds for revisit.
+
+---
+
 ## Sign-off
 
 This SPEC takes effect once committed. Refinements after that require a new dated section (`## Revision YYYY-MM-DD`) plus a falsifier explaining why the change is load-bearing. The original matrix stays; nothing edits in place.

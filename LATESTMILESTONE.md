@@ -2,6 +2,71 @@
 
 **Read this BEFORE [`plan/`](plan/).** The plan is the working draft; this file is the authoritative record of what's been completed and what should change next.
 
+**Format:** going forward, milestone entries follow the ADR (Nygard) 5-section format per SPEC Revision 2026-05-02g: Title (with date) / Status / Context / Decision / Consequences / Pointer. Existing entries below approximate this informally.
+
+---
+
+## M2.1 — adopt 3 parallel standards (Model Cards / GRADE / ADR) (2026-05-02)
+
+### What changed (Status: Accepted)
+
+Operator: "take a look at our substrate suite and see if there are well supported and tested parallel standards online that we can use to make our plan better."
+
+Surveyed 6 candidates: W3C PROV, GRADE, Model Cards, Datasheets for Datasets, ADRs (Nygard/MADR), Toulmin model, PRISMA. Adopted 3, deferred 3 with explicit rationale (SPEC Revision 2026-05-02g).
+
+### What was learned (Context)
+
+The substrate suite (mizaj/burhan/khazina/daftar) has direct parallels in established standards. Best matches:
+
+- **GRADE evidence quality** (Cochrane/WHO/NICE; 20+ orgs adoption) ↔ mizaj rule 11's L1-L5 ladder. Complementary, not duplicative — GRADE is the evidence-quality axis (5 downgrade criteria within a tier); mizaj 11 is the source-class axis.
+- **Model Cards** (Mitchell et al. 2019; HuggingFace/Meta/Google/OpenAI standard) ↔ Phase 4 README scorecard. Battle-tested format; zero substrate-change cost; immediate credibility.
+- **ADR Nygard format** (5 sections: Title/Status/Context/Decision/Consequences) ↔ LATESTMILESTONE.md milestone entries. We were approximating this informally already.
+- **W3C PROV** ↔ daftar Sahih's `isnad` schema. Substantial change, low current benefit, deferred.
+- **Toulmin model** ↔ burhan claim shape. Would inflate parser, deferred.
+- **PRISMA full** ↔ research-equivalence systematic review. Overkill for current scope; light pieces already there.
+
+### Decision
+
+Three adoptions locked in SPEC Revision 2026-05-02g:
+
+1. **Phase 4 README structured as Model Card.** 9 standard sections (Model details / Intended use / Factors / Metrics / Evaluation data / Training data / Quantitative analyses / Ethical considerations / Caveats and recommendations).
+
+2. **GRADE 5-domain checklist as research-synthesis pre-flight.** Before applying mizaj-16 formula on any L3+ source, run risk-of-bias / inconsistency / indirectness / imprecision / publication-bias check. Downgrade tier by 1 step if any domain triggers. Manual review for now; programmatic enforcement deferred to next round.
+
+3. **ADR (Nygard) format for milestone entries.** Going-forward LATESTMILESTONE.md entries follow Title / Status / Context / Decision / Consequences / Pointer.
+
+### Consequences
+
+**Good:**
+- Phase 4 README will be immediately credible to ML practitioners (Model Card format expected).
+- Research synthesis catches more soft over-statements via GRADE 5-domain checklist (analogous to cheapllm-v1's 7× atom-0015 firings — that's the failure mode we're now systematically guarding against).
+- Milestone entries become parseable by tools that consume ADRs.
+- Substrate suite is now triangulated against established standards, not just our own framework.
+
+**Bad / honest tradeoffs:**
+- GRADE checklist adds ~5 min review per claim during research-synthesis. Wall-clock cost: marginal.
+- ADR format requires existing milestone entries to be slightly rewritten if we want full consistency. Not doing the retroactive cleanup; existing entries approximate the format.
+- We may discover GRADE downgrades that pull our joint confidence below 0.648 honestly. That's a feature, not a bug.
+
+### Pointer for the next agent
+
+The substrate-improvement detour added ~30 min of wall-clock to the project budget (now ~1h consumed of 24h). No experiments, no spend.
+
+When proceeding to Phase 1: apply the new standards going forward (no retroactive rewrite needed). Specifically:
+
+- Phase 1 implementation: cheapcode-tiers.ts comments can reference Model Cards format if it helps.
+- Phase 2 EXPERIMENT-1 results: report per Model Card "Quantitative analyses" + "Caveats" sections.
+- Phase 4 README: full Model Card structure.
+- Future research synthesis (Phase 0+ rounds): run GRADE 5-domain check before applying mizaj-16 formula.
+
+Project state at end of M2.1:
+- Wall consumed: ~1h of 24h
+- Spend: $0 of $10
+- Code shipped: 0 LoC
+- Joint confidence: 0.648
+
+Authorized to proceed to Phase 1 when operator says go.
+
 ---
 
 ## M2.0 — Phase 0 complete: research synthesis + decisions locked (2026-05-02)

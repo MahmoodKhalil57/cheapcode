@@ -16,6 +16,18 @@
  *   khazina atom 0010 (independence requires different groups)
  *   khazina atom 0015 (transfer overstated → cap)
  *
+ * GRADE checklist (per SPEC Revision 2026-05-02g — adoption 2):
+ * Before applying mizaj-16 formula, check each L3+ source against the
+ * 5 GRADE downgrade domains:
+ *   1. Risk of bias       — study design / execution flaws
+ *   2. Inconsistency      — heterogeneity across cited studies
+ *   3. Indirectness       — different population / intervention / outcomes
+ *   4. Imprecision        — wide CIs / small N
+ *   5. Publication bias   — cherry-picked / vendor-published
+ * If any domain triggers, downgrade the tier by 1 step (L1→L2→L3→L4→L5).
+ * This is not yet enforced in code (manual review); see SPEC for the
+ * checklist application protocol.
+ *
  * Usage:
  *   bun tools/research-equivalence.ts          # runs canonical claim set
  *   bun tools/research-equivalence.ts --json   # structured output
