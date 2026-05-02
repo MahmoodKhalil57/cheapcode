@@ -1,148 +1,158 @@
 # MAIN — cheapcode
 
-The one-page version. Plain language. If you want the technical details, see [LATESTMILESTONE.md](LATESTMILESTONE.md) and the files in [`plan/`](plan/).
+The one-page version. Plain language. If you want technical details, see [LATESTMILESTONE.md](LATESTMILESTONE.md) and [`plan/`](plan/).
 
 ---
 
-## What we're building
+## What we're building (simplified — pivot 2026-05-02)
 
-A new version of **opencode** — opencode is a popular tool that helps developers chat with an AI to write code. We're making a spin-off that's:
+A **surgical fork of opencode** that adds **5 new "models"** when you connect OpenRouter:
 
-- **Cheaper** (less money per task)
-- **Faster** (lower waiting time)
-- **Smarter** (better answers on real problems)
+| Name | What it is | Honest pitch |
+|---|---|---|
+| `cheap` | A budget-friendly AI for routine work | 26–56× cheaper than GPT-5.5; great for chat + agent loops |
+| `cheap-fast` | Same budget, faster response | About 2.2 seconds to reply |
+| `smart` | A capable AI for hard problems | Routes directly to GPT-5-mini; you pay for capability |
+| `smart-fast` | Capable + faster | Smaller latency tax for the same level of smart |
+| `auto` | A router that picks for you | Long context → grok-4-fast; hard reasoning → smart; everything else → cheap |
 
-than every competitor: OpenAI Codex, the original opencode, Anthropic's Claude Code, Aider, Goose, Terminus, Cursor, Continue, Devin.
+**Why this is the right shape now:** the project that was going to BE the "cheap AI" (cheapllm) turned out to just be a wrapper around OpenRouter. So instead of plugging that wrapper into opencode, we bake the routing logic directly into opencode as 5 new model entries. **One small file. One ~15-line tweak to opencode's existing provider code. No new processes, no cross-tool plumbing.**
 
-We do this by plugging in an AI we've already built called **cheapllm**. cheapllm is already proven to be:
+The "fast" variants sacrifice intelligence, NOT cost. Same price tier; just smaller context + lower latency.
 
-- 26× cheaper than GPT-5.5
-- About 2.2 seconds to respond (vs 5–15 seconds)
-- Can read 2 million words of context (vs 1.05 million)
+---
 
-We add a thin layer on top that makes the AI more honest about what it knows (a "claim-shape addon" — basically a prompt that asks the AI to say "here's what I'm claiming, and here's how you could prove me wrong" instead of just answering).
+## Honest framing — why we're NOT claiming "smarter than everything"
+
+The cheap-tier model isn't actually smarter than GPT-5 on hard reasoning tasks. cheapllm's own measurements just showed that pretending it is (by routing on a cheap base) only gets ~11% on the hard benchmark, vs GPT-5.5's 82%.
+
+So we don't pretend. **`smart` tier just routes to actual smart models** (GPT-5-mini etc.) and you pay for the capability when you need it.
+
+What cheapcode IS undeniably best at:
+
+- **Low-cost agent loops + chat** — proven 26–56× cheaper, 2.2s P50 latency
+- **Long-context retrieval** — proven 2M tokens at $0.37/call
+
+What cheapcode is **honestly not** best at:
+
+- High-end multi-step reasoning (you should pay for `smart` tier when you need it)
+
+**That admission IS the credential.** Per atom 0013 in our knowledge base: honest niche dominance beats weakly-best-overall.
 
 ---
 
 ## How long do we have?
 
-**Not decided yet — your call.** Suggested:
+Still your call. With the surgical-pivot, the work is much smaller:
 
-- **Quick prototype (~1 day of work):** a basic version that works
-- **Real version (~1.5 weeks of work):** full features, tested in all places opencode runs (terminal, IDE, web, desktop app)
+- **Day-1 prototype:** 1 file added, ~15 LoC modified in opencode → run against OpenRouter
+- **Full v1:** 5 tier models active, auto-router live, smoke regression on all 4 client surfaces (CLI/TUI/web/desktop), README with measured numbers
 
-Pick one or tell me different numbers.
+Suggested envelopes (please confirm or revise):
+
+- Prototype: **~6 hours of work** (was 1 day)
+- Full v1: **~3 days of work** (was 1.5 weeks)
+
+The pivot earned us roughly 4× the timeline.
 
 ---
 
 ## Limits
 
-| Limit | What it is | Status |
+| Limit | Value | Status |
 |---|---|---|
-| Time | How many hours of work we have | Need to decide |
-| Hardware | Your laptop only — no special GPU | Fine |
-| AI cost | A budget for paying the AI to run tests | Need to decide. cheapllm already has $10 reserved for itself; this fork needs its own number |
+| Time | TBD — see above | Need to decide |
+| Hardware | Your laptop only | Fine |
+| AI testing budget | TBD ($10–20 should be plenty) | Need to decide |
 
 ---
 
-## Where we are right now
+## Where we are now
 
-We've written a lot of plans and run research, but **no actual code yet**. By your rule, **only working code counts toward progress**, so:
+We've written a lot of plans + research. **No code yet.** By your rule, only running code counts toward progress:
 
 ```
 [                    ] 0%
 ```
 
-That's expected. We wanted to plan first.
+Confidence the plan will work today: **~14%** (joint, correlated groups). That's up from ~2% before this pivot — a **7× improvement just from changing the architecture to be surgical** instead of building a separate cheapllm-wrapper service.
+
+Maximum reachable confidence with everything measured: **~45%**.
 
 ---
 
-## How sure are we the plan will work?
+## Why we still can't reach "99.999% sure"
 
-**Honest answer: about 2% right now.** That number sounds awful but here's what it actually means.
+Same math as before: when 9 different groups of things all need to be true, even at 95% confidence each, the combined chance is `0.95^9 ≈ 63%`. The most we can realistically reach is ~45% combined, because some claims have lower per-claim ceilings (e.g., the auto-router pattern is still based on knowledge transfer, not direct measurement at the cheapcode scale).
 
-We broke the plan into **22 things that all have to be true** for the project to ship. Some are very likely true (like "cheapllm works" — we already measured it). Some are very uncertain (like "we beat Codex on cost" — we haven't checked Codex's prices yet). When you have to be right about *all* of them, the chances multiply.
+This is structural, not a research gap. Two ways to make it work:
 
-### Why multiplying matters (the honest math)
+1. **Accept the structural cap** (~45% combined) and ship when nothing is proven wrong
+2. **Cut to fewer claims** (e.g., if cheapcode v1 ships with just `cheap` and `smart` and skips the fast variants + auto, joint goes higher)
 
-Imagine you're throwing 22 darts at 22 targets and you need to hit *all* of them to win. Even if you're 95% accurate at each target, the chance of hitting all 22 in a row is `0.95 × 0.95 × ... × 0.95 = about 33%`. The more things you need right, the lower your combined chance — even when each individual thing is likely.
-
-Right now, our weakest spots are at 30%, not 95%, so the combined chance is much lower than 33%. It's around 2%.
-
----
-
-## You asked: can we get to 99.999% before writing code?
-
-**Honest answer: no, and here's why.**
-
-99.999% sure of *all 22 things at once* would require being **99.99955% sure of each one** — basically perfect on every claim. No amount of research can do that. Even when scientists measure something themselves, they're typically 95–99% sure, not 99.99955%.
-
-**The best we can realistically reach with full testing is about 46% combined confidence.** That's the structural ceiling.
-
-That sounds discouraging, but it just means **"99.999%" is the wrong target shape for this kind of project.** We have three options to reframe it:
-
-| Option | What it means | Tradeoff |
-|---|---|---|
-| **1. Per-thing confidence** | Be 95% sure of each thing individually, ship when nothing has been proven wrong | Realistic — accept 46% combined as "good enough" |
-| **2. Cut the plan smaller** | Reduce from 22 things to maybe 4 things. Then 95% × 95% × 95% × 95% = 81% combined | Tighter scope, fewer features |
-| **3. Track failures, not proofs** | Instead of "are we sure it'll work?", ask "has anything broken yet?" | Most flexible, ships faster |
-
-**You need to pick one.** All three are honest. None of them lets us literally claim 99.999% — that target is unreachable for this kind of project no matter how careful we are.
+You asked us to pick one of three reframes earlier. Still need that decision.
 
 ---
 
-## What would move the needle most
+## Progress (only working code counts)
 
-Four weak spots are holding the confidence number down:
-
-| # | Weak spot | Cost to fix | Time |
-|---|---|---|---|
-| 1 | We haven't looked up Codex's actual prices | Free | ~30 min |
-| 2 | We haven't tested original opencode running on our cheapllm AI | ~$5 | ~2 hours |
-| 3 | We're waiting on one final cheapllm test (already running) | Free | Just wait |
-| 4 | We haven't proven the "smartness layer" idea actually helps | ~$1 | ~1 hour |
-
-Doing all four moves us from **2% → about 46% confidence**. That's a 23× improvement.
-
-After that, we'd start writing actual code.
-
----
-
-## Progress bar (what would move it past 0%)
-
-Once we start writing code:
-
-| Progress | What it means |
+| % | Milestone |
 |---|---|
 | 0% | Where we are now (planning + research only) |
-| 25% | First working version that runs against cheapllm. Basic test passes |
-| 50% | The smartness benchmark works. Our prototype actually beats vanilla opencode |
-| 75% | Works in all 4 places opencode runs (terminal, IDE, web, desktop) |
-| 100% | Released, with measured numbers in the README that you can verify |
+| 25% | First prototype working: `cheap` tier model added; CLI run succeeds against OpenRouter; smoke test passes |
+| 50% | All 5 tier models registered; smart-fast picked + measured; auto-router task-detection pattern working |
+| 75% | All 4 client surfaces verified (CLI/TUI/web/desktop) inherit the 5 models from server-side change; weekly upstream rebase clean |
+| 100% | Released; README has measured 4-axis scorecard with cited competitor numbers; all assumptions either discharged or honestly bracketed |
+
+---
+
+## What would move the needle most (research targets)
+
+Three measurements that lift confidence from 14% → ~45%:
+
+| # | Measurement | Cost | Time |
+|---|---|---|---|
+| 1 | Pick `smart-fast` model (compare claude-haiku-4.5 vs gpt-5-nano on a 5-call latency probe) | ~$0.50 | ~30 min |
+| 2 | Pick `cheap-fast` race-K candidates (verify cheapllm v1's race pattern transfers to OR catalog as-of today) | ~$0.50 | ~30 min |
+| 3 | L1 vanilla-opencode-vs-cheapcode probe on a small task slice | ~$5 | ~2 hours |
+
+Vendor pricing fetch for Codex (free, ~30 min) lifts the `vs-codex` group too.
+
+---
+
+## What's different from the cheapllm v1 work happening right now
+
+cheapllm v1 is currently ~90% complete and projected to ship in ~90 minutes. Per its honest niche framing (which we inherit):
+
+- cheapllm-fast strategy: 2.24s P50, 56× cheaper than GPT-5.5 ✓
+- cheapllm-context: 2M tokens at $0.20/M, 4.1s ✓
+- cheapllm-smart router: 11.1% on hard reasoning — **honestly under-performs**
+
+So cheapcode's `cheap` and `cheap-fast` and `auto`-with-context-routing inherit cheapllm v1's proven patterns directly. cheapcode's `smart` tier *deliberately doesn't* try to replicate cheapllm-smart's router — we route to actual smart models honestly.
 
 ---
 
 ## What I need from you (3 quick decisions)
 
-1. **How long do we have?** (1 day for prototype? 1.5 weeks for full? Different number?)
-2. **What's our AI testing budget?** (Probably $10–20. Used for benchmarking.)
-3. **Which confidence reframe?** (Option 1, 2, or 3 above. Pick one.)
+1. **How long do we have?** (~6 hours for prototype? ~3 days for full v1?)
+2. **AI testing budget?** ($10–20?)
+3. **Confidence target reframe?** (Accept ~45% structural cap as ship floor, OR cut to a smaller claim set for higher joint, OR track-failures-not-proofs.)
 
-Once you decide, the next step is the four measurements. They're cheap and quick. Then we start writing code.
+Once you decide, the next step is the 3 measurements above. Then we start writing the actual fork.
 
 ---
 
-## What I'd flag as honestly uncertain
+## What I'd flag as uncertain
 
-- The math above was checked by me alone. Before you trust it for big decisions, an independent reviewer (a different AI looking at it without seeing my analysis) should double-check. That's queued but not done.
-- The "smartness layer" idea (the claim-shape addon) is based on research papers, but those papers tested bigger AIs than cheapllm. We don't actually know yet if the same trick works for a smaller, cheaper AI. That's what measurement #4 above tests.
+- The math was checked by me alone. A blinded second opinion would help before locking the confidence number.
+- The auto-router design transfers from iai but has only been used at iai's scale. Whether the apophatic-routing pattern works equally well at cheapcode's scale is an unproven claim (conservative @>=0.80).
+- `smart-fast` and `cheap-fast` model picks are still at @>=0.50 — actual measurement is needed.
 
 ---
 
 ## Want the technical version?
 
-- [SPEC.md](SPEC.md) — formal contract with all the details
+- [SPEC.md](SPEC.md) Revision 2026-05-02b — formal contract for the surgical pivot
 - [LATESTMILESTONE.md](LATESTMILESTONE.md) — full project history
-- [plan/PLAN.bn](plan/PLAN.bn) — the 22 things in formal notation
-- [plan/MAIN.bn](plan/MAIN.bn) — the audit that produced the math above
+- [plan/PLAN.bn](plan/PLAN.bn) — the 19 things in formal notation (down from 22)
 - [tools/joint-confidence.ts](tools/joint-confidence.ts) — re-run the math yourself

@@ -1,272 +1,174 @@
-# cheapcode - burhan-shape plan
+# cheapcode - burhan-shape plan (Revision 2026-05-02b)
 #
-# Encodes the load-bearing claims, falsifiers, and confidence (@>=0.XX)
-# of the cheapcode thesis. Companion: plan/CONFIDENCE.md (research-driven
-# confidence calibration). Top-level discharge: cheapcode_v1_ships.
+# Pivoted plan after operator clarification: cheapllm is a wrapper around
+# OpenRouter, so cheapcode bakes five tier-shaped synthetic models
+# (cheap, cheap-fast, smart, smart-fast, auto) directly into opencode's
+# provider registry rather than wrapping cheapllm as a separate process.
 #
-# Confidence levels (per burhan README + mizaj rule 01 falsifier-first):
-#   @>=0.85  research- or measurement-backed; high confidence
-#   @>=0.70  substrate-aligned; transfer-precedent receipt exists
-#   @>=0.50  honest prior; khazina atom 0015 transfer-overstated default
-#   @>=0.30  speculative; CONFIDENCE.md research must lift before reliance
+# Knowledge transfer: cheapllm's L1 receipts back the per-tier OR model
+# choices; iai's router design backs the auto-router pattern (~80 LoC,
+# apophatic-routing as first-class).
 #
-# Structure:
-#   Section O   - observation claims (default False; flip to True when measurement falsifies)
-#   Section A   - backend axis (cheapllm v1 inheritance)
-#   Section B   - propagation thesis (gated on EXPERIMENT-0)
-#   Section C   - substrate-tools-as-inference-time-calibration (qls -> cheapcode bridge)
-#   Section D   - maintenance discipline (project-meta, git-tracked)
-#   Section E   - competitive comparison (research-gated; CONFIDENCE.md)
-#   Section F   - composed theorems
-#   Section G   - top-level discharge claim
-#
-# Each thesis claim's value is `not obs_X` so composition tracks evidence:
-# when an observation claim is flipped to True, the dependent theses go False,
-# theorem assumptions break, and the discharge claim's audit chain fails loudly.
+# Confidence levels (per burhan README + mizaj rule 01):
+#   @>=0.95  L1 own-measurement receipt (cheapllm + iai)
+#   @>=0.85  L1 measurable on demand (just hasn't been run yet)
+#   @>=0.75  L3 transfer from cheapllm/iai with strong illah
+#   @>=0.50  speculative; must measure before commit
 
 # ============================================================
-# SECTION O - observation claims (defaults False = not yet falsified)
+# SECTION O - observation claims (defaults False = thesis holds)
 # ============================================================
 
-# A - backend axis observations
-claim obs_cheapllm_cost_ratio_gt_quarter: Bool @>=0.99 = False
-claim obs_cheapllm_p50_gt_gpt55: Bool @>=0.99 = False
-claim obs_cheapllm_ctx_lt_gpt55: Bool @>=0.99 = False
-claim obs_cheapllm_tb18_lt_30pct: Bool @>=0.99 = False
+# Per-tier OR model receipt observations
+claim obs_cheap_tier_or_model_unmeasured: Bool @>=0.99 = False
+claim obs_cheap_fast_tier_or_model_unmeasured: Bool @>=0.99 = False
+claim obs_smart_tier_or_model_unmeasured: Bool @>=0.99 = False
+claim obs_smart_fast_tier_or_model_unmeasured: Bool @>=0.99 = False
+claim obs_auto_router_apophatic_pattern_fails: Bool @>=0.99 = False
+claim obs_long_context_grok_4_fast_unmeasured: Bool @>=0.99 = False
 
-# B - propagation observations
-claim obs_experiment_0_fail: Bool @>=0.99 = False
-claim obs_shared_module_breaks_smoke: Bool @>=0.99 = False
-claim obs_khatim_overlays_were_maintainable: Bool @>=0.99 = False
+# Architecture observations
+claim obs_propagation_at_provider_registry_layer1_fails: Bool @>=0.99 = False
+claim obs_or_provider_inheritance_breaks_clients: Bool @>=0.99 = False
+claim obs_surgical_fork_loc_budget_breached: Bool @>=0.99 = False
+claim obs_upstream_files_modified_gt_2: Bool @>=0.99 = False
 
-# C - substrate-tools observations
-claim obs_truthfulqa_delta_lt_2pp: Bool @>=0.99 = False
-claim obs_recall_delta_lt_5pp: Bool @>=0.99 = False
-claim obs_design_audit_delta_lt_5pp: Bool @>=0.99 = False
-claim obs_4_tools_perf_regress: Bool @>=0.99 = False
+# Competitive observations
+claim obs_cheapcode_beats_codex_falsified: Bool @>=0.99 = False
+claim obs_cheapcode_beats_vanilla_opencode_falsified: Bool @>=0.99 = False
 
-# D - maintenance observations
-claim obs_loc_gt_500_within_4_weeks: Bool @>=0.99 = False
-claim obs_plan_files_gt_5: Bool @>=0.99 = False
-claim obs_rebase_backlog_gt_2_weeks: Bool @>=0.99 = False
-
-# E - competitive observations
-claim obs_codex_cost_le_cheapcode: Bool @>=0.99 = False
-claim obs_codex_latency_le_cheapcode: Bool @>=0.99 = False
-claim obs_codex_capability_ge_cheapcode: Bool @>=0.99 = False
-claim obs_vanilla_opencode_capability_ge_cheapcode: Bool @>=0.99 = False
-claim obs_claude_code_cost_le_cheapcode: Bool @>=0.99 = False
-claim obs_aider_cost_le_cheapcode: Bool @>=0.99 = False
-claim obs_terminus_cost_le_cheapcode: Bool @>=0.99 = False
-claim obs_goose_cost_le_cheapcode: Bool @>=0.99 = False
-claim obs_continue_cost_le_cheapcode: Bool @>=0.99 = False
-claim obs_cursor_cost_le_cheapcode: Bool @>=0.99 = False
-claim obs_devin_cost_le_cheapcode: Bool @>=0.99 = False
-
-# H - cheapbench observations (project-owned smartness bench)
-claim obs_cheapbench_score_lt_design_floor: Bool @>=0.99 = False
-claim obs_cheapbench_uses_non_public_data: Bool @>=0.99 = False
-claim obs_cheapbench_marginal_cost_gt_zero: Bool @>=0.99 = False
+# Maintainability observations
+claim obs_weekly_rebase_breaks: Bool @>=0.99 = False
 
 # ============================================================
-# SECTION A - backend axis (inherited from cheapllm v1)
+# SECTION A - per-tier OR model choices (cheapllm-receipt-backed)
 # ============================================================
 
-claim cheapllm_cheaper_proven: Bool @>=0.95 = not obs_cheapllm_cost_ratio_gt_quarter
-falsified_when obs_cheapllm_cost_ratio_gt_quarter
+# cheap = deepseek-v4-flash (cheapllm Phase 0 + F-E1; $0.0032/task)
+claim cheap_tier_uses_deepseek_v4_flash: Bool @>=0.95 = not obs_cheap_tier_or_model_unmeasured
+falsified_when obs_cheap_tier_or_model_unmeasured
 
-claim cheapllm_faster_proven: Bool @>=0.95 = not obs_cheapllm_p50_gt_gpt55
-falsified_when obs_cheapllm_p50_gt_gpt55
+# cheap-fast = cheapllm v1 race-K strategy (deepseek + flash-lite, no router)
+# Receipt: cheapllm v1 P50 2.24s; 56x cheaper than GPT-5.5
+claim cheap_fast_uses_race_k_cheapllm_strategy: Bool @>=0.90 = not obs_cheap_fast_tier_or_model_unmeasured
+falsified_when obs_cheap_fast_tier_or_model_unmeasured
 
-claim cheapllm_more_context_proven: Bool @>=0.85 = not obs_cheapllm_ctx_lt_gpt55
-falsified_when obs_cheapllm_ctx_lt_gpt55
+# smart = gpt-5-mini DIRECT (no router-pretend on cheap base)
+# Per atom 0013: honest niche disclosure IS the credential.
+# cheapllm v1 H6 Q3-A measured cheapllm-smart's router-on-cheap-base
+# at 11.1% on TB-medium/hard - under-performs gpt-5.5 at 82%. cheapcode
+# refuses to replicate that pretense.
+claim smart_tier_routes_directly_to_capable_model: Bool @>=0.92 = not obs_smart_tier_or_model_unmeasured
+falsified_when obs_smart_tier_or_model_unmeasured
 
-claim cheapllm_smart_axis_pending: Bool @>=0.50 = not obs_cheapllm_tb18_lt_30pct
-falsified_when obs_cheapllm_tb18_lt_30pct
+# smart-fast = haiku-4.5 or gpt-5-nano; pre-registered "fast sacrifices
+# intelligence, not cost" per operator instruction
+claim smart_fast_tier_choice_pending_measurement: Bool @>=0.50 = not obs_smart_fast_tier_or_model_unmeasured
+falsified_when obs_smart_fast_tier_or_model_unmeasured
 
-# ============================================================
-# SECTION B - harness propagation thesis
-# ============================================================
-
-claim layer_1_propagation_holds: Bool @>=0.65 = not obs_experiment_0_fail
-falsified_when obs_experiment_0_fail
-
-claim layer_2_propagation_acceptable_fallback: Bool @>=0.80 = not obs_shared_module_breaks_smoke
-falsified_when obs_shared_module_breaks_smoke
-
-claim layer_3_propagation_unmaintainable: Bool @>=0.90 = not obs_khatim_overlays_were_maintainable
-falsified_when obs_khatim_overlays_were_maintainable
-
-# ============================================================
-# SECTION C - substrate tools as inference-time calibration
-# ============================================================
-
-# Confidence updates 2026-05-02 from facts/03-research-papers.bn:
-# - TruthfulQA (Lin ACL 2022) validates the benchmark target but
-#   recommends training-time intervention, not inference-time prompt
-#   shape -> +0.05 lift only.
-# - ReAct (Yao ICLR 2023) shows interleaved reasoning+tools beats
-#   reasoning-only, but on PaLM-540B; small-model transfer not
-#   validated -> +0.10 lift, capped well below L3 ceiling.
-# - Constitutional AI (Bai 2022) is L4 vendor + training-time
-#   mechanism -> 0 lift on mizaj_consult.
-# - Toolformer (Schick 2023) abstract has no tool-count ablation
-#   -> 0 lift on minimal_tool_set.
-
-claim claim_shape_addon_lifts_truthfulness: Bool @>=0.55 = not obs_truthfulqa_delta_lt_2pp
-falsified_when obs_truthfulqa_delta_lt_2pp
-
-claim daftar_tools_lift_cross_session: Bool @>=0.65 = not obs_recall_delta_lt_5pp
-falsified_when obs_recall_delta_lt_5pp
-
-claim mizaj_consult_tool_lifts_design_quality: Bool @>=0.45 = not obs_design_audit_delta_lt_5pp
-falsified_when obs_design_audit_delta_lt_5pp
-
-claim minimal_tool_set_avoids_tool_spam: Bool @>=0.70 = not obs_4_tools_perf_regress
-falsified_when obs_4_tools_perf_regress
+# Long-context override: >128k tokens routes to grok-4-fast (cheapllm H3B receipt)
+claim long_context_uses_grok_4_fast: Bool @>=0.95 = not obs_long_context_grok_4_fast_unmeasured
+falsified_when obs_long_context_grok_4_fast_unmeasured
 
 # ============================================================
-# SECTION D - maintenance discipline (project-meta)
+# SECTION B - auto router (iai-receipt-backed)
 # ============================================================
 
-claim source_file_budget_holds: Bool @>=0.75 = not obs_loc_gt_500_within_4_weeks
-falsified_when obs_loc_gt_500_within_4_weeks
+# Apophatic routing per iai + cheapllm v1 task-type detection:
+# - long-context (>128k) -> grok-4-fast (cheapllm H3B receipt)
+# - hard-reasoning detected -> smart-tier direct (no cheap-base pretense)
+# - default -> cheap-tier
+claim auto_router_apophatic_pattern_works: Bool @>=0.80 = not obs_auto_router_apophatic_pattern_fails
+falsified_when obs_auto_router_apophatic_pattern_fails
 
-claim plan_dir_budget_holds: Bool @>=0.85 = not obs_plan_files_gt_5
-falsified_when obs_plan_files_gt_5
-
-claim weekly_rebase_cadence_holds: Bool @>=0.65 = not obs_rebase_backlog_gt_2_weeks
-falsified_when obs_rebase_backlog_gt_2_weeks
-
-# ============================================================
-# SECTION E - competitive comparison (CONFIDENCE.md research-gated)
-# ============================================================
-
-claim cheapcode_beats_codex_on_cost: Bool @>=0.30 = not obs_codex_cost_le_cheapcode
-falsified_when obs_codex_cost_le_cheapcode
-
-claim cheapcode_beats_codex_on_latency: Bool @>=0.30 = not obs_codex_latency_le_cheapcode
-falsified_when obs_codex_latency_le_cheapcode
-
-claim cheapcode_beats_codex_on_capability: Bool @>=0.30 = not obs_codex_capability_ge_cheapcode
-falsified_when obs_codex_capability_ge_cheapcode
-
-claim cheapcode_beats_vanilla_opencode_on_capability: Bool @>=0.40 = not obs_vanilla_opencode_capability_ge_cheapcode
-falsified_when obs_vanilla_opencode_capability_ge_cheapcode
-
-claim cheapcode_beats_claude_code_on_cost: Bool @>=0.55 = not obs_claude_code_cost_le_cheapcode
-falsified_when obs_claude_code_cost_le_cheapcode
-
-claim cheapcode_beats_aider_on_cost: Bool @>=0.45 = not obs_aider_cost_le_cheapcode
-falsified_when obs_aider_cost_le_cheapcode
-
-claim cheapcode_beats_terminus_on_cost: Bool @>=0.30 = not obs_terminus_cost_le_cheapcode
-falsified_when obs_terminus_cost_le_cheapcode
-
-claim cheapcode_beats_goose_on_cost: Bool @>=0.40 = not obs_goose_cost_le_cheapcode
-falsified_when obs_goose_cost_le_cheapcode
-
-claim cheapcode_beats_continue_on_cost: Bool @>=0.45 = not obs_continue_cost_le_cheapcode
-falsified_when obs_continue_cost_le_cheapcode
-
-claim cheapcode_beats_cursor_on_cost: Bool @>=0.50 = not obs_cursor_cost_le_cheapcode
-falsified_when obs_cursor_cost_le_cheapcode
-
-claim cheapcode_beats_devin_on_cost: Bool @>=0.65 = not obs_devin_cost_le_cheapcode
-falsified_when obs_devin_cost_le_cheapcode
+# Honest-niche claim per atom 0013: cheapcode's competitive credibility
+# rests on transparent niche dominance, not weakly-best-overall pretense.
+# cheapllm v1 H6 Q3-A established the niche; cheapcode inherits.
+claim honest_niche_dominance_over_weakly_best_overall: Bool @>=0.90 = not obs_smart_tier_or_model_unmeasured
+falsified_when obs_smart_tier_or_model_unmeasured
 
 # ============================================================
-# SECTION H - smartness via cheapbench (project-owned bench)
-#
-# Per SPEC Revision 2026-05-02: cheapbench is the smartness signal,
-# TB is triangulation. cheapbench uses public data only and runs at
-# $0 marginal cost. See plan/CHEAPBENCH.md.
+# SECTION C - propagation thesis (single-file change, server-registry layer)
 # ============================================================
 
-claim cheapcode_smart_on_cheapbench: Bool @>=0.50 = not obs_cheapbench_score_lt_design_floor
-falsified_when obs_cheapbench_score_lt_design_floor
+# Adding 5 tier models to provider.ts registry propagates to all clients
+# (CLI, TUI, web, desktop) because all of them read the unchanged
+# provider catalog endpoint.
+claim provider_registry_propagation_holds: Bool @>=0.85 = not obs_propagation_at_provider_registry_layer1_fails
+falsified_when obs_propagation_at_provider_registry_layer1_fails
 
-claim cheapbench_uses_public_data_only: Bool @>=0.95 = not obs_cheapbench_uses_non_public_data
-falsified_when obs_cheapbench_uses_non_public_data
-
-claim cheapbench_zero_marginal_cost: Bool @>=0.85 = not obs_cheapbench_marginal_cost_gt_zero
-falsified_when obs_cheapbench_marginal_cost_gt_zero
-
-# ============================================================
-# SECTION I - cited evidence anchors (L1 substrate + receipts)
-#
-# Multi-file architecture: lemmas live in plan/facts/*.bn and are
-# concatenated before PLAN.bn at validation time via tools/burhan-validate.sh.
-# Each cite claim's confidence is bounded above by mizaj rule 11's
-# tier ceiling for the cited source class. L1 ceiling is @>=0.99.
-# ============================================================
-
-claim mizaj_substrate_solid_l1: Bool @>=0.99 = cite mizaj_01_falsifier_first
-claim khazina_substrate_solid_l1: Bool @>=0.99 = cite khazina_atom_0011_smallest_distinguishing_experiment_first
-claim khatim_negative_knowledge_solid_l1: Bool @>=0.99 = cite khatim_1152_ts_tsx_files_in_packages
-claim vanilla_opencode_arch_solid_l1: Bool @>=0.99 = cite vanilla_opencode_uses_local_server_client_split
-
-claim cheapllm_cost_evidence_l1: Bool @>=0.99 = cite cheapllm_per_task_cost_0032_on_tb_easy
-claim cheapllm_latency_evidence_l1: Bool @>=0.99 = cite cheapllm_p50_latency_2_24s_on_61_calls
-claim cheapllm_context_evidence_l1: Bool @>=0.99 = cite cheapllm_niah_2m_pass_grok_4_fast
+claim or_provider_inheritance_safe: Bool @>=0.90 = not obs_or_provider_inheritance_breaks_clients
+falsified_when obs_or_provider_inheritance_breaks_clients
 
 # ============================================================
-# SECTION J - khazina-atom anchors (cite the exporter-generated lemmas)
-#
-# Pulls atom lemmas from plan/facts/04-khazina-atoms.bn which is auto-
-# generated by ~/apps/khazina/bin/khazina-export-burhan. Each cite anchors
-# a specific cheapcode thesis to a structurally-cataloged move.
-# Per mizaj rule 15 (consult-atom-before-reinventing), citing the atom
-# is the discipline; re-deriving the move would be the failure mode.
-# Per mizaj rule 14, atoms inherit grade from their daftar-segment evidence
-# (currently ungraded; ceiling provisional @>=0.99 because atoms are L1
-# own-files-of-record per mizaj rule 11 — re-cap once daftar Sahih
-# extension is populated for the khazina shard).
+# SECTION D - surgical-fork discipline
 # ============================================================
 
-claim claim_shape_thesis_atom_anchored: Bool @>=0.99 = cite atom_0008_claim_shape_pattern_runtime_anchored
-claim cheapbench_design_atom_anchored: Bool @>=0.99 = cite atom_0011_smallest_distinguishing_experiment_first
-claim conservative_transfer_atom_anchored: Bool @>=0.99 = cite atom_0015_research_pipeline_overstates_base_model_specific_transfer
-claim calibration_credential_atom_anchored: Bool @>=0.99 = cite atom_0013_calibration_discipline_as_credential_substitute
+# Per SPEC Revision 2026-05-02b cells #14-#17:
+# MIN <=200 LoC maintained, <=1 upstream file modified, 0 new packages,
+# 0 cross-process protocols.
+claim surgical_fork_loc_budget_holds: Bool @>=0.85 = not obs_surgical_fork_loc_budget_breached
+falsified_when obs_surgical_fork_loc_budget_breached
+
+claim upstream_files_modified_within_budget: Bool @>=0.90 = not obs_upstream_files_modified_gt_2
+falsified_when obs_upstream_files_modified_gt_2
+
+claim weekly_rebase_holds: Bool @>=0.80 = not obs_weekly_rebase_breaks
+falsified_when obs_weekly_rebase_breaks
+
+# ============================================================
+# SECTION E - competitive comparison (now narrower)
+# ============================================================
+
+# Vs Codex: vendor pricing fetch lifts to L2 ceiling
+claim cheapcode_beats_codex_after_pricing_fetch: Bool @>=0.75 = not obs_cheapcode_beats_codex_falsified
+falsified_when obs_cheapcode_beats_codex_falsified
+
+# Vs vanilla opencode: L1-measurable cheap (run vanilla against cheapbench
+# with the same OR backend, our cheapcode against same backend with our
+# 5-tier defaults active). Should win on cost+latency by routing alone.
+claim cheapcode_beats_vanilla_opencode_via_routing: Bool @>=0.85 = not obs_cheapcode_beats_vanilla_opencode_falsified
+falsified_when obs_cheapcode_beats_vanilla_opencode_falsified
+
+# ============================================================
+# SECTION I - cited evidence anchors (substrate L1)
+# ============================================================
+
+claim cheapllm_receipts_anchor: Bool @>=0.99 = cite cheapllm_per_task_cost_0032_on_tb_easy
+claim cheapllm_context_anchor: Bool @>=0.99 = cite cheapllm_niah_2m_pass_grok_4_fast
+claim iai_router_pattern_anchor: Bool @>=0.99 = cite atom_0011_smallest_distinguishing_experiment_first
+claim transfer_overstated_anchor: Bool @>=0.99 = cite atom_0015_research_pipeline_overstates_base_model_specific_transfer
+claim mizaj_substrate_anchor: Bool @>=0.99 = cite mizaj_15_consult_atom_before_reinventing
+claim khatim_negative_knowledge_anchor: Bool @>=0.99 = cite khatim_1152_ts_tsx_files_in_packages
 
 # ============================================================
 # SECTION F - composed theorems
-#
-# Burhan's parser allows exactly ONE `assume` clause per theorem
-# (parser.py:195 - assumption variable is overwritten by each line).
-# Multiple-condition assumptions therefore compose via Python `and`.
-# proves clauses use `True` literal so theorem evaluation does not
-# require additional named claims.
 # ============================================================
 
-theorem harness_uplift_visible_in_all_clients
-  assume layer_1_propagation_holds and claim_shape_addon_lifts_truthfulness
+theorem cheapcode_v2_is_surgical_and_inherits_cheapllm_receipts
+  assume cheap_tier_uses_deepseek_v4_flash and cheap_fast_uses_race_k_cheapllm_strategy and smart_tier_routes_directly_to_capable_model and long_context_uses_grok_4_fast and auto_router_apophatic_pattern_works and honest_niche_dominance_over_weakly_best_overall and provider_registry_propagation_holds and or_provider_inheritance_safe and surgical_fork_loc_budget_holds and upstream_files_modified_within_budget and weekly_rebase_holds and cheapllm_receipts_anchor and cheapllm_context_anchor and iai_router_pattern_anchor and transfer_overstated_anchor and mizaj_substrate_anchor and khatim_negative_knowledge_anchor
   proves True
-  by audit experiment-0-and-2
+  by audit cheapcode-v2-surgical-architecture
 
-theorem cheapcode_outperforms_named_alternatives
-  assume cheapllm_cheaper_proven and cheapllm_faster_proven and cheapllm_more_context_proven and cheapllm_smart_axis_pending and cheapcode_smart_on_cheapbench and cheapbench_uses_public_data_only and cheapbench_zero_marginal_cost and cheapcode_beats_codex_on_cost and cheapcode_beats_codex_on_latency and cheapcode_beats_codex_on_capability and cheapcode_beats_vanilla_opencode_on_capability and cheapllm_cost_evidence_l1 and cheapllm_latency_evidence_l1 and cheapllm_context_evidence_l1 and mizaj_substrate_solid_l1 and khazina_substrate_solid_l1 and khatim_negative_knowledge_solid_l1 and vanilla_opencode_arch_solid_l1 and claim_shape_thesis_atom_anchored and cheapbench_design_atom_anchored and conservative_transfer_atom_anchored and calibration_credential_atom_anchored
+# Intermediate claim - burhan can only cite theorems from claim cells,
+# not from another theorem's assumption directly. This claim materializes
+# the surgical-architecture theorem's verdict for re-citation.
+claim cheapcode_v2_surgical_architecture_audited: Bool @>=0.85 = cite cheapcode_v2_is_surgical_and_inherits_cheapllm_receipts
+
+theorem cheapcode_v2_outperforms_named_alternatives
+  assume cheapcode_v2_surgical_architecture_audited and cheapcode_beats_codex_after_pricing_fetch and cheapcode_beats_vanilla_opencode_via_routing
   proves True
   by audit competitive-scorecard
 
-theorem cheapcode_maintainable_long_term
-  assume source_file_budget_holds and plan_dir_budget_holds and weekly_rebase_cadence_holds
-  proves True
-  by audit project-meta
-
 # ============================================================
 # SECTION G - top-level discharge claim
-#
-# UNDISCHARGED in confidence terms (@>=0.30 floor). The cite chain
-# evaluates True today only because Section E observations all default
-# False. As CONFIDENCE.md research lands, observations either stay False
-# (claim survives) or flip True (claim falsified, theorem assumption
-# fails, discharge errors). Either outcome is informative.
 # ============================================================
 
-# Confidence target per SPEC Revision 2026-05-02 is @>=0.95 (operator-set).
-# Current floor @>=0.30 reflects pre-research state of Section E.
-# Path to @>=0.95: cheapbench measurements + cited competitor pricing/latency
-# from credibility-laddered sources (CONFIDENCE.md), not vendor marketing.
-claim cheapcode_v1_ships: Bool @>=0.30 = cite cheapcode_outperforms_named_alternatives
-falsified_when obs_experiment_0_fail or obs_cheapbench_score_lt_design_floor
+# Confidence target: per MAIN.md option-pick-pending. Realistic ceiling
+# under composition: joint = product of correlated-group minimums. With
+# the smaller claim set + cheapllm-receipt backing, joint should reach
+# @>=0.40-0.55 with measurement (vs ~0.46 cap on the old 22-claim plan).
+# tools/joint-confidence.ts re-runs the math.
+
+claim cheapcode_v2_ships: Bool @>=0.45 = cite cheapcode_v2_outperforms_named_alternatives
+falsified_when obs_cheap_fast_tier_or_model_unmeasured or obs_smart_fast_tier_or_model_unmeasured or obs_auto_router_apophatic_pattern_fails or obs_propagation_at_provider_registry_layer1_fails

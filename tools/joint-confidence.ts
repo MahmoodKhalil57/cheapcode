@@ -25,29 +25,31 @@
 
 type Claim = { name: string; c: number; tier: string; group: string };
 
+// Updated 2026-05-02b for the architectural pivot: 5-model surgical add
+// to opencode's provider registry rather than wrapping cheapllm as
+// separate process. Smaller claim set; per-claim confidences higher
+// because cheapllm's receipts directly transfer.
 const CLAIMS: Claim[] = [
-  { name: "cheapllm_cheaper_proven", c: 0.95, tier: "L1", group: "cheapllm-perf" },
-  { name: "cheapllm_faster_proven", c: 0.95, tier: "L1", group: "cheapllm-perf" },
-  { name: "cheapllm_more_context_proven", c: 0.85, tier: "L1", group: "cheapllm-perf" },
-  { name: "cheapllm_smart_axis_pending", c: 0.50, tier: "L1-pending", group: "cheapllm-smart" },
-  { name: "cheapcode_smart_on_cheapbench", c: 0.50, tier: "L1-pending", group: "cheapcode-harness" },
-  { name: "cheapbench_uses_public_data_only", c: 0.95, tier: "L1", group: "cheapbench-design" },
-  { name: "cheapbench_zero_marginal_cost", c: 0.85, tier: "L1", group: "cheapbench-design" },
-  { name: "cheapcode_beats_codex_on_cost", c: 0.30, tier: "L4-only", group: "vs-codex" },
-  { name: "cheapcode_beats_codex_on_latency", c: 0.30, tier: "L4-only", group: "vs-codex" },
-  { name: "cheapcode_beats_codex_on_capability", c: 0.30, tier: "L4-only", group: "vs-codex" },
-  { name: "cheapcode_beats_vanilla_opencode_on_capability", c: 0.40, tier: "L1-pending", group: "vs-vanilla" },
-  { name: "cheapllm_cost_evidence_l1", c: 0.99, tier: "L1", group: "substrate-l1" },
-  { name: "cheapllm_latency_evidence_l1", c: 0.99, tier: "L1", group: "substrate-l1" },
-  { name: "cheapllm_context_evidence_l1", c: 0.99, tier: "L1", group: "substrate-l1" },
-  { name: "mizaj_substrate_solid_l1", c: 0.99, tier: "L1", group: "substrate-l1" },
-  { name: "khazina_substrate_solid_l1", c: 0.99, tier: "L1", group: "substrate-l1" },
-  { name: "khatim_negative_knowledge_solid_l1", c: 0.99, tier: "L1", group: "substrate-l1" },
-  { name: "vanilla_opencode_arch_solid_l1", c: 0.99, tier: "L1", group: "substrate-l1" },
-  { name: "claim_shape_thesis_atom_anchored", c: 0.99, tier: "L1", group: "atom-anchors" },
-  { name: "cheapbench_design_atom_anchored", c: 0.99, tier: "L1", group: "atom-anchors" },
-  { name: "conservative_transfer_atom_anchored", c: 0.99, tier: "L1", group: "atom-anchors" },
-  { name: "calibration_credential_atom_anchored", c: 0.99, tier: "L1", group: "atom-anchors" },
+  { name: "cheap_tier_uses_deepseek_v4_flash", c: 0.95, tier: "L1", group: "tier-choices-receipted" },
+  { name: "cheap_fast_uses_race_k_cheapllm_strategy", c: 0.90, tier: "L1", group: "tier-choices-receipted" },
+  { name: "smart_tier_routes_directly_to_capable_model", c: 0.92, tier: "L1", group: "tier-choices-receipted" },
+  { name: "long_context_uses_grok_4_fast", c: 0.95, tier: "L1", group: "tier-choices-receipted" },
+  { name: "smart_fast_tier_choice_pending_measurement", c: 0.50, tier: "L1-pending", group: "tier-choices-pending" },
+  { name: "auto_router_apophatic_pattern_works", c: 0.80, tier: "L3-iai", group: "auto-router" },
+  { name: "honest_niche_dominance_over_weakly_best_overall", c: 0.90, tier: "L1-cheapllm-v1", group: "honest-niche" },
+  { name: "provider_registry_propagation_holds", c: 0.85, tier: "L1-source-readable", group: "propagation" },
+  { name: "or_provider_inheritance_safe", c: 0.90, tier: "L1-source-readable", group: "propagation" },
+  { name: "surgical_fork_loc_budget_holds", c: 0.85, tier: "project-meta", group: "maintainability" },
+  { name: "upstream_files_modified_within_budget", c: 0.90, tier: "project-meta", group: "maintainability" },
+  { name: "weekly_rebase_holds", c: 0.80, tier: "project-meta", group: "maintainability" },
+  { name: "cheapcode_beats_codex_after_pricing_fetch", c: 0.75, tier: "L2-pending", group: "vs-codex" },
+  { name: "cheapcode_beats_vanilla_opencode_via_routing", c: 0.85, tier: "L1-pending", group: "vs-vanilla" },
+  { name: "cheapllm_receipts_anchor", c: 0.99, tier: "L1", group: "substrate-l1" },
+  { name: "cheapllm_context_anchor", c: 0.99, tier: "L1", group: "substrate-l1" },
+  { name: "iai_router_pattern_anchor", c: 0.99, tier: "L1", group: "substrate-l1" },
+  { name: "transfer_overstated_anchor", c: 0.99, tier: "L1", group: "substrate-l1" },
+  { name: "mizaj_substrate_anchor", c: 0.99, tier: "L1", group: "substrate-l1" },
+  { name: "khatim_negative_knowledge_anchor", c: 0.99, tier: "L1", group: "substrate-l1" },
 ];
 
 function independentJoint(claims: Claim[]): number {
@@ -70,14 +72,15 @@ function correlatedJoint(claims: Claim[]): { joint: number; groups: { group: str
 }
 
 const POST_MEASUREMENT_CEILINGS: Record<string, number> = {
-  "cheapllm-perf": 0.95,
-  "cheapllm-smart": 0.85,
-  "cheapcode-harness": 0.85,
-  "cheapbench-design": 0.95,
+  "tier-choices-receipted": 0.95,
+  "tier-choices-pending": 0.90,
+  "auto-router": 0.88,
+  "honest-niche": 0.95,
+  "propagation": 0.92,
+  "maintainability": 0.88,
   "vs-codex": 0.85,
-  "vs-vanilla": 0.85,
+  "vs-vanilla": 0.92,
   "substrate-l1": 0.99,
-  "atom-anchors": 0.99,
 };
 
 function postMeasurementJoint(): { joint: number; groups: Array<{ group: string; ceiling: number }> } {

@@ -4,6 +4,91 @@
 
 ---
 
+## M1.0 — architectural pivot: 5-model surgical add + honest niche (2026-05-02)
+
+### What changed (operator-driven pivot)
+
+Operator clarified two things that materially change the plan:
+
+1. **cheapllm is just a wrapper around OpenRouter.** So cheapcode doesn't plug an *external* cheapllm process into opencode; instead it bakes the tier-routing logic directly into opencode's provider registry as 5 synthetic models (`cheap`, `cheap-fast`, `smart`, `smart-fast`, `auto`) that activate when OpenRouter is connected.
+2. **Knowledge transfer from cheapllm v1 + iai.** cheapllm's measured per-tier OR model receipts (deepseek-v4-flash for cheap, grok-4-fast for >128k context, gpt-5-mini for smart escalation) and iai's apophatic-router pattern (~80 LoC, hardcoded mapping + first-class fallback) directly carry over.
+
+Plus the operator pasted cheapllm v1's current status (90% complete, projected ship in ~90 min), which surfaces a critical refinement: **cheapllm-smart's router-on-cheap-base under-performs at 11.1% on TB-medium/hard.** Per atom 0013 (calibration-as-credential): honest niche dominance > weakly-best-overall pretense. cheapcode's `smart` tier therefore routes **directly** to actual capable models (gpt-5-mini, gpt-5-nano, haiku-4.5) — no router-pretending on cheap base.
+
+### Architectural shape locked
+
+| Tier | Default OR model / strategy | Receipt source |
+|---|---|---|
+| `cheap` | `deepseek/deepseek-v4-flash` | cheapllm v1 Phase 0 + F-E1; $0.0015–0.0032/task |
+| `cheap-fast` | race-K of `deepseek-v4-flash` + `*-flash-lite` | cheapllm v1 race-K; 2.24s P50 |
+| `smart` | `openai/gpt-5-mini` direct | cheapllm v1 F-E1; honest "user pays for capability" |
+| `smart-fast` | `claude-haiku-4.5` or `gpt-5-nano` | TBD — needs ≤2× latency benchmark |
+| `auto` | router: long-context → grok-4-fast; hard-reasoning → smart direct; default → cheap | iai router design + cheapllm task-type detection |
+
+Implementation footprint per SPEC Revision 2026-05-02b:
+
+- One module: `packages/opencode/src/provider/cheapcode-tiers.ts` (~150 LoC)
+- ~15 LoC modification to upstream `provider.ts` near the existing OpenRouter init
+- One config file: `cheapcode.toml` for per-tier OR model overrides
+
+New SPEC cells #14–#17:
+- Maintained cheapcode code: ≤200 / ≤350 / ≤500 LoC (was ≤500 / ≤1000 / ≤2000)
+- Upstream files modified: ≤1 / ≤2 / ≤1
+- New top-level packages: 0
+- Cross-process protocols: 0
+
+### What was completed in this milestone
+
+- [`SPEC.md`](SPEC.md) Revision 2026-05-02b with the architectural pivot, honest niche framing, surgical-fork cells.
+- [`plan/PLAN.bn`](plan/PLAN.bn) rewritten with 19 claims (down from 22) — bottlenecks now at @>=0.50 (smart-fast measurement) instead of @>=0.30 (Codex-vendor research). Honest-niche claim added per atom 0013.
+- [`tools/joint-confidence.ts`](tools/joint-confidence.ts) updated with new claim set + post-measurement ceilings.
+- [`MAIN.md`](MAIN.md) rewritten (HS-readable) reflecting the pivot + cheapllm v1's honest niche framing inherited.
+- Knowledge-transfer probe of upstream opencode confirmed: `provider.ts` already special-cases OpenRouter at line 102/403/1343 — surgical add is feasible.
+- Burhan validates True for both PLAN.bn + MAIN.bn. Audit-verify: 51 resolved, 16 offline, 0 missing.
+
+### Joint confidence delta
+
+| Metric | Before pivot | After pivot |
+|---|---|---|
+| N (claims) | 22 | 19 (down 14%) |
+| Joint, correlated current | 0.021 | **0.139** (up 6.6×) |
+| Joint, post-measurement ceiling | 0.462 | 0.448 (small change; honest-niche group raises floor) |
+| Bottleneck | `vs-codex` @ 0.30 | `tier-choices-pending` (smart-fast/cheap-fast) @ 0.50 |
+
+The pivot's main win is making the bottleneck a *cheap measurement* (~$0.50 + 30 min latency probe) instead of a *vendor-research-dependent* L4-cap (Codex pricing). Three quick measurements (smart-fast pick, cheap-fast race-K verification, vanilla-opencode-vs-cheapcode probe) lift joint from ~14% to ~45%.
+
+### Honest concerns
+
+- The math is still single-witness (atom 0010 blinded-witness-pass deferred from M0.9 still pending).
+- `cheapcode-v2-surgical-architecture` is a documentary audit tag (theorem-level), not file-resolvable. Acknowledged as advisory in audit-verify.
+- The 6h prototype / 3-day full-v1 envelopes are proposals; operator confirmation needed.
+
+### Plan changes implied
+
+The structural ceiling is still ~45% joint. If operator wants higher than that, paths are:
+- Cut more claims (drop `cheap-fast` and `smart-fast` from v1 — ship 3 tiers instead of 5)
+- Run the 3 measurements that lift the bottleneck groups (~$6, ~3 hours)
+- Both
+
+### Pointer for the next agent
+
+Three operator decisions still open:
+
+1. **Time target.** ~6h prototype / ~3 days full-v1 per the pivot, or different.
+2. **AI testing budget.** $10–20 working number.
+3. **Confidence-target reframe.** Same three options as M0.9 — pick.
+
+Highest-leverage research/measurement under the pivot:
+
+1. `smart-fast` model latency probe (~$0.50, ~30 min) — lifts `tier-choices-pending` group
+2. `cheap-fast` race-K verification on current OR catalog (~$0.50, ~30 min)
+3. Codex vendor pricing fetch (free, ~30 min) — lifts `vs-codex` to L2 ceiling
+4. L1 vanilla-opencode-vs-cheapcode probe (~$5, ~2h) — lifts `vs-vanilla`
+
+After all four: joint reaches ~0.45 (the structural ceiling for this composition).
+
+---
+
 ## M0.9 — MAIN.md + calibration-audit applied + honest @>=0.99999 cap (2026-05-02)
 
 ### What was completed

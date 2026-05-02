@@ -176,6 +176,62 @@ Burhan's CLI takes one file. The validation script concatenates `plan/facts/*.bn
 
 ---
 
+## Revision 2026-05-02b — architectural pivot: 5-model surgical add, no separate cheapllm process
+
+Operator clarified: cheapllm is a thin wrapper around OpenRouter; the right cheapcode shape is **not** to plug an external cheapllm process into opencode, but to bake five tier-shaped synthetic models (`cheap`, `cheap-fast`, `smart`, `smart-fast`, `auto`) directly into opencode's provider registry, activated when an OpenRouter provider is detected. Knowledge transfer from cheapllm + iai is what makes these defaults defensible.
+
+**Three load-bearing changes:**
+
+**1. Architecture is one module + one provider-registry hook.**
+
+Upstream `packages/opencode/src/provider/provider.ts` already special-cases OpenRouter (line 102 import, line 403 init, line 1343 model-specific check). The cheapcode change shape:
+
+- New file: `packages/opencode/src/provider/cheapcode-tiers.ts` (~150 LoC) — exports `CHEAPCODE_TIERS` (5 model defs with target OR mapping + per-tier metadata) + `routeAuto(messages, opts)` (small heuristic for `auto`-mode).
+- Modification: ~15 LoC inside `provider.ts` near the OpenRouter init block — when openrouter loads, register the 5 synthetic tier models alongside the upstream catalog.
+- One config in `cheapcode.toml`: per-tier OR model overrides for operator customization.
+
+**Honest niche framing (per cheapllm v1 H6 Q3-A and atom 0013 — disclosure IS the credential):** `smart` tier routes directly to actual capable models. We do NOT replicate cheapllm-smart's router-based lift on cheap base, because cheapllm's own measurement (F-J2 11.1% on TB-medium/hard) shows the router-on-cheap-base under-performs for high-end multi-step reasoning. The cheapcode honest claim is **undeniable niche dominance for low-cost agent loops + long-context retrieval; transparent route-to-actual-smart-model when the task needs it.** No pretense.
+
+Per-tier defaults (cheapllm v1 L1 receipts):
+
+| Tier | Default OR model / strategy | Receipt source |
+|---|---|---|
+| `cheap` | `deepseek/deepseek-v4-flash` | cheapllm Phase 0 + F-E1; $0.0015–0.0032/task; 26–56× cheaper than GPT-5.5 |
+| `cheap-fast` | race-K of `deepseek-v4-flash` + `*-flash-lite` (cheapllm-fast strategy) | cheapllm v1 race-K probe; 2.24s P50, no router |
+| `smart` | `openai/gpt-5-mini` direct | cheapllm v1 F-E1; honest "user pays for capability"; no router-pretending |
+| `smart-fast` | `anthropic/claude-haiku-4.5` or `openai/gpt-5-nano` | TBD — needs ≤2× latency benchmark vs `smart` |
+| `auto` | router: long-context → `grok-4-fast`; hard-reasoning detected → `smart` direct; default → `cheap` | iai router design (apophatic) + cheapllm task-type-detection |
+
+Long-context special case (per cheapllm H3B receipt): when input >128k tokens, route through `x-ai/grok-4-fast` regardless of cheap/smart selection. NIAH 2M PASS at $0.37/call.
+
+**2. "Fast" sacrifices intelligence, not cost.**
+
+`cheap-fast` and `smart-fast` are same cost-tier as their non-fast counterparts but with smaller context, lower latency. Pre-registered: latency improvement >2× vs non-fast on a 5-call latency probe (else demote the fast variant).
+
+**3. Multi-account support deferred per Khātim/Sanad lessons.**
+
+Khātim's M7.1.2 multi-account web UI was the highest-cost-of-divergence move it made (`packages/app/` mirroring + 7 upstream-overlay diffs). cheapcode v1 ships single-account-per-provider; multi-account is **deferred** as a SHARED-MODULE addition to be earned by demand, not authored speculatively. Per mizaj rule 07 (stack-default-not-neutral) — multi-account is a default we explicitly reject for v1.
+
+**Cell #14 — surgical-fork discipline (NEW):**
+
+| # | Constraint | MIN | EXPECTED | IDEAL |
+|---|---|---|---|---|
+| 14 | Maintained code in cheapcode (excl. upstream tree) | ≤ 200 LoC | ≤ 350 LoC | ≤ 500 LoC |
+| 15 | Files modified in upstream tree | ≤ 1 | ≤ 2 | ≤ 1 |
+| 16 | New top-level packages | 0 | 0 | 0 |
+| 17 | Cross-process protocols | 0 | 0 | 0 |
+
+This is dramatically tighter than the prior cell #1 (≤500/1000/2000 LoC). The pivot earns it by collapsing the harness layer into a provider extension.
+
+**Knowledge transfer sources locked:**
+
+- **cheapllm** — model choices per tier (L1 receipts), 4-axis dominance discipline
+- **iai** — router design (hardcoded mapping + apophatic fallback), refusal-over-fabrication discipline (~80 LoC router pattern)
+
+Both are inherited as substrate-graded sahih segments (per mizaj 14); their receipts back the cheapcode model picks at L1 confidence.
+
+---
+
 ## Sign-off
 
 This SPEC takes effect once committed. Refinements after that require a new dated section (`## Revision YYYY-MM-DD`) plus a falsifier explaining why the change is load-bearing. The original matrix stays; nothing edits in place.
