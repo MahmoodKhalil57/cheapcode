@@ -4,6 +4,61 @@
 
 ---
 
+## M0.7 — khazina connection: atoms as compressed unlocks (2026-05-02)
+
+### What was completed
+
+- **Substrate extension:** [`~/apps/mizaj/rules/15-consult-atom-before-reinventing.md`](../../mizaj/rules/15-consult-atom-before-reinventing.md) — codifies the consult-atom-first discipline. `'Illah` is the *Imaginary Word Hypothesis* from `~/apps/THELECTIONARY/` — the atom seed projects onto a problem situation the way muqaṭṭaʿāt project via Abjad onto load-bearing surah words.
+- **Khazīna SCHEMA bump 0.1.0 → 0.2.0:** added optional `novel_move.seed` field. Density discipline: ≤30 words, the compressed unlock that surfaces FIRST when an atom is invoked. Backward-compatible (atoms without `seed` fall back to `one_line` in the exporter).
+- **4 substrate atoms updated with seed:** 0008 (claim-shape-runtime-anchored), 0011 (smallest-distinguishing-experiment-first), 0013 (calibration-discipline-as-credential), 0015 (transfer-overstated). These are the atoms cheapcode cites most.
+- **`~/apps/khazina/bin/khazina-export-burhan`** — emits a `.bn` fact file with one lemma per atom (`atom_<id>_<slug>`). Uses `seed` when present, falls back to `one_line`. Audit-verify-compatible audit tags (`khazina-atoms-NNNN`).
+- **[`plan/facts/04-khazina-atoms.bn`](plan/facts/04-khazina-atoms.bn)** — generated for cheapcode; 15 atom lemmas, 89 lines.
+- **PLAN.bn additions:**
+  - Section J — 4 cite claims anchoring specific cheapcode theses to specific atoms (atom_0008 → claim-shape thesis, atom_0011 → cheapbench design, atom_0015 → conservative transfer ceilings, atom_0013 → calibration-as-credential)
+  - `mizaj_15_consult_atom_before_reinventing` lemma added to facts/01
+  - Top theorem `cheapcode_outperforms_named_alternatives` extended to require Section J anchors as assumptions
+- **Validation:** `tools/burhan-validate.sh` returns `True`; `tools/audit-verify.sh` reports 42 resolved (15 atoms + 27 prior), 22 offline, **0 missing**.
+
+### What was learned
+
+The lectionary file's *Imaginary Word Hypothesis* is structurally the same operation as a khazina atom unlocking a problem. The seed (3 letters / atom title) looks small. When projected against context (Abjad lookup / problem situation), it lands on a load-bearing word/move that organizes the entire surah/reasoning chain. The compression is real — agents without the atom re-derive slowly or miss the move; agents with the atom apply it immediately.
+
+Operator framing — "khazina is a database of condensed information... once the atoms are presented they can unlock a higher level of knowledge immediately" — maps cleanly onto the substrate:
+- daftar = stored authenticated facts (hadith collection)
+- mizaj = bridge methodology (`Usul al-fiqh`)
+- burhan = composition (`Fiqh`)
+- **khazina = the compressed unlock-atoms** (the muqaṭṭaʿāt — seeds that project onto load-bearing structural moves)
+
+Mizaj rule 15 is now the canonical "consult atom before reinventing" rule. Citing an atom is a layer-1 propagation move per mizaj 11; the atom's `seed` is what enters context first to minimize tokens.
+
+### Honest concerns
+
+- **Atoms lack daftar-segment grading.** Every Section J cite currently sits at `@>=0.99` provisionally because atoms are L1 own-files-of-record per mizaj 11. Per mizaj 14, atoms should inherit grade from their daftar-segment evidence chain — but the khazina shard hasn't been populated with sahih segments yet. Re-cap confidences once it is.
+- **Seed compression discipline applied to only 4 atoms.** The other 11 atoms still emit their `one_line` as the seed surrogate. Backfill batch is queued.
+- **Lectionary cycles not yet built.** The "reading-cycle for context X" idea (curated atom sequences for calibration-audit / architecture-review / debugging / etc) is the next piece but not in this turn. Mizaj rule 15 + the exporter are the prerequisites; cycles add a curation layer on top.
+
+### Plan changes implied
+
+- Backfill `seed` field for the remaining 11 atoms (small, mechanical).
+- One-pass promotion of `plan/facts/*.bn` lemmas to daftar sahih segments (still queued from M0.6) — when done, atoms can cite the sahih segments that back their evidence chain.
+- Lectionary cycle scaffolding in `~/apps/khazina/lectionary/` — pre-curated atom sequences keyed by reasoning context.
+
+### Pointer for the next agent
+
+The substrate is now four-coupled:
+- `daftar` stores authenticated facts (with sahih grading)
+- `mizaj` rules 11/14/15 govern the bridge (source-class × chain-integrity × atom-consultation)
+- `burhan` composes proofs that cite atom lemmas via the new exporter
+- `khazina` provides the compressed atom-as-unlock primitive
+
+Three open paths in leverage order:
+
+1. **Backfill `seed` for atoms 0001–0007, 0009, 0010, 0012, 0014** (~11 atoms, all already have one_line; condensing each to ≤30 words takes ~5 min per atom).
+2. **Build lectionary cycles** — `~/apps/khazina/lectionary/<context>.md` with curated atom sequences. Start with `calibration-audit` and `architecture-review` (the two most-applicable to cheapcode's own work).
+3. **One-pass promotion of `plan/facts/*.bn` lemmas to daftar sahih segments** (carry-over from M0.6).
+
+---
+
 ## M0.6 — daftar Sahih extension shipped + audit-verify wired (2026-05-02)
 
 ### What was completed

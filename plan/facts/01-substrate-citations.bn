@@ -43,6 +43,10 @@ lemma mizaj_14_authentication_grade_bounds_confidence
   proves True
   by audit mizaj-rules-14-authentication-grade-bounds-confidence
 
+lemma mizaj_15_consult_atom_before_reinventing
+  proves True
+  by audit mizaj-rules-15-consult-atom-before-reinventing
+
 # ============================================================
 # Khazina atoms
 # ============================================================
