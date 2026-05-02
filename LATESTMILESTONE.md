@@ -4,6 +4,51 @@
 
 ---
 
+## M0.2 — operator decisions locked + cheapbench design (2026-05-02)
+
+### What was completed
+
+- [`SPEC.md`](SPEC.md) Revision 2026-05-02 — confidence target `@>=0.95` (operator-set), smartness via cheapbench (not TB), new cell #13 for cheapbench coverage.
+- [`plan/CHEAPBENCH.md`](plan/CHEAPBENCH.md) — design doc for project-owned smartness benchmark. 8 candidate task shapes (S1–S8) drawn from public data sources (Stack Overflow, Linux man pages, CPython, GitHub repos/PRs, Actions logs). Constraints: $0 marginal cost, gold answers derived from public-data structure (no LLM-generated synthesis), pre-registration mandatory.
+- [`plan/PLAN.bn`](plan/PLAN.bn) — added Section H (cheapbench claims), 11 new observation claims (cheapbench + 3 new competitors: Continue, Cursor, Devin), updated `cheapcode_outperforms_named_alternatives` theorem to require cheapbench claims, added or-falsifier on discharge claim. Re-validated with burhan: `True`.
+- [`plan/CONFIDENCE.md`](plan/CONFIDENCE.md) — operator-confirmed decisions section (4 answers locked), source-credibility ladder L1–L5 (mizaj 04 + 13), per-claim source plan revised to prefer L1 own-measurement over vendor numbers, halt condition extended.
+
+### Operator decisions locked
+
+1. Terminus identity doesn't matter — TB is not the goal.
+2. Competitor scope = full list (Codex, opencode, Claude Code, Aider, Goose, Terminus, Continue, Cursor, Devin).
+3. Headline benchmark = portfolio (cheapbench primary + TB triangulation).
+4. Confidence floor = `@>=0.95`. Internet research is a source not a substitute; "be careful not to be gullible."
+
+### What was learned
+
+The smartness-axis framing changed. cheapcode is not optimizing for any single bench; it's building a project-owned bench that costs $0 marginal and uses public data, with TB as triangulation. This decouples the project from external benchmark drift and makes per-feature impact measurable without budget gating. The L1–L5 source-credibility ladder is the operationalization of "don't be gullible" — every confidence update PR must surface tier + quote + access date.
+
+The `@>=0.95` target raises the bar substantially. Most of the lift comes from L1 own-measurement, not from internet research. cheapbench design is therefore the load-bearing artifact for the smart axis; CONFIDENCE.md research is the load-bearing artifact for cost/latency competitive cells.
+
+### Honest concerns
+
+- **Plan-dir budget pressure.** Plan files now at 4 (EXPERIMENT-0, PLAN.bn, CONFIDENCE.md, CHEAPBENCH.md), within IDEAL `≤5` of SPEC cell 8 but above EXPECTED `≤3`. Any further plan file should fold into existing docs rather than spawn a 5th.
+- **Cheapbench design floor heuristic** (≥60% MIN / ≥75% EXPECTED / ≥85% IDEAL) is currently a guess. Refine before first cheapbench run by piloting 1–2 task shapes against vanilla-opencode + cheapllm to calibrate the floor honestly (mizaj 01 — falsifier-first; setting the floor too low rewards mediocre engineering).
+- **`@>=0.95` target may be unreachable for some Section E claims.** Specifically, hosted-only competitors (Codex, Claude Code, Devin, Cursor) can't be benchmarked at L1 against cheapbench. Their cells max at L2/L4 credibility. If those caps prevent `@>=0.95` on per-competitor claims, the discharge claim's confidence is bounded below — accept that honestly rather than overclaim.
+
+### Plan changes implied
+
+- After EXPERIMENT-0 PASS: pilot 2 cheapbench task shapes to calibrate the floor heuristic; update CHEAPBENCH.md and PLAN.bn observations.
+- Before first cheapbench run: pre-register tasks per CHEAPBENCH.md template (manifest.json + git tag + daftar receipt).
+- Research pass on Section E: start with L1 sources for open-source competitors (Aider, Goose, Continue), L2 for hosted (Codex, Claude Code, Cursor), bracket Devin and Terminus.
+
+### Pointer for the next agent
+
+Before any code lands:
+1. Read [`SPEC.md`](SPEC.md) Revision 2026-05-02 for the confidence target + cheapbench split.
+2. Read [`plan/CHEAPBENCH.md`](plan/CHEAPBENCH.md) for the smartness-measurement methodology.
+3. Read [`plan/CONFIDENCE.md`](plan/CONFIDENCE.md) source-credibility ladder before consulting any external source.
+4. Run EXPERIMENT-0 (gates the fork). After PASS, pilot cheapbench shapes to calibrate floor.
+5. Begin Section E research only after the credibility ladder is internalized — no L4–L5-only confidence updates.
+
+---
+
 ## M0.1 — burhan-shape plan + research-confidence template (2026-05-02)
 
 ### What was completed

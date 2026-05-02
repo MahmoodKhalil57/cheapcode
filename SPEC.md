@@ -138,8 +138,34 @@ Inherits exactly what vanilla opencode supports as backends. cheapllm is the **d
 
 ---
 
+## Revision 2026-05-02 — confidence target + cheapbench
+
+Operator clarified v1 confidence target and smartness-measurement methodology. Three changes locked.
+
+**1. Confidence target for v1 ship: `@>=0.95`.**
+
+The discharge claim `cheapcode_v1_ships` in [`plan/PLAN.bn`](plan/PLAN.bn) was previously bounded by an implicit `@>=0.70` EXPECTED-tier floor. The operator-set target is **`@>=0.95`**, on the rationale that good engineering plus clean base knowledge (cheapllm receipts already at `@>=0.85`–`0.95` on three axes) carries most of the lift; internet research only validates competitors and triangulates. Internet research is a source but not a substitute — be careful not to be gullible (mizaj rule 04 separate-stated-from-revealed; mizaj rule 13 do-not-claim-transmission-without-isnad).
+
+Falsifier on this revision itself: if `@>=0.95` is structurally unreachable for the smart axis (no engineering effort can bridge the gap), HALT and downgrade target rather than ship a weaker claim.
+
+**2. Smartness measurement is cheapbench, not Terminal Bench.**
+
+TB is a triangulation cell, not the goalpost. The smartness axis is measured via [`plan/CHEAPBENCH.md`](plan/CHEAPBENCH.md): a project-owned benchmark using only publicly available data (no marginal LLM cost beyond cheapllm itself, no licensing). TB-easy and TB-18 remain in the scorecard as cross-witnesses; disagreement between cheapbench and TB is informative, not failure (atom 0010 cross-witness honesty).
+
+Substrate: mizaj rule 07 (stack-default-is-not-neutral) — TB is the popular default; popularity does not imply alignment with cheapcode's goal of "smart general-agent harness." cheapcode's goal is making opencode smart, not winning a specific bench.
+
+**3. New cell #13 — cheapbench coverage.**
+
+| # | Constraint | MIN | EXPECTED | IDEAL |
+|---|---|---|---|---|
+| 13 | cheapbench coverage | ≥ 5 task shapes from ≥ 3 public sources, $0 marginal | ≥ 8 shapes from ≥ 4 sources | 12+ shapes from ≥ 5 sources, vendor-comparable cells where possible |
+
+cheapbench MUST be pre-registered (atom 0011) before any cheapcode run, and gold answers MUST derive from the public data's own structure (not LLM-generated synthesis). See [`plan/CHEAPBENCH.md`](plan/CHEAPBENCH.md) for full design.
+
+---
+
 ## Sign-off
 
 This SPEC takes effect once committed. Refinements after that require a new dated section (`## Revision YYYY-MM-DD`) plus a falsifier explaining why the change is load-bearing. The original matrix stays; nothing edits in place.
 
-Substrate: Khazīna atom 0008 (claim-shape with runtime anchoring) — the SPEC is a contract; runtime evidence (LoC counts, smoke coverage, rebase log) must back its tier claims at every milestone.
+Substrate: Khazīna atom 0008 (claim-shape with runtime anchoring) — the SPEC is a contract; runtime evidence (LoC counts, smoke coverage, rebase log, cheapbench scores) must back its tier claims at every milestone.

@@ -4,7 +4,14 @@
 
 **Substrate:** Khazīna atom 0015 (transfer overstated by default), Mizaj rule 01 (falsifier-first), Mizaj rule 05 (cite-the-illah — every analogy needs the structural reason it transfers).
 
-**Top-level objective:** raise the floor of [`PLAN.bn`](PLAN.bn) section E claims from `@>=0.30` to `@>=0.70` via cited evidence, so `cheapcode_v1_ships` can be discharged at a confidence we can defend in public.
+**Top-level objective:** raise the floor of [`PLAN.bn`](PLAN.bn) section E + H claims from `@>=0.30`–`@>=0.50` to **`@>=0.95`** (operator-set per SPEC Revision 2026-05-02) via cited evidence and project-owned cheapbench measurements. Internet research is a source, not a substitute — be careful not to be gullible.
+
+**Operator-confirmed decisions (2026-05-02):**
+
+1. **Terminus identity:** doesn't matter. TB is not the goal. The smartness axis is measured by [`CHEAPBENCH.md`](CHEAPBENCH.md), not any single bench.
+2. **Competitor scope:** full list — Codex, opencode, Claude Code, Aider, Goose, Terminus, Continue, Cursor, Devin.
+3. **Headline benchmark:** portfolio. Primary = [`CHEAPBENCH.md`](CHEAPBENCH.md) (project-owned, public-data-only, $0 marginal). Triangulation = TB-easy + TB-18 (cheapllm receipts). Be smart about portfolio composition; do not optimize for one bench.
+4. **Confidence floor for v1 ship:** `@>=0.95`. Good engineering + clean base knowledge carries the lift; research validates competitors and triangulates.
 
 ---
 
@@ -114,49 +121,66 @@ This is where the qls→cheapcode bridge claim is load-bearing. Each claim's cur
 
 ## Section E — competitive comparison (HIGHEST research priority)
 
-The section that gates `cheapcode_v1_ships` confidence above @>=0.30. The discharge mechanism is a **competitive scorecard** populated from public sources.
+Discharge mechanism: a **competitive scorecard** populated from public sources, with capability cells primarily filled from project-owned [`CHEAPBENCH.md`](CHEAPBENCH.md) measurements + TB-easy/TB-18 triangulation. Cost and latency cells from vendor pricing/docs (with skepticism — see "Source-credibility ladder" below).
 
-### Recommended scorecard shape
+### Scorecard shape
 
-For each tool, fill the following row from public sources (cite URL + access date inline):
+Fill from credibility-laddered sources only (cite URL + access date inline; mark each cell with its credibility tier from L1–L5 below):
 
-| Tool | License | Architecture | Per-task $ | P50 latency | TB / SWE-bench | Source |
-|---|---|---|---|---|---|---|
-| Codex (OpenAI) | proprietary | ? | ? | ? | ? | ? |
-| opencode (sst) | MIT | server+clients | depends on backend | depends | depends | upstream |
-| Claude Code (Anthropic) | proprietary | ? | ? | ? | ? | ? |
-| Aider | open | local | model-dep | model-dep | ? | aider repo |
-| Goose (Block) | open | ? | ? | ? | ? | ? |
-| Terminus | ? | ? | ? | ? | ? | ? |
-| Continue.dev | open | IDE-side | model-dep | model-dep | ? | repo |
-| Cursor | proprietary | IDE | sub | varies | ? | docs |
-| Devin (Cognition) | proprietary | ? | ? | ? | ? | ? |
+| Tool | License | Architecture | Per-task $ | P50 latency | cheapbench | TB-easy | TB-18 | Source (tier) |
+|---|---|---|---|---|---|---|---|---|
+| Codex (OpenAI) | proprietary | hosted | ? | ? | ? | ? | ? | ? |
+| opencode (sst) | MIT | local server | backend-dep | backend-dep | run ourselves | run ourselves | run ourselves | upstream + own measurement |
+| Claude Code (Anthropic) | proprietary | hosted | ? | ? | ? | ? | ? | ? |
+| Aider | open | local | model-dep | model-dep | run ourselves | run ourselves | run ourselves | aider repo + own measurement |
+| Goose (Block) | open | local | model-dep | model-dep | run ourselves | run ourselves | run ourselves | Block blog + own measurement |
+| Terminus | ? | ? | ? | ? | ? | ? | ? | ? |
+| Continue.dev | open | IDE-side | model-dep | model-dep | run ourselves | run ourselves | run ourselves | repo + own measurement |
+| Cursor | proprietary | IDE | subscription | varies | ? | ? | ? | ? |
+| Devin (Cognition) | proprietary | hosted | ? | ? | ? | ? | ? | ? |
+| **cheapcode** | MIT (forked) | local server | own meas. | own meas. | own meas. | own meas. | own meas. | this repo |
 
-### Per-claim source list
+**Capability cells: prefer "run ourselves" over published vendor numbers** wherever the tool is open-source enough to run locally with cheapllm. Vendor-published capability numbers are L4 (vendor blog) at best; running locally is L1 (own measurement).
 
-Each [`PLAN.bn`](PLAN.bn) Section E claim names exactly one comparison axis × one competitor. Update sources as research lands.
+### Source-credibility ladder (mizaj 04 + 13 — careful, not gullible)
 
-- `cheapcode_beats_codex_on_cost` @>=0.30 — sources: OpenAI Codex pricing, third-party benchmarks, OpenAI evals
-- `cheapcode_beats_codex_on_latency` @>=0.30 — sources: same
-- `cheapcode_beats_codex_on_capability` @>=0.30 — sources: SWE-bench / TerminalBench leaderboards
-- `cheapcode_beats_vanilla_opencode_on_capability` @>=0.40 — sources: opencode README, community benchmarks, run vanilla-on-cheapllm ourselves as cheap probe
-- `cheapcode_beats_claude_code_on_cost` @>=0.55 — sources: Anthropic pricing, claude.ai/code docs
-- `cheapcode_beats_aider_on_cost` @>=0.45 — sources: aider docs, community benchmarks
-- `cheapcode_beats_terminus_on_cost` @>=0.30 — sources: clarify which Terminus (terminus.so vs others); vendor docs
-- `cheapcode_beats_goose_on_cost` @>=0.40 — sources: Goose / Block engineering blog
+Every cited source must be tagged with its credibility tier. Lower tiers are not banned; they are bracketed.
 
-### Operator clarifications needed
+| Tier | What | Treatment |
+|---|---|---|
+| **L1 — Own measurement** | Numbers we generated against pre-registered tasks, on our hardware, with daftar receipts | Ground truth. `@>=0.90`+ achievable. |
+| **L2 — Vendor pricing/docs** | Published rate cards, official API docs, system prompts shipped in product | Trustworthy on cost; treat capability claims as marketing-adjacent. `@>=0.80` for cost, `@>=0.50` for capability. |
+| **L3 — Independent academic / 3rd-party benchmark** | Peer-reviewed papers, Hugging Face leaderboards, METR / arXiv replications | High confidence if the methodology is published + reproducible. `@>=0.85` if the paper transfers, less per atom 0015. |
+| **L4 — Vendor blog / engineering post** | Vendor-authored marketing or announcement, with internal-bench numbers | Treat numbers as upper bound on what they can claim, not on what they routinely deliver. `@>=0.40` ceiling unless replicated. |
+| **L5 — Tweets / forum claims / Hacker News comments** | Anecdote, often contradictory, sometimes adversarial | Citation only as a lead to chase down to L1–L3, never as evidence. `@>=0.10` ceiling. |
 
-Before research begins, please confirm:
+**Hard rule (mizaj 13 — no transmission without isnad):** every confidence-update PR must list source → tier → relevant quote/measurement. Confidence updates citing only L4–L5 are rejected; raise the source or HALT.
 
-1. **Which Terminus?** (terminus.so / terminusdb / a different tool)
-2. **Should we add agents not listed?** — current list is Codex, opencode, Claude Code, Aider, Goose, Terminus, Continue, Cursor, Devin
-3. **Headline benchmark for capability comparison** — TerminalBench? SWE-bench? a custom slice? cheapllm's own TB-18 measurable?
-4. **Acceptable confidence floor before declaring v1** — @>=0.70 default; raise to @>=0.85 for stronger claim?
+### Per-claim source plan
 
-### Halt condition for Section E
+Each [`PLAN.bn`](PLAN.bn) Section E + H claim names exactly one comparison axis. Sources to start with:
 
-If any competitor matches or exceeds cheapcode on **all three** of (cost, latency, capability) at the time research lands, the project's headline thesis is materially weakened. Per atom 0011, halt + reconsider whether cheapcode is justified at all.
+- `cheapcode_beats_codex_on_cost` — L2 (OpenAI Codex pricing), then L1 (own per-task measurement)
+- `cheapcode_beats_codex_on_latency` — L2 (OpenAI status / docs), then L1
+- `cheapcode_beats_codex_on_capability` — L3 if published, else L1 via cheapbench (Codex is hosted; if not runnable locally, leave cell honest as "L4-only triangulation" with low confidence)
+- `cheapcode_beats_vanilla_opencode_on_capability` — L1 (run vanilla opencode + cheapllm against cheapbench ourselves; this is the cheapest probe)
+- `cheapcode_beats_claude_code_on_cost` — L2 (Anthropic pricing), then L1
+- `cheapcode_beats_aider_on_cost` — L1 (open-source, run locally with cheapllm)
+- `cheapcode_beats_terminus_on_cost` — operator-flagged as "doesn't matter"; deprioritize
+- `cheapcode_beats_goose_on_cost` — L1 (open-source, run locally)
+- `cheapcode_beats_continue_on_cost` — L1 (open-source)
+- `cheapcode_beats_cursor_on_cost` — L2 (Cursor pricing); capability cell hard to populate honestly since IDE-bound; leave bracketed
+- `cheapcode_beats_devin_on_cost` — L4 (vendor-only); confidence ceiling @0.65 unless L3 replication appears
+
+- `cheapcode_smart_on_cheapbench` — L1 (own measurement, design in CHEAPBENCH.md)
+- `cheapbench_uses_public_data_only` — L1 (auditable from CHEAPBENCH.md task list)
+- `cheapbench_zero_marginal_cost` — L1 (auditable from cost-tracker output during cheapbench run)
+
+### Halt condition for Section E + H
+
+If any competitor matches or exceeds cheapcode on **all three** of (cost, latency, capability/cheapbench) at the time research lands, the headline thesis is materially weakened. Per atom 0011, HALT and reconsider before any source-of-record commit.
+
+If `@>=0.95` cannot be reached for any single thesis claim despite L1 measurement (i.e., the gap is structural, not informational), HALT and downgrade target rather than ship a weaker claim under a stronger label (mizaj 04 — separate-stated-from-revealed).
 
 ---
 

@@ -59,6 +59,14 @@ claim obs_claude_code_cost_le_cheapcode: Bool @>=0.99 = False
 claim obs_aider_cost_le_cheapcode: Bool @>=0.99 = False
 claim obs_terminus_cost_le_cheapcode: Bool @>=0.99 = False
 claim obs_goose_cost_le_cheapcode: Bool @>=0.99 = False
+claim obs_continue_cost_le_cheapcode: Bool @>=0.99 = False
+claim obs_cursor_cost_le_cheapcode: Bool @>=0.99 = False
+claim obs_devin_cost_le_cheapcode: Bool @>=0.99 = False
+
+# H - cheapbench observations (project-owned smartness bench)
+claim obs_cheapbench_score_lt_design_floor: Bool @>=0.99 = False
+claim obs_cheapbench_uses_non_public_data: Bool @>=0.99 = False
+claim obs_cheapbench_marginal_cost_gt_zero: Bool @>=0.99 = False
 
 # ============================================================
 # SECTION A - backend axis (inherited from cheapllm v1)
@@ -146,6 +154,32 @@ falsified_when obs_terminus_cost_le_cheapcode
 claim cheapcode_beats_goose_on_cost: Bool @>=0.40 = not obs_goose_cost_le_cheapcode
 falsified_when obs_goose_cost_le_cheapcode
 
+claim cheapcode_beats_continue_on_cost: Bool @>=0.45 = not obs_continue_cost_le_cheapcode
+falsified_when obs_continue_cost_le_cheapcode
+
+claim cheapcode_beats_cursor_on_cost: Bool @>=0.50 = not obs_cursor_cost_le_cheapcode
+falsified_when obs_cursor_cost_le_cheapcode
+
+claim cheapcode_beats_devin_on_cost: Bool @>=0.65 = not obs_devin_cost_le_cheapcode
+falsified_when obs_devin_cost_le_cheapcode
+
+# ============================================================
+# SECTION H - smartness via cheapbench (project-owned bench)
+#
+# Per SPEC Revision 2026-05-02: cheapbench is the smartness signal,
+# TB is triangulation. cheapbench uses public data only and runs at
+# $0 marginal cost. See plan/CHEAPBENCH.md.
+# ============================================================
+
+claim cheapcode_smart_on_cheapbench: Bool @>=0.50 = not obs_cheapbench_score_lt_design_floor
+falsified_when obs_cheapbench_score_lt_design_floor
+
+claim cheapbench_uses_public_data_only: Bool @>=0.95 = not obs_cheapbench_uses_non_public_data
+falsified_when obs_cheapbench_uses_non_public_data
+
+claim cheapbench_zero_marginal_cost: Bool @>=0.85 = not obs_cheapbench_marginal_cost_gt_zero
+falsified_when obs_cheapbench_marginal_cost_gt_zero
+
 # ============================================================
 # SECTION F - composed theorems
 #
@@ -162,7 +196,7 @@ theorem harness_uplift_visible_in_all_clients
   by audit experiment-0-and-2
 
 theorem cheapcode_outperforms_named_alternatives
-  assume cheapllm_cheaper_proven and cheapllm_faster_proven and cheapllm_more_context_proven and cheapllm_smart_axis_pending and cheapcode_beats_codex_on_cost and cheapcode_beats_codex_on_latency and cheapcode_beats_codex_on_capability and cheapcode_beats_vanilla_opencode_on_capability
+  assume cheapllm_cheaper_proven and cheapllm_faster_proven and cheapllm_more_context_proven and cheapllm_smart_axis_pending and cheapcode_smart_on_cheapbench and cheapbench_uses_public_data_only and cheapbench_zero_marginal_cost and cheapcode_beats_codex_on_cost and cheapcode_beats_codex_on_latency and cheapcode_beats_codex_on_capability and cheapcode_beats_vanilla_opencode_on_capability
   proves True
   by audit competitive-scorecard
 
@@ -181,5 +215,9 @@ theorem cheapcode_maintainable_long_term
 # fails, discharge errors). Either outcome is informative.
 # ============================================================
 
+# Confidence target per SPEC Revision 2026-05-02 is @>=0.95 (operator-set).
+# Current floor @>=0.30 reflects pre-research state of Section E.
+# Path to @>=0.95: cheapbench measurements + cited competitor pricing/latency
+# from credibility-laddered sources (CONFIDENCE.md), not vendor marketing.
 claim cheapcode_v1_ships: Bool @>=0.30 = cite cheapcode_outperforms_named_alternatives
-falsified_when obs_experiment_0_fail
+falsified_when obs_experiment_0_fail or obs_cheapbench_score_lt_design_floor
