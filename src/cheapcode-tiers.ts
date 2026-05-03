@@ -114,6 +114,15 @@ export interface CheapcodeProviderOptions {
      * may opt in if they have evidence the wrapper helps on their slice.
      */
     forceCompoundOnMultistep?: boolean
+    /**
+     * Per-call timeout in milliseconds for compound-wrapper sub-calls
+     * (plan / leaf / synthesis / verify / retry). M3.17 production fix:
+     * any single sub-call exceeding this deadline is rejected so the
+     * pipeline doesn't hang indefinitely. Default 180_000 (3 minutes).
+     * Decrease for cheap-tier-only fast paths; increase for hard-reasoning
+     * frontier syntheses if your benchmark requires it.
+     */
+    perCallTimeoutMs?: number
   }
 }
 
@@ -239,6 +248,7 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
         verifier: openrouter(verifierTarget),
         k,
         maxRetries,
+        perCallTimeoutMs: options.auto?.perCallTimeoutMs,
       }
       const routerOpts: RouterOptions = {
         smartTarget,

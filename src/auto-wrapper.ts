@@ -58,6 +58,39 @@ export interface AutoWrapperConfig {
   k?: number
   /** Max retry-with-feedback rounds. Default 1 per SPEC. */
   maxRetries?: number
+  /**
+   * Per-call timeout in milliseconds. M3.17 production-reliability fix:
+   * any single sub-call (plan, leaf, synthesis, verify, retry) that
+   * exceeds this deadline is rejected with a timeout error rather than
+   * blocking the entire pipeline. Default 180_000 (3 minutes); operator
+   * can tune via cheapcode.toml.
+   *
+   * Background: M3.13 (AIME experiment-3) hung 50+ min on 2024-I-11 when
+   * one sub-call blocked indefinitely. Atom 0015 firing — research-grounded
+   * compound architectures don't ship with production reliability without
+   * this guard. Per atom 0008 runtime-anchored claim-shape: any sub-call
+   * timing out fires a structured error that the wrapper handles cleanly.
+   */
+  perCallTimeoutMs?: number
+}
+
+const DEFAULT_PER_CALL_TIMEOUT_MS = 180_000
+
+/**
+ * Wrap any promise with a deadline. Rejects with a labeled error if the
+ * deadline expires before the promise resolves. The label identifies
+ * which pipeline stage timed out, so wrapper trace can record it.
+ */
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | null = null
+  const timeout = new Promise<T>((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new Error(`cheapcode-wrapper-timeout: ${label} exceeded ${ms}ms`))
+    }, ms)
+  })
+  return Promise.race([p, timeout]).finally(() => {
+    if (timer) clearTimeout(timer)
+  })
 }
 
 export interface WrapperTrace {
@@ -137,12 +170,16 @@ Previous (rejected) answer:
 
 Produce an improved answer that addresses the verifier's feedback:`
 
-async function planDecompose(task: string, smart: LanguageModel): Promise<string[]> {
-  const result = await generateText({
-    model: smart,
-    prompt: `${PLAN_PROMPT}\n${task}`,
-  })
-  // Parse numbered list. Tolerant of "1. step" / "1) step" / "- step" formats.
+async function planDecompose(
+  task: string,
+  smart: LanguageModel,
+  timeoutMs: number,
+): Promise<string[]> {
+  const result = await withTimeout(
+    generateText({ model: smart, prompt: `${PLAN_PROMPT}\n${task}` }),
+    timeoutMs,
+    "plan-decompose",
+  )
   return result.text
     .split("\n")
     .map((l: string) => l.trim())
@@ -150,11 +187,17 @@ async function planDecompose(task: string, smart: LanguageModel): Promise<string
     .map((l: string) => l.replace(/^(\d+[.)]|[-*])\s+/, ""))
 }
 
-async function executeLeaf(step: string, cheap: LanguageModel): Promise<string> {
-  const result = await generateText({
-    model: cheap,
-    prompt: `${LEAF_PROMPT}\n${step}`,
-  })
+async function executeLeaf(
+  step: string,
+  cheap: LanguageModel,
+  timeoutMs: number,
+  index: number,
+): Promise<string> {
+  const result = await withTimeout(
+    generateText({ model: cheap, prompt: `${LEAF_PROMPT}\n${step}` }),
+    timeoutMs,
+    `leaf-${index}`,
+  )
   return result.text.trim()
 }
 
@@ -163,6 +206,8 @@ async function synthesize(
   plan: string[],
   leaves: string[],
   smart: LanguageModel,
+  timeoutMs: number,
+  index: number,
 ): Promise<string> {
   const planStr = plan.map((s, i) => `${i + 1}. ${s}`).join("\n")
   const leavesStr = leaves
@@ -172,7 +217,11 @@ async function synthesize(
     .replace("{TASK}", task)
     .replace("{PLAN}", planStr)
     .replace("{LEAVES}", leavesStr)
-  const result = await generateText({ model: smart, prompt })
+  const result = await withTimeout(
+    generateText({ model: smart, prompt }),
+    timeoutMs,
+    `synthesis-${index}`,
+  )
   return result.text.trim()
 }
 
@@ -195,11 +244,16 @@ async function crossModelVerify(
   task: string,
   candidate: string,
   verifier: LanguageModel,
+  timeoutMs: number,
 ): Promise<VerifierVerdict> {
   const prompt = VERIFIER_PROMPT
     .replace("{TASK}", task)
     .replace("{ANSWER}", candidate)
-  const result = await generateText({ model: verifier, prompt })
+  const result = await withTimeout(
+    generateText({ model: verifier, prompt }),
+    timeoutMs,
+    "cross-model-verify",
+  )
   const verdict = result.text.trim()
   if (/^PASS\b/i.test(verdict)) {
     return { passed: true }
@@ -218,6 +272,7 @@ async function retryWithFeedback(
   previous: string,
   feedback: string,
   smart: LanguageModel,
+  timeoutMs: number,
 ): Promise<string> {
   const planStr = plan.map((s, i) => `${i + 1}. ${s}`).join("\n")
   const leavesStr = leaves
@@ -229,7 +284,11 @@ async function retryWithFeedback(
     .replace("{PLAN}", planStr)
     .replace("{LEAVES}", leavesStr)
     .replace("{PREVIOUS}", previous)
-  const result = await generateText({ model: smart, prompt })
+  const result = await withTimeout(
+    generateText({ model: smart, prompt }),
+    timeoutMs,
+    "retry-with-feedback",
+  )
   return result.text.trim()
 }
 
@@ -244,47 +303,85 @@ export async function runAutoWrapper(
   let totalCalls = 0
   const k = config.k ?? 3
   const maxRetries = config.maxRetries ?? 1
+  const timeoutMs = config.perCallTimeoutMs ?? DEFAULT_PER_CALL_TIMEOUT_MS
 
   // Step 1: Plan-decompose
-  const plan = await planDecompose(task, config.smart)
+  const plan = await planDecompose(task, config.smart, timeoutMs)
   totalCalls += 1
 
-  // Step 2: Parallel leaves (only if there's actually a plan; degenerate single-step
-  // tasks fall through with no leaves and synthesis sees the empty leaves list).
-  const leafResults =
-    plan.length > 0
-      ? await Promise.all(plan.map((step) => executeLeaf(step, config.cheap)))
-      : []
-  totalCalls += plan.length
+  // Step 2: Parallel leaves. Use Promise.allSettled so a single hung leaf
+  // doesn't block the others — surviving leaves still feed synthesis.
+  // M3.13 surfaced this failure mode; M3.17 hardens against it.
+  let leafResults: string[] = []
+  if (plan.length > 0) {
+    const settled = await Promise.allSettled(
+      plan.map((step, i) => executeLeaf(step, config.cheap, timeoutMs, i)),
+    )
+    leafResults = settled.map((r, i) =>
+      r.status === "fulfilled"
+        ? r.value
+        : `(leaf ${i} failed: ${(r.reason as Error)?.message ?? "unknown"})`,
+    )
+    totalCalls += plan.length
+  }
 
-  // Step 3: Best-of-K=3 synthesis at smart tier
-  const syntheses = await Promise.all(
-    Array.from({ length: k }).map(() => synthesize(task, plan, leafResults, config.smart)),
+  // Step 3: Best-of-K=3 synthesis at smart tier (Promise.allSettled too —
+  // if one synthesis sample times out, surviving samples still vote).
+  const synthSettled = await Promise.allSettled(
+    Array.from({ length: k }).map((_, i) =>
+      synthesize(task, plan, leafResults, config.smart, timeoutMs, i),
+    ),
   )
+  const syntheses = synthSettled
+    .filter((r): r is PromiseFulfilledResult<string> => r.status === "fulfilled")
+    .map((r) => r.value)
   totalCalls += k
+
+  // If ALL syntheses timed out, the wrapper has nothing to return —
+  // bubble up the structured error rather than emit empty text.
+  if (syntheses.length === 0) {
+    throw new Error(
+      `cheapcode-wrapper: all ${k} synthesis samples timed out (per-call ${timeoutMs}ms)`,
+    )
+  }
 
   const selectedIndex = selectBestSynthesis(syntheses)
   let candidate = syntheses[selectedIndex] ?? ""
 
-  // Step 4: Cross-model verifier
-  let verdict = await crossModelVerify(task, candidate, config.verifier)
-  totalCalls += 1
+  // Step 4: Cross-model verifier (best-effort; if verifier itself times out,
+  // we ship the candidate as-is rather than blocking the response).
+  let verdict: VerifierVerdict
+  try {
+    verdict = await crossModelVerify(task, candidate, config.verifier, timeoutMs)
+    totalCalls += 1
+  } catch (e) {
+    verdict = {
+      passed: true, // optimistic: skip retry if verifier itself is unreachable
+      feedback: `verifier-skipped: ${(e as Error)?.message ?? "unknown"}`,
+    }
+  }
   let retried = false
 
-  // Step 5: Retry-with-feedback if verifier disagrees
-  if (!verdict.passed && maxRetries > 0) {
-    candidate = await retryWithFeedback(
-      task,
-      plan,
-      leafResults,
-      candidate,
-      verdict.feedback ?? "",
-      config.smart,
-    )
-    totalCalls += 1
-    verdict = await crossModelVerify(task, candidate, config.verifier)
-    totalCalls += 1
-    retried = true
+  // Step 5: Retry-with-feedback if verifier disagreed (and verifier was reachable)
+  if (!verdict.passed && maxRetries > 0 && !verdict.feedback?.startsWith("verifier-skipped")) {
+    try {
+      candidate = await retryWithFeedback(
+        task,
+        plan,
+        leafResults,
+        candidate,
+        verdict.feedback ?? "",
+        config.smart,
+        timeoutMs,
+      )
+      totalCalls += 1
+      verdict = await crossModelVerify(task, candidate, config.verifier, timeoutMs)
+      totalCalls += 1
+      retried = true
+    } catch (e) {
+      // retry timed out — keep the original candidate
+      retried = true
+    }
   }
 
   return {
