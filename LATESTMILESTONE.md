@@ -6,6 +6,45 @@
 
 ---
 
+## M3.29 — agentic-frontier goal added to plan-graph; calibrated confidence ~10% (2026-05-03)
+
+### Status
+
+Accepted as scope-expansion. Operator-set 24h goal: "build a cheaper, faster, more intelligent agent than codex+GPT-5.5 (82.0% ± 2.2 on SWE-bench Verified)." Plan-graph updated with PLAN.bn SECTION EE; honest joint confidence computed at ~0.10.
+
+### Context
+
+Operator extended scope after M3.28's v1x success on knowledge-synthesis tasks: "use cheapcode to actually build to a frontier-beating agent." This is structurally larger than v1.0 (routing layer + voter) — agent-loop infrastructure + multi-step tool use + test-execution + multi-file editing are all gaps. The honest move is to lay out the gap with calibrated confidence, not pretend it's close.
+
+### Decision
+
+Added PLAN.bn SECTION EE with:
+- 4 infrastructure sub-claims (agent loop exists today @0.05; voter lifts SWE @0.40; cheap-tier amortization @0.40; parallel dispatch latency @0.30)
+- 3 headline target claims (completion ≥82% @0.20; cost ≤50% @0.45; latency ≤75% @0.30)
+- 1 composed goal (`cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes` @0.10)
+- 1 SDE claim (`m3_30_sde_would_validate_voter_lifts_agentic_correctness_at_low_cost` @0.55)
+
+Smallest distinguishing experiment per atom 0011: take 5 SWE-bench Verified tasks where codex+gpt-5.5 fails (the 18% tail), dispatch each through `cheapcode-witness --v1x` for diagnose-the-fix only (no execution). PASS = ≥3/5 produce more correct diagnoses than failed codex output. FAIL = atom 0015 fires; goal narrows to "cheaper at comparable quality" rather than "beats on quality." Cost projection: ~$0.73 total, ~45 min wall.
+
+### Consequences
+
+Composite progress bar: **47.2%** (down from 58.5% before the goal was added). The drop is honest — adding a much harder goal correctly lowers the composite. Joint confidence on the agentic goal is **~10%**, decomposed:
+- Completion ≥82%: @0.20 (lowest — no agent infrastructure today)
+- Cost ≤50%: @0.45 (highest — cheap-tier routing is the natural advantage)
+- Latency ≤75%: @0.30 (moderate — parallel dispatch + cheap-tier could help; cross-witness adds latency)
+
+Largest single drag: `cheapcode_v1_has_agent_loop_infrastructure @0.05`. The gap to the goal is essentially "build an agent harness" (~v2.x or fork of opencode/codex). Cheapcode's existing primitives (voter, witness v1x, routing) are the right shape but don't compose into an agent without harness work.
+
+DeepSeek V4 Pro at 80.6% SWE-bench Verified single-pass (per facts/08) is plausibly within 1.4pp of the codex+gpt-5.5 82% target. **The cheapest path may be: fork opencode, use V4 Pro as the base model with cheapcode-witness v1x at strategic checkpoints, route cheap-tier for routine sub-tasks. Cost-axis already wins by ~2-5×; completion axis comes from V4 Pro + cross-witness lift.**
+
+Burhan-revisit: 48 EXPLORE / 0 REMOVE / 0 MOVE — clean. 24 plateau-flagged claims (was 20).
+
+### Pointer
+
+`commit TBD`. PLAN.bn SECTION EE. The M3.30 SDE is the cheapest move that would discriminate "voter lifts SWE correctness" before any v2.x agent-harness investment. If SDE PASSES, the goal becomes worth pursuing seriously. If FAILS, scope narrows.
+
+---
+
 ## M3.28 — v1x panel-of-experts: cheapcode-witness BEATS single-pass Claude on knowledge synthesis (2026-05-03)
 
 ### Status

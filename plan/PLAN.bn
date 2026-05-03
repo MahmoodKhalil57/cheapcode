@@ -948,6 +948,106 @@ claim obs_m3_28_v1x_did_not_improve_atom_0017_credential_falsified: Bool @>=0.99
 claim m3_28_v1x_finding_directly_improves_atom_0017_credential: Bool @>=0.78 = not obs_m3_28_v1x_did_not_improve_atom_0017_credential_falsified
 falsified_when obs_m3_28_v1x_did_not_improve_atom_0017_credential_falsified
 
+# ============================================================
+# SECTION EE - agentic-frontier goal (M3.29, operator-set 24h scope)
+#
+# Operator-set goal: "build a cheaper, faster, more intelligent 'agent'
+# than codex + GPT-5.5 (82.0% ± 2.2 on SWE-bench Verified)."
+#
+# Honest scope analysis:
+# - Current cheapcode v1.0 is a routing-intelligence + cross-witness-voter
+#   layer. NO agent-loop infrastructure (no multi-step tool-use, no file-
+#   editing primitives, no test-execution validation, no long-horizon
+#   planning).
+# - Codex+gpt-5.5's 82% comes from a full agent harness running through
+#   GPT-5.5 with codex's tooling. We do not have an equivalent harness.
+# - DeepSeek V4 Pro single-pass scores SWE-bench Verified 80.6% per
+#   facts/08 (vendor self-report L4). Cheapcode COULD route to V4 Pro and
+#   inherit ~80% — close to but below the codex 82% target.
+# - To beat 82% with cross-witness pattern, need: (a) agent harness, (b)
+#   v1x panel-of-experts integrated at decision points within the loop,
+#   (c) cheap-tier sub-task delegation for cost, (d) parallel dispatch
+#   for latency. Each is non-trivial engineering.
+#
+# Path forward per atom 0011 (smallest distinguishing): the SDE for this
+# goal is NOT to build the full agent. It is: take 5 SWE-bench Verified
+# tasks where codex+gpt-5.5 FAILS, run them through cheapcode-witness v1x
+# at the diagnose-the-fix level (no actual execution), and measure
+# whether v1x produces a more correct diagnosis than the failed codex run.
+# If yes (≥3 of 5), cross-witness lifts agentic correctness on the hard
+# tail and the full agent path is worth pursuing. If no, atom 0015 fires
+# and the goal scope narrows to "cheaper at comparable quality" rather
+# than "beats on quality."
+#
+# Cost projection for this SDE: ~5 × $0.045 = $0.225 v1x + ~5 × $0.10
+# codex-baseline = ~$0.73 total. Wall ~45 min. Within atom 0011 budget.
+# ============================================================
+
+# Sub-claim 1: cheapcode v1.0 lacks agent-loop infrastructure (current
+# state — empirically TRUE, atom 0013 honest disclosure).
+claim obs_cheapcode_v1_lacks_agent_loop_infrastructure: Bool @>=0.99 = True
+claim cheapcode_v1_has_agent_loop_infrastructure: Bool @>=0.05 = not obs_cheapcode_v1_lacks_agent_loop_infrastructure
+falsified_when obs_cheapcode_v1_lacks_agent_loop_infrastructure
+
+# Sub-claim 2: cross-witness voter pattern lifts agentic-correctness on
+# SWE-shape tasks. UNTESTED — needs M3.30 SDE.
+claim obs_voter_pattern_does_not_lift_agentic_correctness_on_swe_falsified: Bool @>=0.99 = False
+claim voter_pattern_lifts_agentic_correctness_on_swe_shape_5_to_15pct: Bool @>=0.40 = not obs_voter_pattern_does_not_lift_agentic_correctness_on_swe_falsified
+falsified_when obs_voter_pattern_does_not_lift_agentic_correctness_on_swe_falsified
+
+# Sub-claim 3: cheap-tier routing amortizes SWE cost below pure-frontier
+# dispatch. M3.25 cycle C found 4/10 hard-multistep tasks where wrapper
+# (≈ cheap+frontier mix) was cheaper than baseline. Translates plausibly
+# to SWE-shape but not validated there.
+claim obs_cheap_tier_routing_does_not_amortize_swe_cost_falsified: Bool @>=0.99 = False
+claim cheap_tier_routing_amortizes_swe_cost_below_frontier_50pct_or_more: Bool @>=0.40 = not obs_cheap_tier_routing_does_not_amortize_swe_cost_falsified
+falsified_when obs_cheap_tier_routing_does_not_amortize_swe_cost_falsified
+
+# Sub-claim 4: parallel sub-task dispatch reduces SWE latency. Hypothetical;
+# would need agent harness with parallel-leaf execution.
+claim obs_parallel_subtask_dispatch_does_not_reduce_swe_latency_falsified: Bool @>=0.99 = False
+claim parallel_subtask_dispatch_reduces_swe_latency_25_to_50pct: Bool @>=0.30 = not obs_parallel_subtask_dispatch_does_not_reduce_swe_latency_falsified
+falsified_when obs_parallel_subtask_dispatch_does_not_reduce_swe_latency_falsified
+
+# HEADLINE TARGET CLAIMS — the operator-set goal axes
+# (Each gated on building cheapcode v2.x agent harness)
+
+# Headline-1: SWE-bench Verified completion ≥82.0% (matching codex+gpt-5.5 lower-bound)
+claim obs_cheapcode_v2x_swe_completion_below_82pct_falsified: Bool @>=0.99 = False
+claim cheapcode_v2x_swe_completion_at_least_82pct: Bool @>=0.20 = not obs_cheapcode_v2x_swe_completion_below_82pct_falsified
+falsified_when obs_cheapcode_v2x_swe_completion_below_82pct_falsified
+
+# Headline-2: SWE-bench cost ≤50% of codex+gpt-5.5
+claim obs_cheapcode_v2x_swe_cost_above_half_of_codex_falsified: Bool @>=0.99 = False
+claim cheapcode_v2x_swe_cost_at_most_50pct_of_codex: Bool @>=0.45 = not obs_cheapcode_v2x_swe_cost_above_half_of_codex_falsified
+falsified_when obs_cheapcode_v2x_swe_cost_above_half_of_codex_falsified
+
+# Headline-3: SWE-bench latency ≤75% of codex+gpt-5.5
+claim obs_cheapcode_v2x_swe_latency_above_three_quarters_codex_falsified: Bool @>=0.99 = False
+claim cheapcode_v2x_swe_latency_at_most_75pct_of_codex: Bool @>=0.30 = not obs_cheapcode_v2x_swe_latency_above_three_quarters_codex_falsified
+falsified_when obs_cheapcode_v2x_swe_latency_above_three_quarters_codex_falsified
+
+# Composed agentic-frontier goal — joint of all three headline targets.
+# Confidence is the AND-product since all three must hold simultaneously.
+# 0.20 × 0.45 × 0.30 = 0.027 lower bound; but axes are correlated (a good
+# agent likely wins on multiple axes at once) so honest joint ~0.08-0.12.
+theorem cheapcode_agent_beats_codex_gpt5_5_on_3_axes
+  assume cheapcode_v2x_swe_completion_at_least_82pct and cheapcode_v2x_swe_cost_at_most_50pct_of_codex and cheapcode_v2x_swe_latency_at_most_75pct_of_codex
+  proves True
+  by audit cheapcode-agentic-frontier-goal-discharge-m3-29
+
+claim cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes: Bool @>=0.10 = cite cheapcode_agent_beats_codex_gpt5_5_on_3_axes
+falsified_when obs_cheapcode_v2x_swe_completion_below_82pct_falsified or obs_cheapcode_v2x_swe_cost_above_half_of_codex_falsified or obs_cheapcode_v2x_swe_latency_above_three_quarters_codex_falsified
+
+# Smallest distinguishing experiment for the goal — M3.30 candidate.
+# Pre-registered: 5 SWE-bench Verified tasks where codex+gpt-5.5 fails,
+# dispatched through cheapcode-witness v1x for diagnose-the-fix only (no
+# execution). PASS = ≥3 of 5 produce more correct diagnoses than failed
+# codex output. FAIL = atom 0015 fires; goal narrows.
+claim obs_m3_30_sde_falsifies_voter_lifts_swe_correctness: Bool @>=0.99 = False
+claim m3_30_sde_would_validate_voter_lifts_agentic_correctness_at_low_cost: Bool @>=0.55 = not obs_m3_30_sde_falsifies_voter_lifts_swe_correctness
+falsified_when obs_m3_30_sde_falsifies_voter_lifts_swe_correctness
+
 # Empirical claim — wrapper amortizes on hard-multistep tasks where
 # baseline burns many reasoning tokens. M3.11b N=10: 4 tasks (h02, h04,
 # h05, h06) had wrapper cost ≤1.0× baseline. Pattern is reasoning-
