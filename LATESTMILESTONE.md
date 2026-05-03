@@ -6,6 +6,44 @@
 
 ---
 
+## M3.31 — mizaj 18 (burhan-backed TDD for fork-additions) added per operator requirement (2026-05-03)
+
+### Status
+
+Accepted. New mizaj rule 18 + cheapcode `CLAUDE.md` mandate + PLAN.bn compliance claims. Discipline binding from M3.31 onward.
+
+### Context
+
+Operator: "make sure to do burhan backed tdd when adding new things to opencode, we assume their code works, our code needs to have the perfect coverage to give us high confidence in our code quality and output generation with minimal tests."
+
+This is the discipline asymmetry that keeps a fork audit-bearing: trust upstream as L3-sahih, prove fork-additions with minimal-but-perfect coverage. It also makes weekly upstream rebases cheap — only fork-additions need re-testing.
+
+### Decision
+
+**Mizaj rule 18** added (`~/apps/mizaj/rules/18-burhan-backed-tdd-for-fork-additions.md`, commit `ce442a7`):
+- Trigger: any new code in fork-side src/ tree
+- Form: (1) burhan claim FIRST per mizaj-01 falsifier; (2) smallest discriminating test per atom 0011; (3) implement source; (4) ~100% fork-side coverage
+- Anti-patterns: source-first, mocking upstream, coverage-of-upstream-files, tests-without-burhan-claims
+- Companions: M18+atom-0011, M18+M11, M18+atom-0017
+
+**`cheapcode/CLAUDE.md` updated** to make M18 binding for any fork-addition. Future agents reading CLAUDE.md at session-start will see M18 in the substrate primitives list with the **MANDATORY** label.
+
+**PLAN.bn** updated with two M18-compliance claims (`mizaj_18_burhan_backed_tdd_mandatory_for_cheapcode_fork_additions @0.85`, `every_fork_addition_post_m3_31_satisfies_m18_compliance @0.85`).
+
+### Consequences
+
+The discipline asymmetry is now mechanical: upstream-vanilla code carries inherited L3-sahih trust; fork-additions are L1-unmeasured by default until M18-disciplined. This keeps the fork rebaseable cheaply (upstream changes don't need re-testing) AND keeps fork-additions audit-bearing (every load-bearing addition has a falsifier-validated test).
+
+The discipline composes 4 existing substrate primitives (mizaj 01 + 11, atom 0007 + 0011) into a single binding rule for the fork-addition case. Operator's framing ("perfect coverage of OUR code with minimal tests") maps directly onto the asymmetry between coverage-completeness (our code) and test-count-minimality (atom 0011).
+
+37/37 tests still pass. Burhan-validate clean.
+
+### Pointer
+
+`commit TBD` (cheapcode); mizaj `ce442a7`. Going forward: every commit touching `src/` or `tools/` in cheapcode-fork must satisfy the 4-step form. CI gate candidate (v1.x): block commits violating M18.
+
+---
+
 ## M3.30 — atom 0015 fires on M3.29 framing: cheapcode IS opencode-fork; corrected confidence 10% → 25% (2026-05-03)
 
 ### Status

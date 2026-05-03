@@ -13,6 +13,7 @@ cheapcode is a substrate-paired project. The plan-graph (`plan/PLAN.bn` + `plan/
 - `15-consult-atom-before-reinventing.md` — check khazīna first
 - `16-synthesize-research-as-experiment-equivalent.md` — research can substitute experiments
 - `17-apply-byproducts-when-method-plateaus.md` — **when load-bearing claim stalls at sub-floor, run the M17 cycle (companion: khazīna atom 0017)**
+- `18-burhan-backed-tdd-for-fork-additions.md` — **MANDATORY for any new code added to cheapcode-fork atop opencode upstream. Write burhan claim + falsifier-bearing test BEFORE the source. Trust upstream as L3-sahih; prove fork-additions with minimal tests + perfect coverage of fork-side LoC.**
 
 **Khazīna atoms** (read at `~/apps/khazina/atoms/`):
 - `0010-blinded-independent-witness-pass.md` — cross-witness honesty
@@ -35,6 +36,26 @@ The cycle should fire automatically when ANY of these patterns shows up in the a
 7. A `tools/burhan-plateau.sh` run produces a non-empty report
 
 In all these cases: **stop, inventory the byproducts, look for shape, lift to falsifier-bearing claim, then continue.** This is not optional substrate decoration — it's the discipline that prevented the cheapcode project from drifting at multiple plateau points (M3.18b, M3.18c, M3.13, M3.23 — all 4 in successful_transformations on atom 0017).
+
+## When to apply M18 (burhan-backed TDD) — MANDATORY for any fork-addition
+
+Cheapcode is a fork of opencode (pinned upstream v1.14.33). The fork's value is the substrate-enhanced dispatch + routing-intelligence layered atop the inherited harness. M18 is the discipline that keeps fork-additions audit-bearing.
+
+**Apply M18 every time you would add or modify code in the fork-side source tree** (`src/*.ts`, `tools/*.ts`, etc. — anything not directly mirrored from opencode upstream). The fork-addition flow:
+
+1. Write the burhan-shape claim FIRST in `plan/PLAN.bn` (or `plan/facts/*.bn`) with mizaj-01 falsifier.
+2. Write the smallest test in `src/*.test.ts` that discriminates the claim (atom 0011).
+3. Implement the source. Test must pass; coverage of new fork-side LoC must be ~100%.
+4. Snapshot + revisit so the new claim enters burhan-plateau tracking.
+
+**The asymmetry is load-bearing:** trust opencode upstream as L3-sahih (assume their code works); prove fork-additions with minimal tests + perfect coverage. This is what makes the fork rebaseable cheaply — upstream changes don't need re-testing; only fork-additions are project-tested.
+
+Anti-patterns to refuse:
+- Source code without a preceding burhan claim
+- Burhan claim without a discriminating test
+- Mocking opencode-upstream behavior to make fork-side tests pass (couples to a contract that may drift)
+- Coverage measurement that includes upstream-vanilla files (only fork-additions count)
+- "More tests = better" — atom 0011 says smallest distinguishing
 
 ## Tool entry-points
 

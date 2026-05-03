@@ -1044,6 +1044,31 @@ theorem substrate_enhances_opencode_harness_across_5_axes
 claim cheapcode_substrate_enhancement_axes_validated_against_opencode_baseline: Bool @>=0.78 = cite substrate_enhances_opencode_harness_across_5_axes
 falsified_when obs_substrate_does_not_enhance_context_via_atom_0010_falsified or obs_atom_0017_does_not_improve_innovation_falsified
 
+# M3.31 — Mizaj 18 (burhan-backed TDD for fork-additions) is now MANDATORY
+# discipline for any new code added to cheapcode-fork atop opencode upstream.
+# Per operator: "make sure to do burhan backed tdd when adding new things to
+# opencode, we assume their code works, our code needs to have the perfect
+# coverage to give us high confidence in our code quality and output
+# generation with minimal tests."
+#
+# The discipline composes mizaj 01 + atom 0011 + atom 0007 + mizaj 11:
+# every fork-addition gets a burhan claim + falsifier-bearing test BEFORE
+# the source. Trust upstream as L3-sahih; prove fork-additions with minimal
+# tests + perfect coverage of fork-side LoC.
+claim obs_mizaj_18_not_applied_to_fork_additions_falsified: Bool @>=0.99 = False
+claim mizaj_18_burhan_backed_tdd_mandatory_for_cheapcode_fork_additions: Bool @>=0.85 = not obs_mizaj_18_not_applied_to_fork_additions_falsified
+falsified_when obs_mizaj_18_not_applied_to_fork_additions_falsified
+
+# Process claim — every fork-addition from M3.31 onward must satisfy:
+# (a) burhan claim in PLAN.bn or facts/*.bn with mizaj-01 falsifier,
+# (b) smallest-distinguishing test in src/*.test.ts,
+# (c) ~100% coverage of new fork-side LoC,
+# (d) test PRECEDES source per TDD discipline.
+# Falsifier: any commit touching src/ without (a)+(b)+(c)+(d) is M18 violation.
+claim obs_fork_addition_shipped_without_m18_compliance_falsified: Bool @>=0.99 = False
+claim every_fork_addition_post_m3_31_satisfies_m18_compliance: Bool @>=0.85 = not obs_fork_addition_shipped_without_m18_compliance_falsified
+falsified_when obs_fork_addition_shipped_without_m18_compliance_falsified
+
 # Sub-claim 2: cross-witness voter pattern lifts agentic-correctness on
 # SWE-shape tasks. UNTESTED — needs M3.30 SDE.
 claim obs_voter_pattern_does_not_lift_agentic_correctness_on_swe_falsified: Bool @>=0.99 = False
