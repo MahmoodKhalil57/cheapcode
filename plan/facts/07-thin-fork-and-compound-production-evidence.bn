@@ -45,6 +45,33 @@ lemma thin_fork_pattern_localized_dir_well_scoped_hooks
   proves True
   by audit github-cpkt9762-thin-fork-discipline-pattern
 
+# === cheapcode's own zero-patch architecture (L1 self-evidence, M3.0 + M3.2) ===
+# Phase 1 shipped (M3.0, commit 04b2c41) with ZERO patches to opencode
+# upstream — cheapcode loads via opencode.json's documented `provider.<id>.npm`
+# field. Phase 2 architecture decision (M3.2, commit 6181604) confirmed via
+# opencode v1.14.33 source-read that the auto-wrapper compound logic ALSO
+# fits inside the npm package as a custom LanguageModelV3 with its own
+# doGenerate. opencode treats the returned model as an opaque black box
+# (provider.ts:1591-1596 + session/llm.ts:336,391-392).
+#
+# Operational implication for weekly_rebase_holds: with 0 patches, weekly
+# rebase reduces to `git fetch upstream && git rebase upstream/main` — no
+# conflicts possible by construction. The only failure mode is git-software
+# bugs (negligible). This is the strongest possible evidence for cell #15
+# (files modified in upstream tree) AND for the rebase-cost discipline.
+
+lemma cheapcode_phase_1_shipped_with_zero_upstream_patches
+  proves True
+  by audit cheapcode-m3-0-commit-04b2c41
+
+lemma cheapcode_phase_2_architecture_zero_patch_confirmed
+  proves True
+  by audit cheapcode-m3-2-commit-6181604
+
+lemma weekly_rebase_trivial_when_zero_patches_in_upstream_tree
+  proves True
+  by audit cheapcode-zero-patch-implies-trivial-rebase
+
 # === Cost-effectiveness data for cheap base models (L4 + L3 mix) ===
 # Reinforces umbrella 5 (cost ratio) with concrete competitor numbers.
 #

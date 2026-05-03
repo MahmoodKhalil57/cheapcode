@@ -191,7 +191,15 @@ falsified_when obs_surgical_fork_loc_budget_breached
 claim upstream_files_modified_within_budget: Bool @>=0.90 = not obs_upstream_files_modified_gt_2
 falsified_when obs_upstream_files_modified_gt_2
 
-claim weekly_rebase_holds: Bool @>=0.80 = not obs_weekly_rebase_breaks
+# weekly_rebase_holds — lifted M3.5 from 0.80 → 0.97 on zero-patch self-evidence.
+# Phase 1 (M3.0) shipped with 0 patches to opencode upstream. Phase 2 architecture
+# (M3.2) confirmed via source-read that the auto-wrapper ALSO fits as a custom
+# LanguageModelV3 in the npm package. With 0 patches, weekly rebase reduces to
+# `git fetch && git rebase` with no conflicts possible — the only failure mode
+# is git itself, which is L1-attested-mature. See facts/07 lemmas
+# cheapcode_phase_1_shipped_with_zero_upstream_patches and
+# weekly_rebase_trivial_when_zero_patches_in_upstream_tree.
+claim weekly_rebase_holds: Bool @>=0.97 = not obs_weekly_rebase_breaks
 falsified_when obs_weekly_rebase_breaks
 
 # ============================================================
