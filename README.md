@@ -2,7 +2,7 @@
 
 > A general-agent **routing intelligence layer** for opencode. Knows where each top frontier model fails (speed limits, intelligence limits, cost per task) and dispatches each task to its documented value-optimum model.
 
-**Status:** v1.0-rc1 (M3.14). Phase 1 + 2 + router shipped. Phase 3 smoke regression + Phase 4 ship-tag pending. ([LATESTMILESTONE.md](LATESTMILESTONE.md))
+**Status:** v1.0 (M3.22). Phase 1 + Phase 2 (substrate-runtime voter, small-N validated M3.20) + Phase 3 (5-tier registration L3) + Phase 4 (Model Card README) shipped. M3.15 opencode-CLI dispatch ProviderInitError documented as upstream-issue / v1.x follow-up. ([LATESTMILESTONE.md](LATESTMILESTONE.md))
 
 ---
 
@@ -11,7 +11,7 @@ This document is structured as a **Model Card** ([Mitchell et al. 2019](https://
 ## 1. Model details
 
 - **Name:** `@cheapcode/ai-sdk-provider`
-- **Version:** `0.1.0-rc1` (v1.0-rc1)
+- **Version:** `1.0.0` (v1.0)
 - **Author:** [Mahmood Khalil](https://github.com/saastemly) (operator) + Claude Opus 4.7 (1M context) (agent)
 - **Type:** [Vercel AI SDK](https://sdk.vercel.ai/) provider package — opencode loads via `provider.cheapcode.npm` in opencode.json
 - **Architecture:** zero patches to opencode upstream. cheapcode is a separate npm package consumed by upstream-vanilla opencode.
@@ -97,11 +97,12 @@ Per atom 0013 (calibration-discipline-as-credential), the evidence-tier-per-rule
 
 | Benchmark | Tasks | Purpose | Verdict |
 |---|---|---|---|
-| Curated simple multistep | N=10 | M3.11 attempt-1 | Both arms 100% (ceiling effect) |
-| Hand-curated harder multistep | N=10 | M3.11b attempt-2 | Both arms 100% (ceiling effect) |
-| AIME 2024 (subset) | N=10 | M3.13 attempt-3 | (in-flight at v1.0-rc1; verdict pending) |
+| Curated simple multistep | N=10 | M3.11 attempt-1 (compound wrapper Arm A) | FAIL on cost (1.86×) + latency (5.49×); completion ceiling at 100% both arms |
+| Hand-curated harder multistep | N=10 | M3.11b attempt-2 (compound wrapper) | FAIL on cost (1.33×) + latency (5.13×); completion ceiling at 100% both arms |
+| AIME 2024 (subset) | N=3 | M3.13 attempt-3 (compound wrapper) | PARTIAL — task 4 hung 50min (M3.17 timeouts fix); 1/3 correct on completed |
+| AIME 2024 + known-impossible | N=5 | M3.19 voter probe | PASS small-N — 4/5 correct, $0.0516 spend, sahih precision 2/2 = 100% |
 
-Full data: [runs/experiment-1-attempt-1/verdict.md](runs/experiment-1-attempt-1/verdict.md), [-attempt-2/verdict.md](runs/experiment-1-attempt-2/verdict.md), and (forthcoming) `-attempt-3/verdict.md`.
+Full data: [runs/experiment-1-attempt-1/verdict.md](runs/experiment-1-attempt-1/verdict.md), [runs/experiment-1-attempt-2/verdict.md](runs/experiment-1-attempt-2/verdict.md), [runs/experiment-1-attempt-3/](runs/experiment-1-attempt-3/), [runs/experiment-2-voter-probe/verdict.md](runs/experiment-2-voter-probe/verdict.md).
 
 ## 6. Training data
 
