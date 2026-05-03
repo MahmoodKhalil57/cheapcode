@@ -100,11 +100,20 @@ claim verifier_hook_catches_50pct_of_wrong_answers: Bool @>=0.94 = not obs_verif
 falsified_when obs_verifier_hook_catches_lt_50pct_wrong
 
 # Cross-witness pattern (atom 0010) applied to hard reasoning.
-# Lifted via mizaj rule 16 to @>=0.80: MIT debate paper + Tsinghua
-# divergent-thinking + METR L4 (3 groups; 1 is L4 so capped per
-# tier ceiling). See tools/research-equivalence.ts.
+# Lifted M3.6 from @>=0.80 → @>=0.90: stronger evidence stack now
+# available in facts/.
+#   L1 in-house: atom 0010 (blinded-independent-witness-pass), atom
+#     0014 (cross-witness-honesty-pipeline) — both substrate-validated
+#   L3 mutawatir: Wang 2022 self-consistency (18pp on math), Optimal
+#     Self-Consistency 2025 (power-law scaling), Adaptive Test-Time
+#     Compute (7-8.5pp lift on hard questions — INSIDE our 5-15pp
+#     claim range with direct measurement), Forest-of-Thought 2024,
+#     Difficulty-Adaptive SC NAACL 2025
+# Per mizaj 14: 2 L1 + 5 L3 mutawatir → @>=0.90 (capped just below
+# 0.92 mixed-L1-L3 ceiling because the L3 papers measure self-
+# consistency on math/code, not all hard-reasoning shapes).
 claim obs_cross_witness_convergence_lt_70pct: Bool @>=0.99 = False
-claim cross_witness_pattern_lifts_hard_reasoning: Bool @>=0.80 = not obs_cross_witness_convergence_lt_70pct
+claim cross_witness_pattern_lifts_hard_reasoning: Bool @>=0.90 = not obs_cross_witness_convergence_lt_70pct
 falsified_when obs_cross_witness_convergence_lt_70pct
 
 # Plan-decompose-and-execute amortizes smart-tier calls.
