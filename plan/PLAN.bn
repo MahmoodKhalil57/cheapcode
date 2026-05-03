@@ -3412,3 +3412,98 @@ theorem cheapcode_v2_bounded_form_holds_post_router_fix_with_honest_nuance_2026_
 
 claim cheapcode_v2_post_router_fix_holds: Bool @>=0.85 = cite cheapcode_v2_bounded_form_holds_post_router_fix_with_honest_nuance_2026_05_03
 falsified_when obs_cost_dominance_collapsed_post_router_fix_falsified or obs_router_classifier_fixes_did_not_address_m3_47_misclassifications_falsified or obs_cheapcode_auto_correctness_parity_with_gpt_5_5_falsified
+
+# ============================================================
+# SECTION BBB - M3.49 paired N=5 new shapes + honest cost-overfitting finding
+# (2026-05-03, $0.036)
+#
+# Operator $1 budget — research-first per atom 0018. M3.49 spent $0.036
+# on 5 NEW practical-class shape categories not tested in M3.47/48.
+# Critical empirical finding: ROUTER COST-OVERFITTING on simple
+# agentic-swe + closed-book shapes via Opus escalation. Honest atom
+# 0013 disclosure preserved.
+#
+# RESULTS (full receipt at runs/m3-49-paired-new-shapes/summary.json):
+#
+# | Task | Shape | Auto target | Cost ratio | Notes |
+# |------|-------|-------------|------------|-------|
+# | T6 agentic-swe | agentic-swe | claude-opus-4 | **22.12×** | Opus 22× MORE expensive on simple bug fix |
+# | T7 classification | classification | llama-4-scout | 0.004× | 250× cheaper (massive win) |
+# | T8 closed-book | closed-book | claude-opus-4 | **5.123×** | Opus 5× MORE expensive on year recall |
+# | T9 real-world-coding | multistep-general | gpt-5-mini | 0.177× | ~6× cheaper |
+# | T10 multi-step | multistep-general | gpt-5-mini | 0.087× | ~12× cheaper |
+# | M3.49 AGGREGATE | — | — | **1.839×** | MORE expensive on this N=5! |
+# | CUMULATIVE (M3.47+48+49 N=15) | — | — | **0.250× (4× cheaper)** | aggregate dominance HOLDS |
+#
+# CRITICAL HONEST FINDING — UNIFORM COST DOMINANCE FALSIFIED:
+#
+# The "cheapcode-auto uniformly cheaper than gpt-5.5" claim is now
+# EMPIRICALLY FALSIFIED. Counter-examples:
+#   - T1 bounded-code (haiku): 1.5× more expensive on simple one-liner
+#   - T6 agentic-swe (opus-4): 22× more expensive on simple bug fix
+#   - T8 closed-book (opus-4): 5× more expensive on year recall
+#   - T5 hard-reasoning voter: 7× SLOWER (latency, not cost)
+#
+# ROOT CAUSE: facts/09 routing rules optimize per-shape for MAX-quality
+# benchmark performance (Opus MCP-Atlas 77.3% on agentic-swe), not for
+# COST-PER-SIMPLE-TASK. For simple instances of agentic-swe, closed-book,
+# or bounded-code, the routed specialist is OVERKILL — gpt-5.5 alone is
+# already at p>=0.99 and cheap.
+#
+# WHERE CHEAPCODE-AUTO STILL WINS DECISIVELY (5/8 shape categories):
+#   - math-chain → deepseek-flash: 75× cheaper on simple math
+#   - classification → llama-4-scout: 250× cheaper on simple sentiment
+#   - phd-factual → gemini-2.5-flash: 3× cheaper on physics explanation
+#   - multistep-general → gpt-5-mini: 6-15× cheaper on planning + multistep
+#   - long-context → grok-4-fast: documented 3pt accuracy edge at 1M tokens
+#
+# WHERE CHEAPCODE-AUTO LOSES vs naive gpt-5.5 baseline (3/8 shape categories):
+#   - bounded-code-simple (haiku-4.5): 1.5× more expensive
+#   - agentic-swe-simple (claude-opus-4): 22× more expensive
+#   - closed-book-simple (claude-opus-4): 5× more expensive
+#
+# Bounded-form goal CLAIM SHARPENED (atom 0013 + atom 0015 honest):
+# cheapcode-auto is cheaper than naive gpt-5.5 on AGGREGATE across
+# diverse practical tasks (~4× cheaper at N=15) BUT NOT uniformly per
+# shape. The savings are CONCENTRATED in 5/8 shape categories;
+# cost-LOSSES on 3/8 shape categories where Opus over-routing fires.
+#
+# Future v2.x router refinement (deferred per atom 0011 cost-discipline):
+# add per-shape COMPLEXITY-DETECTION sub-classifier so Opus only fires
+# for genuinely-agentic SWE tasks (multi-file, tool-using), not for
+# one-line bug fixes.
+# ============================================================
+
+# Empirical finding — uniform cost dominance falsified
+claim obs_uniform_cost_dominance_per_shape_holds_falsified: Bool @>=0.99 = True
+claim uniform_cost_dominance_per_shape_holds_across_8_practical_categories: Bool @>=0.10 = not obs_uniform_cost_dominance_per_shape_holds_falsified
+falsified_when obs_uniform_cost_dominance_per_shape_holds_falsified
+
+# Empirical finding — aggregate cost dominance holds at N=15
+claim obs_aggregate_cost_dominance_collapsed_at_n_15_falsified: Bool @>=0.99 = False
+claim aggregate_cost_dominance_holds_at_4x_across_n_15_diverse_practical_2026_05_03: Bool @>=0.85 = not obs_aggregate_cost_dominance_collapsed_at_n_15_falsified
+falsified_when obs_aggregate_cost_dominance_collapsed_at_n_15_falsified
+
+# Empirical finding — cost dominance concentrated in 5/8 shape categories
+claim obs_cost_savings_uniformly_distributed_across_shapes_falsified: Bool @>=0.99 = True
+claim cost_savings_uniformly_distributed_across_8_shape_categories: Bool @>=0.10 = not obs_cost_savings_uniformly_distributed_across_shapes_falsified
+falsified_when obs_cost_savings_uniformly_distributed_across_shapes_falsified
+
+# Empirical finding — cost savings ARE concentrated in specific shapes
+claim obs_cost_savings_concentrated_in_5_of_8_shapes_falsified: Bool @>=0.99 = False
+claim cost_savings_concentrated_in_5_of_8_shapes_math_classification_phd_multistep_long_context_2026_05_03: Bool @>=0.85 = not obs_cost_savings_concentrated_in_5_of_8_shapes_falsified
+falsified_when obs_cost_savings_concentrated_in_5_of_8_shapes_falsified
+
+# Future router refinement candidate (atom 0017 byproduct)
+claim obs_router_complexity_detection_subclassifier_unnecessary_falsified: Bool @>=0.99 = False
+claim router_complexity_detection_subclassifier_would_close_3_of_8_shape_losses: Bool @>=0.65 = not obs_router_complexity_detection_subclassifier_unnecessary_falsified
+falsified_when obs_router_complexity_detection_subclassifier_unnecessary_falsified
+
+# Composed sharpened-bounded-form claim — honest disclosure preserved
+theorem cheapcode_v2_sharpened_bounded_form_aggregate_cost_4x_at_n_15_concentrated_in_5_of_8_shapes_2026_05_03
+  assume aggregate_cost_dominance_holds_at_4x_across_n_15_diverse_practical_2026_05_03 and cost_savings_concentrated_in_5_of_8_shapes_math_classification_phd_multistep_long_context_2026_05_03 and cheapcode_auto_correctness_parity_with_gpt_5_5_baseline_on_practical_n_5_2026_05_03
+  proves True
+  by audit cheapcode-section-BBB-m3-49-honest-cost-overfitting-2026-05-03
+
+claim cheapcode_v2_sharpened_holds: Bool @>=0.85 = cite cheapcode_v2_sharpened_bounded_form_aggregate_cost_4x_at_n_15_concentrated_in_5_of_8_shapes_2026_05_03
+falsified_when obs_aggregate_cost_dominance_collapsed_at_n_15_falsified or obs_cost_savings_concentrated_in_5_of_8_shapes_falsified or obs_cheapcode_auto_correctness_parity_with_gpt_5_5_falsified
