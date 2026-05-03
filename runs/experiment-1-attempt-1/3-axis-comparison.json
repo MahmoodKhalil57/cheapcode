@@ -1,0 +1,36 @@
+{
+  "attempt": "experiment-1-attempt-1",
+  "date": "2026-05-03T01:31:33.795Z",
+  "N": 10,
+  "baseline_model": "openai/gpt-5",
+  "wrapper": {
+    "smart": "openai/gpt-5-mini",
+    "cheap": "deepseek/deepseek-v4-flash",
+    "verifier": "anthropic/claude-haiku-4.5",
+    "k": 3,
+    "maxRetries": 1
+  },
+  "cost": {
+    "baseline_usd": 0.016005000000000002,
+    "wrapper_usd": 0.02969661,
+    "ratio": 1.8554582942830362,
+    "target": 0.3,
+    "pass": false
+  },
+  "latency": {
+    "baseline_p50_ms": 5364.498434000008,
+    "wrapper_p50_ms": 29449.258379000003,
+    "ratio": 5.489657372691473,
+    "target": 0.7,
+    "pass": false
+  },
+  "completion": {
+    "baseline_rate": 0.9,
+    "wrapper_rate": 0.9,
+    "ratio": 1,
+    "target": 1.1,
+    "pass": false
+  },
+  "axes_passing": 0,
+  "outcome": "FAIL"
+}

@@ -1,0 +1,191 @@
+{
+  "attempt": "experiment-1-attempt-1-rescored",
+  "date": "2026-05-03T01:33:48.374Z",
+  "N": 10,
+  "benchmark_correction": "t05-counting gold corrected from 8 to 9 (post-experiment author audit)",
+  "cost": {
+    "baseline_usd": 0.016005000000000002,
+    "wrapper_usd": 0.02969661,
+    "ratio": 1.8554582942830362,
+    "target": 0.3,
+    "pass": false
+  },
+  "latency": {
+    "baseline_p50_ms": 5364.498434000008,
+    "wrapper_p50_ms": 29449.258379000003,
+    "ratio": 5.489657372691473,
+    "target": 0.7,
+    "pass": false
+  },
+  "completion": {
+    "baseline_rate": 1,
+    "wrapper_rate": 1,
+    "ratio": 1,
+    "target": 1.1,
+    "pass": false
+  },
+  "axes_passing": 0,
+  "outcome": "FAIL",
+  "per_task": [
+    {
+      "task": "t01-arith-chain",
+      "arm": "baseline",
+      "correct": true,
+      "text": "$6.75",
+      "cost_usd": 0.00108375,
+      "latency_ms": 3560
+    },
+    {
+      "task": "t01-arith-chain",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "$6.75",
+      "cost_usd": 0.00391721,
+      "latency_ms": 29449
+    },
+    {
+      "task": "t02-multihop-trivia",
+      "arm": "baseline",
+      "correct": true,
+      "text": "Tokyo",
+      "cost_usd": 0.00213375,
+      "latency_ms": 2519
+    },
+    {
+      "task": "t02-multihop-trivia",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "Tokyo",
+      "cost_usd": 0.00240102,
+      "latency_ms": 31514
+    },
+    {
+      "task": "t03-deductive-logic",
+      "arm": "baseline",
+      "correct": true,
+      "text": "Dave",
+      "cost_usd": 0.00052375,
+      "latency_ms": 5364
+    },
+    {
+      "task": "t03-deductive-logic",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "Dave",
+      "cost_usd": 0.00242438,
+      "latency_ms": 20287
+    },
+    {
+      "task": "t04-string-manip",
+      "arm": "baseline",
+      "correct": true,
+      "text": "nworb",
+      "cost_usd": 0.00102375,
+      "latency_ms": 4895
+    },
+    {
+      "task": "t04-string-manip",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "nworb",
+      "cost_usd": 0.0024341799999999998,
+      "latency_ms": 80247
+    },
+    {
+      "task": "t05-counting",
+      "arm": "baseline",
+      "correct": true,
+      "text": "9",
+      "cost_usd": 0.00286,
+      "latency_ms": 7347
+    },
+    {
+      "task": "t05-counting",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "9",
+      "cost_usd": 0.005646769999999999,
+      "latency_ms": 53155
+    },
+    {
+      "task": "t06-date-arith",
+      "arm": "baseline",
+      "correct": true,
+      "text": "Thursday",
+      "cost_usd": 0.00084125,
+      "latency_ms": 5773
+    },
+    {
+      "task": "t06-date-arith",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "Thursday",
+      "cost_usd": 0.00198838,
+      "latency_ms": 18798
+    },
+    {
+      "task": "t07-unit-convert",
+      "arm": "baseline",
+      "correct": true,
+      "text": "16400",
+      "cost_usd": 0.0038275,
+      "latency_ms": 10240
+    },
+    {
+      "task": "t07-unit-convert",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "16400",
+      "cost_usd": 0.0040791199999999994,
+      "latency_ms": 76237
+    },
+    {
+      "task": "t08-percent-compound",
+      "arm": "baseline",
+      "correct": true,
+      "text": "$1,155",
+      "cost_usd": 0.00231625,
+      "latency_ms": 4597
+    },
+    {
+      "task": "t08-percent-compound",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "$1155.00",
+      "cost_usd": 0.00246326,
+      "latency_ms": 23639
+    },
+    {
+      "task": "t09-syllogism",
+      "arm": "baseline",
+      "correct": true,
+      "text": "Yes",
+      "cost_usd": 0.00028875,
+      "latency_ms": 6286
+    },
+    {
+      "task": "t09-syllogism",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "Yes.",
+      "cost_usd": 0.00179543,
+      "latency_ms": 14698
+    },
+    {
+      "task": "t10-set-ops",
+      "arm": "baseline",
+      "correct": true,
+      "text": "5",
+      "cost_usd": 0.00110625,
+      "latency_ms": 4970
+    },
+    {
+      "task": "t10-set-ops",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "5",
+      "cost_usd": 0.0025468599999999997,
+      "latency_ms": 27185
+    }
+  ]
+}
