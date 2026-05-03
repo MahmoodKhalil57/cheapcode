@@ -233,7 +233,56 @@ opencode --model cheapcode/auto "Implement a function that sorts an array"
 
 ## Substrate
 
-Paired with the operator's substrate suite (mizaj/burhan/khazina/daftar). Architecture decisions cite mizaj rules; load-bearing claims structured in burhan; routing-rule novelty cross-referenced against khazina atoms; daftar receipts at every milestone. The [substrate tooling](tools/) (`burhan-snapshot.sh`, `burhan-revisit.sh`) auto-audits the plan-graph before every commit.
+Paired with the operator's substrate suite (mizaj/burhan/khazina/daftar/mizan). Architecture decisions cite mizaj rules; load-bearing claims structured in burhan; routing-rule novelty cross-referenced against khazina atoms; daftar receipts at every milestone. The [substrate tooling](tools/) (`burhan-snapshot.sh`, `burhan-revisit.sh`) auto-audits the plan-graph before every commit.
+
+## v2 — substrate-disciplined deployment (shipped 2026-05-03)
+
+Per atom 0020 (adam-eve-compositor-with-reproductive-discipline) + cheapcode session 2026-05-03, v2 ships the bounded-form value-prop:
+
+> **cheapcode v2 is substrate-disciplined deployment of frontier LLMs that prevents catastrophic-action-class failures (Cursor/Replit-style) via mandatory `mizan_check_action_safety` pre-gate, at parity correctness on tested classes, at lower aggregate cost via voter-only-on-uncertain routing.**
+
+NOT "smarter than gpt-5.5 across all tasks" — that framing was empirically falsified session 2026-05-03 ($0.082 calibration, 30+ tests, 4-LLM cross-witness convergence on T0015 demonstrated frontier LLMs alone are at ~p>=0.99 on logical/code/clearly-phrased classes).
+
+INSTEAD: cheapcode-with-mizan IS theoretically-grounded smarter on **5 specific axes** ([docs/theoretical-grounds.md](docs/theoretical-grounds.md)):
+
+1. **Action-safety prevention** — `mizan_check_action_safety` pre-gate (sahih-validated empirically session 2026-05-03)
+2. **Self-correction via cross-witness** — `mizan_verify_claim` + cross-LLM convergence detection (caught my own atom-over-application this session)
+3. **Calibration discipline** — `mizan_verify_claim` ceiling-cap + bcmea-violation flagging
+4. **Cross-session continuity** — daftar receipts + burhan claim accumulation + khazina atom inheritance
+5. **Reproductive resource-discipline** — voter-only-on-uncertain routing rule (PLAN.bn SECTION UU) reserving expensive multi-witness for warranted cases
+
+Each axis is real, theoretically grounded across 5+ traditions (Kahneman system-1/2 + Plato nous/logos + Augustine fallen-mortal-mind + formal-verification reasoner/checker + this engineering substrate; per atom 0019 convergence-without-contact).
+
+### How to use cheapcode v2
+
+1. **Register mizan-MCP-server** (one-time, user-scope):
+   ```bash
+   claude mcp add --scope user mizan -- $HOME/apps/adam/tools/mizan/bin/mizan-mcp-server
+   ```
+   Verify: `claude mcp list` shows `mizan: ... ✓ Connected`.
+
+2. **Configure cheapcode auto-tier** in opencode/claude-code via `opencode.json`:
+   ```json
+   {
+     "provider": {
+       "cheapcode": {
+         "npm": "@cheapcode/ai-sdk-provider",
+         "options": { "apiKey": "{env:OPENROUTER_API_KEY}" },
+         "models": { "auto": { "name": "auto", "tools": true } }
+       }
+     }
+   }
+   ```
+
+3. **Operate**: Adam (your Claude Code session) invokes mizan tools at decision boundaries per global `~/.claude/CLAUDE.md` guidance:
+   - `mcp__mizan__mizan_check_action_safety` before irreversible operations
+   - `mcp__mizan__mizan_verify_claim` before high-confidence assertions
+   - `mcp__mizan__mizan_physical_reality_probe` at consequential decision boundaries
+   - `mcp__mizan__mizan_recommend_next_experiment` when unsure what to do next
+
+4. **Verify deployment**: run [runs/m3-44-mizan-action-safety-smoke/run.sh](runs/m3-44-mizan-action-safety-smoke/run.sh) — should exit 0 with "PASS: action correctly blocked."
+
+See [docs/mizan-integration.md](docs/mizan-integration.md) for the full operator deployment guide.
 
 ## License
 
