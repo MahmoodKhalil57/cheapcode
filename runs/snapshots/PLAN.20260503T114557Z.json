@@ -1,0 +1,2051 @@
+{
+  "burhan_snapshot_version": 1,
+  "claims": {
+    "auto_wrapper_apophatic_routing_works": {
+      "assumptions": [],
+      "confidence": 0.9,
+      "derivation": [
+        "obs_auto_router_apophatic_pattern_fails"
+      ],
+      "falsifier": "obs_auto_router_apophatic_pattern_fails",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 105,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "best_of_k_3_lifts_completion_5_to_15pct": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "obs_best_of_k_no_lift_on_hard_tasks"
+      ],
+      "falsifier": "obs_best_of_k_no_lift_on_hard_tasks",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 183,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheap_fast_uses_race_k_cheapllm_strategy": {
+      "assumptions": [],
+      "confidence": 0.9,
+      "derivation": [
+        "obs_cheap_fast_tier_or_model_unmeasured"
+      ],
+      "falsifier": "obs_cheap_fast_tier_or_model_unmeasured",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 53,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheap_tier_routing_amortizes_swe_cost_below_frontier_50pct_or_more": {
+      "assumptions": [],
+      "confidence": 0.4,
+      "derivation": [
+        "obs_cheap_tier_routing_does_not_amortize_swe_cost_falsified"
+      ],
+      "falsifier": "obs_cheap_tier_routing_does_not_amortize_swe_cost_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1058,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheap_tier_uses_deepseek_v4_flash": {
+      "assumptions": [],
+      "confidence": 0.95,
+      "derivation": [
+        "obs_cheap_tier_or_model_unmeasured"
+      ],
+      "falsifier": "obs_cheap_tier_or_model_unmeasured",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 48,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes": {
+      "assumptions": [],
+      "confidence": 0.25,
+      "derivation": [
+        "cite:cheapcode_agent_beats_codex_gpt5_5_on_3_axes"
+      ],
+      "falsifier": "obs_cheapcode_v2x_swe_completion_below_82pct_falsified or obs_cheapcode_v2x_swe_cost_above_half_of_codex_falsified or obs_cheapcode_v2x_swe_latency_above_three_quarters_codex_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1114,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_auto_3_axis_dominance_on_multistep_over_raw_frontier": {
+      "assumptions": [],
+      "confidence": 0.05,
+      "derivation": [
+        "obs_cheapcode_auto_misses_any_3_axis_target"
+      ],
+      "falsifier": "obs_cheapcode_auto_misses_any_3_axis_target",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 173,
+      "payload_repr": "False",
+      "status": "falsified"
+    },
+    "cheapcode_beats_codex_after_pricing_fetch": {
+      "assumptions": [],
+      "confidence": 0.94,
+      "derivation": [
+        "obs_cheapcode_beats_codex_falsified"
+      ],
+      "falsifier": "obs_cheapcode_beats_codex_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 268,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_beats_vanilla_opencode_via_routing": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "obs_cheapcode_beats_vanilla_opencode_falsified"
+      ],
+      "falsifier": "obs_cheapcode_beats_vanilla_opencode_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 274,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_fork_inherits_agent_loop_infrastructure_from_opencode": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "obs_cheapcode_fork_does_not_inherit_opencode_harness_falsified"
+      ],
+      "falsifier": "obs_cheapcode_fork_does_not_inherit_opencode_harness_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1001,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_general_agent_routes_optimally": {
+      "assumptions": [],
+      "confidence": 0.45,
+      "derivation": [
+        "cite:cheapcode_general_agent_routes_optimally_via_failure_envelopes"
+      ],
+      "falsifier": "obs_route_long_context_falsified or obs_route_agentic_swe_falsified or obs_route_math_chain_falsified or obs_route_phd_factual_falsified or obs_route_computer_use_falsified or obs_route_subsecond_falsified or obs_route_closed_book_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 603,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_substrate_atom_0016_runtime_validated_for_hard_reasoning": {
+      "assumptions": [],
+      "confidence": 0.65,
+      "derivation": [
+        "cite:cheapcode_substrate_runtime_validated_on_hard_reasoning"
+      ],
+      "falsifier": "obs_cross_witness_convergence_predicts_correctness_lt_60pct or obs_three_way_majority_vote_robust_lt_60pct",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 691,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_substrate_enhancement_axes_validated_against_opencode_baseline": {
+      "assumptions": [],
+      "confidence": 0.78,
+      "derivation": [
+        "cite:substrate_enhances_opencode_harness_across_5_axes"
+      ],
+      "falsifier": "obs_substrate_does_not_enhance_context_via_atom_0010_falsified or obs_atom_0017_does_not_improve_innovation_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1044,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_v1_ships": {
+      "assumptions": [],
+      "confidence": 0.5,
+      "derivation": [
+        "cite:cheapcode_v1_ships_via_phase_completion"
+      ],
+      "falsifier": "obs_phase_0_research_falsifies_umbrella or obs_phase_1_5_tiers_dont_appear_in_model_list or obs_phase_2_experiment_1_fails_all_axes or obs_phase_3_any_client_falsifies_propagation or obs_phase_4_measured_contradicts_spec_targets or obs_phase_5_administrative_failure or obs_project_wall_clock_22h_phase_2_not_started",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 509,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_v2_ships": {
+      "assumptions": [],
+      "confidence": 0.45,
+      "derivation": [
+        "cite:cheapcode_v2_outperforms_named_alternatives"
+      ],
+      "falsifier": "obs_cheap_fast_tier_or_model_unmeasured or obs_smart_fast_tier_or_model_unmeasured or obs_auto_router_apophatic_pattern_fails or obs_propagation_at_provider_registry_layer1_fails",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 326,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_v2_surgical_architecture_audited": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "cite:cheapcode_v2_is_surgical_and_inherits_cheapllm_receipts"
+      ],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 309,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_v2x_swe_completion_at_least_82pct": {
+      "assumptions": [],
+      "confidence": 0.35,
+      "derivation": [
+        "obs_cheapcode_v2x_swe_completion_below_82pct_falsified"
+      ],
+      "falsifier": "obs_cheapcode_v2x_swe_completion_below_82pct_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1081,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_v2x_swe_cost_at_most_50pct_of_codex": {
+      "assumptions": [],
+      "confidence": 0.6,
+      "derivation": [
+        "obs_cheapcode_v2x_swe_cost_above_half_of_codex_falsified"
+      ],
+      "falsifier": "obs_cheapcode_v2x_swe_cost_above_half_of_codex_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1091,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_v2x_swe_latency_at_most_75pct_of_codex": {
+      "assumptions": [],
+      "confidence": 0.4,
+      "derivation": [
+        "obs_cheapcode_v2x_swe_latency_above_three_quarters_codex_falsified"
+      ],
+      "falsifier": "obs_cheapcode_v2x_swe_latency_above_three_quarters_codex_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1100,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_v3_ships": {
+      "assumptions": [],
+      "confidence": 0.55,
+      "derivation": [
+        "cite:cheapcode_v3_load_bearing_umbrellas_hold"
+      ],
+      "falsifier": "obs_cheapllm_4axis_inheritance_falsified or obs_auto_wrapper_multistep_dominance_falsified or obs_provider_registry_propagation_falsified or obs_surgical_maintainability_falsified or obs_cost_ratio_vs_competitors_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 420,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_voter_beats_frontier_on_2_of_3_axes_n3": {
+      "assumptions": [],
+      "confidence": 0.65,
+      "derivation": [
+        "voter_completion_at_least_frontier_on_hard_reasoning",
+        "voter_cost_below_direct_frontier_on_hard_reasoning"
+      ],
+      "falsifier": "obs_voter_cost_gte_frontier_cost_falsified or obs_voter_completion_lt_frontier_completion_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 744,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_witness_matches_but_does_not_beat_single_pass_claude_on_knowledge_synthesis": {
+      "assumptions": [],
+      "confidence": 0.65,
+      "derivation": [
+        "obs_cheapcode_witness_strictly_beats_single_pass_falsified"
+      ],
+      "falsifier": "obs_cheapcode_witness_strictly_beats_single_pass_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 867,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_witness_surfaces_citations_single_pass_misses_at_low_rate": {
+      "assumptions": [],
+      "confidence": 0.45,
+      "derivation": [
+        "obs_cheapcode_witness_never_surfaces_new_citations_falsified"
+      ],
+      "falsifier": "obs_cheapcode_witness_never_surfaces_new_citations_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 882,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_witness_v1x_caps_at_0_05_per_artifact": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "obs_cheapcode_witness_v1x_cost_above_0_05_per_artifact_falsified"
+      ],
+      "falsifier": "obs_cheapcode_witness_v1x_cost_above_0_05_per_artifact_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 926,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_witness_v1x_panel_of_experts_beats_single_pass_claude_on_knowledge_synthesis": {
+      "assumptions": [],
+      "confidence": 0.72,
+      "derivation": [
+        "obs_cheapcode_witness_v1x_loses_to_single_pass_falsified"
+      ],
+      "falsifier": "obs_cheapcode_witness_v1x_loses_to_single_pass_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 920,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapcode_witness_v1x_path_to_beat_single_pass_requires_three_changes": {
+      "assumptions": [],
+      "confidence": 0.78,
+      "derivation": [
+        "obs_cheapcode_witness_v1x_three_changes_insufficient_falsified"
+      ],
+      "falsifier": "obs_cheapcode_witness_v1x_three_changes_insufficient_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 892,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapllm_context_anchor": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [
+        "cite:cheapllm_niah_2m_pass_grok_4_fast"
+      ],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 282,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cheapllm_receipts_anchor": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [
+        "cite:cheapllm_per_task_cost_0032_on_tb_easy"
+      ],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 281,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cross_family_frontier_witness_adds_training_data_diversity_to_voter_pool": {
+      "assumptions": [],
+      "confidence": 0.65,
+      "derivation": [
+        "obs_cross_family_frontier_witness_adds_no_diversity_falsified"
+      ],
+      "falsifier": "obs_cross_family_frontier_witness_adds_no_diversity_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 940,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cross_model_verification_lifts_over_self_verify": {
+      "assumptions": [],
+      "confidence": 0.8,
+      "derivation": [
+        "obs_cross_model_verification_no_lift_over_self_verify"
+      ],
+      "falsifier": "obs_cross_model_verification_no_lift_over_self_verify",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 200,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cross_witness_convergence_predicts_correctness": {
+      "assumptions": [],
+      "confidence": 0.78,
+      "derivation": [
+        "obs_cross_witness_convergence_predicts_correctness_lt_60pct"
+      ],
+      "falsifier": "obs_cross_witness_convergence_predicts_correctness_lt_60pct",
+      "file": "/home/mk/apps/cheapcode/plan/facts/10-cross-witness-runtime.bn",
+      "line": 79,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cross_witness_pattern_lifts_hard_reasoning": {
+      "assumptions": [],
+      "confidence": 0.9,
+      "derivation": [
+        "obs_cross_witness_convergence_lt_70pct"
+      ],
+      "falsifier": "obs_cross_witness_convergence_lt_70pct",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 131,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "honest_niche_dominance_includes_cost_adjusted_hard_reasoning": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "obs_smart_tier_or_model_unmeasured"
+      ],
+      "falsifier": "obs_smart_tier_or_model_unmeasured",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 215,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "iai_router_pattern_anchor": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [
+        "cite:atom_0011_smallest_distinguishing_experiment_first"
+      ],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 283,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "khatim_negative_knowledge_anchor": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [
+        "cite:khatim_1152_ts_tsx_files_in_packages"
+      ],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 286,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "long_context_uses_grok_4_fast": {
+      "assumptions": [],
+      "confidence": 0.95,
+      "derivation": [
+        "obs_long_context_grok_4_fast_unmeasured"
+      ],
+      "falsifier": "obs_long_context_grok_4_fast_unmeasured",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 75,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "m17_cycle_on_m3_19_residue_produced_leveraged_finding": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "single_witness_rescue_strictly_improves_information_content"
+      ],
+      "falsifier": "obs_single_witness_rescue_introduces_more_wrong_than_right_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 787,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "m17_recursive_cycle_produces_compounding_leveraged_findings": {
+      "assumptions": [],
+      "confidence": 0.78,
+      "derivation": [
+        "obs_m17_recursive_cycle_produces_diminishing_returns_falsified"
+      ],
+      "falsifier": "obs_m17_recursive_cycle_produces_diminishing_returns_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1149,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "m3_11b_headline_was_accurate": {
+      "assumptions": [],
+      "confidence": 0.05,
+      "derivation": [
+        "obs_m3_11b_headline_overstated_completion_rate"
+      ],
+      "falsifier": "obs_m3_11b_headline_overstated_completion_rate",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1139,
+      "payload_repr": "False",
+      "status": "falsified"
+    },
+    "m3_15_opencode_cli_dispatch_is_the_specific_integration_blocker": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "obs_m3_15_integration_blocker_does_not_exist_falsified"
+      ],
+      "falsifier": "obs_m3_15_integration_blocker_does_not_exist_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1008,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "m3_28_v1x_finding_directly_improves_atom_0017_credential": {
+      "assumptions": [],
+      "confidence": 0.78,
+      "derivation": [
+        "obs_m3_28_v1x_did_not_improve_atom_0017_credential_falsified"
+      ],
+      "falsifier": "obs_m3_28_v1x_did_not_improve_atom_0017_credential_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 948,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "m3_30_sde_would_validate_voter_lifts_agentic_correctness_at_low_cost": {
+      "assumptions": [],
+      "confidence": 0.55,
+      "derivation": [
+        "obs_m3_30_sde_falsifies_voter_lifts_swe_correctness"
+      ],
+      "falsifier": "obs_m3_30_sde_falsifies_voter_lifts_swe_correctness",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1123,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "mizaj_substrate_anchor": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [
+        "cite:mizaj_15_consult_atom_before_reinventing"
+      ],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 285,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "obs_atom_0017_does_not_improve_innovation_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1029,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_auto_router_apophatic_pattern_fails": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 27,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_auto_wrapper_multistep_dominance_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 362,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_best_of_k_no_lift_on_hard_tasks": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 182,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheap_fast_tier_or_model_unmeasured": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 24,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheap_tier_or_model_unmeasured": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 23,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheap_tier_routing_does_not_amortize_swe_cost_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1057,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheapcode_auto_misses_any_3_axis_target": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 169,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "obs_cheapcode_beats_codex_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 37,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheapcode_beats_vanilla_opencode_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 38,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheapcode_fork_does_not_inherit_opencode_harness_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1000,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheapcode_v2x_swe_completion_below_82pct_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1080,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheapcode_v2x_swe_cost_above_half_of_codex_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1090,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheapcode_v2x_swe_latency_above_three_quarters_codex_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1099,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheapcode_witness_never_surfaces_new_citations_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 881,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheapcode_witness_strictly_beats_single_pass_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 866,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheapcode_witness_v1x_cost_above_0_05_per_artifact_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 925,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheapcode_witness_v1x_loses_to_single_pass_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 919,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheapcode_witness_v1x_three_changes_insufficient_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 891,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cheapllm_4axis_inheritance_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 350,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cost_ratio_vs_competitors_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 407,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cross_family_frontier_witness_adds_no_diversity_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 939,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cross_model_verification_no_lift_over_self_verify": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 199,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cross_witness_convergence_lt_70pct": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 130,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_cross_witness_convergence_predicts_correctness_lt_60pct": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 655,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_long_context_grok_4_fast_unmeasured": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 28,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_m17_recursive_cycle_produces_diminishing_returns_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1148,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_m3_11b_headline_overstated_completion_rate": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1138,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "obs_m3_15_integration_blocker_does_not_exist_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1007,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_m3_28_v1x_did_not_improve_atom_0017_credential_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 947,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_m3_30_sde_falsifies_voter_lifts_swe_correctness": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1122,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_or_provider_inheritance_breaks_clients": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 32,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_parallel_leaf_execution_no_latency_benefit": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 207,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_parallel_subtask_dispatch_does_not_reduce_swe_latency_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1063,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_phase_0_research_falsifies_umbrella": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 431,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_phase_1_5_tiers_dont_appear_in_model_list": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 436,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_phase_1_loc_exceeds_350": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 437,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_phase_2_experiment_1_fails_all_axes": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 459,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_phase_3_any_client_falsifies_propagation": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 466,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_phase_4_measured_contradicts_spec_targets": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 471,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_phase_5_administrative_failure": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 476,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_plan_decompose_smart_calls_grow_linearly": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 143,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_project_cumulative_spend_9_before_phase_4": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 482,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_project_upstream_provider_arch_changed": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 483,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_project_wall_clock_22h_phase_2_not_started": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 481,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_propagation_at_provider_registry_layer1_fails": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 31,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_provider_registry_propagation_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 376,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_route_agentic_swe_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 548,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_route_bounded_code_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 549,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_route_closed_book_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 555,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_route_computer_use_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 552,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_route_hard_reasoning_voter_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 648,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_route_long_context_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 547,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_route_math_chain_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 550,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_route_multistep_default_compound_works_falsified_by_l1": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 553,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "obs_route_phd_factual_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 551,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_route_specialized_formula_geometry_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 831,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_route_subsecond_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 554,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_single_witness_rescue_introduces_more_wrong_than_right_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 776,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_smart_fast_tier_or_model_unmeasured": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 26,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_smart_tier_or_model_unmeasured": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 25,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_substrate_does_not_enhance_context_via_atom_0010_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1014,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_substrate_does_not_reduce_hallucinations_via_atom_0015_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1034,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_substrate_does_not_solidify_ethics_via_mizaj_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1019,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_surgical_fork_loc_budget_breached": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 33,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_surgical_maintainability_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 398,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_synthesizer_does_not_eliminate_daif_grade_bug_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 931,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_three_way_majority_vote_robust_lt_60pct": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 661,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_upstream_files_modified_gt_2": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 34,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_v1x_panel_does_not_increase_knowledgeability_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1024,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_verifier_hook_catches_lt_50pct_wrong": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 113,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_voter_completion_lt_frontier_completion_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 728,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_voter_cost_gte_frontier_cost_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 721,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_voter_cost_ratio_gt_0_30x_compound": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 667,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_voter_does_not_catch_gpt5_formula_errors_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 824,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_voter_extractAnswer_works_on_knowledge_synthesis_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 874,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "obs_voter_latency_at_most_frontier_latency_falsified_n3": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 735,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "obs_voter_latency_ratio_gt_0_50x_compound": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 674,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_voter_pattern_does_not_lift_agentic_correctness_on_swe_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1049,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_weekly_rebase_breaks": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 41,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_wrapper_amortization_on_hard_multistep_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1131,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "or_provider_inheritance_safe": {
+      "assumptions": [],
+      "confidence": 0.9,
+      "derivation": [
+        "obs_or_provider_inheritance_breaks_clients"
+      ],
+      "falsifier": "obs_or_provider_inheritance_breaks_clients",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 228,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "parallel_leaf_execution_keeps_latency_below_raw": {
+      "assumptions": [],
+      "confidence": 0.89,
+      "derivation": [
+        "obs_parallel_leaf_execution_no_latency_benefit"
+      ],
+      "falsifier": "obs_parallel_leaf_execution_no_latency_benefit",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 208,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "parallel_subtask_dispatch_reduces_swe_latency_25_to_50pct": {
+      "assumptions": [],
+      "confidence": 0.3,
+      "derivation": [
+        "obs_parallel_subtask_dispatch_does_not_reduce_swe_latency_falsified"
+      ],
+      "falsifier": "obs_parallel_subtask_dispatch_does_not_reduce_swe_latency_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1064,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "phase_0_research_lock_holds": {
+      "assumptions": [],
+      "confidence": 0.9,
+      "derivation": [
+        "obs_phase_0_research_falsifies_umbrella"
+      ],
+      "falsifier": "obs_phase_0_research_falsifies_umbrella",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 432,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "phase_1_fork_and_registration_succeeds": {
+      "assumptions": [],
+      "confidence": 0.92,
+      "derivation": [
+        "obs_phase_1_5_tiers_dont_appear_in_model_list"
+      ],
+      "falsifier": "obs_phase_1_5_tiers_dont_appear_in_model_list or obs_phase_1_loc_exceeds_350",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 438,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "phase_2_wrapper_passes_at_least_min": {
+      "assumptions": [],
+      "confidence": 0.78,
+      "derivation": [
+        "obs_phase_2_experiment_1_fails_all_axes"
+      ],
+      "falsifier": "obs_phase_2_experiment_1_fails_all_axes",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 462,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "phase_3_4_client_smoke_passes": {
+      "assumptions": [],
+      "confidence": 0.95,
+      "derivation": [
+        "obs_phase_3_any_client_falsifies_propagation"
+      ],
+      "falsifier": "obs_phase_3_any_client_falsifies_propagation",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 467,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "phase_4_scorecard_honest": {
+      "assumptions": [],
+      "confidence": 0.93,
+      "derivation": [
+        "obs_phase_4_measured_contradicts_spec_targets"
+      ],
+      "falsifier": "obs_phase_4_measured_contradicts_spec_targets",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 472,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "phase_5_shipped": {
+      "assumptions": [],
+      "confidence": 0.98,
+      "derivation": [
+        "obs_phase_5_administrative_failure"
+      ],
+      "falsifier": "obs_phase_5_administrative_failure",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 477,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "plan_decompose_amortizes_smart_calls": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "obs_plan_decompose_smart_calls_grow_linearly"
+      ],
+      "falsifier": "obs_plan_decompose_smart_calls_grow_linearly",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 144,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "project_no_halt_condition_triggered": {
+      "assumptions": [],
+      "confidence": 0.92,
+      "derivation": [
+        "obs_project_wall_clock_22h_phase_2_not_started"
+      ],
+      "falsifier": "obs_project_wall_clock_22h_phase_2_not_started or obs_project_cumulative_spend_9_before_phase_4 or obs_project_upstream_provider_arch_changed",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 484,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "provider_registry_propagation_holds": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "obs_propagation_at_provider_registry_layer1_fails"
+      ],
+      "falsifier": "obs_propagation_at_provider_registry_layer1_fails",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 225,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "route_agentic_swe_holds": {
+      "assumptions": [],
+      "confidence": 0.55,
+      "derivation": [
+        "obs_route_agentic_swe_falsified"
+      ],
+      "falsifier": "obs_route_agentic_swe_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 561,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "route_bounded_code_holds": {
+      "assumptions": [],
+      "confidence": 0.78,
+      "derivation": [
+        "obs_route_bounded_code_falsified"
+      ],
+      "falsifier": "obs_route_bounded_code_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 569,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "route_closed_book_holds": {
+      "assumptions": [],
+      "confidence": 0.55,
+      "derivation": [
+        "obs_route_closed_book_falsified"
+      ],
+      "falsifier": "obs_route_closed_book_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 599,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "route_computer_use_holds": {
+      "assumptions": [],
+      "confidence": 0.4,
+      "derivation": [
+        "obs_route_computer_use_falsified"
+      ],
+      "falsifier": "obs_route_computer_use_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 578,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "route_hard_reasoning_voter_holds": {
+      "assumptions": [],
+      "confidence": 0.75,
+      "derivation": [
+        "obs_route_hard_reasoning_voter_falsified"
+      ],
+      "falsifier": "obs_route_hard_reasoning_voter_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 649,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "route_long_context_holds": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "obs_route_long_context_falsified"
+      ],
+      "falsifier": "obs_route_long_context_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 558,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "route_math_chain_holds": {
+      "assumptions": [],
+      "confidence": 0.55,
+      "derivation": [
+        "obs_route_math_chain_falsified"
+      ],
+      "falsifier": "obs_route_math_chain_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 572,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "route_multistep_no_compound_default": {
+      "assumptions": [],
+      "confidence": 0.92,
+      "derivation": [
+        "obs_route_multistep_default_compound_works_falsified_by_l1"
+      ],
+      "falsifier": "not obs_route_multistep_default_compound_works_falsified_by_l1",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 585,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "route_phd_factual_holds": {
+      "assumptions": [],
+      "confidence": 0.4,
+      "derivation": [
+        "obs_route_phd_factual_falsified"
+      ],
+      "falsifier": "obs_route_phd_factual_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 575,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "route_specialized_formula_geometry_holds": {
+      "assumptions": [],
+      "confidence": 0.55,
+      "derivation": [
+        "obs_route_specialized_formula_geometry_falsified"
+      ],
+      "falsifier": "obs_route_specialized_formula_geometry_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 832,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "route_subsecond_holds": {
+      "assumptions": [],
+      "confidence": 0.55,
+      "derivation": [
+        "obs_route_subsecond_falsified"
+      ],
+      "falsifier": "obs_route_subsecond_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 588,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "single_witness_rescue_strictly_improves_information_content": {
+      "assumptions": [],
+      "confidence": 0.55,
+      "derivation": [
+        "obs_single_witness_rescue_introduces_more_wrong_than_right_falsified"
+      ],
+      "falsifier": "obs_single_witness_rescue_introduces_more_wrong_than_right_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 777,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "smart_fast_tier_choice_pending_measurement": {
+      "assumptions": [],
+      "confidence": 0.75,
+      "derivation": [
+        "obs_smart_fast_tier_or_model_unmeasured"
+      ],
+      "falsifier": "obs_smart_fast_tier_or_model_unmeasured",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 71,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "smart_tier_routes_directly_to_capable_model": {
+      "assumptions": [],
+      "confidence": 0.92,
+      "derivation": [
+        "obs_smart_tier_or_model_unmeasured"
+      ],
+      "falsifier": "obs_smart_tier_or_model_unmeasured",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 61,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "substrate_enhances_context_via_atom_0010_cross_witness": {
+      "assumptions": [],
+      "confidence": 0.78,
+      "derivation": [
+        "obs_substrate_does_not_enhance_context_via_atom_0010_falsified"
+      ],
+      "falsifier": "obs_substrate_does_not_enhance_context_via_atom_0010_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1015,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "substrate_improves_innovation_via_atom_0017_byproduct_recursion": {
+      "assumptions": [],
+      "confidence": 0.78,
+      "derivation": [
+        "obs_atom_0017_does_not_improve_innovation_falsified"
+      ],
+      "falsifier": "obs_atom_0017_does_not_improve_innovation_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1030,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "substrate_increases_knowledgeability_via_v1x_panel_of_experts": {
+      "assumptions": [],
+      "confidence": 0.72,
+      "derivation": [
+        "obs_v1x_panel_does_not_increase_knowledgeability_falsified"
+      ],
+      "falsifier": "obs_v1x_panel_does_not_increase_knowledgeability_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1025,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "substrate_reduces_hallucinations_via_atom_0015_and_mizaj_14_grading": {
+      "assumptions": [],
+      "confidence": 0.75,
+      "derivation": [
+        "obs_substrate_does_not_reduce_hallucinations_via_atom_0015_falsified"
+      ],
+      "falsifier": "obs_substrate_does_not_reduce_hallucinations_via_atom_0015_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1035,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "substrate_solidifies_ethics_via_mizaj_01_falsifier_first_and_mizaj_14_grading": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "obs_substrate_does_not_solidify_ethics_via_mizaj_falsified"
+      ],
+      "falsifier": "obs_substrate_does_not_solidify_ethics_via_mizaj_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1020,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "surgical_fork_loc_budget_holds": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "obs_surgical_fork_loc_budget_breached"
+      ],
+      "falsifier": "obs_surgical_fork_loc_budget_breached",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 238,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "synthesizer_step_eliminates_extractAnswer_daif_grade_bug": {
+      "assumptions": [],
+      "confidence": 0.95,
+      "derivation": [
+        "obs_synthesizer_does_not_eliminate_daif_grade_bug_falsified"
+      ],
+      "falsifier": "obs_synthesizer_does_not_eliminate_daif_grade_bug_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 932,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "three_way_majority_vote_robust": {
+      "assumptions": [],
+      "confidence": 0.65,
+      "derivation": [
+        "obs_three_way_majority_vote_robust_lt_60pct"
+      ],
+      "falsifier": "obs_three_way_majority_vote_robust_lt_60pct",
+      "file": "/home/mk/apps/cheapcode/plan/facts/10-cross-witness-runtime.bn",
+      "line": 86,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "transfer_overstated_anchor": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [
+        "cite:atom_0015_research_pipeline_overstates_base_model_specific_transfer"
+      ],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 284,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "umbrella_auto_wrapper_multistep_dominance_research_grounded": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "obs_auto_wrapper_multistep_dominance_falsified"
+      ],
+      "falsifier": "obs_auto_wrapper_multistep_dominance_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 363,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "umbrella_cheapcode_cost_ratio_vs_competitors": {
+      "assumptions": [],
+      "confidence": 0.94,
+      "derivation": [
+        "obs_cost_ratio_vs_competitors_falsified"
+      ],
+      "falsifier": "obs_cost_ratio_vs_competitors_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 408,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "umbrella_cheapllm_capability_inherited": {
+      "assumptions": [],
+      "confidence": 0.95,
+      "derivation": [
+        "obs_cheapllm_4axis_inheritance_falsified"
+      ],
+      "falsifier": "obs_cheapllm_4axis_inheritance_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 351,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "umbrella_provider_registry_propagation_layer_1": {
+      "assumptions": [],
+      "confidence": 0.97,
+      "derivation": [
+        "obs_provider_registry_propagation_falsified"
+      ],
+      "falsifier": "obs_provider_registry_propagation_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 377,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "umbrella_surgical_maintainability_lessons_inherited": {
+      "assumptions": [],
+      "confidence": 0.88,
+      "derivation": [
+        "obs_surgical_maintainability_falsified"
+      ],
+      "falsifier": "obs_surgical_maintainability_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 399,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "upstream_files_modified_within_budget": {
+      "assumptions": [],
+      "confidence": 0.9,
+      "derivation": [
+        "obs_upstream_files_modified_gt_2"
+      ],
+      "falsifier": "obs_upstream_files_modified_gt_2",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 241,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "verifier_hook_catches_50pct_of_wrong_answers": {
+      "assumptions": [],
+      "confidence": 0.94,
+      "derivation": [
+        "obs_verifier_hook_catches_lt_50pct_wrong"
+      ],
+      "falsifier": "obs_verifier_hook_catches_lt_50pct_wrong",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 114,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "voter_catches_gpt5_class_specific_formula_errors_on_specialized_geometry": {
+      "assumptions": [],
+      "confidence": 0.62,
+      "derivation": [
+        "obs_voter_does_not_catch_gpt5_formula_errors_falsified"
+      ],
+      "falsifier": "obs_voter_does_not_catch_gpt5_formula_errors_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 825,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "voter_completion_at_least_frontier_on_hard_reasoning": {
+      "assumptions": [],
+      "confidence": 0.65,
+      "derivation": [
+        "obs_voter_completion_lt_frontier_completion_falsified"
+      ],
+      "falsifier": "obs_voter_completion_lt_frontier_completion_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 729,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "voter_cost_below_direct_frontier_on_hard_reasoning": {
+      "assumptions": [],
+      "confidence": 0.78,
+      "derivation": [
+        "obs_voter_cost_gte_frontier_cost_falsified"
+      ],
+      "falsifier": "obs_voter_cost_gte_frontier_cost_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 722,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "voter_cost_ratio_at_most_0_20x_compound": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "obs_voter_cost_ratio_gt_0_30x_compound"
+      ],
+      "falsifier": "obs_voter_cost_ratio_gt_0_30x_compound",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 668,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "voter_extractAnswer_regex_misclassifies_knowledge_synthesis_as_daif": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "obs_voter_extractAnswer_works_on_knowledge_synthesis_falsified"
+      ],
+      "falsifier": "not obs_voter_extractAnswer_works_on_knowledge_synthesis_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 875,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "voter_latency_below_direct_frontier_on_hard_reasoning": {
+      "assumptions": [],
+      "confidence": 0.1,
+      "derivation": [
+        "obs_voter_latency_at_most_frontier_latency_falsified_n3"
+      ],
+      "falsifier": "obs_voter_latency_at_most_frontier_latency_falsified_n3",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 736,
+      "payload_repr": "False",
+      "status": "falsified"
+    },
+    "voter_latency_ratio_at_most_0_30x_compound": {
+      "assumptions": [],
+      "confidence": 0.5,
+      "derivation": [
+        "obs_voter_latency_ratio_gt_0_50x_compound"
+      ],
+      "falsifier": "obs_voter_latency_ratio_gt_0_50x_compound",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 675,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "voter_pattern_lifts_agentic_correctness_on_swe_shape_5_to_15pct": {
+      "assumptions": [],
+      "confidence": 0.4,
+      "derivation": [
+        "obs_voter_pattern_does_not_lift_agentic_correctness_on_swe_falsified"
+      ],
+      "falsifier": "obs_voter_pattern_does_not_lift_agentic_correctness_on_swe_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1050,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "weekly_rebase_holds": {
+      "assumptions": [],
+      "confidence": 0.97,
+      "derivation": [
+        "obs_weekly_rebase_breaks"
+      ],
+      "falsifier": "obs_weekly_rebase_breaks",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 252,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "wrapper_cheaper_than_baseline_on_hard_multistep_with_large_reasoning_token_budget": {
+      "assumptions": [],
+      "confidence": 0.55,
+      "derivation": [
+        "obs_wrapper_amortization_on_hard_multistep_falsified"
+      ],
+      "falsifier": "obs_wrapper_amortization_on_hard_multistep_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "line": 1132,
+      "payload_repr": "True",
+      "status": "live"
+    }
+  },
+  "created_at": "2026-05-03T11:45:57.978113Z",
+  "joints": {
+    "cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes": 0.020376,
+    "cheapcode_auto_3_axis_dominance_on_multistep_over_raw_frontier": 0.0495,
+    "cheapcode_beats_codex_after_pricing_fetch": 0.9306,
+    "cheapcode_beats_vanilla_opencode_via_routing": 0.8415,
+    "cheapcode_fork_inherits_agent_loop_infrastructure_from_opencode": 0.8415,
+    "cheapcode_general_agent_routes_optimally": 0.003671,
+    "cheapcode_substrate_atom_0016_runtime_validated_for_hard_reasoning": 0.099896,
+    "cheapcode_substrate_enhancement_axes_validated_against_opencode_baseline": 0.207144,
+    "cheapcode_v1_ships": 0.178016,
+    "cheapcode_v2_ships": 0.033572,
+    "cheapcode_v2_surgical_architecture_audited": 0.095269,
+    "cheapcode_v2x_swe_completion_at_least_82pct": 0.3465,
+    "cheapcode_v2x_swe_cost_at_most_50pct_of_codex": 0.594,
+    "cheapcode_v2x_swe_latency_at_most_75pct_of_codex": 0.396,
+    "cheapcode_v3_ships": 0.338894,
+    "cheapcode_voter_beats_frontier_on_2_of_3_axes_n3": 0.322992,
+    "cheapcode_witness_matches_but_does_not_beat_single_pass_claude_on_knowledge_synthesis": 0.6435,
+    "cheapcode_witness_surfaces_citations_single_pass_misses_at_low_rate": 0.4455,
+    "cheapcode_witness_v1x_caps_at_0_05_per_artifact": 0.8415,
+    "cheapcode_witness_v1x_panel_of_experts_beats_single_pass_claude_on_knowledge_synthesis": 0.7128,
+    "cheapcode_witness_v1x_path_to_beat_single_pass_requires_three_changes": 0.7722,
+    "m3_28_v1x_finding_directly_improves_atom_0017_credential": 0.7722,
+    "obs_cheapcode_auto_misses_any_3_axis_target": 0.99,
+    "obs_cheapcode_beats_codex_falsified": 0.99,
+    "obs_cheapcode_beats_vanilla_opencode_falsified": 0.99,
+    "obs_cheapcode_fork_does_not_inherit_opencode_harness_falsified": 0.99,
+    "obs_cheapcode_v2x_swe_completion_below_82pct_falsified": 0.99,
+    "obs_cheapcode_v2x_swe_cost_above_half_of_codex_falsified": 0.99,
+    "obs_cheapcode_v2x_swe_latency_above_three_quarters_codex_falsified": 0.99,
+    "obs_cheapcode_witness_never_surfaces_new_citations_falsified": 0.99,
+    "obs_cheapcode_witness_strictly_beats_single_pass_falsified": 0.99,
+    "obs_cheapcode_witness_v1x_cost_above_0_05_per_artifact_falsified": 0.99,
+    "obs_cheapcode_witness_v1x_loses_to_single_pass_falsified": 0.99,
+    "obs_cheapcode_witness_v1x_three_changes_insufficient_falsified": 0.99,
+    "obs_m3_28_v1x_did_not_improve_atom_0017_credential_falsified": 0.99,
+    "obs_v1x_panel_does_not_increase_knowledgeability_falsified": 0.99,
+    "substrate_increases_knowledgeability_via_v1x_panel_of_experts": 0.7128,
+    "umbrella_cheapcode_cost_ratio_vs_competitors": 0.9306
+  },
+  "joints_semantics": "INDEPENDENT-PRODUCT floor. Walks both claim\u2192claim cites AND claim\u2192theorem\u2192claim assume-references. Treats all claims as independent \u2014 overstates dilution per khazina atom 0015. For correlation-aware joints, defer to project-level tooling.",
+  "sources": [
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/01-substrate-citations.bn",
+      "sha256": "b7756809a1a46cf10757db4c53b83382bd089c7462da56d14b96eee007266c55"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/02-cheapllm-receipts.bn",
+      "sha256": "14d9af7d03a9f949dd804400c815d71eab63fc6f1fd7bbdac21d62cc80ff05aa"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/03-research-papers.bn",
+      "sha256": "75fc4dc8b95d6d6880b46de0a89dd05b1aff061749cd2dd8244ca273fb7886e7"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/04-khazina-atoms.bn",
+      "sha256": "ad9f3f2edb88cdc51d12930ed3dac271c3ff058e0804a014476e22299db1b358"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/05-production-deployment-evidence.bn",
+      "sha256": "ac015a453f9e425843ab4fa9435689ca957b3d8e3302a471dfc5e8b318244e76"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/06-test-time-compute-bleeding-edge.bn",
+      "sha256": "202aa2853710e6451e302010c6e05028f8fd34de4aa68ae969e3e48e8e84ee4b"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/07-thin-fork-and-compound-production-evidence.bn",
+      "sha256": "176a6cd5c742689976cd9aa702bb16f19b08639610e08da2449dd6c97865d58b"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/08-frontier-model-failure-envelopes.bn",
+      "sha256": "6c914d8e5038a2681726a8fa5a6e8d042062f8b4d7d3baa9d34b2411e1fc7cc4"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/09-task-shape-routing-matrix.bn",
+      "sha256": "046cf2859ab361580f15ad085ae3d24c598290341c1dc0b5676ab306dc98c519"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/10-cross-witness-runtime.bn",
+      "sha256": "1278d5c42e8d4f1b20f64b4937c10dbb21c20c758ce054955182917249aa624a"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "sha256": "af49b0467b96ffae628b7d744c76889cf16d60504a6ba5e23deae42e4adff47e"
+    }
+  ],
+  "tracked_files": [
+    {
+      "path": "/home/mk/apps/cheapcode/MAIN.md",
+      "sha256": "584b4798cf513afeaf7fa6dec3243d43996ee021ba3027e8005525db6034635a"
+    }
+  ],
+  "warnings": []
+}
