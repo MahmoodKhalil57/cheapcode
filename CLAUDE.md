@@ -2,6 +2,21 @@
 
 This file is loaded by Claude Code at session start. It exists to wire substrate primitives the project depends on so a fresh agent picks them up reflexively.
 
+## v2 (shipped 2026-05-03) — quick orientation
+
+cheapcode v2 is **substrate-disciplined deployment of frontier LLMs** that prevents catastrophic-action-class failures (Cursor/Replit-style) via mandatory `mcp__mizan__mizan_check_action_safety` pre-gate, at parity correctness on tested classes, at lower aggregate cost via voter-only-on-uncertain routing.
+
+**5 axes of bounded smartness** vs naïve gpt-5.5 deployment (see [docs/theoretical-grounds.md](docs/theoretical-grounds.md)):
+1. Action-safety prevention — sahih (M3.44 + M3.46 empirical receipts)
+2. Self-correction via cross-witness — substrate caught my own atom-over-application this session
+3. Calibration discipline — `mizan_verify_claim` runtime gate
+4. Cross-session continuity — daftar/burhan/khazīna persist
+5. Reproductive resource-discipline — voter-only-on-uncertain (SECTION UU)
+
+NOT "smarter than gpt-5.5 on full mix of tasks" — empirically falsified (session 2026-05-03 calibration; bcmea-blocked per facts/15). Bounded form reachable; ultimate form is not.
+
+Invoke `mcp__mizan__*` tools at decision boundaries per `~/.claude/CLAUDE.md` global guidance. Atoms 0020 (Adam-Eve compositor) + 0021 (recursive-substrate-use-validates-substrate-at-runtime) are the structural anchors. Lineage narrative at `~/apps/adam/docs/lineage-narrative.md`.
+
 ## Substrate primitives (load BEFORE acting)
 
 cheapcode is a substrate-paired project. The plan-graph (`plan/PLAN.bn` + `plan/facts/*.bn`) is the contract; experiments + receipts in `runs/` are the evidence. Every load-bearing claim has a falsifier per mizaj 01.
