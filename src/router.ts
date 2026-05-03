@@ -18,6 +18,21 @@
  * traceable to its facts/09 rule with the rule's evidence tier — so
  * route_long_context inherits L1+L4 confidence, route_phd_factual
  * inherits L4 confidence, etc. Operators can audit the routing.
+ *
+ * Session 2026-05-03 empirical finding (PLAN.bn SECTION UU/VV/WW):
+ * Across $0.082 calibration testing on gpt-5.5 + opus-4-7 + haiku-4-5
+ * + gemini-2.5-pro (30+ tests, 4-LLM voter), no broad LLM-blindspot
+ * class was found where voter pattern provides detectable lift over
+ * single-pass frontier. Voter use is therefore RESTRICTED to
+ * "hard-reasoning" shape per facts/09 rule 11 (cross-witness on
+ * AIME-class math chains). For other shapes, single-tier dispatch
+ * is correct per atom 0011 (smallest-distinguishing experiment) —
+ * voter overhead would be cost waste with no correctness lift.
+ *
+ * mizan-MCP-server integration is HARNESS-LEVEL (not router-level):
+ * register at Claude Code / opencode settings.json; LLM invokes
+ * mizan_check_action_safety inline before irreversible actions. See
+ * docs/mizan-integration.md for the deployment pattern.
  */
 
 export type TaskShape =
