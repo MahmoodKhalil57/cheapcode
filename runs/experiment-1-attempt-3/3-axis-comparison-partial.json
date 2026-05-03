@@ -1,0 +1,89 @@
+{
+  "attempt": "experiment-1-attempt-3-aime-partial",
+  "date": "2026-05-03T03:14:35.684Z",
+  "status": "killed-at-task-4-wrapper-hang",
+  "N_complete_pairs": 3,
+  "N_orphan_baselines": 1,
+  "paired_axes": {
+    "cost": {
+      "baseline_usd": 0.14775875,
+      "wrapper_usd": 0.0807116,
+      "ratio": 0.5462390552166961
+    },
+    "latency": {
+      "baseline_p50_ms": 83503.39445699996,
+      "wrapper_p50_ms": 418886.576322,
+      "ratio": 5.016401776788912
+    },
+    "completion": {
+      "baseline_rate": 1,
+      "wrapper_rate": 1,
+      "delta_pp": 0
+    }
+  },
+  "orphan_baselines": [
+    {
+      "task": "2024-I-11",
+      "correct": false,
+      "cost_usd": 0.15745
+    }
+  ],
+  "per_task": [
+    {
+      "task": "2024-I-2",
+      "arm": "baseline",
+      "correct": true,
+      "text_tail": " ln x = 10 ln y ⇒ ln y / ln x = 2y/5.\nEquate the two expressions: 10/x = 2y/5 ⇒ xy = 25.\n\nAnswer: 25",
+      "cost_usd": 0.00920625,
+      "latency_ms": 12253
+    },
+    {
+      "task": "2024-I-2",
+      "arm": "wrapper",
+      "correct": true,
+      "text_tail": "(2y). Since log_y x = 1/(log_x y), we have 5/(2y) = x/10, so 50 = 2xy and hence xy = 25.\n\nAnswer: 25",
+      "cost_usd": 0.01115892,
+      "latency_ms": 58606
+    },
+    {
+      "task": "2024-I-5",
+      "arm": "baseline",
+      "correct": true,
+      "text_tail": "er D < E < C < F requires 0 < e < 107 < e+184, hence e=3. Therefore CE = 107 − 3 = 104.\n\nAnswer: 104",
+      "cost_usd": 0.0708225,
+      "latency_ms": 209834
+    },
+    {
+      "task": "2024-I-5",
+      "arm": "wrapper",
+      "correct": true,
+      "text_tail": "OG²:\n(e+92)²+64 = 92²+625 ⇒ (e+92)² = 9025 ⇒ e+92 = ±95 ⇒ e = 3.\nThus CE = 107−3 = 104.\n\nAnswer: 104",
+      "cost_usd": 0.02334851,
+      "latency_ms": 418887
+    },
+    {
+      "task": "2024-I-8",
+      "arm": "baseline",
+      "correct": true,
+      "text_tail": " = 0, so ρ = L/S = (45696/11)/(1190/11) = 45696/1190 = 192/5.\nThus m+n = 192 + 5 = 197.\n\nAnswer: 197",
+      "cost_usd": 0.06773,
+      "latency_ms": 83503
+    },
+    {
+      "task": "2024-I-8",
+      "arm": "wrapper",
+      "correct": true,
+      "text_tail": "sα = 11/595.\nThen ρ = 1 + 2023·(11/595) = 22848/595 = 192/5, so m=192, n=5 and m+n=197.\n\nAnswer: 197",
+      "cost_usd": 0.046204169999999996,
+      "latency_ms": 833300
+    },
+    {
+      "task": "2024-I-11",
+      "arm": "baseline",
+      "correct": false,
+      "text_tail": "111.\n\nThus the probability is 111/256, already in lowest terms, so m+n = 111+256 = 367.\n\nAnswer: 367",
+      "cost_usd": 0.15745,
+      "latency_ms": 226991
+    }
+  ]
+}
