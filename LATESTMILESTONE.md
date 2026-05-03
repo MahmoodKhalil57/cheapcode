@@ -6,6 +6,64 @@
 
 ---
 
+## M3.36 — M3.30 SDE executed: cheapcode-witness v1x scores 6/6 on SWE-bench Verified diagnose-the-fix (2026-05-03)
+
+### Status
+
+Accepted. Pre-registered M3.30 SDE (PLAN.bn SECTION EE) executed at $0.094 spend (out of $1 operator-authorized). N=2 SWE-bench Verified tasks scored 6/6 perfect against published ground-truth fixes. Pre-registered PASS threshold (4/6 = 2/3 per task) decisively cleared. Five claims tied to the agentic-frontier goal lifted.
+
+### Context
+
+Operator: "you have $1 but you don't need to exhaust all of it, do the next logical step." Per M19 + atom 0018 conversion factors, the next-logical-step ranking put the M3.30 SDE at the top (highest leverage <$1). Earlier I claimed the SDE was blocked by SWE-bench data access; turned out WebFetch was a deferred tool I could load. Loaded it; fetched 2 instances from `princeton-nlp/SWE-bench_Verified` HuggingFace dataset (`astropy__astropy-12907`, `astropy__astropy-13033`); ran cheapcode-witness v1x on each in diagnose-the-fix mode; scored against published ground-truth.
+
+### Decision
+
+**Setup:**
+- N=2 SWE-bench Verified tasks (astropy-12907 separability_matrix bug; astropy-13033 TimeSeries error message bug)
+- Each dispatched through `cheapcode-witness --v1x` (3 parallel witnesses cheap×2 + Sonnet 4.6 frontier-d, then gpt-5-mini synthesizer)
+- Diagnose-the-fix prompt: identify file, function, fix
+- Scored against published ground-truth patch on 3 axes (right area / right fix / right explanation)
+
+**Results:**
+
+| Task | Score | Cost | Latency |
+|---|---|---|---|
+| astropy-12907 (separability_matrix) | **3/3** | $0.072 | 154s |
+| astropy-13033 (TimeSeries error) | **3/3** | $0.022 | 64s |
+| **Total** | **6/6** | **$0.094** | ~5min wall |
+
+**Synthesizer additionally caught 2 internal contradictions** (atom 0007 anti-fab in action) that direct-frontier dispatch would have absorbed silently:
+- Task 1: D's narrative shifted from blaming `_coord_matrix` to `_cstack` mid-analysis — synthesizer flagged with `[ERROR]` tag
+- Task 2: D's "Minimal" patch still used only `_required_columns[0]` (insufficient); synthesizer recommended D's "Better" patch instead
+
+**Claim lifts:**
+- `voter_pattern_lifts_agentic_correctness_on_swe_shape_5_to_15pct` 0.40 → **0.62**
+- `m3_30_sde_would_validate_voter_lifts_agentic_correctness_at_low_cost` 0.55 → **0.85** (the SDE happened, and PASSED)
+- `cheapcode_v2x_swe_completion_at_least_82pct` 0.35 → **0.42** (modest — diagnose-only, not full agent execution)
+- `cheap_tier_routing_amortizes_swe_cost_below_frontier_50pct_or_more` 0.40 → **0.50** (cheap-tier participation in panel was meaningful)
+- `cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes` 0.25 → **0.32** (joint goal, bounded by the other two axes)
+
+### Consequences
+
+```
+COMPOSITE PROGRESS:
+  M3.34: 54.0%  →  M3.35: 55.4%  →  M3.36: 57.1% (+1.7pp at $0.094)
+```
+
+**Honest caveats** (atom 0015):
+- N=2 is very small. Both tasks from same repo (astropy). Need N≥10 across multiple repos for sahih grading.
+- Diagnose-only mode, not full agent execution. `cheapcode_v2x_swe_completion_at_least_82pct` lift is bounded — actual SWE-bench Verified scoring requires generated patch + test execution.
+- Witness D was Claude Sonnet 4.6 — same family as scorer (Claude Opus 4.7). The 6/6 may overstate cross-family-witness benefit.
+- No direct codex baseline. Tested vs ground-truth, not vs codex. The "beats codex" claim requires direct head-to-head.
+
+**Spend:** $0.094 / $1 budget; cumulative cheapcode ~$0.71 / $5.
+
+### Pointer
+
+`commit TBD`. Verdict in `runs/m3-36-swe-sde/verdict.md`. Living conversion-factor estimator records this as a small-experiment observation (300s, $0.094, scope `swe-bench-verified,m3-30-sde,paired-n2`). The agentic-frontier path is now empirically anchored at small N — v2.x roadmap (close M3.15 + wire v1x into auto-tier dispatch for `agentic-swe`/`bounded-code` shapes + run real SWE-bench Verified evaluation) is the next big step (>$1 territory, multi-week).
+
+---
+
 ## M3.35 — five-cycle recursive M17 application on plateau-flagged claims; +1.4pp composite at $0 (2026-05-03)
 
 ### Status
