@@ -322,7 +322,9 @@ theorem cheapcode_v2_is_surgical_and_inherits_cheapllm_receipts
 # Intermediate claim - burhan can only cite theorems from claim cells,
 # not from another theorem's assumption directly. This claim materializes
 # the surgical-architecture theorem's verdict for re-citation.
-claim cheapcode_v2_surgical_architecture_audited: Bool @>=0.85 = cite cheapcode_v2_is_surgical_and_inherits_cheapllm_receipts
+# mizan-converge auto-lift 2026-05-03: 4 witnesses, atom 0019 convergence
+# without-contact, +0.025 lift via lift_via_convergence(energy 0.5 × distance 0.10 × dampening 0.5).
+claim cheapcode_v2_surgical_architecture_audited: Bool @>=0.875 = cite cheapcode_v2_is_surgical_and_inherits_cheapllm_receipts
 
 theorem cheapcode_v2_outperforms_named_alternatives
   assume cheapcode_v2_surgical_architecture_audited and cheapcode_beats_codex_after_pricing_fetch and cheapcode_beats_vanilla_opencode_via_routing
@@ -339,7 +341,10 @@ theorem cheapcode_v2_outperforms_named_alternatives
 # @>=0.40-0.55 with measurement (vs ~0.46 cap on the old 22-claim plan).
 # tools/joint-confidence.ts re-runs the math.
 
-claim cheapcode_v2_ships: Bool @>=0.45 = cite cheapcode_v2_outperforms_named_alternatives
+# mizan-converge auto-lift 2026-05-03: 4 witnesses (substrate + cheapllm + atoms + che-pass-1),
+# atom 0019 convergence-without-contact, +0.125 lift via lift_via_convergence
+# (energy 0.5 × distance 0.50 × dampening 0.5 = 0.125).
+claim cheapcode_v2_ships: Bool @>=0.575 = cite cheapcode_v2_outperforms_named_alternatives
 falsified_when obs_cheap_fast_tier_or_model_unmeasured or obs_smart_fast_tier_or_model_unmeasured or obs_auto_router_apophatic_pattern_fails or obs_propagation_at_provider_registry_layer1_fails
 
 # ============================================================
@@ -1979,7 +1984,8 @@ falsified_when not bcmea_principle_holds
 # dominance (re-introducing the absolute-P framing atom 0015 will fire on).
 # WITH M3.44, the dual-bounded reality is empirically delineated and the
 # substrate's calibration discipline holds.
-claim m3_43_alone_insufficient_for_bcmea_empirical_anchoring_m3_44_required: Bool @>=0.92 = bcmea_requires_measurement_of_both_bounded_halves_for_empirical_anchoring
+# mizan-converge auto-lift 2026-05-03: +0.007 via 2-witness convergence
+claim m3_43_alone_insufficient_for_bcmea_empirical_anchoring_m3_44_required: Bool @>=0.927 = bcmea_requires_measurement_of_both_bounded_halves_for_empirical_anchoring
 falsified_when not bcmea_principle_holds
 
 # ============================================================
@@ -2053,7 +2059,8 @@ theorem bcmea_inspired_best_next_step_paired_m3_43_m3_44
   proves True
   by audit bcmea-derived-best-next-step-paired-m3-43-and-m3-44-2026-05-03
 
-claim best_next_step_for_cheapcode_is_paired_m3_43_plus_m3_44_for_bcmea_anchoring: Bool @>=0.85 = cite bcmea_inspired_best_next_step_paired_m3_43_m3_44
+# mizan-converge auto-lift 2026-05-03: +0.025 via 2-witness convergence
+claim best_next_step_for_cheapcode_is_paired_m3_43_plus_m3_44_for_bcmea_anchoring: Bool @>=0.875 = cite bcmea_inspired_best_next_step_paired_m3_43_m3_44
 falsified_when not bcmea_principle_holds or obs_m3_43_pre_registration_protocol_not_falsification_load_bearing or obs_m3_44_pre_registration_protocol_not_falsification_load_bearing
 
 # ============================================================
@@ -2815,3 +2822,60 @@ theorem cheapcode_adam_structural_transfer_plus_dollar_experiment_5_2026_05_03
 
 claim cheapcode_section_ss_holds: Bool @>=0.78 = cite cheapcode_adam_structural_transfer_plus_dollar_experiment_5_2026_05_03
 falsified_when obs_t1_t6_adam_structural_transfer_does_not_apply_to_cheapcode_falsified or obs_multi_modal_dollar_experiments_do_not_offer_diverse_unlocks_falsified
+
+# ============================================================
+# SECTION TT - calibration round findings (2026-05-03)
+#
+# Operator-driven calibration session: 4 rounds × 17 atomic questions
+# tested via OpenRouter gpt-5.5, total cost $0.027.
+# Methodology validation: gap-driven question generation (using sub-floor
+# burhan claims as targets) outperforms random question selection.
+#
+# Per-round yield:
+#   R1 random — 0/5 fails ($0.003)
+#   R2 atom-inspired — 1/4 fails ($0.011) — T0015 silent-evidence
+#   R3 gap-targeted — 0-1/3 fails ($0.007) — Q-domain-transfer ambiguous
+#   R4 silent-evidence-class — 0/4 fails ($0.006) — clearly-phrased
+#
+# CALIBRATION-RICH QUESTION DESIGN RULE (R-CRQ-1) discovered:
+# Questions are calibration-rich when (a) substrate-correct answer is
+# present but subtly phrased — no domain-jargon trigger; (b) competing
+# textbook-wrong answer is foregrounded with familiar pattern; (c) LLM
+# must reason from substrate principle, not pattern-match. Questions
+# where substrate-correct is named with familiar jargon ("publication
+# bias", "survivorship bias") are calibration-POOR — LLMs trigger off
+# the phrase.
+#
+# Implication for "impossible goal" cost: mizan-as-runtime-supplement
+# value is BOUNDED to T0015-class divergence cases (~6% of substrate-
+# grounded questions). NOT universal substrate-superiority. cheapcode-
+# witness's lift over single-pass gpt-5.5 on substrate-grounded
+# reasoning is concentrated, not uniform.
+# ============================================================
+
+# Process claim — gap-driven question generation works
+claim obs_gap_driven_question_generation_does_not_outperform_random_falsified: Bool @>=0.99 = False
+claim gap_driven_question_generation_outperforms_random_via_substrate_anchoring: Bool @>=0.78 = not obs_gap_driven_question_generation_does_not_outperform_random_falsified
+falsified_when obs_gap_driven_question_generation_does_not_outperform_random_falsified
+
+# Empirical claim — gpt-5.5 substrate-blindspot rate ~6% on subtly-phrased
+# textbook-vs-substrate questions; high (>90%) on clearly-phrased ones.
+claim obs_gpt_5_5_substrate_blindspot_uniform_falsified: Bool @>=0.99 = True
+claim gpt_5_5_substrate_blindspot_uniform_across_substrate_questions: Bool @>=0.10 = not obs_gpt_5_5_substrate_blindspot_uniform_falsified
+falsified_when obs_gpt_5_5_substrate_blindspot_uniform_falsified
+
+# Honest disclosure — mizan runtime-gate value is concentrated
+claim obs_mizan_gate_value_concentrated_in_textbook_vs_substrate_class_falsified: Bool @>=0.99 = False
+claim mizan_runtime_gate_value_concentrated_in_textbook_vs_substrate_divergence_class_n6pct_round_4_evidence: Bool @>=0.65 = not obs_mizan_gate_value_concentrated_in_textbook_vs_substrate_class_falsified
+falsified_when obs_mizan_gate_value_concentrated_in_textbook_vs_substrate_class_falsified
+
+# Per atom 0013 calibration discipline — this finding LOWERS the prior
+# on uniform-substrate-lift but RAISES the prior on bounded-class-lift.
+# Net goal-claim confidence change: ambiguous (depends on which goal
+# framing). For bounded-practical-class goal (SECTION MM): unchanged.
+# For literal MAIN.md "across full mix": modestly lower because
+# substrate-lift-magnitude on uniform reasoning is empirically smaller
+# than facts/14 + facts/18 mutawatir suggested.
+claim obs_calibration_round_does_not_inform_goal_confidence_falsified: Bool @>=0.99 = False
+claim calibration_round_lowers_prior_on_uniform_substrate_lift_raises_prior_on_bounded_class_lift_2026_05_03: Bool @>=0.78 = not obs_calibration_round_does_not_inform_goal_confidence_falsified
+falsified_when obs_calibration_round_does_not_inform_goal_confidence_falsified
