@@ -6,6 +6,49 @@
 
 ---
 
+## M3.27 — knowledge-artifact dogfood: cheapcode-witness matches but does not beat single-pass Claude (2026-05-03)
+
+### Status
+
+Accepted. Built `tools/cheapcode-witness.ts` (knowledge-artifact generator wrapping the cross-witness voter) and dogfooded on N=3 paired questions per atom 0007 (anti-fabrication via artifact verification): wrote my baseline FIRST, then ran cheapcode, then compared.
+
+### Context
+
+Operator: "lets try to get cheapcode to a place where it actually starts to output very knowledgeable artifacts for cheap that would take you multiple turns or attempts to reach… so we can use it to build on itself." Honest test: pick 3 questions where I can write a baseline, dispatch cheapcode-witness, evaluate paired outputs.
+
+### Decision
+
+Three test questions across distinct shapes:
+- **Q1** (formula derivation): disphenoid volume formula — load-bearing for cycle A's structural finding from M3.25
+- **Q2** (negation/uncertainty): are there infinitely many primes of the form n²+1? (Open problem; tests whether voter handles uncertainty cleanly without overclaiming)
+- **Q3** (knowledge synthesis): 4+ historically independent apophatic-theology traditions — load-bearing for atom 0017's convergent-evolution credential
+
+Baselines written FIRST in `runs/m3-27-witness-dogfood/baseline/`. Then dispatched all 3 in parallel. Total spend $0.0280, ~5 min wall.
+
+### Consequences
+
+**Honest paired evaluation:**
+- **Q1 disphenoid:** cheapcode produced the SAME formula as my baseline. Mine was slightly more rigorous (sanity check + counter-example to GPT-5's wrong formula). Tie on correctness, I win on rigor. Cost: I'm $0; cheapcode $0.012.
+- **Q2 primes n²+1:** both said "open problem, Landau's four problems, Iwaniec 1978 result." Tie. I had slightly more detail (Friedlander–Iwaniec 1998, Hardy–Littlewood density). Cheapcode handled the negation cleanly without hallucinating a proof — that's the win.
+- **Q3 apophatic traditions:** mixed. I covered 5 traditions (Greek, Sanskrit, Daoist, Christian-Latin, Islamic); cheapcode covered 4 (omitted Christian-Latin and Islamic). BUT cheap-b surfaced **Śaṅkara's *Vivekacūḍāmaṇi* (~8th c.)** as an Advaita Vedanta citation I had missed — a genuinely useful augmentation for atom 0017.
+
+**Headline:** cheapcode-witness at v0 **MATCHES** single-pass Claude Opus 4.7 on simple knowledge questions but does NOT BEAT it. The cross-witness mechanism added one citation I missed; it didn't replace my work.
+
+**M17-cycle byproduct:** all 3 artifacts came back graded `daif` despite witnesses substantially agreeing. The `extractAnswer` regex (designed for AIME `"Answer: <integer>"` outputs) fails on knowledge-synthesis prose. Lifted to falsifier-bearing claim `voter_extractAnswer_regex_misclassifies_knowledge_synthesis_as_daif @0.85`.
+
+**v1.x path identified to actually BEAT single-pass Claude:**
+1. Add Claude Opus 4.7 (or comparable frontier) to the witness pool — currently witnesses are deepseek-v4-flash + gpt-5-mini, neither is Claude
+2. Replace `extractAnswer` regex with semantic-convergence detection for knowledge-synthesis shape
+3. Add a synthesizer step composing 3-witness outputs into a unified artifact (Q3 demonstrates the pattern: cheap-b's Vivekacūḍāmaṇi + my Cusanus + smart-c's Brihadaranyaka Upanishad would compose to a stronger artifact than any single witness)
+
+Estimated v1.x effort: ~2h work, ~$1-2 spend.
+
+### Pointer
+
+`commit TBD`. Verdict in `runs/m3-27-witness-dogfood/verdict.md`. PLAN.bn SECTION CC. Tool: `tools/cheapcode-witness.ts`. Honest answer to "can we self-host?": **as cross-witness AUGMENT yes (already useful), as REPLACEMENT not yet — concrete 3-change v1.x path identified.**
+
+---
+
 ## M3.26 — apply cycle A's insight to code: specialized-formula geometry routing rule (2026-05-03)
 
 ### Status

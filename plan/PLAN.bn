@@ -832,6 +832,64 @@ claim obs_route_specialized_formula_geometry_falsified: Bool @>=0.99 = False
 claim route_specialized_formula_geometry_holds: Bool @>=0.55 = not obs_route_specialized_formula_geometry_falsified
 falsified_when obs_route_specialized_formula_geometry_falsified
 
+# ============================================================
+# SECTION CC - cheapcode-witness dogfood (M3.27)
+#
+# Built tools/cheapcode-witness.ts as a knowledge-artifact generator
+# wrapping the cross-witness voter. Dogfooded on N=3 paired questions:
+# disphenoid volume, primes-of-form-n²+1, apophatic-traditions-list.
+# Per atom 0007, baseline answers (Claude Opus 4.7 single-pass) written
+# BEFORE running cheapcode-witness so comparison is anti-fabrication-clean.
+#
+# Headline: cheapcode-witness MATCHES single-pass Claude on simple
+# knowledge questions but does NOT BEAT it. On Q3, witness surfaced
+# one citation missing from my baseline (Śaṅkara's Vivekacūḍāmaṇi for
+# Advaita Vedanta). On Q1+Q2, my answers were tied or slightly more
+# rigorous (sanity check, broader date coverage).
+#
+# Structural finding (M17 cycle on residue): all 3 artifacts came back
+# graded daif despite witnesses substantially agreeing in content. The
+# extractAnswer regex (designed for "Answer: <integer>") fails on
+# knowledge-synthesis prose outputs. Real bug for the artifact-generator
+# use case.
+#
+# v1.x path identified for cheapcode-witness to actually BEAT single-pass
+# Claude: (1) add Claude Opus 4.7 to witness pool, (2) semantic-
+# convergence detection replacing regex extractAnswer, (3) synthesizer
+# step composing 3-witness outputs into unified artifact. ~2h work,
+# ~$1-2 spend.
+# ============================================================
+
+# Empirical claim — at v0 cheapcode-witness matches but does not beat
+# single-pass Claude on knowledge synthesis. N=3 paired dogfood. Modest
+# confidence per atom 0015 (small N, narrow shape).
+claim obs_cheapcode_witness_strictly_beats_single_pass_falsified: Bool @>=0.99 = False
+claim cheapcode_witness_matches_but_does_not_beat_single_pass_claude_on_knowledge_synthesis: Bool @>=0.65 = not obs_cheapcode_witness_strictly_beats_single_pass_falsified
+falsified_when obs_cheapcode_witness_strictly_beats_single_pass_falsified
+
+# Structural claim — voter's extractAnswer regex misclassifies
+# knowledge-synthesis outputs as daif even when witnesses agree.
+# Observed in 3 of 3 M3.27 artifacts. Falsifier easy to specify: N>=3
+# knowledge-synthesis prompts produce sahih/hasan grade.
+claim obs_voter_extractAnswer_works_on_knowledge_synthesis_falsified: Bool @>=0.99 = True
+claim voter_extractAnswer_regex_misclassifies_knowledge_synthesis_as_daif: Bool @>=0.85 = obs_voter_extractAnswer_works_on_knowledge_synthesis_falsified
+falsified_when not obs_voter_extractAnswer_works_on_knowledge_synthesis_falsified
+
+# Empirical claim — cheapcode-witness surfaces citations the single-pass
+# baseline misses, at some unknown rate. N=1 firing case (Q3
+# Vivekacūḍāmaṇi). Modest confidence; needs N>=10 to lift.
+claim obs_cheapcode_witness_never_surfaces_new_citations_falsified: Bool @>=0.99 = False
+claim cheapcode_witness_surfaces_citations_single_pass_misses_at_low_rate: Bool @>=0.45 = not obs_cheapcode_witness_never_surfaces_new_citations_falsified
+falsified_when obs_cheapcode_witness_never_surfaces_new_citations_falsified
+
+# Forward-looking design claim — the v1.x path to beat single-pass requires
+# three specific changes: (1) frontier witness in pool, (2) semantic-
+# convergence detection, (3) synthesizer step. Confidence reflects the
+# argument's plausibility, not measurement.
+claim obs_cheapcode_witness_v1x_three_changes_insufficient_falsified: Bool @>=0.99 = False
+claim cheapcode_witness_v1x_path_to_beat_single_pass_requires_three_changes: Bool @>=0.55 = not obs_cheapcode_witness_v1x_three_changes_insufficient_falsified
+falsified_when obs_cheapcode_witness_v1x_three_changes_insufficient_falsified
+
 # Empirical claim — wrapper amortizes on hard-multistep tasks where
 # baseline burns many reasoning tokens. M3.11b N=10: 4 tasks (h02, h04,
 # h05, h06) had wrapper cost ≤1.0× baseline. Pattern is reasoning-

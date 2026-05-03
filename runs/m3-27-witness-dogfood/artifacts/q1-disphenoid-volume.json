@@ -1,0 +1,32 @@
+{
+  "slug": "q1-disphenoid-volume",
+  "date": "2026-05-03T11:04:49.863Z",
+  "question": "Derive the volume formula for a disphenoid (also called isosceles tetrahedron), defined as a tetrahedron where each pair of opposite edges has equal length. Let p, q, r denote the three opposite-edge-pair lengths. Provide the formula AND a sanity check by setting p = q = r = a (the regular-tetrahedron case) and confirming the result matches the known volume a^3 / (6 sqrt 2). Be explicit about each algebraic step.",
+  "models": {
+    "cheap": "deepseek/deepseek-v4-flash",
+    "smart": "openai/gpt-5-mini"
+  },
+  "cost_usd": 0.0121717,
+  "latency_ms": 144830.553086,
+  "grade": "daif",
+  "agreed_answer": null,
+  "escalated": true,
+  "witnesses": [
+    {
+      "source": "cheap-a",
+      "answer": "\\(V = \\frac{\\sqrt{(p^2+q^2-r^2)(p^2+r^2-q^2)(q^2+r^2-p^2)}}{6\\sqrt{2}}\\)",
+      "raw_tail": " the known volume.\n\nAnswer: \\(V = \\frac{\\sqrt{(p^2+q^2-r^2)(p^2+r^2-q^2)(q^2+r^2-p^2)}}{6\\sqrt{2}}\\)"
+    },
+    {
+      "source": "cheap-b",
+      "answer": "\\(V = \\frac{1}{6\\sqrt{2}}\\sqrt{(p^{2}+q^{2}-r^{2})(p^{2}+r^{2}-q^{2})(q^{2}+r^{2}-p^{2})}\\)",
+      "raw_tail": "\nAnswer: \\(V = \\frac{1}{6\\sqrt{2}}\\sqrt{(p^{2}+q^{2}-r^{2})(p^{2}+r^{2}-q^{2})(q^{2}+r^{2}-p^{2})}\\)"
+    },
+    {
+      "source": "smart-c",
+      "answer": "V = (1/(6*sqrt(2))) * sqrt(( -p^2 + q^2 + r^2 )*( p^2 - q^2 + r^2 )*( p^2 + q^2 - r^2 ))",
+      "raw_tail": "la:\nAnswer: V = (1/(6*sqrt(2))) * sqrt(( -p^2 + q^2 + r^2 )*( p^2 - q^2 + r^2 )*( p^2 + q^2 - r^2 ))"
+    }
+  ],
+  "text": "Construction and coordinates.\n- Place the disphenoid centered at the origin with vertices\n  v1 = ( a,  b,  c ),\n  v2 = ( a, -b, -c ),\n  v3 = (-a,  b, -c ),\n  v4 = (-a, -b,  c ).\n  (This choice enforces the threefold opposite-edge equalities.)\n\nEdge lengths of opposite pairs:\n- v1-v2 = (0, 2b, 2c) so p = |v1-v2| = 2 sqrt(b^2 + c^2).\n- v1-v3 = (2a, 0, 2c) so q = 2 sqrt(a^2 + c^2).\n- v1-v4 = (2a, 2b, 0) so r = 2 sqrt(a^2 + b^2).\n\nVolume via a determinant.\n- The volume V of the tetrahedron is V = |det(v2-v1, v3-v1, v4-v1)| / 6.\n- Form the three edge vectors from v1:\n  u = v2-v1 = (0, -2b, -2c) = -2(0, b, c),\n  v = v3-v1 = (-2a, 0, -2c) = -2(a, 0, c),\n  w = v4-v1 = (-2a, -2b, 0) = -2(a, b, 0).\n- The 3×3 matrix with columns u,v,w equals (-2) times the matrix N with columns (0,b,c), (a,0,c), (a,b,0). Hence det[u,v,w] = (-2)^3 det N = -8 det N.\n- Compute det N. With rows\n  r1 = (0, a, a), r2 = (b, 0, b), r3 = (c, c, 0),\n  det N = 0*(0*0 - b*c) - a*(b*0 - b*c) + a*(b*c - 0*c) = a b c + a b c = 2 a b c.\n- So det[u,v,w] = -8 * 2 a b c = -16 a b c, and |det| = 16 a b c.\n- Therefore V = (16 a b c)/6 = (8/3) a b c.\n\nExpress a b c in terms of p,q,r.\n- Let A = a^2, B = b^2, C = c^2. From the edge relations:\n  B + C = p^2/4,\n  A + C = q^2/4,\n  A + B = r^2/4.\n- Sum the three: 2(A+B+C) = (p^2+q^2+r^2)/4, so\n  A + B + C = (p^2+q^2+r^2)/8.\n- Solve for A, B, C:\n  A = ( -p^2 + q^2 + r^2 )/8,\n  B = (  p^2 - q^2 + r^2 )/8,\n  C = (  p^2 + q^2 - r^2 )/8.\n- Hence\n  a b c = sqrt( A B C )\n        = sqrt( ( -p^2+q^2+r^2 )( p^2 - q^2 + r^2 )( p^2+q^2 - r^2 ) ) / sqrt(8^3)\n        = sqrt( ( -p^2+q^2+r^2 )( p^2 - q^2 + r^2 )( p^2+q^2 - r^2 ) ) / (16 sqrt 2).\n\nSubstitute into V:\n- V = (8/3) a b c\n    = (8/3) * [ sqrt( ( -p^2+q^2+r^2 )( p^2 - q^2 + r^2 )( p^2+q^2 - r^2 ) ) / (16 sqrt 2) ]\n    = sqrt( ( -p^2+q^2+r^2 )( p^2 - q^2 + r^2 )( p^2+q^2 - r^2 ) ) / (6 sqrt 2).\n\nSanity check (regular tetrahedron): set p = q = r = a.\n- Each factor becomes ( -a^2 + a^2 + a^2 ) = a^2, so the product under the square root is a^6 and its square root is a^3.\n- Therefore V = a^3 / (6 sqrt 2), which matches the known regular-tetrahedron volume.\n\nFinal formula:\nAnswer: V = (1/(6*sqrt(2))) * sqrt(( -p^2 + q^2 + r^2 )*( p^2 - q^2 + r^2 )*( p^2 + q^2 - r^2 ))"
+}

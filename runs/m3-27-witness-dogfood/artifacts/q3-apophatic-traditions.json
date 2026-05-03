@@ -1,0 +1,32 @@
+{
+  "slug": "q3-apophatic-traditions",
+  "date": "2026-05-03T11:06:05.434Z",
+  "question": "Identify FOUR or more historically independent intellectual traditions that arrived at apophatic theology / via negativa / structured-not-knowing as a methodology. For each tradition: (a) name the tradition, (b) cite ONE canonical primary source (work title + author), (c) give an approximate date. Independence here means: arrived at the same structural move (describe the divine/ultimate by negation) without a known transmission channel from another listed tradition. If you are uncertain about a date or attribution, mark it as uncertain rather than asserting.",
+  "models": {
+    "cheap": "deepseek/deepseek-v4-flash",
+    "smart": "openai/gpt-5-mini"
+  },
+  "cost_usd": 0.010155520000000001,
+  "latency_ms": 200056.48617400002,
+  "grade": "daif",
+  "agreed_answer": null,
+  "escalated": true,
+  "witnesses": [
+    {
+      "source": "cheap-a",
+      "answer": null,
+      "raw_tail": "(cheap-a failed: cross-witness-voter-timeout: cheap-a exceeded 180000ms)"
+    },
+    {
+      "source": "cheap-b",
+      "answer": "Taoism (Laozi, *Dao De Jing*, ~6th c. BCE), Madhyamaka Buddhism (Nāgārjuna, *Mūlamadhyamakakārikā*, ~150-250 CE), Neoplatonism (Plotinus, *Enneads*, ~270 CE), Advaita Vedanta (Śaṅkara, *Vivekachudāmani*, ~8th c. CE)",
+      "raw_tail": "eoplatonism (Plotinus, *Enneads*, ~270 CE), Advaita Vedanta (Śaṅkara, *Vivekachudāmani*, ~8th c. CE)"
+    },
+    {
+      "source": "smart-c",
+      "answer": "Hindu (Brihadaranyaka Upanishad), Buddhist (Nāgārjuna, Mūlamadhyamakakārikā), Taoist (Tao Te Ching), Neoplatonist (Plotinus, Enneads)",
+      "raw_tail": " Buddhist (Nāgārjuna, Mūlamadhyamakakārikā), Taoist (Tao Te Ching), Neoplatonist (Plotinus, Enneads)"
+    }
+  ],
+  "text": "Below are four historically independent intellectual traditions that each developed an apophatic/via negativa approach (describing the ultimate by negation). For each I give: (a) tradition name, (b) one canonical primary source (work title + author), (c) approximate date, and a one‑line note showing the apophatic move and independence claim.\n\n1) Hindu (Upanishadic Vedanta)\n- Primary source: Brihadaranyaka Upanishad (author unknown; Upanishads are anonymous compilations)\n- Date: approximate; composition and layers c. 8th–6th century BCE (date uncertain)\n- Note: Explicit “neti‑neti” (“not this, not that”) negational method to indicate Brahman beyond predicates. Developed in Vedic/Indian context with no known transmission from Greek or Chinese sources.\n\n2) Buddhist (Madhyamaka)\n- Primary source: Mūlamadhyamakakārikā (Fundamental Verses on the Middle Way) — Nāgārjuna (attributed)\n- Date: approximate; 2nd–3rd century CE (date uncertain)\n- Note: Systematic reductio/negation of inherent existence (śūnyatā) to show ultimate emptiness — a structural via negativa independent of Hellenistic or Chinese traditions.\n\n3) Taoist (Daoism)\n- Primary source: Tao Te Ching (Daodejing) — traditionally attributed to Laozi (authorial attribution uncertain)\n- Date: approximate; Warring States period, c. 4th–3rd century BCE (date uncertain)\n- Note: Opening lines explicitly deny that “the Dao that can be named is the constant Dao” — an apophatic claim developed in Chinese intellectual history without known contact with Indian or Mediterranean apophasis in its formative period.\n\n4) Neoplatonism (Hellenistic Greek)\n- Primary source: Enneads — Plotinus (collected by Porphyry)\n- Date: Plotinus' writings c. mid‑3rd century CE (c. 250–270 CE)\n- Note: The One is described as beyond being and beyond thought (only approachable by negation); a Greco‑Roman philosophical development independent of Indian and Chinese apophatic roots.\n\n(If you want more examples: late antique Christian apophaticism (e.g., Pseudo‑Dionysius, 5th–6th c.) and medieval Jewish/Islamic negative theology (e.g., Maimonides’ Guide of the Perplexed, c. 1190; or Sufi texts) also use via negativa, but these show known lines of transmission from Greek/Neoplatonic sources and so are not independent of the Neoplatonic item above.)\n\nAnswer: Hindu (Brihadaranyaka Upanishad), Buddhist (Nāgārjuna, Mūlamadhyamakakārikā), Taoist (Tao Te Ching), Neoplatonist (Plotinus, Enneads)"
+}
