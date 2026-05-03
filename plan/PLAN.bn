@@ -1144,6 +1144,68 @@ claim obs_m3_32_violates_m18_discipline_falsified: Bool @>=0.99 = False
 claim m3_32_code_witness_addition_complies_with_mizaj_18: Bool @>=0.92 = not obs_m3_32_violates_m18_discipline_falsified
 falsified_when obs_m3_32_violates_m18_discipline_falsified
 
+# ============================================================
+# SECTION GG - reality-check: physical-reality grounding (M3.33)
+#
+# Operator-identified gap: "the substrate has no way to assess physical
+# reality of things, and on a similar note llms in general are terrible
+# with time. If we build in a mechanism that forces the llm to see the
+# time frequently, we can try to start using our 'energy transformation'
+# formula from earlier to try to estimate time cost of research vs
+# experiments, and from there we can start thinking converting between
+# other constraints easier like deadlines, money, cpu gpu memory, etc."
+#
+# This is khazīna atom 0005 (convenient-narrative × constants → energy)
+# extended from one-shot discovery to iterative-runtime form. At each
+# decision boundary, the agent should ground physical state (wall time,
+# spend so far, disk free, memory pressure, cumulative tokens) and
+# convert constraints to the binding axis to pick the cheapest move.
+#
+# Tool: cheapcode/tools/reality-check.ts. Outputs structured JSON with
+# physical state. Forces time visibility per operator's specific ask.
+#
+# This is M3.33 (M18-disciplined fork-addition itself):
+# - SECTION GG IS the burhan claim (Step 1 — claim first)
+# - tools/reality-check.test.ts will be Step 2 (test first)
+# - tools/reality-check.ts will be Step 3 (implement; tests pass)
+# - Coverage of fork-additions ~100% (Step 4)
+# ============================================================
+
+# Structural claim 1: reality-check returns JSON with required physical-
+# state fields (timestamp, wall_time_ms_since_epoch, disk_free_bytes,
+# project_root, recent_commits, recent_daftar_entries).
+# Falsifier: output missing any required field OR fields wrong types.
+claim obs_reality_check_output_structure_wrong_falsified: Bool @>=0.99 = False
+claim reality_check_returns_required_physical_state_fields_with_correct_types: Bool @>=0.92 = not obs_reality_check_output_structure_wrong_falsified
+falsified_when obs_reality_check_output_structure_wrong_falsified
+
+# Structural claim 2: timestamp returned is current wall time within
+# tolerance (≤2s drift between reality-check.run() and Date.now()).
+# Falsifier: timestamp drift >2s OR timestamp not parseable.
+claim obs_reality_check_timestamp_drift_above_2s_falsified: Bool @>=0.99 = False
+claim reality_check_returns_current_timestamp_within_2s_tolerance: Bool @>=0.92 = not obs_reality_check_timestamp_drift_above_2s_falsified
+falsified_when obs_reality_check_timestamp_drift_above_2s_falsified
+
+# Structural claim 3: time-since-last-commit and time-since-last-snapshot
+# are computed as positive integers (or null when no commits/snapshots
+# exist) — never undefined or negative.
+claim obs_reality_check_time_deltas_invalid_falsified: Bool @>=0.99 = False
+claim reality_check_time_deltas_are_nonnegative_or_null: Bool @>=0.92 = not obs_reality_check_time_deltas_invalid_falsified
+falsified_when obs_reality_check_time_deltas_invalid_falsified
+
+# Process claim — M3.33 itself satisfies M18.
+claim obs_m3_33_violates_m18_discipline_falsified: Bool @>=0.99 = False
+claim m3_33_reality_check_addition_complies_with_mizaj_18: Bool @>=0.92 = not obs_m3_33_violates_m18_discipline_falsified
+falsified_when obs_m3_33_violates_m18_discipline_falsified
+
+# Forward-looking claim — reality-check tool, when invoked at decision
+# boundaries, helps the agent ground time/cost/token claims and convert
+# constraints per atom 0018 iterative-energy-transformation. Modest
+# initial confidence; validated by future agent dogfooding.
+claim obs_reality_check_does_not_help_with_constraint_conversion_falsified: Bool @>=0.99 = False
+claim reality_check_helps_agent_ground_claims_and_convert_constraints: Bool @>=0.55 = not obs_reality_check_does_not_help_with_constraint_conversion_falsified
+falsified_when obs_reality_check_does_not_help_with_constraint_conversion_falsified
+
 # Sub-claim 2: cross-witness voter pattern lifts agentic-correctness on
 # SWE-shape tasks. UNTESTED — needs M3.30 SDE.
 claim obs_voter_pattern_does_not_lift_agentic_correctness_on_swe_falsified: Bool @>=0.99 = False

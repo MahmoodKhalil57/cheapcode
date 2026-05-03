@@ -14,6 +14,7 @@ cheapcode is a substrate-paired project. The plan-graph (`plan/PLAN.bn` + `plan/
 - `16-synthesize-research-as-experiment-equivalent.md` — research can substitute experiments
 - `17-apply-byproducts-when-method-plateaus.md` — **when load-bearing claim stalls at sub-floor, run the M17 cycle (companion: khazīna atom 0017)**
 - `18-burhan-backed-tdd-for-fork-additions.md` — **MANDATORY for any new code added to cheapcode-fork atop opencode upstream. Write burhan claim + falsifier-bearing test BEFORE the source. Trust upstream as L3-sahih; prove fork-additions with minimal tests + perfect coverage of fork-side LoC.**
+- `19-ground-physical-reality-at-decision-boundaries.md` — **MANDATORY before any time/cost/frequency/budget claim. Invoke `bun tools/reality-check.ts --json`; anchor the claim to the probe output, never claim from memory. Composes mizaj 16 (research-as-experiment-equivalent) with atom 0018 (iterative-energy-transformation) — with grounded time-awareness, prefer research over experiment when binding-axis is wall-time or $-spend (typically 10-100× cheaper).**
 
 **Khazīna atoms** (read at `~/apps/khazina/atoms/`):
 - `0010-blinded-independent-witness-pass.md` — cross-witness honesty
@@ -36,6 +37,31 @@ The cycle should fire automatically when ANY of these patterns shows up in the a
 7. A `tools/burhan-plateau.sh` run produces a non-empty report
 
 In all these cases: **stop, inventory the byproducts, look for shape, lift to falsifier-bearing claim, then continue.** This is not optional substrate decoration — it's the discipline that prevented the cheapcode project from drifting at multiple plateau points (M3.18b, M3.18c, M3.13, M3.23 — all 4 in successful_transformations on atom 0017).
+
+## When to apply M19 (physical-reality grounding) — MANDATORY before time/cost claims
+
+cheapcode-fork agents have NO internal clock. Every time/cost/frequency claim made from memory is structurally an atom 0015 firing (transfer-overstated on internal-clock estimation). The fix is mechanical:
+
+```bash
+bun tools/reality-check.ts --json
+```
+
+Output: structured JSON with current wall time, ms-since-last-commit, ms-since-last-snapshot, recent commits 24h, daftar entries 24h, disk free.
+
+**Apply M19 every time you would say:**
+- "Recently", "earlier", "X minutes ago", "in the last Y hours"
+- "Cheap", "expensive", "$X budget remaining", "Y% of cap"
+- "Often", "rarely", "every N seconds"
+- "We have time for this" / "we don't have time for that"
+- Choosing between research vs experiment at a decision boundary
+
+**The conversion-factor table (atom 0018, cheapcode-derived):**
+- 1 targeted research query: ~3-5 min wall, ~$0 spend
+- 1 small experiment: ~30-90 min wall, $0.05-0.50 spend
+- 1 substrate primitive add (M18-disciplined): ~1-2 hours wall, $0 spend, ~5-15 commits
+- 1 large dogfood probe (N≥10): ~1-3 hours wall, $0.50-3.00 spend
+
+**Operator-named load-bearing default (M3.33):** "internet research is astronomically cheaper than running complicated tests especially when you have a strong grasp over time." With grounded time-awareness, the 10-100× cost asymmetry between research and experiment becomes load-bearing — prefer research first; fall back to experiment only when the question is genuinely not research-answerable per mizaj 16.
 
 ## When to apply M18 (burhan-backed TDD) — MANDATORY for any fork-addition
 

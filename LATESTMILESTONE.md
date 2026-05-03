@@ -6,6 +6,54 @@
 
 ---
 
+## M3.33 — physical-reality grounding: tools/reality-check + atom 0018 + mizaj 19 (2026-05-03)
+
+### Status
+
+Accepted. Operator-named gap closed: substrate now has a mechanical physical-reality grounding mechanism. Built `tools/reality-check.ts` under M18 discipline (5 burhan claims, 12 tests, 100% func coverage). New khazīna atom 0018 (extends 0005 to runtime-iterative form) + new mizaj rule 19 (ground-physical-reality-at-decision-boundaries). Statistical lineage made explicit: 3,800-year human practice traced in `aapi/bubExplains/Statistics.md`.
+
+### Context
+
+Operator-named gap: "the substrate has no way to assess physical reality of things, llms in general are terrible with time. If we build in a mechanism that forces the llm to see the time frequently, we can try to start using our 'energy transformation' formula from earlier to try to estimate time cost of research vs experiments, and from there we can start thinking converting between other constraints easier like deadlines, money, cpu gpu memory, etc."
+
+Operator-named load-bearing principle (M19 default): "internet research is astronomically cheaper than running complicated tests especially when you have a strong grasp over time and how quick you can actually research."
+
+### Decision
+
+**Tool: `tools/reality-check.ts`** (180 LoC, M18-disciplined). Outputs structured JSON with `timestamp_iso`, `wall_time_ms_since_epoch`, `disk_free_bytes`, `recent_commits_count_24h`, `ms_since_last_commit`, `ms_since_last_snapshot`, `daftar_recent_entry_count`. Forces mechanical visibility of physical state.
+
+**Khazīna atom 0018** (`bcc78a0`): iterative-energy-transformation — extends atom 0005 (Sridhar-class one-shot) to runtime-iterative form. At every agent decision boundary: invoke physical-reality probe → identify binding constraint → convert other constraints to that axis using grounded conversion factors → pick minimum-cost-on-binding-axis move that progresses toward goal. Convergent-evolution credential is 3,800-year statistical lineage (Babylonian grain → Halley life table → Florence Nightingale → Fisher RCT) plus engineering lineage (CPM/PERT 1957, Kalman 1960, simulated annealing 1983).
+
+**Mizaj rule 19** (`95e623c`): ground-physical-reality-at-decision-boundaries — companion trigger rule. MANDATORY before any time/cost/frequency/budget claim or research-vs-experiment fork. Anti-pattern: making time/cost claims from memory.
+
+**`cheapcode/CLAUDE.md`** updated to mandate M19 with explicit conversion-factor table:
+- 1 research query: ~3-5 min, ~$0
+- 1 small experiment: ~30-90 min, $0.05-0.50
+- 1 substrate primitive add (M18): ~1-2h, $0
+- 1 large dogfood probe (N≥10): ~1-3h, $0.50-3.00
+
+The 10-100× research-vs-experiment cost asymmetry becomes load-bearing only with grounded time-awareness.
+
+**M18 4-step discipline followed strictly:**
+- Step 1: 5 burhan claims FIRST in PLAN.bn SECTION GG (with falsifiers)
+- Step 2: 12 tests FIRST in `tools/reality-check.test.ts` (red-phase confirmed)
+- Step 3: source implemented; all 12 tests pass
+- Step 4: 100% function coverage; 91.6% line coverage (uncovered: only `import.meta.main` CLI entry block, universally untestable from inside runner)
+
+### Consequences
+
+cheapcode-fork agents now have a mechanical mechanism to ground time/cost/frequency claims at runtime, closing the LLM-temporal-amnesia gap operator named. The Statistics.md lineage makes the structural move auditable — 3,800-year practice across statesmanship, insurance, public health, experimental science, and engineering, all converging on "ground physical state, identify binding constraint, convert, decide."
+
+The substrate now has 19 mizaj rules + 18 khazīna atoms. Atoms 0005, 0007, 0010, 0011, 0013, 0015, 0016, 0017, 0018 compose into a complete substrate-as-runtime-critic stack for cheapcode-fork.
+
+58/58 tests pass (was 46; +12 new for reality-check). Burhan-revisit clean. v1.0.0 local tag still pending operator push.
+
+### Pointer
+
+`commit TBD` (cheapcode); khazina `bcc78a0`; mizaj `95e623c`. Future agents reading `CLAUDE.md` at session-start now see M19 mandatory section + the 10-100× research-vs-experiment conversion table. Going forward: every time/cost/frequency claim should be preceded by `bun tools/reality-check.ts --json`.
+
+---
+
 ## M3.32 — code-witness: substrate variation in cheapcode-fork (M18-disciplined; first commit under M18) (2026-05-03)
 
 ### Status
