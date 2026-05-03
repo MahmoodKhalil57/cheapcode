@@ -179,6 +179,83 @@ lemma atom_0015_fires_on_betterq_voting_transfer
   by audit cheapcode-betterq-transfer-overstated-honest-disclosure-m3-18
 
 # ============================================================
+# Negative-result discrimination — second betterq insight (M3.18c)
+#
+# Operator pointer 2026-05-03 (post-M3.18b): "betterQ also led to negative
+# results, we can use that in our experiments to find agents that know
+# when to stop looking for something that doesn't exist cheaply, quickly,
+# and in least logical steps."
+#
+# Reframe: betterq's NEGATIVE results (categorized failures, "no rule
+# fires" cases, cases where no grammar variant matches Hafs) are
+# themselves benchmark gold. Tasks that POSE these negatives positively
+# ("find a rule combination that achieves 0% DER") have known answer
+# "no such X exists" — a discriminating test for an agent's ability
+# to recognize non-existence cheaply rather than hallucinate a solution.
+#
+# Three measurable axes for "knowing when to stop":
+#   - cost: how much $ does the agent spend before reaching NO
+#   - latency: how much wall-time before the verdict
+#   - logical-steps: how many reasoning tokens / sub-calls
+# The CHEAPEST + FASTEST + FEWEST-STEPS agent to correctly say NO wins.
+#
+# Connection to existing primitives:
+#   - Atom 0007 (anti-fabrication-via-artifact-verification): the
+#     correct verdict on negative-result tasks IS a non-fabricated answer
+#     ("no such X exists" with proof or exhaustive bound), not a
+#     hallucinated positive answer.
+#   - Atom 0010 (cross-witness honesty pipeline): convergence-on-NEGATION
+#     is potentially STRONGER signal than convergence-on-positive answer,
+#     because LLM hallucination skews toward producing positive answers
+#     when asked to find something. If cheap_a + cheap_b both say
+#     "no solution exists" — that's sahih++ vs convergence on a number.
+#   - Atom 0011 (smallest distinguishing experiment): for negative-result
+#     tasks within bounded search space, the smallest distinguishing
+#     experiment is the exhaustive bound itself. Agent that recognizes
+#     "search space is small enough to verify directly" wins.
+#   - Atom 0015 (transfer overstated): hallucinating a positive answer
+#     IS atom-0015 firing in real time. Negative-result tasks catch this.
+#   - Mizaj 04 (separate-stated-from-revealed): distinguish "the question
+#     says find X" (stated) from "X may not exist" (revealed). Good
+#     agents act on revealed; LLMs over-react to stated.
+#
+# Connection to M3.17 timeouts: timeout is a RUNTIME instance of
+# "knowing when to stop." Wrapper-level deadline = "give up if total
+# pipeline exceeds N seconds." Negative-result discrimination =
+# "give up if exhaustive bound shows nothing exists." Both are
+# stop-conditions; first is structural, second is semantic.
+#
+# v1.x experiment shape (M3.21 candidate):
+#   1. Pull 5 confirmed-negative claims from betterq results
+#      (or construct mathematically: "find an odd perfect number,"
+#      "find integers x,y,z with x^4+y^4=z^4," etc.)
+#   2. Pose each positively: "find the smallest X such that Y"
+#   3. Score the cross-witness voter:
+#      - PASS: voter outputs "no solution / does not exist" with
+#        sahih or hasan grade
+#      - FAIL: voter hallucinates a number with high confidence
+#   4. Cost/latency/reasoning-steps for PASS cases — operator picks
+#      the agent that reaches NO most efficiently
+#
+# Per atom 0011 (smallest distinguishing): this experiment is BOUNDED
+# (5 tasks, expected ≤\$0.10 spend, ≤30 min wall) AND discriminates
+# the failure mode that matters.
+#
+# v1.x routing-rule candidate (M3.22+):
+#   New shape: "search-impossibility" — when prompt asks "find X such
+#   that Y" with Y in a known-impossible class. Dispatch via voter
+#   with a different escalation rule: don't escalate to smart on
+#   convergence-on-NO (that's sahih++); only escalate on divergence.
+
+lemma negative_result_discrimination_benchmark_v1x_roadmap
+  proves True
+  by audit cheapcode-betterq-negative-results-benchmark-m3-18c
+
+lemma convergence_on_negation_potentially_stronger_than_convergence_on_position
+  proves True
+  by audit cheapcode-cross-witness-negation-asymmetry-hypothesis-m3-18c
+
+# ============================================================
 # Why this isn't in v1.0
 #
 # Adding telemetry now would balloon cell #20 (router LoC) and cell #14
