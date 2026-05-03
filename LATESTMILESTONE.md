@@ -6,6 +6,150 @@
 
 ---
 
+## M3.20 — atom 0016 runtime small-N validated; verdict + cascade (2026-05-03)
+
+### Status
+
+Accepted. Substrate-runtime cross-witness voter validated on hard-reasoning slice with small-N caveat. Khazīna atom 0016 runtime-verifier-head claim moves drafted → small-N validated.
+
+### Context
+
+M3.19 N=5 mixed probe produced empirical evidence: 4/5 correct, $0.0516 spend, P50 60s wall, sahih convergence precision 2/2 = 100%, hasan 2/3 = 67%. Negation-asymmetry hypothesis (atom 0010, pre-registered in plan/facts/10 BEFORE the probe) STRONGLY supported: negation 100% sahih in 17s + $0.0002/task; positive 0% sahih + 100% escalation in 158s + $0.017/task — ~85× cost asymmetry, ~9× latency asymmetry.
+
+### Decision
+
+Write `runs/experiment-2-voter-probe/verdict.md` with paired per-claim verdict. Update PLAN.bn SECTION Y confidences honestly: route_voter 0.55 → 0.75; convergence_predicts_correctness 0.65 → 0.78; majority_robust 0.55 → 0.65; cost_ratio 0.85 hold provisional; latency_ratio 0.85 → 0.50 (ambiguous). Discharge `cheapcode_substrate_atom_0016_runtime_validated_for_hard_reasoning` lifted 0.40 → 0.65. Add facts/10 evidence lemmas referencing M3.19 outcome. Update khazīna atom 0016: audit_notes drafted-but-not-validated → SMALL-N VALIDATED; maintenance.confidence daif → hasan; provenance inf → obs; populate successful_transformations with M3.19 evidence + negation-asymmetry data point.
+
+### Consequences
+
+Phase 2's smart-axis claim, which M3.10 compound wrapper failed (M3.11+M3.11b), is recovered via the voter substitution: the substrate-runtime cross-witness pipeline IS a smart-axis lift on hard-reasoning where chain-of-reasoning consistency is the failure mode. Burhan-revisit post-cascade: 19 EXPLORE / 0 REMOVE / 0 MOVE — clean; sub-floor 0.85 confidences correctly reflect small-N status. Cumulative cheapcode spend ~$0.39/$5 honors atom 0011 (smallest-distinguishing).
+
+### Pointer
+
+`commit 30e7737` (cheapcode), `commit 2a91b6a` (khazīna atom 0016). v1.x roadmap items: N≥20 voter probe across multiple hard-reasoning shapes + novel negation tasks (lift hasan → sahih); M3.21 negative-result discrimination route extraction.
+
+---
+
+## M3.19 — substrate-runtime voter probe execution (2026-05-03)
+
+### Status
+
+Accepted. N=5 mixed benchmark probe completed within bounded budget.
+
+### Context
+
+M3.18 cross-witness voter implementation needed empirical validation. Operator pointed to two betterq insights (M3.18b: convergence-as-positional-matching corrected the initial transfer; M3.18c: betterq's negative results inspire "agents that know when to stop"). Combined into N=5 mixed benchmark: 3 hard AIME 2024 (combinatorics-symmetry, geometry-tetrahedron, complex-roots-of-unity) + 2 known-impossible (Fermat n=4, √2 irrational).
+
+### Decision
+
+Build `runs/experiment-2-voter-probe/benchmark-mixed.ts` with `scoreResponse` handling both expects_negation=true (alternates list match) and positive (integer extract). Build `run-voter-probe.ts` using `runCrossWitnessVoter` with instrumented model wrapper for per-call cost tracking (usage.raw.cost). Per-class analysis: positive_correct_rate, negative_correct_rate, sahih_on_positive_rate, sahih_on_negation_rate.
+
+### Consequences
+
+Outcomes per task: aime-I-11 ✗ daif (smart_C 120s timeout, 230s, $0.00137); aime-I-14 ✓ hasan (escalated, agreed 104, 184s, $0.0324); aime-II-13 ✓ hasan (escalated, agreed 321, 60s, $0.0174); neg-fermat-quartic ✓ sahih (no escalation, 13s, $0.00016); neg-sqrt-2-rational ✓ sahih (no escalation, 21s, $0.00023). Total $0.0516 / $0.20 budget; 8.5min wall / 30min cap. M3.13's 50-min hang on AIME-I-11 eliminated by M3.17 timeouts.
+
+### Pointer
+
+`commit 30e7737`. Verdict in `runs/experiment-2-voter-probe/verdict.md`. Per-task data in `voter-probe-summary.json` + `results.jsonl`. M3.20 cascade discharges atom 0016 runtime claim.
+
+---
+
+## M3.18c — negative-result discrimination roadmap (v1.x) (2026-05-03)
+
+### Status
+
+Accepted. v1.x roadmap entry; not in scope for v1.0.
+
+### Context
+
+Operator pointer 2026-05-03 (post-M3.18b): "betterQ also led to negative results, we can use that in our experiments to find agents that know when to stop looking for something that doesn't exist cheaply, quickly, and in least logical steps."
+
+### Decision
+
+Add facts/10 lemmas: `negative_result_discrimination_benchmark_v1x_roadmap` + `convergence_on_negation_potentially_stronger_than_convergence_on_position`. Connect to atom 0010 (negation-asymmetry hypothesis), atom 0011 (smallest-distinguishing for bounded-search-space negatives), atom 0007 (anti-fabrication via verification), atom 0015 (transfer-overstated runtime detection). Mizaj 04 (separate stated-from-revealed) supports the discrimination. Add 2 known-impossible tasks to M3.19 N=5 probe to test the hypothesis at minimum cost.
+
+### Consequences
+
+Atom 0010's negation-asymmetry prediction got pre-registered before M3.19 ran; M3.19 confirmed it strongly. v1.x route candidate (M3.22+): "search-impossibility" shape with don't-escalate-on-convergence-on-NO rule.
+
+### Pointer
+
+`commit 010724d`. plan/facts/10-cross-witness-runtime.bn §"Negative-result discrimination".
+
+---
+
+## M3.18b — betterq survey + honest transfer disclosure (2026-05-03)
+
+### Status
+
+Accepted. Atom 0015 fired on the initial transfer assumption; honest correction recorded.
+
+### Context
+
+Operator pointer 2026-05-03: "get inspired from ~/apps/betterq results showing that there is a 'converging best grammar' for the quraan based on muqataat but it is hard to calculate."
+
+### Decision
+
+Survey-Explore agent dispatched to ~/apps/betterq. Findings: betterq's "convergence" is POSITIONAL matching to Hafs ground truth, NOT witness-agreement. The initial transfer assumption (treat as cross-witness voting) was OVERSTATED. Atom 0015 fires. Real load-bearing primitive: rule-driven enumeration with per-rule precision/recall tracking (13 grammar rules from Sibawayhi/al-Khalil). Document honest transfer: per-rule rolling precision/recall tracker (v1.x), error categorization on daif outcomes (v1.x), triangulation-not-voting frame (each dispatch = one witness whose accuracy is measurable).
+
+### Consequences
+
+facts/10 §"BetterQ-inspired enhancement (v1.x roadmap)" added with 3 deferred enhancements. The honest disclosure pattern is itself the credential per atom 0013 — better than silent overclaim. v1.x telemetry roadmap unblocked.
+
+### Pointer
+
+`commit a25887c`. plan/facts/10-cross-witness-runtime.bn §"BetterQ-inspired enhancement".
+
+---
+
+## M3.18 — cross-witness voter substrate-runtime dispatch (2026-05-03)
+
+### Status
+
+Accepted. New routing shape "hard-reasoning" + voter pipeline implemented.
+
+### Context
+
+M3.2 retrospective surfaced TB-3's failure-mode mismatch with substrate's strengths (TB-3 = code/system-correctness; substrate's strength = chain-of-reasoning consistency). M3.13 hung on AIME-I-11 for 50 min, leaving smart-axis claim untested. Operator: "I want to make structural changes so that we can be more certain about Hard reasoning benchmarks (AIME-class) without spending too much time testing like before."
+
+### Decision
+
+Build `src/cross-witness-voter.ts` (259 LoC, cell #21): parallel cheap × 2 with PROMPT_A ("step by step") + PROMPT_B ("carefully, double-check"). If both extract same integer → sahih, return. Else escalate to smart_C with PROMPT_C ("two prior solvers disagreed"). 2-of-3 majority → hasan; else daif. extractAnswer regex tolerant of "Answer: N" / "boxed{N}" / trailing integer. Promise.allSettled — single failure can't block other witness. CrossWitnessVoterModel: LanguageModelV3 adapter. Add routing rule 11: hard-reasoning detector matches AIME|olymp|IMO|USAMO|Putnam markers OR proof-keywords + tokens>100. 8-test `cross-witness-voter.test.ts` + 4 router tests for hard-reasoning detection. Add plan/facts/10-cross-witness-runtime.bn with atom anchors (0010, 0011, 0015, 0016) + PLAN.bn SECTION Y empirical claims + theorem.
+
+### Consequences
+
+Atom 0016's runtime-verifier-head claim has a benchmark fit (AIME + known-impossible) where chain-of-reasoning consistency is the failure mode. M3.10 compound wrapper preserved-but-default-off; voter is the new smart-axis path. Cost projection ~$0.001-0.020/task vs $0.05-0.46 compound. Latency projection ~3-15s P50 vs 30-90s compound. Hypothesis-status until M3.19 N=5 probe (which subsequently confirmed at small-N).
+
+### Pointer
+
+`commit 62a0cd6`. src/cross-witness-voter.ts + src/cross-witness-voter.test.ts + src/router.ts hard-reasoning shape + src/router.test.ts hard-reasoning + voter routing tests + plan/facts/10-cross-witness-runtime.bn + PLAN.bn SECTION Y.
+
+---
+
+## M3.17 — per-call timeouts in auto-wrapper (production-reliability fix) (2026-05-03)
+
+### Status
+
+Accepted. Production reliability primitive added; 5-test coverage.
+
+### Context
+
+M3.13 AIME experiment hung at task 4 (aime-I-11) for 50+ minutes; killed bun PID 65358 manually. Salvaged N=3 partial data. Wrapper had no timeout protection — single hung call blocked the entire experiment.
+
+### Decision
+
+Add `withTimeout(promise, ms, label)` helper using Promise.race against setTimeout. DEFAULT_PER_CALL_TIMEOUT_MS = 180_000 (3 min). Wrap every generateText dispatch in auto-wrapper + cross-witness-voter. Promise.allSettled at parallel-leaf level so one timeout doesn't kill the rest.
+
+### Consequences
+
+M3.19 voter probe ran 5/5 to completion; AIME-I-11 (the M3.13 hang task) hit smart_C timeout cleanly at 230s and produced a daif verdict instead of indefinite hang. Production-reliability discipline now enforced at the wrapper boundary.
+
+### Pointer
+
+`commit 01b788c`. src/auto-wrapper.ts + src/cross-witness-voter.ts both use withTimeout. 5-test auto-wrapper.test.ts confirms timeout behavior with mocked LanguageModel.
+
+---
+
 ## M3.16 — Phase 4 README per Model Cards format (2026-05-03)
 
 ### Status
