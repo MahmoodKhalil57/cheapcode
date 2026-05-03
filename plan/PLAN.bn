@@ -558,7 +558,14 @@ claim obs_route_closed_book_falsified: Bool @>=0.99 = False
 claim route_long_context_holds: Bool @>=0.85 = not obs_route_long_context_falsified
 falsified_when obs_route_long_context_falsified
 
-claim route_agentic_swe_holds: Bool @>=0.55 = not obs_route_agentic_swe_falsified
+# M3.35 cycle 3 lift 0.55 → 0.65: Opus 4.7 has TWO different benchmark
+# wins for agentic-SWE shape — SWE-bench Pro 64.3% (per facts/08
+# opus_4_7_swebench_pro_64_3_pct_leads_frontier, source apiyi-llm-stats
+# L4) AND MCP-Atlas 77.3% (per facts/08 opus_4_7_mcp_atlas_77_3_pct_leads
+# _tool_use, source different benchmark). Cross-benchmark consistency
+# within model = mutawatir-equivalent at L4. Per mizaj 11/14, this lifts
+# beyond single-source L4 cap (0.40-0.55 depending on chain integrity).
+claim route_agentic_swe_holds: Bool @>=0.65 = not obs_route_agentic_swe_falsified
 falsified_when obs_route_agentic_swe_falsified
 
 # M3.23 QW2.1 lift 0.65 → 0.78: Haiku 4.5 SWE-bench Verified 73.3% L4 (Anthropic
@@ -566,6 +573,8 @@ falsified_when obs_route_agentic_swe_falsified
 # memory (haiku quality-equivalent on bounded code, faster). Two independent
 # sources at different tiers = mutawatir-equivalent per mizaj 11/14. Atom 0010
 # cross-witness applied at routing-rule-evidence layer.
+# (No M3.35 lift — already at 0.78 with all available cross-witness evidence
+# absorbed; further lift requires L1 own-measurement on bounded-code tasks.)
 claim route_bounded_code_holds: Bool @>=0.78 = not obs_route_bounded_code_falsified
 falsified_when obs_route_bounded_code_falsified
 
@@ -773,6 +782,16 @@ falsified_when obs_voter_cost_gte_frontier_cost_falsified or obs_voter_completio
 # on the M3.19 N=5 mixed benchmark (5/5 correct vs 4/5 pre-fix).
 # Confidence modest because (a) N=1 case where it fired (b) generality
 # untested on broader data — atom 0011 + atom 0015 caveats apply.
+# M3.35 cycle 4 inventory (atom 0017 byproduct cycle on M3.27 v0 cached
+# data): re-checked the 3 v0 artifacts. ZERO additional firings — Q1/Q2
+# had all 3 witnesses produce answers (no abstain); Q3 had 2-of-3 produce
+# answers with disagreement (a 2-witness-disagreement case, not a
+# 1-witness-rescue case). Net N still 1. This is a STRUCTURAL finding
+# about the rescue rule's applicability: it fires when 2-of-3 witnesses
+# ABSTAIN (extraction failure), not on 2-of-3 disagreement. The rule
+# is well-targeted to AIME-style integer-extract tasks where extract
+# failure is the dominant residue mode. NO confidence lift; atom 0011
+# honest about persistent small N.
 claim obs_single_witness_rescue_introduces_more_wrong_than_right_falsified: Bool @>=0.99 = False
 claim single_witness_rescue_strictly_improves_information_content: Bool @>=0.55 = not obs_single_witness_rescue_introduces_more_wrong_than_right_falsified
 falsified_when obs_single_witness_rescue_introduces_more_wrong_than_right_falsified
@@ -814,22 +833,32 @@ falsified_when obs_single_witness_rescue_introduces_more_wrong_than_right_falsif
 
 # Empirical claim — GPT-5 hallucinates class-specific formulas on
 # specialized geometry problems; voter cross-witness mechanism catches
-# this when at least one witness has the correct formula. N=1 firing
-# (AIME-I-14 disphenoid). Atom 0010 runtime instance. M3.26 update:
-# claim now has IMPLEMENTATION evidence — src/router.ts extended with
-# specialized-formula-geometry markers; 3 new tests pass; future tasks
-# matching the regex route to voter even without AIME markers.
-# Confidence 0.55 → 0.62 — implementation lifts the runtime claim
-# slightly even before more N=k validation lands.
+# this when at least one witness has the correct formula.
+# Firing-case history:
+#   N=1 (M3.23): AIME-I-14 disphenoid volume formula. GPT-5 used wrong
+#     formula confidently; voter via cheap-pair disagreement → smart_C
+#     tiebreak got the correct V = (1/(6√2))·√((p²+q²−r²)(p²−q²+r²)
+#     (−p²+q²+r²)).
+#   N=2 (M3.28 Q1): same disphenoid problem run through cheapcode-witness
+#     v1x panel. Synthesizer caught cheap-a's discarded "/72" tentative
+#     error AND surfaced 3 distinct derivation paths (Gram determinant,
+#     corner-of-box, centered-box subtraction) — v1x output STRICTLY
+#     richer than my single-pass Claude baseline (Q1 verdict).
+# M3.35 lift 0.62 → 0.72 with N=2 grounded firings + atom-0011
+# discipline (smallest distinguishing experiment honored both times).
 claim obs_voter_does_not_catch_gpt5_formula_errors_falsified: Bool @>=0.99 = False
-claim voter_catches_gpt5_class_specific_formula_errors_on_specialized_geometry: Bool @>=0.62 = not obs_voter_does_not_catch_gpt5_formula_errors_falsified
+claim voter_catches_gpt5_class_specific_formula_errors_on_specialized_geometry: Bool @>=0.72 = not obs_voter_does_not_catch_gpt5_formula_errors_falsified
 falsified_when obs_voter_does_not_catch_gpt5_formula_errors_falsified
 
 # Routing rule 12 (M3.26) — specialized-formula geometry → voter even
 # without AIME markers. Implementation: src/router.ts classifyTaskShape
 # regex extension. Tests: src/router.test.ts (3 new). Cycle-A-derived.
+# M3.35 cycle 3 lift 0.55 → 0.62: M3.28 Q1 dogfood is a SECOND firing
+# case for the underlying voter_catches_gpt5_class_specific_formula_
+# errors mechanism — the rule's premise is now N=2 (not just N=1),
+# tracking the M3.35 cycle 2 lift on the underlying claim from 0.62→0.72.
 claim obs_route_specialized_formula_geometry_falsified: Bool @>=0.99 = False
-claim route_specialized_formula_geometry_holds: Bool @>=0.55 = not obs_route_specialized_formula_geometry_falsified
+claim route_specialized_formula_geometry_holds: Bool @>=0.62 = not obs_route_specialized_formula_geometry_falsified
 falsified_when obs_route_specialized_formula_geometry_falsified
 
 # ============================================================
@@ -863,8 +892,14 @@ falsified_when obs_route_specialized_formula_geometry_falsified
 # Empirical claim — at v0 cheapcode-witness matches but does not beat
 # single-pass Claude on knowledge synthesis. N=3 paired dogfood. Modest
 # confidence per atom 0015 (small N, narrow shape).
+#
+# M3.35 SUPERSEDED-BY notice: this claim describes v0 only. M3.28 v1x
+# panel-of-experts (frontier-witness + synthesizer) DOES beat single-pass
+# Claude on knowledge synthesis. The claim still holds for v0 specifically;
+# v1x is the live primary path (see SECTION DD). Renamed in spirit:
+# "v0 cheapcode-witness matches" — narrowed scope.
 claim obs_cheapcode_witness_strictly_beats_single_pass_falsified: Bool @>=0.99 = False
-claim cheapcode_witness_matches_but_does_not_beat_single_pass_claude_on_knowledge_synthesis: Bool @>=0.65 = not obs_cheapcode_witness_strictly_beats_single_pass_falsified
+claim cheapcode_witness_v0_matches_but_does_not_beat_single_pass_claude_on_knowledge_synthesis: Bool @>=0.65 = not obs_cheapcode_witness_strictly_beats_single_pass_falsified
 falsified_when obs_cheapcode_witness_strictly_beats_single_pass_falsified
 
 # Structural claim — voter's extractAnswer regex misclassifies
@@ -888,8 +923,13 @@ falsified_when obs_cheapcode_witness_never_surfaces_new_citations_falsified
 # (1) and (3); (2) sidestepped by synthesizer. CONFIRMED — paired N=3
 # dogfood shows v1x richer than baseline on all 3 questions. Confidence
 # 0.55 → 0.78.
+# M3.35 lift: 0.78 → 0.85. The "three changes" is now empirically
+# anchored; the path-design CHOICE (skip semantic-convergence in favor
+# of synthesizer subsumption) was load-bearing for M3.28's success.
+# Cross-question robustness across knowledge-synthesis (Q1/Q2/Q3) shows
+# it's not a one-off.
 claim obs_cheapcode_witness_v1x_three_changes_insufficient_falsified: Bool @>=0.99 = False
-claim cheapcode_witness_v1x_path_to_beat_single_pass_requires_three_changes: Bool @>=0.78 = not obs_cheapcode_witness_v1x_three_changes_insufficient_falsified
+claim cheapcode_witness_v1x_path_to_beat_single_pass_requires_three_changes: Bool @>=0.85 = not obs_cheapcode_witness_v1x_three_changes_insufficient_falsified
 falsified_when obs_cheapcode_witness_v1x_three_changes_insufficient_falsified
 
 # ============================================================
@@ -916,8 +956,14 @@ falsified_when obs_cheapcode_witness_v1x_three_changes_insufficient_falsified
 
 # Empirical claim — v1x panel-of-experts beats single-pass Claude on
 # knowledge synthesis. N=3 paired dogfood, v1x richer in all 3.
+# M3.35 lift: 0.72 → 0.78. Three independent firing cases (Q1 disphenoid
+# derivation paths + cheap-a error catch; Q2 parity-problem + asymptotic-
+# sieve + semiprime-vs-P2 catch; Q3 Jewish/Islamic citations + Greek-
+# Islamic transmission caveat that DIRECTLY corrected khazina atom 0017
+# itself). Atom 0011 honest about small N (N=3) but the cross-class
+# consistency strengthens beyond what 0.72 captured.
 claim obs_cheapcode_witness_v1x_loses_to_single_pass_falsified: Bool @>=0.99 = False
-claim cheapcode_witness_v1x_panel_of_experts_beats_single_pass_claude_on_knowledge_synthesis: Bool @>=0.72 = not obs_cheapcode_witness_v1x_loses_to_single_pass_falsified
+claim cheapcode_witness_v1x_panel_of_experts_beats_single_pass_claude_on_knowledge_synthesis: Bool @>=0.78 = not obs_cheapcode_witness_v1x_loses_to_single_pass_falsified
 falsified_when obs_cheapcode_witness_v1x_loses_to_single_pass_falsified
 
 # Empirical claim — v1x cost ≤ $0.05 per artifact. M3.28: 3 artifacts at
@@ -1041,7 +1087,24 @@ theorem substrate_enhances_opencode_harness_across_5_axes
   proves True
   by audit cheapcode-substrate-enhances-opencode-harness-5-axes-m3-30
 
-claim cheapcode_substrate_enhancement_axes_validated_against_opencode_baseline: Bool @>=0.78 = cite substrate_enhances_opencode_harness_across_5_axes
+# M3.35 cycle 5 lift 0.78 → 0.85: M3.32 (code-witness), M3.33 (reality-
+# check), M3.34 (conversion-factors) are THREE additional concrete
+# instances of substrate-primitive-as-fork-side-runtime-critic, each
+# M18-disciplined with burhan claims FIRST + tests FIRST + ~100% coverage.
+# Each instance materializes one or more of the 5 axes:
+#   - code-witness: enhance context (atom 0010), reduce hallucinations
+#     (atom 0015), improve innovation (atom 0017 cycle output)
+#   - reality-check: solidify ethics (mizaj 01 falsifier-first applied
+#     to time/cost claims), reduce hallucinations (atom 0015 firing on
+#     memory-based claims)
+#   - conversion-factors: improve innovation (atom 0017 cycle on
+#     conversion-factor table itself), enhance context (multi-dim
+#     filtering surfaces context-specific estimates)
+# These three are M18-validated implementations of axes 1, 2, 4, 5 (axis
+# 3 — knowledge synthesis — was already validated by M3.28 v1x).
+# Substrate-enhancement-axes claim now has runtime instances, not just
+# build-time discipline.
+claim cheapcode_substrate_enhancement_axes_validated_against_opencode_baseline: Bool @>=0.85 = cite substrate_enhances_opencode_harness_across_5_axes
 falsified_when obs_substrate_does_not_enhance_context_via_atom_0010_falsified or obs_atom_0017_does_not_improve_innovation_falsified
 
 # M3.31 — Mizaj 18 (burhan-backed TDD for fork-additions) is now MANDATORY

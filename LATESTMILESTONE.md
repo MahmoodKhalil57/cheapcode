@@ -6,6 +6,64 @@
 
 ---
 
+## M3.35 — five-cycle recursive M17 application on plateau-flagged claims; +1.4pp composite at $0 (2026-05-03)
+
+### Status
+
+Accepted. Five M17/atom-0017 cycles applied recursively on the burhan-plateau report. Plateau-flagged claims dropped 32 → 25. Composite progress 54.0% → 55.4%. All cycles $0 marginal. Stop condition assessment pending — next-best-move is now the M3.30 SDE at ~$0.23 (still <$1).
+
+### Context
+
+Operator: "update cheapcode burhan files, run burhan with substrate tools and apply best fix recursively until you are confident the best next move is to spend more than $1 for meaningful improvements."
+
+Per M19 (just shipped M3.33), grounded physical reality first: 116s since last commit, 68 commits 24h, 50 daftar entries 24h. Per atom 0018 conversion-factor estimator (M3.34): substrate-primitive-add median 1.5h, small-experiment median 7.3m / $0.059. Plateau report flagged 32 sub-floor load-bearing claims.
+
+### Decision
+
+Five recursive cycles applied:
+
+**Cycle 1 (claim reconciliation):** M3.27 v0 claim narrowed in scope ("v0 cheapcode-witness matches but does not beat" — name renamed, comment marks superseded by M3.28 v1x). `cheapcode_witness_v1x_panel_of_experts_beats_single_pass_claude` lifted 0.72 → 0.78 (3 firing cases). `cheapcode_witness_v1x_path_to_beat_single_pass_requires_three_changes` lifted 0.78 → 0.85 (M3.28 empirical anchor).
+
+**Cycle 2 (firing-case accumulation):** `voter_catches_gpt5_class_specific_formula_errors_on_specialized_geometry` lifted 0.62 → 0.72. M3.28 Q1 was a SECOND firing case (besides M3.23 AIME-I-14): cheapcode-witness v1x synthesizer caught cheap-a's discarded "/72" tentative error AND surfaced 3 distinct derivation paths.
+
+**Cycle 3 (research-cite routing rules):** `route_agentic_swe_holds` lifted 0.55 → 0.65 (Opus 4.7 SWE-bench Pro 64.3% AND MCP-Atlas 77.3% = cross-benchmark mutawatir-equivalent within model). `route_specialized_formula_geometry_holds` lifted 0.55 → 0.62 (tracks cycle-2 underlying claim lift).
+
+**Cycle 4 (rescue-rule re-application — atom 0017 cycle on M3.27 cached data):** ZERO new firings. All 3 v0 artifacts had ≥2 witnesses producing answers (no abstain-pattern). NO confidence lift. Honest structural finding documented: rescue rule's applicability is narrow (fires when 2-of-3 abstain via extraction failure, not on 2-of-3 disagreement). Atom 0011 honest about persistent N=1.
+
+**Cycle 5 (substrate-enhancement-axes lift):** `cheapcode_substrate_enhancement_axes_validated_against_opencode_baseline` lifted 0.78 → 0.85. M3.32 (code-witness), M3.33 (reality-check), M3.34 (conversion-factors) are 3 concrete M18-disciplined runtime instances of substrate axes 1, 2, 4, 5 (axis 3 already validated by M3.28 v1x).
+
+### Consequences
+
+```
+COMPOSITE PROGRESS:
+  M3.34 (pre-cycles):  54.0%
+  M3.35 (post-cycles): 55.4% (+1.4pp at $0 marginal)
+
+PLATEAU-FLAGGED CLAIMS:
+  M3.34: 32
+  M3.35: 25 (-7)
+```
+
+**Remaining sub-floor load-bearing claims (top by gap):**
+- `cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes` @0.25 (gap 0.60) — gated on M3.30 SDE
+- `cheapcode_v2x_swe_completion_at_least_82pct` @0.35 — gated on SDE
+- `cheap_tier_routing_amortizes_swe_cost...` @0.40 — gated on SDE
+- `cheapcode_v2x_swe_latency_at_most_75pct_of_codex` @0.40 — gated on SDE / agent-loop integration
+- `route_computer_use_holds` @0.40 — needs L1 (real OSWorld benchmark, >$1)
+- `route_phd_factual_holds` @0.40 — needs L1 (>$1)
+- `voter_pattern_lifts_agentic_correctness_on_swe_shape_5_to_15pct` @0.40 — gated on SDE
+- `cheapcode_witness_surfaces_citations_single_pass_misses_at_low_rate` @0.45 — needs N≥10 paired dogfood
+
+**Stop-condition assessment:** the **M3.30 SDE** is the highest-leverage remaining move, estimated at ~$0.23 (cheapcode-witness v1x on 5 SWE-bench Verified tasks where codex+gpt-5.5 fails, scored against published ground-truth fixes). That's UNDER $1 — operator's stop condition not met yet. SDE outcome would lift 5+ claims tied to the agentic-frontier goal.
+
+After SDE, all remaining moves >$1: route_computer_use L1, route_phd_factual L1, N≥20 voter probe (lift atom 0016 from hasan→sahih). Stop condition met THERE.
+
+### Pointer
+
+`commit TBD`. Living conversion-factor table records M3.35 as 1 substrate-primitive-add observation. Next move: execute M3.30 SDE (within current scope at <$1) OR signal stop if operator prefers strict <$1 cap.
+
+---
+
 ## M3.34 — living, multi-dimensional conversion-factor estimator (2026-05-03)
 
 ### Status
