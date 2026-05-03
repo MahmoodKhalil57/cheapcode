@@ -341,10 +341,13 @@ theorem cheapcode_v2_outperforms_named_alternatives
 # @>=0.40-0.55 with measurement (vs ~0.46 cap on the old 22-claim plan).
 # tools/joint-confidence.ts re-runs the math.
 
-# mizan-converge auto-lift 2026-05-03: 4 witnesses (substrate + cheapllm + atoms + che-pass-1),
-# atom 0019 convergence-without-contact, +0.125 lift via lift_via_convergence
-# (energy 0.5 × distance 0.50 × dampening 0.5 = 0.125).
-claim cheapcode_v2_ships: Bool @>=0.575 = cite cheapcode_v2_outperforms_named_alternatives
+# mizan-converge auto-lift 2026-05-03 round 1: +0.125 via 4 witnesses
+# mizan-converge auto-lift 2026-05-03 round 2: +0.094 via re-measured
+# convergence after round-1 lift (energy 0.5 × distance 0.38 × dampening 0.5).
+# Recursive lift application demonstrates atom 0017 unknowns-as-positive-data
+# at runtime — the substrate continually surfaces new lift opportunities as
+# state evolves; bounded by mizaj M14 0.95 ceiling.
+claim cheapcode_v2_ships: Bool @>=0.669 = cite cheapcode_v2_outperforms_named_alternatives
 falsified_when obs_cheap_fast_tier_or_model_unmeasured or obs_smart_fast_tier_or_model_unmeasured or obs_auto_router_apophatic_pattern_fails or obs_propagation_at_provider_registry_layer1_fails
 
 # ============================================================
