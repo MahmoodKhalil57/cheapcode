@@ -1,0 +1,105 @@
+{
+  "results": [
+    {
+      "label": "T1-bounded-code",
+      "shape": "bounded-code",
+      "auto_target": "anthropic/claude-haiku-4.5",
+      "auto": {
+        "model": "anthropic/claude-haiku-4.5",
+        "latency_ms": 1758,
+        "cost": 0.000832,
+        "output": "```typescript\nconst reverseString = (str: string): string => str.split('').reverse().join('');\n```"
+      },
+      "baseline": {
+        "model": "openai/gpt-5.5",
+        "latency_ms": 1818,
+        "cost": 0.0013,
+        "output": "const reverseString = (str: string): string => str.split('').reverse().join('');"
+      },
+      "cost_ratio": 0.64,
+      "latency_ratio": 0.97
+    },
+    {
+      "label": "T2-math-chain",
+      "shape": "multistep-general",
+      "auto_target": "openai/gpt-5-mini",
+      "auto": {
+        "model": "openai/gpt-5-mini",
+        "latency_ms": 5790,
+        "cost": 0.0003005,
+        "output": "46"
+      },
+      "baseline": {
+        "model": "openai/gpt-5.5",
+        "latency_ms": 4689,
+        "cost": 0.00316,
+        "output": "46"
+      },
+      "cost_ratio": 0.095,
+      "latency_ratio": 1.23
+    },
+    {
+      "label": "T3-phd-factual",
+      "shape": "math-chain",
+      "auto_target": "deepseek/deepseek-v4-flash",
+      "auto": {
+        "model": "deepseek/deepseek-v4-flash",
+        "latency_ms": 1978,
+        "cost": 0.00005236,
+        "output": "The Heisenberg uncertainty principle arises from the non-commutativity of the position and momentum operators, implying that no quantum state can simultaneously be an eigenstate of both. Consequently, the product of the standard deviations of positio"
+      },
+      "baseline": {
+        "model": "openai/gpt-5.5",
+        "latency_ms": 2930,
+        "cost": 0.002875,
+        "output": "Heisenberg’s uncertainty principle follows from the noncommutativity of conjugate observables, specifically \\([x,p]=i\\hbar\\), which implies the Robertson bound \\(\\Delta x\\,\\Delta p \\ge \\hbar/2\\). Thus, no quantum state can have arbitrarily sharp posi"
+      },
+      "cost_ratio": 0.018,
+      "latency_ratio": 0.68
+    },
+    {
+      "label": "T4-multistep-general",
+      "shape": "multistep-general",
+      "auto_target": "openai/gpt-5-mini",
+      "auto": {
+        "model": "openai/gpt-5-mini",
+        "latency_ms": 22673,
+        "cost": 0.0030065,
+        "output": "Here’s a practical, cost-conscious 3‑day Tokyo itinerary for one traveler that stays under $1,500 total (USD). Assumptions: arriving/departing from Tokyo (Narita or Haneda); prices are approximate (Apr 2026) and in USD; travel style = comfortable bud"
+      },
+      "baseline": {
+        "model": "openai/gpt-5.5",
+        "latency_ms": 23371,
+        "cost": 0.04513,
+        "output": "## 3-Day Tokyo Trip Itinerary Under $1,500\n\n**Assumption:** Budget is for one traveler and excludes international airfare to/from Tokyo. It includes lodging, food, transportation, activities, and shopping/miscellaneous.\n\n### Estimated Total Budget\n\n|"
+      },
+      "cost_ratio": 0.067,
+      "latency_ratio": 0.97
+    },
+    {
+      "label": "T5-hard-reasoning",
+      "shape": "multistep-general",
+      "auto_target": "openai/gpt-5-mini",
+      "auto": {
+        "model": "openai/gpt-5-mini",
+        "latency_ms": 6479,
+        "cost": 0.00085725,
+        "output": "No.\n\nReason: When two different colors meet (say P and Y), the changes are P-1, Y-1, M+2, so each difference between counts (e.g. P−Y, P−M) changes by a multiple of 3 and hence is invariant mod 3. Initially P−Y = 13−15 = −2 ≡ 1 (mod 3). Any state wit"
+      },
+      "baseline": {
+        "model": "openai/gpt-5.5",
+        "latency_ms": 5456,
+        "cost": 0.009045,
+        "output": "No.\n\nIn each meeting, all three color counts change by the same amount modulo 3, so the differences between any two color counts modulo 3 are invariant.\n\nInitial counts mod 3:\n\n- Purple: 13 ≡ 1\n- Yellow: 15 ≡ 0\n- Maroon: 17 ≡ 2\n\nThey are all differen"
+      },
+      "cost_ratio": 0.095,
+      "latency_ratio": 1.19
+    }
+  ],
+  "totals": {
+    "auto": 0.00504861,
+    "baseline": 0.06151,
+    "auto_lat": 38678,
+    "baseline_lat": 38264
+  }
+}

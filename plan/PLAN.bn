@@ -3244,3 +3244,81 @@ theorem lineage_narrative_grounds_practical_discipline_2026_05_03
 
 claim lineage_narrative_section_yy_holds: Bool @>=0.85 = cite lineage_narrative_grounds_practical_discipline_2026_05_03
 falsified_when obs_lineage_narrative_is_decorative_not_load_bearing_falsified or obs_bounded_form_continuously_better_than_previous_adam_instance_unreachable_falsified or obs_three_practices_do_not_jointly_maximize_per_resource_yield_falsified
+
+# ============================================================
+# SECTION ZZ - M3.47 paired empirical anchor (2026-05-03, $0.066)
+#
+# Operator authorized $1 budget with research-first mandate per atom 0018
+# energy-transformation. Research used facts/12 grounded pricing snapshot
+# (zero new research cost), pre-registered N=5 paired test, executed
+# cheapcode-auto vs gpt-5.5-direct-baseline on diverse practical-class
+# shapes via real OpenRouter dispatch.
+#
+# RESULTS (full receipt at runs/m3-47-paired-auto-vs-baseline/summary.json):
+#
+# | Task | Shape | Auto target | Auto $ | Baseline $ | Cost ratio |
+# |------|-------|-------------|--------|------------|------------|
+# | T1 bounded-code | bounded-code | claude-haiku-4.5 | $0.000832 | $0.0013 | 0.64× |
+# | T2 math-chain | multistep-general* | gpt-5-mini | $0.0003 | $0.0032 | 0.095× |
+# | T3 phd-factual | math-chain* | deepseek-v4-flash | $0.0001 | $0.0029 | 0.018× |
+# | T4 multistep-general | multistep-general | gpt-5-mini | $0.0030 | $0.0451 | 0.067× |
+# | T5 chameleon-puzzle | multistep-general* | gpt-5-mini | $0.0009 | $0.0090 | 0.095× |
+# | TOTAL | — | — | $0.0050 | $0.0615 | **0.082× (12.2× CHEAPER)** |
+#
+# * = router classification quirks honestly disclosed (atom 0013):
+#   T2 "compute sum of digits" classified as multistep-general not
+#   math-chain (signal "default-no-specific-signal-matched");
+#   T3 "Heisenberg uncertainty" classified as math-chain via "ℏ/2"
+#   symbol detection rather than phd-factual via PhD-keywords;
+#   T5 chameleon-puzzle classified as multistep-general — the
+#   hard-reasoning voter pattern did NOT fire because keywords
+#   "AIME"/"competition"/"olympiad" weren't present.
+#
+# CORRECTNESS — all 5 tasks produced semantically equivalent outputs
+# between auto-tier dispatch and gpt-5.5 baseline (manual verification):
+#   T1: identical TypeScript code
+#   T2: both "46"
+#   T3: both correct uncertainty-principle statement (Δx·Δp ≥ ℏ/2)
+#   T4: both produced structured 3-day Tokyo itineraries under $1500
+#   T5: both "No" with mod-3-invariant reasoning (chameleon 13/15/17
+#       → 1/0/2 mod 3, residues distinct so all-same-color unreachable)
+#
+# LATENCY: total 38678ms auto vs 38264ms baseline — 1.01× ratio (parity)
+#
+# COST WIN per task model: bounded-code (haiku-4.5) was 0.64× cheaper —
+# smaller than other shapes because haiku-4.5 already costs ~$0.80/M.
+# Other shapes routed to deepseek-v4-flash ($0.07/M in / $1.10/M out)
+# or gpt-5-mini ($0.40/M in / $1.60/M out) — 10-50× cheaper per call.
+# ============================================================
+
+# Sahih-validated cost-dominance on practical-class N=5 paired
+claim obs_cheapcode_auto_decisively_cheaper_than_gpt_5_5_on_practical_n_5_falsified: Bool @>=0.99 = False
+claim cheapcode_auto_decisively_cheaper_than_gpt_5_5_baseline_on_practical_n_5_at_12_2x_ratio_2026_05_03: Bool @>=0.85 = not obs_cheapcode_auto_decisively_cheaper_than_gpt_5_5_on_practical_n_5_falsified
+falsified_when obs_cheapcode_auto_decisively_cheaper_than_gpt_5_5_on_practical_n_5_falsified
+
+# Sahih-validated correctness parity
+claim obs_cheapcode_auto_correctness_parity_with_gpt_5_5_falsified: Bool @>=0.99 = False
+claim cheapcode_auto_correctness_parity_with_gpt_5_5_baseline_on_practical_n_5_2026_05_03: Bool @>=0.85 = not obs_cheapcode_auto_correctness_parity_with_gpt_5_5_falsified
+falsified_when obs_cheapcode_auto_correctness_parity_with_gpt_5_5_falsified
+
+# Honest atom-0013 disclosure: faster-than-gpt-5.5 claim FALSIFIED at 1.01× parity
+claim obs_cheapcode_auto_uniformly_faster_than_gpt_5_5_falsified: Bool @>=0.99 = True
+claim cheapcode_auto_uniformly_faster_than_gpt_5_5_on_practical_n_5: Bool @>=0.10 = not obs_cheapcode_auto_uniformly_faster_than_gpt_5_5_falsified
+falsified_when obs_cheapcode_auto_uniformly_faster_than_gpt_5_5_falsified
+
+# Router classifier-gap finding (atom 0017 byproduct):
+# Math-symbol detection over-fires; PhD-keywords miss "Heisenberg
+# uncertainty"; chameleon-class hard-reasoning not detected.
+# Future v2.x router work: extend classifier patterns per these gaps.
+claim obs_router_classifier_perfectly_classified_n_5_falsified: Bool @>=0.99 = True
+claim router_classifier_perfectly_classified_n_5: Bool @>=0.10 = not obs_router_classifier_perfectly_classified_n_5_falsified
+falsified_when obs_router_classifier_perfectly_classified_n_5_falsified
+
+# Composed: bounded cheapcode goal — cheaper + parity correctness + latency parity
+theorem cheapcode_v2_bounded_form_empirically_validated_via_paired_n_5_2026_05_03
+  assume cheapcode_auto_decisively_cheaper_than_gpt_5_5_baseline_on_practical_n_5_at_12_2x_ratio_2026_05_03 and cheapcode_auto_correctness_parity_with_gpt_5_5_baseline_on_practical_n_5_2026_05_03 and mizan_check_action_safety_pre_gate_blocks_dangerous_action_with_explicit_reasons_validated_2026_05_03
+  proves True
+  by audit cheapcode-section-ZZ-paired-n-5-2026-05-03
+
+claim cheapcode_v2_bounded_form_empirically_validated_holds: Bool @>=0.85 = cite cheapcode_v2_bounded_form_empirically_validated_via_paired_n_5_2026_05_03
+falsified_when obs_cheapcode_auto_decisively_cheaper_than_gpt_5_5_on_practical_n_5_falsified or obs_cheapcode_auto_correctness_parity_with_gpt_5_5_falsified or obs_action_safety_pre_gate_does_not_block_dangerous_action_falsified
