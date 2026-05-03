@@ -6,6 +6,60 @@
 
 ---
 
+## M3.41 — M3.38 partial-fix HONESTLY constrained; M3.15 NOT closed (atom 0015 fires) (2026-05-03)
+
+### Status
+
+Accepted with HONEST ROLLBACK. End-to-end opencode CLI test confirmed M3.38's "AI SDK ProviderV2 contract conformance fix" did NOT actually resolve M3.15 ProviderInitError. Atom 0015 fires on M3.38's `m3_38_provider_shape_fix_resolves_m3_15_provider_init_error_for_build_agent @0.78` confidence claim — flipped to @0.10 + observation flag flipped to True.
+
+### Context
+
+Operator "continue" after M3.40. Per M19 + atom 0018, ranked highest-leverage <$1 moves: (1) end-to-end M3.15 verification ~$0.001, (2) N=8 class-specific-formula concentration test ~$0.50. Started with (1) since it's cheapest + most concrete v1.0 polish win.
+
+### Decision (and its honest constraint)
+
+Built isolated test environment `/tmp/m3-41-opencode-smoke/` with cheapcode-ai-sdk-provider-1.0.0.tgz packed + installed. Configured opencode.json. Ran:
+
+```
+/home/mk/.opencode/bin/opencode run --model cheapcode/cheap "Say hello"
+```
+
+Result: **`ProviderInitError` still fires.** Same opaque error as before M3.38 fix.
+
+Log inspection revealed:
+- Title-agent (small=true): getSDK 394ms, completes successfully
+- Build-agent (small=false): getSDK 91ms (cached SDK, fast lookup), THEN error fires 1ms later at session.processor
+
+Programmatic dispatch via direct AI SDK `generateText` works fine (verified in `/tmp/m3-41-opencode-smoke` bun -e test). The provider has `specificationVersion = "v3"`, `languageModel`/`chatModel`/`completionModel`/`embeddingModel`/`textEmbeddingModel`/`imageModel` all return correct types or throw cleanly per atom 0007.
+
+WebFetched opencode source (v1.14.33): the ProviderInitError throw site wraps `resolveSDK()` which loads our package via dynamic import + finds `createCheapcodeProvider` correctly. The throw fires AFTER `getSDK status=completed`, in a downstream `getLanguage()` call path that we couldn't trace fully without binary symbol info.
+
+Per atom 0011 (smallest distinguishing) + atom 0018 (don't burn budget on diminishing-returns debug): **stopped at ~30 min wall time investigation, ~$0.001 spend.**
+
+### Consequences
+
+**Honest claim updates (PLAN.bn):**
+- `m3_38_provider_shape_fix_resolves_m3_15_provider_init_error_for_build_agent`: 0.78 → **0.10** + observation flag flipped to True
+- `m3_41_e2e_opencode_cli_dispatch_works_for_build_agent`: NEW @0.05 + observation flag flipped to True
+- M3.38's structural improvements (provider shape conformance) ARE real — 96/96 unit tests pass; programmatic dispatch works; provider satisfies AI SDK v3 ProviderV2 contract per inspection. But that's NOT the same as opencode-CLI-build-agent compatibility.
+
+**M3.15 disposition**: still open. v1.x follow-up requiring opencode source-level debug we don't have access to (binary obfuscated; chunk-id `1224dpsa.js:565:71871`).
+
+**Workaround stays valid**: programmatic dispatch via direct AI SDK `generateText` works. Operators wanting to use cheapcode TODAY can write a wrapper script (per `runs/phase-3-smoke/programmatic-dispatch-probe.ts` pattern) — `opencode run` CLI integration remains broken for build-agent.
+
+**Cost analysis:**
+- Operator authorized: $2.00
+- Total spent across this round (M3.37+M3.38+M3.39+M3.40+M3.41): $0.118
+- Remaining: $1.88 (94% under-budget)
+
+**Decision NOT to spend remaining $1.88 on Phase 2 (N=8 concentration test):** M3.40 already surfaced that frontier is genuinely smart on hard reasoning — the 1-firing-out-of-7 strict-win rate suggests the concentration claim may be small-N artifact, not a robust pattern. Burning $0.50 on N=8 has uncertain expected information value. Atom 0011 + atom 0018: stop.
+
+### Pointer
+
+`commit TBD`. The substrate caught itself again — atom 0015 fired honestly on M3.38's logical reasoning being insufficient for empirical resolution. Atom 0017 byproduct cycle: M3.41 residue (fast-getSDK + 1ms-later-error) suggests the issue is in how opencode invokes a non-shape method on the model object during build-agent setup. v1.x follow-up: trace opencode's session.processor code path with build-agent-specific options.
+
+---
+
 ## M3.40 — research-anchored sahih lift via energy transformation (operator "use research → reduce experiment cost"; $0.075 spent) (2026-05-03)
 
 ### Status

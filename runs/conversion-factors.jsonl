@@ -10,3 +10,4 @@
 {"timestamp_iso":"2026-05-03T14:32:27.866Z","category":"small-experiment","time_ms":200000,"cost_usd":0.042,"agent_id":"claude-opus-4.7","scope_tags":["dominance-test","paired-n3","mixed-shape","m3-39"]}
 {"timestamp_iso":"2026-05-03T15:00:04.852Z","category":"small-experiment","time_ms":280000,"cost_usd":0.075,"agent_id":"claude-opus-4.7","scope_tags":["research-anchored","paired-n3","m3-40","sahih-via-energy-transformation"]}
 {"timestamp_iso":"2026-05-03T15:00:04.872Z","category":"research-query","time_ms":1800000,"cost_usd":0,"agent_id":"claude-opus-4.7","scope_tags":["facts-14-mutawatir-synthesis","arxiv-fetches-3","m3-40"]}
+{"timestamp_iso":"2026-05-03T15:21:07.978Z","category":"research-query","time_ms":1800000,"cost_usd":0.001,"agent_id":"claude-opus-4.7","scope_tags":["m3-41-opencode-cli-debug","m3-15-still-open","atom-0015-fired"]}

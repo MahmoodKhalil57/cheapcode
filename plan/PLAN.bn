@@ -1376,8 +1376,35 @@ claim embedding_and_image_models_throw_not_supported_per_atom_0007: Bool @>=0.92
 falsified_when obs_embedding_and_image_stubs_silently_return_falsified
 
 claim obs_m3_38_fix_does_not_resolve_m3_15_provider_init_error_falsified: Bool @>=0.99 = False
-claim m3_38_provider_shape_fix_resolves_m3_15_provider_init_error_for_build_agent: Bool @>=0.78 = not obs_m3_38_fix_does_not_resolve_m3_15_provider_init_error_falsified
-falsified_when obs_m3_38_fix_does_not_resolve_m3_15_provider_init_error_falsified
+claim m3_38_provider_shape_fix_resolves_m3_15_provider_init_error_for_build_agent: Bool @>=0.10 = obs_m3_38_fix_does_not_resolve_m3_15_provider_init_error_falsified
+falsified_when not obs_m3_38_fix_does_not_resolve_m3_15_provider_init_error_falsified
+
+# M3.41 HONEST UPDATE: end-to-end opencode CLI test via timeout 60
+# /home/mk/.opencode/bin/opencode run --model cheapcode/cheap "..."
+# CONFIRMED ProviderInitError still fires for build-agent (small=false).
+# Title-agent (small=true) succeeds; build-agent fails 1ms after getSDK
+# completes successfully. Atom 0015 fires: M3.38's logical reasoning
+# about AI SDK ProviderV2 contract requirements was correct shape-wise
+# (96/96 unit tests pass; provider exposes specVersion+chatModel+etc.)
+# but opencode rejects the provider for some other reason at session.
+# processor level. Inner cause is wrapped + stripped by opencode's
+# error display. Without deeper opencode source-level debug (binary
+# obfuscated; relevant chunk-id is 1224dpsa.js:565:71871), root cause
+# unknown.
+#
+# Honest disposition: M3.15 remains v1.x follow-up. M3.38 added the
+# correct provider shape (no harm; structural improvement) but did NOT
+# achieve the M3.15 close. Per atom 0013 (calibration-as-credential),
+# the partial-fix narrative stays visible.
+#
+# Programmatic dispatch confirmed working via direct AI SDK generateText
+# (runs/phase-3-smoke/programmatic-dispatch-probe.ts AND M3.41
+# /tmp/m3-41-opencode-smoke programmatic test). Workaround: agents that
+# can use the SDK programmatically can call cheapcode without opencode
+# CLI integration.
+claim obs_m3_41_e2e_opencode_cli_dispatch_succeeds_for_build_agent: Bool @>=0.99 = False
+claim m3_41_e2e_opencode_cli_dispatch_works_for_build_agent: Bool @>=0.05 = obs_m3_41_e2e_opencode_cli_dispatch_succeeds_for_build_agent
+falsified_when not obs_m3_41_e2e_opencode_cli_dispatch_succeeds_for_build_agent
 
 # ============================================================
 # SECTION JJ - M3.39 dominance test: paired N=3 mixed-shape evidence
