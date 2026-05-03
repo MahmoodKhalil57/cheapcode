@@ -78,14 +78,36 @@ fi
 
 # 5. LoC count for surgical-fork budget tracking
 echo
-echo "Step 5: LoC for cell #14 + #18 budget tracking"
+echo "Step 5: LoC tracking against SPEC cell #14 + #18"
 LOC_TIERS=$(wc -l < "$ROOT/src/cheapcode-tiers.ts")
+LOC_WRAPPER=0
+[ -f "$ROOT/src/auto-wrapper.ts" ] && LOC_WRAPPER=$(wc -l < "$ROOT/src/auto-wrapper.ts")
 LOC_TOTAL_SRC=$(find "$ROOT/src" -name "*.ts" 2>/dev/null | xargs wc -l 2>/dev/null | tail -1 | awk '{print $1}')
 LOC_TOTAL_SRC=${LOC_TOTAL_SRC:-$LOC_TIERS}
 echo "  cheapcode-tiers.ts: $LOC_TIERS LoC"
+echo "  auto-wrapper.ts:    $LOC_WRAPPER LoC"
 echo "  src/ total:         $LOC_TOTAL_SRC LoC"
-echo "  Cell #14 MIN budget: 350 LoC ($([ "$LOC_TOTAL_SRC" -le 350 ] && echo within || echo OVER))"
-echo "  Cell #18 wrapper budget (Phase 2): 350 LoC for MIN tier wrapper"
+echo
+# Cell #14 (total maintained): MIN 500 / EXPECTED 900 / IDEAL 1400
+if [ "$LOC_TOTAL_SRC" -le 500 ]; then
+  echo "  Cell #14 (total): MIN tier (≤500)"
+elif [ "$LOC_TOTAL_SRC" -le 900 ]; then
+  echo "  Cell #14 (total): EXPECTED tier (≤900) — MIN exceeded"
+elif [ "$LOC_TOTAL_SRC" -le 1400 ]; then
+  echo "  Cell #14 (total): IDEAL tier (≤1400) — EXPECTED exceeded"
+else
+  echo "  Cell #14 (total): OVER IDEAL — review required"
+fi
+# Cell #18 (auto wrapper subset): MIN 350 / EXPECTED 700 / IDEAL 1000
+if [ "$LOC_WRAPPER" -le 350 ]; then
+  echo "  Cell #18 (wrapper): MIN tier (≤350)"
+elif [ "$LOC_WRAPPER" -le 700 ]; then
+  echo "  Cell #18 (wrapper): EXPECTED tier (≤700) — MIN exceeded"
+elif [ "$LOC_WRAPPER" -le 1000 ]; then
+  echo "  Cell #18 (wrapper): IDEAL tier (≤1000) — EXPECTED exceeded"
+else
+  echo "  Cell #18 (wrapper): OVER IDEAL — review required"
+fi
 
 echo
 echo "=== Phase 1 build verification complete ==="

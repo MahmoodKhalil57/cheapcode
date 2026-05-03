@@ -29,6 +29,7 @@
  */
 
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
+import { CheapcodeAutoModel, type AutoWrapperConfig } from "./auto-wrapper"
 
 // ============================================================
 // Tier definitions (Phase 0 locked picks)
@@ -84,6 +85,22 @@ export interface CheapcodeProviderOptions {
   longContextThresholdTokens?: number
   /** Optional tag for opencode telemetry (HTTP-Referer / X-Title). */
   appName?: string
+  /**
+   * Auto-tier wrapper configuration. If absent, `auto` falls back to the
+   * `cheap` tier passthrough (Phase 1 behavior). When set, the auto tier
+   * is the structured-reasoning wrapper per SPEC Revision 2026-05-03j.
+   *
+   * The verifierTarget MUST be a different model family than the
+   * smart-tier (per atom 0010 cross-witness honesty pipeline). Default
+   * smart = openai/gpt-5-mini → verifier defaults to anthropic/claude-opus-4
+   * if not specified.
+   */
+  auto?: {
+    enabled?: boolean
+    verifierTarget?: string
+    k?: number
+    maxRetries?: number
+  }
 }
 
 export interface CheapcodeProvider {
@@ -175,14 +192,27 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
     },
   })
 
+  const autoEnabled = options.auto?.enabled ?? true
+  const verifierTarget = options.auto?.verifierTarget ?? "anthropic/claude-opus-4"
+  const k = options.auto?.k ?? 3
+  const maxRetries = options.auto?.maxRetries ?? 1
+
   const provider = ((modelId: string) => {
-    // The AI SDK provider doesn't get the input messages at this stage —
-    // they arrive at generate-time. So we resolve as a stub here using
-    // the primary target, and rely on a wrapping layer for long-context
-    // override at request time.
-    //
-    // Phase 1 simplification: ignore long-context for now; resolve to
-    // primary target. Phase 2 wraps the call to inspect input and route.
+    // Phase 2 (SPEC Revision 2026-05-03j): when modelId === "auto" AND
+    // wrapper is enabled, return the structured-reasoning compound model.
+    // Otherwise fall through to direct OpenRouter passthrough.
+    if (modelId === "auto" && autoEnabled) {
+      const smartTarget = resolveTierTarget("smart", 0, options)
+      const cheapTarget = resolveTierTarget("cheap", 0, options)
+      const cfg: AutoWrapperConfig = {
+        smart: openrouter(smartTarget),
+        cheap: openrouter(cheapTarget),
+        verifier: openrouter(verifierTarget),
+        k,
+        maxRetries,
+      }
+      return new CheapcodeAutoModel(cfg)
+    }
     const target = resolveTierTarget(modelId, 0, options)
     return openrouter(target)
   }) as CheapcodeProvider
@@ -197,18 +227,24 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
 }
 
 // ============================================================
-// Phase 2 hook (NOT YET IMPLEMENTED — placeholder for wrapper)
+// Phase 2 status — wrapper IMPLEMENTED (M3.10), EXPERIMENT-1 Arm A pending
 // ============================================================
 
 /**
- * Phase 2 will implement the auto-tier structured-reasoning wrapper here:
- *   1. Detect task type (long-context / hard-reasoning / routine)
- *   2. Plan-decompose with smart-tier (1× frontier call)
- *   3. Execute leaves at cheap-tier in parallel
- *   4. Best-of-K=3 frontier synthesis
- *   5. Cross-MODEL verification (different frontier model than synthesizer)
- *   6. Retry-with-feedback if verifier disagrees
+ * Phase 2 wrapper implemented in src/auto-wrapper.ts (M3.10):
+ *   1. Plan-decompose with smart-tier (1× frontier call)
+ *   2. Execute leaves at cheap-tier in parallel
+ *   3. Best-of-K=3 frontier synthesis
+ *   4. Cross-MODEL verification (different frontier model than synthesizer)
+ *   5. Retry-with-feedback if verifier disagrees
  *
- * Until Phase 2 + EXPERIMENT-1 PASS, `auto` falls back to `cheap`.
+ * EXPERIMENT-1 Arm A (3-axis dominance test on TB-multistep) pending —
+ * needs operator OpenRouter BYOK for ~$5 spend per SPEC Revision 2026-05-03j.
+ *
+ * Arm B (substrate-runtime-verifier marginal lift) DEFERRED to v1.x per
+ * M3.2 retrospective + M3.9 — TB-3 failure-mode mismatch with substrate's
+ * reasoning-with-citations strength. Atom 0016 build-time interpretation
+ * IS validated; runtime interpretation untested.
  */
-export const PHASE_2_AUTO_WRAPPER_PENDING = true as const
+export const PHASE_2_AUTO_WRAPPER_IMPLEMENTED = true as const
+export const EXPERIMENT_1_ARM_A_PENDING = true as const

@@ -25,7 +25,7 @@
           "tools": true
         },
         "auto": {
-          "name": "auto (Phase 1 stub → cheap; Phase 2 wraps)",
+          "name": "auto (Phase 2 wrapper: plan-decompose + best-of-K + cross-model verify)",
           "tools": true
         }
       }
