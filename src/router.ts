@@ -30,6 +30,7 @@ export type TaskShape =
   | "classification"
   | "subsecond-latency"
   | "closed-book"
+  | "hard-reasoning"
   | "multistep-general"
 
 export interface ClassifierResult {
@@ -41,10 +42,12 @@ export interface ClassifierResult {
 export interface RouteDecision {
   shape: TaskShape
   signal: string
-  /** OpenRouter model id to dispatch to, OR null if compound-wrapper invoked. */
+  /** OpenRouter model id to dispatch to, OR null if compound or voter invoked. */
   target_model: string | null
   /** True iff the shape's routing rule says compound helps. Default: false. */
   use_compound: boolean
+  /** True iff the shape's routing rule says cross-witness voter helps (M3.18). */
+  use_voter: boolean
   /** facts/09 routing rule citation. */
   rule: string
   /** Evidence tier of the routing rule per mizaj 11. */
@@ -107,7 +110,16 @@ export function classifyTaskShape(input: unknown): ClassifierResult {
   if (/\b(click|navigate|open.*(file|url|tab)|osworld|browse|screenshot)/.test(lower)) {
     return { shape: "computer-use", signal: "computer-use-keywords", estimated_input_tokens: tokens }
   }
-  if (/\b(prove|simplif|integral|derivative|aime|olymp|gcd|lcm|modular|factori[sz]e)/.test(lower)
+  // Hard-reasoning: AIME / olympiad / multi-step proofs. Distinguished from
+  // math-chain by length + difficulty markers. Triggers cross-witness voter
+  // (M3.18) — substrate-runtime dispatch on the benchmark that fits atom 0016.
+  if (
+    (/\b(aime|olymp|imo|usamo|putnam)/.test(lower)
+      || (/\b(prove|find the smallest|find all|how many)/.test(lower) && tokens > 100))
+  ) {
+    return { shape: "hard-reasoning", signal: "hard-reasoning-markers", estimated_input_tokens: tokens }
+  }
+  if (/\b(prove|simplif|integral|derivative|gcd|lcm|modular|factori[sz]e)/.test(lower)
       || /[∫∑∏√≡≤≥]/.test(text)) {
     return { shape: "math-chain", signal: "math-keywords-or-symbols", estimated_input_tokens: tokens }
   }
@@ -150,7 +162,7 @@ export interface RouterOptions {
 
 const ROUTING_TABLE: Record<
   TaskShape,
-  { target: (o: RouterOptions) => string; rule: string; evidence: RouteDecision["evidence_tier"]; useCompound?: boolean }
+  { target: (o: RouterOptions) => string; rule: string; evidence: RouteDecision["evidence_tier"]; useCompound?: boolean; useVoter?: boolean }
 > = {
   "long-context":      { target: (o) => o.longContextTarget,                   rule: "facts/09 rule 1 — DeepSeek V4 / grok-4-fast",     evidence: "L1+L4" },
   "agentic-swe":       { target: () => "anthropic/claude-opus-4",              rule: "facts/09 rule 2 — Opus MCP-Atlas 77.3%",          evidence: "L4" },
@@ -161,6 +173,7 @@ const ROUTING_TABLE: Record<
   "classification":    { target: () => "meta-llama/llama-4-scout",             rule: "facts/09 rule 8 — Llama Scout sub-1s P50",        evidence: "L4" },
   "subsecond-latency": { target: () => "google/gemini-2.5-flash",              rule: "facts/09 rule 9 — Gemini Flash 1.06s P50",        evidence: "L4" },
   "closed-book":       { target: () => "anthropic/claude-opus-4",              rule: "facts/09 rule 10 — avoid GPT-5; prefer Opus",     evidence: "L4" },
+  "hard-reasoning":    { target: (o) => o.cheapTarget,                          rule: "facts/09 rule 11 — cross-witness voter (substrate-runtime; atom 0016)", evidence: "L4", useVoter: true },
   "multistep-general": { target: (o) => o.smartTarget,                          rule: "facts/09 rule 7 — strongest frontier, NO compound default (M3.11/M3.11b L1)", evidence: "L1" },
 }
 
@@ -173,11 +186,13 @@ export function route(input: unknown, options: RouterOptions): RouteDecision {
     cls.shape === "multistep-general" && options.forceCompoundOnMultistep === true
       ? true
       : (entry.useCompound ?? false)
+  const useVoter = entry.useVoter ?? false
   return {
     shape: cls.shape,
     signal: cls.signal,
-    target_model: useCompound ? null : target,
+    target_model: useCompound || useVoter ? null : target,
     use_compound: useCompound,
+    use_voter: useVoter,
     rule: entry.rule,
     evidence_tier: entry.evidence,
   }

@@ -1,0 +1,128 @@
+# plan/facts/10-cross-witness-runtime.bn
+#
+# Cross-witness voter substrate-runtime evidence (M3.18). Operationalizes
+# Khazīna atom 0016's runtime interpretation on hard-reasoning task
+# shape — the benchmark fit M3.2 retrospective said was missing.
+#
+# Failure-mode fit per M3.2 retrospective:
+#   - TB-3 failure mix = code/system-correctness (orthogonal to substrate)
+#   - hard-reasoning (AIME / olympiad / multi-step proofs) failure mix =
+#     chain-of-reasoning consistency (substrate's strength)
+# So substrate-runtime-as-verifier hypothesis can be tested cheaply on
+# hard-reasoning where the M3.13 retrospective showed it would fail
+# on TB-3.
+#
+# Mizaj 11 source-tier ladder applied at runtime:
+#   sahih  = cross-witness convergence on cheap × 2
+#   hasan  = majority of 3 witnesses (cheap × 2 + smart escalation)
+#   daif   = 3-way disagreement; lowest confidence
+# Mizaj 14 authentication grades carry through to provider metadata
+# so downstream telemetry can audit per-task grade.
+
+# ============================================================
+# Atom anchors (cited by routing rule 11 + theorem)
+# ============================================================
+
+# Atom 0010 — blinded-independent-witness pass. Two cheap models with
+# different prompts approximate independent witnesses (prompt-induced
+# decoupling). Convergence on the integer answer is the load-bearing
+# primitive.
+lemma atom_0010_blinded_witness_runtime_hard_reasoning
+  proves True
+  by audit khazina-atoms-0010-runtime-application
+
+# Atom 0011 — smallest-distinguishing-experiment-first. The 2-cheap
+# parallel call IS the smallest distinguishing test for "is this answer
+# right?" — distinguishes confident-converged-reasoning from divergent-
+# uncertain on N=2 at $0.001 cost.
+lemma atom_0011_smallest_distinguishing_runtime_2_cheap_parallel
+  proves True
+  by audit khazina-atoms-0011-runtime-application
+
+# Atom 0015 — research-pipeline-overstates-base-model-specific-transfer.
+# Divergence between cheap models ≈ at least one is overstating beyond
+# what data supports. Escalation triggers when atom 0015 fires; this
+# wires the atom to a runtime detector.
+lemma atom_0015_transfer_overstated_runtime_divergence_detector
+  proves True
+  by audit khazina-atoms-0015-runtime-application
+
+# Atom 0016 — substrate-as-deterministic-verifier-head. The full pipeline
+# (cross-witness + escalation + majority vote + sahih/hasan/daif grade)
+# operationalizes atom 0016 on the benchmark fit per M3.2 retrospective.
+# Build-time interpretation already validated (M3.3 substrate tooling
+# audited cheapcode plan reflexively); runtime interpretation now
+# testable cheaply on hard-reasoning.
+lemma atom_0016_runtime_interpretation_on_hard_reasoning_fit
+  proves True
+  by audit khazina-atoms-0016-runtime-fit-m3-18
+
+# ============================================================
+# Routing rule 11 — substrate-runtime dispatch on hard-reasoning
+# ============================================================
+
+# Detector: AIME / olympiad markers OR (proof-form keywords + tokens > 100).
+# The 100-token threshold distinguishes simple math problems (route to
+# math-chain rule 4) from hard-reasoning (route to voter).
+lemma routing_rule_11_hard_reasoning_voter_dispatch
+  proves True
+  by audit cheapcode-routing-rule-11-cross-witness-voter-m3-18
+
+# ============================================================
+# Empirical claims (testable via M3.19 N=5 probe)
+# ============================================================
+
+# CONVERGENCE-PREDICTS-CORRECTNESS: when 2 cheap models converge on the
+# same answer, that answer matches gold ≥60% of the time on hard-reasoning.
+# Falsifier: paired-test on N=5 AIME-class shows convergence-predicts-
+# correctness < 60%.
+lemma cross_witness_convergence_predicts_correctness_60pct_or_better
+  proves True
+  by audit cheapcode-cross-witness-convergence-claim-needs-m3-19-probe
+
+# 3-WAY-MAJORITY-VOTE-ROBUST: when cheap pair diverges and smart
+# escalates, the 2-of-3 majority answer matches gold ≥60% of the time.
+# Falsifier: paired-test on N=5 disagreed cases shows majority-correct < 60%.
+lemma three_way_majority_vote_robust_60pct_or_better
+  proves True
+  by audit cheapcode-three-way-majority-vote-claim-needs-m3-19-probe
+
+# DAIF-FLAG-SURFACES-UNCERTAINTY: when all 3 witnesses disagree, the
+# returned answer carries daif grade and operator/downstream can
+# de-prioritize. Tested by inspection of voter trace, no probe needed.
+lemma daif_flag_surfaces_three_way_disagreement_correctly
+  proves True
+  by audit cheapcode-daif-flag-runtime-trace-inspection
+
+# ============================================================
+# Cost / latency claims (vs compound wrapper M3.10)
+# ============================================================
+
+# COST-RATIO-VS-COMPOUND: voter per-task cost ≤ 0.20× compound wrapper
+# per-task cost. Empirical evidence from M3.10 wrapper @ \$0.05-0.46/task
+# vs voter projected @ \$0.001-0.020/task = 0.02-0.40× ratio. Falsifier:
+# voter actual cost in M3.19 probe > 0.30× wrapper cost.
+lemma voter_cost_ratio_vs_compound_wrapper_at_most_0_20x
+  proves True
+  by audit cheapcode-voter-cost-projection-m3-18-vs-m3-10-wrapper-data
+
+# LATENCY-RATIO-VS-COMPOUND: voter P50 latency ≤ 0.30× compound wrapper
+# P50 latency. M3.10 wrapper P50 ~30-90s; voter projected P50 ~3-15s
+# (parallel cheap is gated by slowest-of-2 + only-rare smart escalation).
+lemma voter_latency_ratio_vs_compound_wrapper_at_most_0_30x
+  proves True
+  by audit cheapcode-voter-latency-projection-m3-18-vs-m3-10-wrapper-data
+
+# ============================================================
+# Discharge: substrate-runtime-validated-on-hard-reasoning
+# ============================================================
+#
+# When the lemmas above hold (especially the empirical 60pct claims),
+# atom 0016's runtime interpretation lifts from "drafted-but-not-validated"
+# to "validated-for-hard-reasoning." The build-time interpretation was
+# already validated; this completes the runtime side for one specific
+# benchmark family.
+
+lemma atom_0016_runtime_validated_for_hard_reasoning_when_60pct_holds
+  proves True
+  by audit cheapcode-atom-0016-runtime-validation-conditional-on-m3-19

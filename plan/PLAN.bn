@@ -559,3 +559,62 @@ theorem cheapcode_general_agent_routes_optimally_via_failure_envelopes
 # evidence stack.
 claim cheapcode_general_agent_routes_optimally: Bool @>=0.40 = cite cheapcode_general_agent_routes_optimally_via_failure_envelopes
 falsified_when obs_route_long_context_falsified or obs_route_agentic_swe_falsified or obs_route_math_chain_falsified or obs_route_phd_factual_falsified or obs_route_computer_use_falsified or obs_route_subsecond_falsified or obs_route_closed_book_falsified
+
+# ============================================================
+# SECTION Y - substrate-runtime cross-witness voter (M3.18)
+#
+# Operationalizes Khazīna atom 0016's runtime interpretation on the
+# benchmark fit M3.2 retrospective said was missing: hard-reasoning
+# (AIME / olympiad / multi-step proofs). Failure mode = chain-of-
+# reasoning consistency, which is substrate's strength (atom 0010
+# cross-witness, atom 0015 transfer-overstated).
+#
+# Pipeline: parallel cheap × 2 → if converge return sahih → else
+# escalate to smart → if 2-of-3 majority return hasan → else daif.
+#
+# Cost projection: ~$0.001-0.020/task (vs M3.10 compound $0.05-0.46).
+# Latency projection: ~3-15s P50 (vs M3.10 compound 30-90s).
+# Smart-axis: probabilistic per convergence rate; tested by M3.19 probe.
+#
+# Confidence (pre-M3.19): @>=0.55 — research-grounded plus structural
+# fit, but specific empirical claims (convergence-predicts-correctness
+# ≥60%) untested. M3.19 N=5 AIME probe validates / falsifies.
+# ============================================================
+
+# Routing rule 11 observation
+claim obs_route_hard_reasoning_voter_falsified: Bool @>=0.99 = False
+claim route_hard_reasoning_voter_holds: Bool @>=0.55 = not obs_route_hard_reasoning_voter_falsified
+falsified_when obs_route_hard_reasoning_voter_falsified
+
+# Empirical claims (testable via M3.19)
+claim obs_cross_witness_convergence_predicts_correctness_lt_60pct: Bool @>=0.99 = False
+claim cross_witness_convergence_predicts_correctness: Bool @>=0.65 = not obs_cross_witness_convergence_predicts_correctness_lt_60pct
+falsified_when obs_cross_witness_convergence_predicts_correctness_lt_60pct
+
+claim obs_three_way_majority_vote_robust_lt_60pct: Bool @>=0.99 = False
+claim three_way_majority_vote_robust: Bool @>=0.55 = not obs_three_way_majority_vote_robust_lt_60pct
+falsified_when obs_three_way_majority_vote_robust_lt_60pct
+
+claim obs_voter_cost_ratio_gt_0_30x_compound: Bool @>=0.99 = False
+claim voter_cost_ratio_at_most_0_20x_compound: Bool @>=0.85 = not obs_voter_cost_ratio_gt_0_30x_compound
+falsified_when obs_voter_cost_ratio_gt_0_30x_compound
+
+claim obs_voter_latency_ratio_gt_0_50x_compound: Bool @>=0.99 = False
+claim voter_latency_ratio_at_most_0_30x_compound: Bool @>=0.85 = not obs_voter_latency_ratio_gt_0_50x_compound
+falsified_when obs_voter_latency_ratio_gt_0_50x_compound
+
+# Discharge theorem — atom 0016 runtime validated for hard-reasoning
+# IF the empirical claims hold post-M3.19.
+theorem cheapcode_substrate_runtime_validated_on_hard_reasoning
+  assume route_hard_reasoning_voter_holds and cross_witness_convergence_predicts_correctness and three_way_majority_vote_robust and voter_cost_ratio_at_most_0_20x_compound and voter_latency_ratio_at_most_0_30x_compound
+  proves True
+  by audit cheapcode-substrate-runtime-validation-m3-18
+
+# Discharge claim — atom 0016 runtime status post-M3.19 probe.
+# Pre-M3.19: @>=0.40 (research-grounded structural fit).
+# Post-M3.19 PASS: lift to ~0.74 per pivot table analog.
+# Post-M3.19 FAIL: claim falsified; substrate stays build-time-only.
+# Named with "cheapcode_" prefix so burhan-revisit's discharge-pattern
+# detection picks it up (per facts/09 routing-matrix conventions).
+claim cheapcode_substrate_atom_0016_runtime_validated_for_hard_reasoning: Bool @>=0.40 = cite cheapcode_substrate_runtime_validated_on_hard_reasoning
+falsified_when obs_cross_witness_convergence_predicts_correctness_lt_60pct or obs_three_way_majority_vote_robust_lt_60pct

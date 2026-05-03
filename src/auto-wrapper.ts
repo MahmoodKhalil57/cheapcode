@@ -30,6 +30,7 @@
 
 import { generateText } from "ai"
 import { route, type RouterOptions, type RouteDecision } from "./router"
+import { runCrossWitnessVoter } from "./cross-witness-voter"
 
 // Use loose typing for LanguageModelV3 — exact interface varies by AI SDK
 // version. Runtime behavior is the contract that matters; opencode calls
@@ -434,6 +435,41 @@ export class CheapcodeAutoModel {
   async doGenerate(options: GenerateOptions): Promise<GenerateResult> {
     const task = extractPrompt(options.prompt ?? options.messages ?? options)
     const decision = route(task, this.routerOptions)
+
+    // Cross-witness voter dispatch (M3.18): hard-reasoning shape.
+    // Substrate-runtime atom 0016 interpretation. 2 cheap parallel +
+    // optional smart escalation. Returns sahih/hasan/daif grade.
+    if (decision.use_voter) {
+      const { text: voterText, trace } = await runCrossWitnessVoter(task, {
+        cheap: this.config.cheap,
+        smart: this.config.smart,
+        perCallTimeoutMs: this.config.perCallTimeoutMs,
+      })
+      return {
+        content: [{ type: "text", text: voterText }],
+        finishReason: "stop",
+        usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+        providerMetadata: {
+          cheapcode: {
+            route: {
+              shape: decision.shape,
+              signal: decision.signal,
+              rule: decision.rule,
+              evidence_tier: decision.evidence_tier,
+              dispatch: "cross-witness-voter",
+            },
+            voter: {
+              convergence: trace.convergence,
+              agreed_answer: trace.agreed_answer,
+              escalated: trace.escalated,
+              witness_count: trace.witnesses.length,
+              witnesses: trace.witnesses.map((w) => ({ source: w.source, answer: w.answer })),
+            },
+          },
+        },
+        warnings: [],
+      }
+    }
 
     // Direct dispatch path (M3.12 default): hand the task to the routed
     // model unchanged. This is what avoids the M3.11/M3.11b cost+latency
