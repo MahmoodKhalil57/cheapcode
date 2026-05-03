@@ -756,6 +756,90 @@ After committing M3.9 (this SPEC revision + plan/main updates):
 
 ---
 
+## Revision 2026-05-03k — strategic reframe to general-agent router
+
+**Operator pushback 2026-05-03 (mid-experiment-3):** "if we do alot of research and minimal experimentation on when 'top general models' of different price points 'fail' on speed or intelligence we can help suggest an update to our burhan plan that gives us more value to our cheapcode fork and help us reach our most valuable version of our product 'general agent'."
+
+This reframe is load-bearing and supersedes the compound-wrapper bet that drove SPEC Revisions 2026-05-02b/d/2026-05-03j. The empirical evidence from M3.11 + M3.11b confirmed compound architecture has structural cost+latency overhead vs single frontier. Smart-axis was untestable due to benchmark saturation. Rather than chase higher-difficulty benchmarks indefinitely, the reframe replaces the compound bet with a research-grounded routing-intelligence bet.
+
+### What changes
+
+cheapcode v1's value moves from:
+
+> "compound wrapper that beats raw GPT-5.5 on multistep reasoning across 3 axes (cheaper + faster + smarter)"
+
+to:
+
+> "general-agent routing intelligence that dispatches each task to its documented value-optimum frontier model, based on per-model failure envelopes (facts/08) and a task-shape × tier routing matrix (facts/09)"
+
+The 3-axis comprehensive-dominance claim is RETIRED for v1.0. M3.11/M3.11b data feeds routing rule 7 (multistep general → strongest frontier, NO compound default) — the empirically-grounded routing rule that prevents the SAME compound-wrapper failure mode in production.
+
+### Cell-level updates
+
+| Cell | Prior (Rev 2026-05-03j) | New (Rev 2026-05-03k) |
+|---|---|---|
+| #18 (auto wrapper LoC) | MIN ≤350 / EXPECTED ≤700 / IDEAL ≤1000 | **Reinterpreted: applies only to compound-wrapper code, which is now invoked CONDITIONALLY per routing rule 7. Wrapper code stays in repo as conditional dispatch path; not the default for `auto` tier.** |
+| #19 (substrate verifier LoC) | N/A (Arm B deferred) | **N/A** — unchanged |
+| New cell #20 (router decision-table LoC) | — | **MIN ≤200 / EXPECTED ≤400 / IDEAL ≤600** (the routing logic that classifies task shape and dispatches per facts/09; subset of cell #14) |
+
+### What v1.0 IS (revised)
+
+- 5 tier-IDs registered via opencode's `provider.<id>.npm` mechanism (unchanged)
+- `auto` tier = **failure-mode-aware router** that classifies task shape + dispatches per facts/09 routing matrix (10 rules)
+- Compound wrapping invoked CONDITIONALLY when the task signature suggests baseline failure (e.g., novel multi-domain reasoning where single-frontier scoring is sub-50%) — not by default
+- Long-context, agentic SWE, math chain, PhD factual, computer-use, bounded code, classification, sub-2s latency, closed-book, multistep general — each has a routing rule with cited evidence
+- Operator override via `cheapcode.toml` (unchanged)
+- Zero patches to opencode upstream (unchanged; cell #15 = 0)
+- Model Card README scorecard listing routing rules + evidence tier per rule
+
+### What v1.0 IS NOT (revised honest disclosure)
+
+- **Not a compound wrapper that beats single frontier.** Tested twice (M3.11/M3.11b) — definitively failed cost+latency. Compound is invoked only when the routing rule indicates baseline failure on the specific task shape.
+- **Not L1-measured on every routing rule.** Most routing evidence as of v1.0 is L4 (vendor blog + leaderboard). Lifting to L1 own-measurement is v1.x work.
+- **No substrate-as-runtime-verifier (atom 0016 runtime claim).** Deferred to v1.x — TB-3 mismatch per M3.2 retrospective.
+- **Smart-fast latency unmeasured.** Pick claude-haiku-4.5 pending TTFT verification.
+- **Not multi-tenant or cloud.** Single user, single machine.
+
+### Phase 2 disposition under M3.12 reframe
+
+- Phase 2 wrapper code (M3.10, src/auto-wrapper.ts) — **kept** in repo as conditional dispatch path. NOT default-on for auto tier.
+- EXPERIMENT-1 attempts 1+2 — **already executed**, data feeds routing rule 7
+- EXPERIMENT-1 attempt-3 (AIME) — in-flight at this revision; outcome feeds routing rule 7 regardless of PASS/FAIL since it's no longer load-bearing for the discharge
+
+### Falsifier disposition
+
+The pre-registered Phase 2 falsifier (`obs_phase_2_experiment_1_fails_all_axes`) was empirically TRUE post-M3.11. Per M3.12 reframe, this falsifies the comprehensive-dominance claim (correctly) but does NOT falsify the v1.0 ship — because v1.0's load-bearing claim is now `cheapcode_general_agent_routes_optimally` per PLAN.bn SECTION X, not the comprehensive-dominance discharge.
+
+The new load-bearing falsifier is the OR over routing-rule-falsified observations:
+```
+falsified_when obs_route_long_context_falsified or obs_route_agentic_swe_falsified or
+               obs_route_math_chain_falsified or obs_route_phd_factual_falsified or
+               obs_route_computer_use_falsified or obs_route_subsecond_falsified or
+               obs_route_closed_book_falsified
+```
+
+Each routing rule has its own audit citation chain in facts/08+09.
+
+### Why this is the disciplined move (not retreat)
+
+1. **M3.11 evidence directly supports it.** Compound architecture has structural cost+latency overhead. Pretending otherwise would violate atom 0015 (transfer overstated).
+2. **The routing-intelligence bet has more evidence.** facts/08 has 12 frontier models documented; facts/09 has 10 routing rules. The compound-wrapper bet had ~5 research papers extrapolated to a specific cost+latency comparison that didn't hold.
+3. **Per atom 0011 (smallest distinguishing experiment):** the compound-wrapper experiment ran twice and didn't discriminate the smart-axis claim. Continuing to spend money chasing a benchmark where it might discriminate is sunk-cost-fallacy. The routing-intelligence bet has DIFFERENT evidence (per-model envelopes) that's actually documented.
+4. **Per atom 0013:** the credential is honest disclosure of what we know and don't know. The routing rules + falsifiers + evidence-tier-per-rule format is exactly atom 0013 in code-form.
+5. **Operator-revealed value:** the operator said "general agent" — that IS a router with intelligence about when to use what. Not a compound wrapper.
+
+### Pointer for next agent
+
+After committing M3.12 (this revision, plus PLAN.bn SECTION X, MAIN.md rewrite, facts/08+09):
+
+- M3.13: AIME experiment-3 verdict + commit (in-flight; outcome feeds routing rule 7 regardless)
+- M3.14: implement router decision-table in src/auto-wrapper.ts — replace the compound-default with task-shape-classifier-then-dispatch logic; cell #20 budget MIN ≤200 LoC
+- M3.15: Phase 3 smoke regression (when operator BYOK + opencode ready) — verify routing decisions in 4-client test
+- M3.16: Phase 4 README per Model Cards; routing rules + evidence-tier per rule are the headline disclosure
+- v1.x: lift specific routing rules from L4 → L1 via own-measurement on the rule's task shape (atom 0011 application)
+
+---
+
 ## Sign-off
 
 This SPEC takes effect once committed. Refinements after that require a new dated section (`## Revision YYYY-MM-DD`) plus a falsifier explaining why the change is load-bearing. The original matrix stays; nothing edits in place.
