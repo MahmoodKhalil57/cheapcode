@@ -6,6 +6,30 @@
 
 ---
 
+## M3.22 — v1.0.0 cut: local annotated tag + version bump (2026-05-03)
+
+### Status
+
+Accepted. Local annotated tag `v1.0.0` created on `commit 8a79d09`. Remote push pending operator confirmation.
+
+### Context
+
+Plan-graph ship-ready post-M3.21. All v1.0 phases closed: Phase 1 (5-tier registration L3, M3.0/M3.15), Phase 2 (substrate-runtime voter small-N validated, M3.18→M3.20), Phase 3 (smoke regression, M3.15 partial — opencode CLI dispatch ProviderInitError documented as upstream-issue v1.x follow-up), Phase 4 (Model Card README, M3.16). 32 tests pass; burhan-validate clean.
+
+### Decision
+
+Bump `package.json` version `0.1.0-rc1` → `1.0.0`. Add `src/cross-witness-voter.ts` to `files` manifest (was missing — load-bearing for auto-wrapper hard-reasoning route since M3.18, would have shipped broken in any prior tag). README status header updated to v1.0; benchmarks table now reflects honest M3.11/M3.11b cost+latency FAIL + M3.19 voter PASS small-N. Local annotated tag `v1.0.0` with full release notes (substrate-runtime voter framing, atom 0010 negation-asymmetry confirmation, M3.10 wrapper FAIL disclosure, v1.x roadmap pointers).
+
+### Consequences
+
+cheapcode is the first compound-LLM-runtime operationalization of khazīna atom 0016 (substrate-as-deterministic-verifier-head) on a falsifier-loaded benchmark — that's the v1.0 credential. Smart-axis dominance is no longer untested per SPEC Revision 2026-05-03l. Atom 0013 (calibration-discipline-as-credential-substitute) honored end-to-end: failed experiments (M3.11/M3.11b) and small-N caveats preserved in shipped artifacts. Total cumulative cheapcode spend at tag time: ~$0.39/$5.
+
+### Pointer
+
+`commit 8a79d09` + tag `v1.0.0`. Remote push (`git push origin v1.0.0`) NOT executed; awaits operator confirmation. v1.x roadmap items live in `plan/facts/10`: N≥20 voter probe; negative-result-discrimination dedicated route; per-rule rolling precision/recall telemetry.
+
+---
+
 ## M3.20 — atom 0016 runtime small-N validated; verdict + cascade (2026-05-03)
 
 ### Status
