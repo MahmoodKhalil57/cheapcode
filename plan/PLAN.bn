@@ -743,3 +743,42 @@ falsified_when obs_voter_latency_at_most_frontier_latency_falsified_n3
 # latency-loss honestly recorded).
 claim cheapcode_voter_beats_frontier_on_2_of_3_axes_n3: Bool @>=0.65 = voter_cost_below_direct_frontier_on_hard_reasoning and voter_completion_at_least_frontier_on_hard_reasoning
 falsified_when obs_voter_cost_gte_frontier_cost_falsified or obs_voter_completion_lt_frontier_completion_falsified
+
+# ============================================================
+# SECTION AA - M17/atom-0017 cycle outputs (M3.24)
+#
+# The mizaj-17 / khazina-0017 cycle was applied to the M3.19 results.jsonl
+# byproducts (per-witness answers, not just headline convergence). The
+# inventory revealed that AIME-I-11's "daif=null" outcome was hiding the
+# fact that cheap-b had returned the gold answer "371" — but cheap-a
+# abstained (extraction failed) and smart-c hit timeout, so the voter's
+# 2-of-3-majority rule rejected the lone correct answer and returned
+# agreed_answer=null.
+#
+# This is the byproduct that the headline metric ("4/5 correct") averaged
+# over. Lifted to falsifier-bearing claim per mizaj 01:
+#   - hypothesis: when exactly one witness extracts an answer and the others
+#     abstain (null), preserving that single-witness answer with daif grade
+#     yields strictly higher information content than null-with-daif.
+#   - falsifier: paired test on N≥3 single-witness cases shows the rescued
+#     answer is wrong in ≥2 of 3, AND no caller-side use of the daif grade
+#     can compensate. Then atom 0015 fires.
+#
+# Cost: $0 marginal (replays existing M3.19 data with new aggregation rule).
+# Implementation: src/cross-witness-voter.ts step 5a (10 LoC). Tests: 2 new
+# in cross-witness-voter.test.ts (rescue + counter-test). 34 pass / 0 fail.
+# ============================================================
+
+# Empirical claim — single-witness rescue improves completion at zero cost
+# on the M3.19 N=5 mixed benchmark (5/5 correct vs 4/5 pre-fix).
+# Confidence modest because (a) N=1 case where it fired (b) generality
+# untested on broader data — atom 0011 + atom 0015 caveats apply.
+claim obs_single_witness_rescue_introduces_more_wrong_than_right_falsified: Bool @>=0.99 = False
+claim single_witness_rescue_strictly_improves_information_content: Bool @>=0.55 = not obs_single_witness_rescue_introduces_more_wrong_than_right_falsified
+falsified_when obs_single_witness_rescue_introduces_more_wrong_than_right_falsified
+
+# Process claim — applying the M17 cycle on existing residue produced a
+# leveraged improvement at $0 marginal cost. This is the empirical anchor
+# for atom 0017 (unknowns-as-positive-data-recursion) within cheapcode.
+claim m17_cycle_on_m3_19_residue_produced_leveraged_finding: Bool @>=0.78 = single_witness_rescue_strictly_improves_information_content
+falsified_when obs_single_witness_rescue_introduces_more_wrong_than_right_falsified

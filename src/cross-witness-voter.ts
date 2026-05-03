@@ -174,8 +174,33 @@ export async function runCrossWitnessVoter(
     }
   }
 
-  // Step 5: 3-way disagreement (or insufficient witnesses) → daif flag,
-  // ship smart-c output as the strongest single witness.
+  // Step 5a (M3.24, mizaj 17 + atom 0017): single-witness rescue.
+  // When exactly one witness produced an answer and the others abstained
+  // (returned null due to extraction failure or timeout), return that
+  // witness's answer with daif grade. Information content is strictly
+  // greater than null-with-daif — the caller can use the daif grade to
+  // de-prioritize, but at least has a candidate answer to inspect.
+  // Discovered via M17 cycle on M3.19 results.jsonl: AIME-I-11 had
+  // cheap-b="371" (gold) but pipeline returned null because cheap-a and
+  // smart-c both abstained.
+  const numWithAnswer = witnesses.filter((w) => w.answer != null).length
+  if (numWithAnswer === 1) {
+    const witness = witnesses.find((w) => w.answer != null)!
+    const witnessText =
+      witness.source === "smart-c" ? textC : witness.source === "cheap-b" ? textB : textA
+    return {
+      text: witnessText,
+      trace: {
+        witnesses,
+        convergence: "daif",
+        agreed_answer: witness.answer,
+        escalated: true,
+      },
+    }
+  }
+
+  // Step 5b: 3-way disagreement OR all witnesses abstained → daif flag,
+  // ship smart-c output as the strongest single witness, agreed_answer null.
   return {
     text: textC || textA || textB,
     trace: {

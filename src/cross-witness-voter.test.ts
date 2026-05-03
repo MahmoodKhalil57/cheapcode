@@ -191,3 +191,68 @@ test("voter returns daif when smart escalation also fails", async () => {
   expect(result.trace.convergence).toBe("daif")
   expect(result.trace.escalated).toBe(true)
 })
+
+test("M3.24 single-witness-rescue: one cheap answers, other abstains, smart fails → daif with answer preserved (mizaj 17)", async () => {
+  // Empirical anchor: M3.19 AIME-I-11 had cheap-b answer correct (371) but
+  // cheap-a abstained (extraction failed) and smart-c hit timeout. Pre-fix
+  // pipeline returned agreed_answer=null. Post-fix returns the surviving
+  // witness's answer with daif grade. Information content strictly higher.
+  let callCount = 0
+  const partialCheap = {
+    specificationVersion: "v3" as const,
+    provider: "fake",
+    modelId: "partial",
+    async doGenerate() {
+      callCount++
+      // cheap-a returns text without extractable answer; cheap-b returns 371
+      const text = callCount === 1 ? "I cannot determine the answer." : "After reasoning.\nAnswer: 371"
+      return {
+        content: [{ type: "text", text }],
+        finishReason: "stop",
+        usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+      }
+    },
+  } as any
+  const cfg: VoterConfig = {
+    cheap: partialCheap,
+    smart: hangingModel(),
+    perCallTimeoutMs: 100,
+  }
+  const result = await runCrossWitnessVoter("AIME I-11", cfg)
+  // Single-witness rescue: cheap-a abstained, cheap-b="371", smart-c timed out
+  // Old behavior: convergence=daif, agreed_answer=null
+  // New behavior: convergence=daif, agreed_answer="371" (preserved with low confidence)
+  expect(result.trace.convergence).toBe("daif")
+  expect(result.trace.agreed_answer).toBe("371")
+  expect(result.trace.escalated).toBe(true)
+  // Caller can use the daif grade to de-prioritize but has an answer to inspect
+})
+
+test("M3.24 single-witness-rescue does NOT fire when 2 witnesses produce different answers", async () => {
+  // Counter-test: ensure rescue only fires when exactly ONE witness extracted.
+  // 2 witnesses with different answers + smart fails → genuine disagreement,
+  // should still return daif with agreed_answer=null.
+  let callCount = 0
+  const dualCheap = {
+    specificationVersion: "v3" as const,
+    provider: "fake",
+    modelId: "dual-disagree",
+    async doGenerate() {
+      callCount++
+      const text = callCount === 1 ? "Answer: 100" : "Answer: 200"
+      return {
+        content: [{ type: "text", text }],
+        finishReason: "stop",
+        usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+      }
+    },
+  } as any
+  const cfg: VoterConfig = {
+    cheap: dualCheap,
+    smart: hangingModel(),
+    perCallTimeoutMs: 100,
+  }
+  const result = await runCrossWitnessVoter("disagree task", cfg)
+  expect(result.trace.convergence).toBe("daif")
+  expect(result.trace.agreed_answer).toBeNull() // no rescue: 2 distinct extracted answers
+})

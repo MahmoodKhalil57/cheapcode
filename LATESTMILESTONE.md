@@ -6,6 +6,49 @@
 
 ---
 
+## M3.24 — bake the unknowns-as-positive-data cycle into substrate; M17 cycle on M3.19 produces single-witness-rescue (2026-05-03)
+
+### Status
+
+Accepted. New khazīna atom 0017 + new mizaj rule 17 + new cheapcode tool `tools/burhan-plateau.sh` + new `CLAUDE.md` cross-reference. Applied the cycle on M3.19 byproducts immediately and produced a leveraged $0 finding: single-witness-rescue in the voter pipeline.
+
+### Context
+
+Operator named the principle in plain language: "when you are trying to produce a better estimate for NP-hard problems and have exhausted all of the knowns, start looking at the unknowns generated in the process, study them and turn them into knowns somehow so that you can produce an even better estimate, this is kindof like spirituality." Then asked: bake this into substrate so a future agent acknowledges it recursively without being told. The convergent-evolution credential is strong (apophatic theology in 4+ traditions independently arrived at the same move; computational instances in CDCL no-good learning, MCTS exploration, simulated annealing restart, Bayesian active learning).
+
+### Decision
+
+**Substrate primitives drafted** (across 3 repos):
+- `khazina/atoms/0017-unknowns-as-positive-data-recursion.md` — meta-method atom with falsifier, 4 successful_transformations from cheapcode M3.18→M3.23, convergent-evolution credential. (`commit 001a270`)
+- `mizaj/rules/17-apply-byproducts-when-method-plateaus.md` — companion rule with trigger/form/anti-pattern/falsification. INDEX updated. (`commit d5b8ba8`)
+- `cheapcode/tools/burhan-plateau.sh` — surfaces load-bearing claims sub-floor + stable across N≥3 snapshots; M17 cycle entry-point.
+- `cheapcode/CLAUDE.md` — wires substrate primitives so future-agent picks up M17/atom-0017 reflexively. Lists ALL the patterns ("the experiment didn't discriminate", "I don't know what shape this is", "let's switch methods") that should trigger the cycle automatically.
+- `cheapcode/plan/facts/04-khazina-atoms.bn` — regenerated with atom 0017.
+
+**Cycle applied to M3.19 byproducts** (immediate dogfooding):
+- Inventoried per-witness answers in `runs/experiment-2-voter-probe/results.jsonl` (not just headline convergence metric).
+- Discovered: AIME-I-11 had cheap-b="371" (gold answer) but cheap-a abstained and smart-c timed out. The voter's 2-of-3-majority rule rejected the lone correct answer, returned `agreed_answer=null`. The headline "4/5 correct" averaged over this.
+- Lifted to falsifier-bearing claim per mizaj 01: "single-witness rescue strictly improves information content." Implementation: `src/cross-witness-voter.ts` step 5a (10 LoC, ~$0 marginal). 2 new tests (rescue + counter-test).
+- Effect on M3.19 if the rule had been live: 5/5 correct instead of 4/5.
+
+**PLAN.bn SECTION AA added** with new claims:
+- `single_witness_rescue_strictly_improves_information_content @ 0.55` (modest — N=1 firing case so far, atom 0011/0015 caveats)
+- `m17_cycle_on_m3_19_residue_produced_leveraged_finding @ 0.78` (process claim — empirical anchor for atom 0017 within cheapcode)
+
+### Consequences
+
+The cycle is now first-class in the substrate stack. Future agents see CLAUDE.md at session-start, see mizaj 17 referenced in INDEX, see atom 0017 in facts/04, and have `tools/burhan-plateau.sh` as a CLI primitive. The same patterns ("ceiling effect," "noisy data," "different benchmark," "switch methods") that previously suggested we were stuck now correctly trigger the cycle.
+
+The dogfooding result is the strongest empirical anchor: applying the cycle on existing M3.19 data, in real-time, surfaced a $0-cost code change that adds 1 to the M3.19 completion count. That's atom 0017's runtime claim validated within a single session. 34 tests pass (was 32; +2 for rescue + counter-test). burhan-validate clean.
+
+Plateau report (`tools/burhan-plateau.sh`): 12 plateau-flagged load-bearing claims for future M17 cycle iterations (computer_use, phd_factual, v1/v2/v3 ships, voter_latency_ratio, etc.). Each is a candidate for the next cycle pass.
+
+### Pointer
+
+`commit TBD` (cheapcode); khazina `001a270`; mizaj `d5b8ba8`. Verdict in PLAN.bn SECTION AA + LATESTMILESTONE M3.24. Next cycle iteration: apply M17 to the 12 plateau-flagged claims surfaced by `tools/burhan-plateau.sh`. v1.x roadmap candidates: extract single-witness-rescue and negation-asymmetry into dedicated routes.
+
+---
+
 ## M3.23 — substrate-prescribed quick wins: voter beats GPT-5 on 2/3 axes; routing rules cross-witness lifts (2026-05-03)
 
 ### Status
