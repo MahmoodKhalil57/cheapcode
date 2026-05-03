@@ -116,8 +116,9 @@ out_lines = [fix_line(ln) for ln in text.splitlines()]
 Path(report_path).write_text("\n".join(out_lines) + "\n", encoding="utf-8")
 PY
 
-  TOTAL=$(grep -c "^- \*\*" "$REPORT" 2>/dev/null || echo 0)
-  if [ "$TOTAL" -gt 0 ]; then
+  TOTAL=$(grep -c "^- \*\*" "$REPORT" 2>/dev/null)
+  TOTAL=${TOTAL:-0}
+  if [ "$TOTAL" -gt 0 ] 2>/dev/null; then
     echo "⚠ $top — $TOTAL items surfaced → $REPORT"
     [ "$STRICT" -eq 1 ] && EXIT_CODE=1
   else

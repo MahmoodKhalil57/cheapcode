@@ -4,16 +4,20 @@ The one-page summary. Update the bracketed `[fields]` as the project moves. Don'
 
 ---
 
-## Goal
+## Goal — v1.0 narrowed (per Option 3, M3.8)
 
-A working `cheapcode` binary — a small spin-off of opencode — that on hard reasoning tasks (TB-medium / TB-hard multistep slice) is **cheaper, faster, AND smarter** than calling GPT-5.5 directly. All three at once, measured, with the numbers cited in the README.
+A working `cheapcode` binary — a small spin-off of opencode — that exposes **5 routing tiers** (`cheap`, `cheap-fast`, `smart`, `smart-fast`, `auto`) over OpenRouter. Operator can rebase against upstream weekly without pain because cheapcode ships zero patches to opencode.
 
-Concrete deliverables:
+The 3-axis comprehensive-dominance claim (cheaper + faster + smarter than GPT-5.5 on multistep) is **deferred to v1.x** — needs Phase 2 wrapper + EXPERIMENT-1, both gated on a fitter benchmark than TB-3 (M3.2 retrospective surfaced the failure-mode mismatch).
 
-- A binary that runs on the operator's laptop
-- It exposes 5 new "models" when OpenRouter is connected: `cheap`, `cheap-fast`, `smart`, `smart-fast`, `auto`
-- A measured 3-axis scorecard in the README, structured as a [Model Card](https://arxiv.org/abs/1810.03993) — the documentation standard used by HuggingFace / Meta / Google / OpenAI
-- A small open-source fork of [opencode](https://github.com/sst/opencode) (pinned at v1.14.33) that the operator can rebase against upstream weekly without pain
+Concrete v1.0 deliverables:
+
+- A small npm package `@cheapcode/ai-sdk-provider` that opencode loads via `provider.cheapcode.npm` in opencode.json
+- 5 tier IDs registered: `cheap` → deepseek-v4-flash, `cheap-fast` → deepseek-v4-flash (race-K stub), `smart` → gpt-5-mini, `smart-fast` → claude-haiku-4.5, `auto` → STUB to cheap (Phase 2 wrapper deferred)
+- Long-context override > 128k → grok-4-fast (cheap/auto only)
+- Operator override via `cheapcode.toml` (zero env-var feature flags per cell #11)
+- A measured Model Card scorecard in the README ([Model Cards](https://arxiv.org/abs/1810.03993)) honestly disclosing what's in scope, what's deferred, and why
+- A small open-source fork of [opencode](https://github.com/sst/opencode) (pinned at v1.14.33) — actually zero-patch, so "fork" is a misnomer; cheapcode is a separate npm package consumed by upstream-vanilla opencode
 
 ---
 
@@ -29,59 +33,59 @@ Concrete deliverables:
 
 # AGENT UPDATE BELOW
 
-## What you ARE getting
+## What you ARE getting (v1.0)
 
-- A working binary that's cheaper, faster, AND smarter than raw GPT-5.5 on hard reasoning — **measured and cited**, not claimed
-- Routing to a cheap AI for routine work (~30× cheaper than GPT-5.5)
-- A long-context option (2 million words at $0.37 per call)
-- Honest documentation of when cheapcode is best vs when it isn't
-- A model smarter than frontier models at multistep hard tasks
+- 5 tier-IDs in opencode's model picker: `cheap`, `cheap-fast`, `smart`, `smart-fast`, `auto`
+- Routing to a cheap AI for routine work (~30× cheaper than GPT-5.5 per cheapllm v1's L1 receipts)
+- A long-context option > 128k tokens via grok-4-fast (cheapllm v1's NIAH 2M PASS at $0.37/call)
+- Operator-side override via `cheapcode.toml`
+- Zero patches to opencode upstream — weekly rebase is `git fetch && git rebase` with no conflicts possible by construction (M3.5 lifted weekly_rebase_holds to @0.97 on this self-evidence)
+- A Model Card README that honestly discloses scope + deferrals + why
 
 ---
 
-## What you are NOT getting
+## What you are NOT getting (v1.0 honest disclosure)
 
-- **Not smarter than GPT-5 on single step tasks.** Wrapper is bounded above by the best frontier model in the ensemble, but we can do better on multistep.
+- **Not smarter than GPT-5.5 on multistep.** v1.0 is a routing harness, not a reasoning amplifier. The compound-LLM auto wrapper is deferred to v1.x — Option 3 picked at M3.7 specifically because the M3.2 retrospective surfaced that EXPERIMENT-1's TB-3 slice has a failure-mode mismatch with substrate-style verifiers.
+- **Auto tier is a STUB to cheap.** The `auto` model name is honest in surface but doesn't yet do plan-decompose + best-of-K + verify. v1.x replaces this.
+- **No 3-axis dominance claim.** That claim survives in PLAN.bn at @0.45-0.85 confidence as a v1.x target, not a v1.0 ship target.
+- **Smart-fast latency is unmeasured.** We picked claude-haiku-4.5 pending TTFT verification. v1.x runs the latency probe.
 - **Not a free service.** You need an OpenRouter API key + pay per usage.
-- **Not zero-maintenance.** Weekly upstream rebase from vanilla opencode is required to stay current.
 - **Not multi-tenant or cloud.** Single user, single machine. Multi-account features may come later but are explicitly deferred.
-- **Not tested on every benchmark.** Running experiments is expensive, but we can run experiments in an educated way to get a near perfect confidence level
 
 ---
 
 ## Progress
 
 ```
-[                    ] 0%
+[██████████          ] 50%  (Phase 0+1 shipped; Phase 2 deferred per Option 3; Phase 3+4+5 ahead)
 ```
 
-Only working code counts. Phase 0 (research + decisions) is done but doesn't move the bar — code starts in Phase 1.
-
-### Phase plan (LOCKED 2026-05-02 per SPEC Revision 2026-05-02f)
+### Phase plan (UPDATED 2026-05-03 per SPEC Revision 2026-05-03i)
 
 | Phase | Goal | Wall | $ | Status |
 |---|---|---|---|---|
-| 0 | Final research synthesis (lock model picks) | 2h | $0 | `[x]` ✅ done in ~30min, $0 |
-| 1 | Fork + 5-tier registration (no wrapper) | 4h | $0 | `[ ]` |
-| 2 | Auto wrapper MIN + EXPERIMENT-1 | 6h | $5 | `[ ]` |
-| 3 | 4-client smoke regression | 2h | $0 | `[ ]` |
-| 4 | Scorecard + README | 2h | $1 | `[ ]` |
-| 5 | Ship (tag + daftar) | 1h | $0 | `[ ]` |
-| | Buffer | 7h | $4 | |
+| 0 | Final research synthesis | 2h | $0 | `[x]` ✅ M2.0 |
+| 1 | Fork + 5-tier registration | 4h | $0 | `[x]` ✅ M3.0 (zero-patch ship) |
+| 2 | Auto wrapper MIN + EXPERIMENT-1 | 6h | $5 | `[~]` 🟡 **DEFERRED to v1.x** per Option 3 (M3.8) |
+| 3 | 4-client smoke regression | 2h | $0-1 | `[ ]` next — needs operator BYOK |
+| 4 | Scorecard + README (Model Card) | 2h | $1 | `[ ]` |
+| 5 | Ship (v1.0.0 tag + daftar) | 1h | $0 | `[ ]` |
+| | Buffer (Phase 2 cost reclaimed) | 13h | $9 | comfortable headroom |
 
-**Phase 0 decisions** locked in [`runs/phase-0/decisions.md`](runs/phase-0/decisions.md): opencode pin **v1.14.33**, smart-fast pick **claude-haiku-4.5** primary, cheap-fast race-K pair **deepseek-v4-flash + gemini-2.5-flash**. No umbrella drops. **Falsifier gate cleared. Authorized to start Phase 1.**
+**Substrate-tooling sub-stream (M3.3-M3.7):** added `tools/burhan-snapshot.sh` + `tools/burhan-revisit.sh` — auto-propagation of confidence + 5-action heuristic scanner (explore/move/dissect/merge/remove) + MAIN.md drift detection. Built outside the original phase plan; surfaced and resolved 11 of 17 plan-graph drift items via successive lift cycles (M3.4-M3.7).
 
-Each phase has a falsifier gate in [SPEC.md](SPEC.md) Revision 2026-05-02f. If a gate triggers, the project pivots per the pivot table or halts honestly.
+**Phase 0 decisions** locked in [`runs/phase-0/decisions.md`](runs/phase-0/decisions.md). **Phase 1 shipped** per [`runs/phase-1/result.md`](runs/phase-1/result.md). **Phase 2 deferred** per [SPEC](SPEC.md) Revision 2026-05-03i.
 
-**Project halt conditions** (independent of phase): wall-clock 22h+ with Phase 2 not started, cumulative spend $9+ before Phase 4, any umbrella's research-equivalent confidence drops during Phase 0, or upstream opencode provider architecture changes mid-project.
-
-**Mizaj 16 discipline:** before any experiment in any phase, the agent MUST run a research-synthesis check. If research can answer with ≥0.85 confidence, skip the experiment. **Experiments count toward the 24h envelope; research is free.**
+**Mizaj 16 discipline:** before any experiment in any phase, run research-synthesis check first. **Experiments count toward the 24h envelope; research is free.**
 
 ---
 
 ## Confidence
 
-**~65%** that the plan succeeds within the $10 / 24h limits as of 2026-05-03 (Phase 0 complete, Phase 1 awaiting GO). Lifted from **~17% → ~65%** by: refactoring to 5 load-bearing umbrella claims (M1.6, substrate-driven per atom 0011 + mizaj 02/07), three parallel research rounds (Snell ICLR 2025, EMNLP CAI papers, SWE-bench leaderboard, METR, opencode docs, Cognition Devin), one honesty-verification probe (caught + corrected a 0.7pp over-statement on cpkt9762/opencode-vscode-ide), and Phase 0 final lock with no umbrella drops.
+**~80% v1.0 ship within remaining envelope** as of 2026-05-03 post Option 3 (M3.8). Phase 0 ✅ + Phase 1 ✅ shipped. Phase 3 + 4 + 5 ahead, ~5h wall, ≤$1. Phase 2 deferred per Option 3.
+
+The original 65% v1 confidence applied to a v1 that included compound-LLM auto-wrapper. After Option 3 narrowing, v1.0 is structurally simpler (routing harness only) so confidence in shipping THIS v1.0 is higher — ~80% — at the cost of accepting that 3-axis dominance claims are deferred to v1.x.
 
 | State                                              | Joint confidence | What you'd need                                         |
 | -------------------------------------------------- | ---------------- | ------------------------------------------------------- |

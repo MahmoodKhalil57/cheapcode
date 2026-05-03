@@ -1,0 +1,50 @@
+{
+  "burhan_snapshot_version": 1,
+  "claims": {},
+  "created_at": "2026-05-03T00:45:10.650279Z",
+  "joints": {},
+  "joints_semantics": "INDEPENDENT-PRODUCT floor. Walks both claim\u2192claim cites AND claim\u2192theorem\u2192claim assume-references. Treats all claims as independent \u2014 overstates dilution per khazina atom 0015. For correlation-aware joints, defer to project-level tooling.",
+  "sources": [
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/01-substrate-citations.bn",
+      "sha256": "b7756809a1a46cf10757db4c53b83382bd089c7462da56d14b96eee007266c55"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/02-cheapllm-receipts.bn",
+      "sha256": "14d9af7d03a9f949dd804400c815d71eab63fc6f1fd7bbdac21d62cc80ff05aa"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/03-research-papers.bn",
+      "sha256": "75fc4dc8b95d6d6880b46de0a89dd05b1aff061749cd2dd8244ca273fb7886e7"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/04-khazina-atoms.bn",
+      "sha256": "8393d9f7e53376fc9de69c5cf7df8f1cfc99ba7a98b09156e4809c59d023526f"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/05-production-deployment-evidence.bn",
+      "sha256": "ac015a453f9e425843ab4fa9435689ca957b3d8e3302a471dfc5e8b318244e76"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/06-test-time-compute-bleeding-edge.bn",
+      "sha256": "202aa2853710e6451e302010c6e05028f8fd34de4aa68ae969e3e48e8e84ee4b"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/07-thin-fork-and-compound-production-evidence.bn",
+      "sha256": "176a6cd5c742689976cd9aa702bb16f19b08639610e08da2449dd6c97865d58b"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "sha256": "01cb4b694b54fccb0428ffc9b86a1ae13a5094df6cce35dc82f0eec9173de825"
+    }
+  ],
+  "tracked_files": [
+    {
+      "path": "/home/mk/apps/cheapcode/MAIN.md",
+      "sha256": "1dc86b7093e59917a6cb3cffff08af2c60d6c50a505147b3602740142d9450d1"
+    }
+  ],
+  "warnings": [
+    "evaluator-error: NameError: Unknown identifier 'phase_2_wrapper_passes_at_least_min'"
+  ]
+}

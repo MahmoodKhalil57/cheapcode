@@ -447,32 +447,32 @@ claim project_no_halt_condition_triggered: Bool @>=0.92 = not obs_project_wall_c
 falsified_when obs_project_wall_clock_22h_phase_2_not_started or obs_project_cumulative_spend_9_before_phase_4 or obs_project_upstream_provider_arch_changed
 
 # ============================================================
-# SECTION W - v1 ships discharge (M3.4 — added per burhan-revisit findings)
+# SECTION W - v1.0 ships discharge (M3.4 added; M3.8 narrowed per Option 3)
 #
-# Per MAIN.md: v1 = "5 tiers shipped + auto-wrapper that beats raw GPT-5.5
-# on multistep reasoning." v1 IS the primary product; v2 / v3 are
-# alternate proof-shapes that ADD competitive-comparison or umbrella-
-# grounding on top of v1.
+# Per MAIN.md and SPEC Revision 2026-05-03i: v1.0 = "5 tiers + auto-stub,
+# zero patches to opencode upstream, OpenRouter-routed." v2 / v3 are
+# forward-looking proof-shapes that ADD compound-LLM claims (auto wrapper,
+# 3-axis dominance, etc.) — those stay deferred to v1.x or a follow-on
+# project per Option 3.
 #
-# The phase_0..5 claims represent each phase's success gate per SPEC
-# Revision 2026-05-02f. Without a discharge that composes them, they
-# look orphaned to burhan-revisit (REMOVE flag). This theorem ties them
-# together as the load-bearing v1-shipping claim.
+# Per Option 3 narrowing: phase_2_wrapper_passes_at_least_min is REMOVED
+# from this theorem's assume-clause because Phase 2 is electively deferred,
+# not a failed gate. The remaining phases (0, 1, 3, 4, 5) + project_no_halt
+# + smart_fast_tier_choice are what v1.0 actually depends on.
 #
-# smart_fast_tier_choice_pending_measurement is included here (5-tier
-# registration is what Phase 1 ships) — was orphaned in M3.3's revisit
-# because the v2 theorem only assumes the 4 simpler tiers.
-#
-# Confidence: cheapcode_v1_ships @>=0.45 — joint of phase claims is
-# bounded by phase_2 (0.65, the experimental phase). Honest forward-
-# looking estimate; will lift as phases complete (Phase 0 + 1 already
-# closed at M2.0 + M3.0).
+# Confidence: cheapcode_v1_ships @>=0.65 — joint of phase claims now
+# bounded by smart_fast_tier_choice_pending_measurement (0.75) instead of
+# phase_2 (0.65). Honest forward-looking estimate; Phase 3 + 4 + 5 closure
+# will further constrain.
 # ============================================================
 
 theorem cheapcode_v1_ships_via_phase_completion
-  assume phase_0_research_lock_holds and phase_1_fork_and_registration_succeeds and phase_2_wrapper_passes_at_least_min and phase_3_4_client_smoke_passes and phase_4_scorecard_honest and phase_5_shipped and project_no_halt_condition_triggered and smart_fast_tier_choice_pending_measurement
+  assume phase_0_research_lock_holds and phase_1_fork_and_registration_succeeds and phase_3_4_client_smoke_passes and phase_4_scorecard_honest and phase_5_shipped and project_no_halt_condition_triggered and smart_fast_tier_choice_pending_measurement
   proves True
   by audit cheapcode-v1-ship-discharge
 
-claim cheapcode_v1_ships: Bool @>=0.45 = cite cheapcode_v1_ships_via_phase_completion
-falsified_when obs_phase_0_research_falsifies_umbrella or obs_phase_1_5_tiers_dont_appear_in_model_list or obs_phase_2_experiment_1_fails_all_axes or obs_phase_3_any_client_falsifies_propagation or obs_phase_4_measured_contradicts_spec_targets or obs_phase_5_administrative_failure or obs_project_wall_clock_22h_phase_2_not_started
+claim cheapcode_v1_ships: Bool @>=0.65 = cite cheapcode_v1_ships_via_phase_completion
+# Note: obs_phase_2_experiment_1_fails_all_axes is intentionally NOT in
+# this list — Phase 2 is electively deferred per Option 3, so a phase_2
+# observation cannot falsify v1.0 ship.
+falsified_when obs_phase_0_research_falsifies_umbrella or obs_phase_1_5_tiers_dont_appear_in_model_list or obs_phase_3_any_client_falsifies_propagation or obs_phase_4_measured_contradicts_spec_targets or obs_phase_5_administrative_failure or obs_project_wall_clock_22h_phase_2_not_started

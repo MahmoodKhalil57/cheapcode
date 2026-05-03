@@ -587,6 +587,90 @@ If EXPERIMENT-1 shows substrate-marginal-lift <5pp, joint stays where it was; th
 
 ---
 
+## Revision 2026-05-03i — Option 3 lock: defer Phase 2 + EXPERIMENT-1 to v1.x; ship narrower v1.0
+
+Operator picked Option 3 from M3.7's choice point: "defer EXPERIMENT-1 entirely; ship cheapcode v1 with the current 6-EXPLORE-item disposition + honest scorecard."
+
+### Context
+
+Three lift cycles (M3.5 / M3.6 / M3.7) exhausted the $0 research-lift pool. PLAN.bn went 17 → 6 EXPLORE items. Remaining 6 are either structural compositional dilution (3 discharge claims) or measurement-gated (cross_model_verification, phase_2_wrapper, smart_fast_tier_choice). No further $0 lifts available.
+
+The M3.2 retrospective surfaced a structural concern: Phase 2 EXPERIMENT-1's TB-3 multistep slice has a failure-mode mix (code-execution / system-success) orthogonal to substrate's strength (reasoning-with-citations). Running Arm B as-specified would likely return FAIL-B for the wrong reason (axis mismatch, not hypothesis falsification).
+
+Three options were live: (1) run as specified expecting FAIL-B, (2) reframe Arm B benchmark to knowledge-intensive reasoning, (3) defer entirely.
+
+### Decision
+
+**Option 3 locks.** Defer Phase 2 (auto wrapper MIN + EXPERIMENT-1) to v1.x. Ship cheapcode v1.0 at narrower scope.
+
+Implications:
+
+| Item | v0/v1.x (deferred) | v1.0 (this ship) |
+|---|---|---|
+| 5-tier registration | ✅ shipped Phase 1 | ✅ shipped Phase 1 |
+| Auto wrapper compound logic | Phase 2 deferred | auto = STUB to cheap |
+| EXPERIMENT-1 3-axis dominance | Deferred | Not claimed |
+| Substrate-as-runtime-verifier (atom 0016) | Deferred | Build-time discipline only (validated) |
+| Cross-model verification | Deferred | Not exercised |
+| 4-client smoke regression (Phase 3) | — | ✅ in scope |
+| Honest scorecard (Phase 4) | — | ✅ in scope |
+| Ship (Phase 5) | — | ✅ in scope |
+
+### What v1.0 IS
+
+- Five tier IDs registered via opencode's `provider.<id>.npm` mechanism
+- Each routes to OpenRouter via `@openrouter/ai-sdk-provider`
+- Tier picks per Phase 0 decisions: cheap = deepseek-v4-flash, smart = gpt-5-mini, smart-fast = claude-haiku-4.5, cheap-fast = deepseek-v4-flash (race-K stub), auto = STUB → cheap
+- Long-context override > 128k → grok-4-fast (cheap/auto only)
+- Operator override via `cheapcode.toml` (zero env-var feature flags)
+- Zero patches to opencode upstream (cell #15 = 0)
+
+### What v1.0 IS NOT (honest disclosure per atom 0013)
+
+- No compound-LLM auto-wrapper. The `auto` model name is honest in surface but routes to cheap; v1.x will replace this.
+- No 3-axis dominance claim. `cheapcode_v2_ships`, `cheapcode_v3_ships`, `cheapcode_auto_3_axis_dominance_on_multistep_over_raw_frontier` — these stay in PLAN.bn as forward-looking v1.x claims at @0.45-0.85, not v1.0 ship targets.
+- No smarter-than-GPT-5.5 multistep claim. cheapcode v1.0 is a routing harness, not a reasoning amplifier.
+- No measured smart-fast latency win. The smart-fast tier picks claude-haiku-4.5 pending TTFT verification (smart_fast_tier_choice_pending_measurement @0.75).
+- No validation of khazīna atom 0016's runtime-verifier-head hypothesis. Substrate stays as build-time authoring discipline (which IS validated — atom 0010 caught 0.7pp over-statement in M1.9; cheapllm v1 logged 7× atom-0015 firings). Atom 0016's `meta.audit_notes` updated to reflect Option 3 election.
+
+### What changes in PLAN.bn
+
+The `cheapcode_v1_ships_via_phase_completion` theorem is updated to reflect v1.0's narrower scope: phase_2_wrapper_passes_at_least_min is REMOVED from its assume-clause (Phase 2 is deliberately deferred, not a failed gate). Phase 0, 1, 3, 4, 5 + project_no_halt + smart_fast remain.
+
+This raises the v1 joint slightly (one fewer 0.65-confidence dependency multiplied in the deep-walk independent product) — but more importantly, makes the discharge accurately represent what's being shipped.
+
+### Cell-level updates
+
+| Cell | M3.7 state | M3.8 (Option 3) state |
+|---|---|---|
+| #14 (LoC budget) | EXPECTED ≤900 LoC | MIN ≤500 LoC honored — only cheapcode-tiers.ts (214 LoC) ships in v1.0 |
+| #15 (upstream files modified) | MIN ≤1 | 0 (better than MIN) |
+| #18 (auto wrapper LoC) | MIN ≤350 | N/A for v1.0 (deferred) |
+| #19 (substrate verifier LoC) | MIN ≤100 | N/A for v1.0 (deferred) |
+| #13 (cheapbench coverage) | ≥5 task shapes | N/A for v1.0; routing-only product doesn't run cheapbench |
+
+### Falsifier gate disposition for v1.0 ship
+
+Original Phase 2 falsifiers (3-axis dominance, substrate-marginal-lift) are MOOT for v1.0 — those claims aren't being shipped. The remaining v1.0 falsifier is the original Phase 1 gate (5 tiers in `--list-models`), which closes at Phase 3 smoke regression (next phase).
+
+Phase 3 budget: 2h wall, $0-1 spend (one tiny smoke prompt × 4 clients via operator's BYOK OpenRouter key).
+
+### Why this is honest, not retreat (atom 0013)
+
+cheapcode v1.0 ships as a clean, narrow, auditable routing harness with zero patches to opencode upstream and a complete supply chain (5 tiers + tier-config-via-toml + long-context override). That IS the smallest distinguishing experiment per atom 0011 — does the npm-package mechanism propagate 5 tiers to all 4 clients? Phase 3 closes that gate.
+
+The COMPOUND-LLM ambitions (auto wrapper, EXPERIMENT-1) deserve their own dedicated investigation — likely with a fitter benchmark than TB-3 per the M3.2 retrospective. v1.x or a separate compound-LLM project picks that up. Shipping v1.0 narrow now avoids the failure mode where ambitious-scope produces nothing because the wrapper experiment confused the signal.
+
+Per atom 0013 (calibration-discipline-as-credential-substitute): the honest narrow scope IS the credential. The README scorecard discloses what's in / what's out / what's deferred / why — that disclosure is what differentiates cheapcode from a vendor stack-default.
+
+### Pointer for Phase 3 entry
+
+Phase 3 process per SPEC Revision 2026-05-02f, with one wording change: smoke must verify 5 tiers in `--list-models` AND that one prompt routes correctly through `cheap` tier (the simplest sanity check). The auto-tier stub routing to cheap is acceptable v1.0 behavior; verify it returns SOMETHING (no error), not that it does compound logic.
+
+Operator action required: provide OpenRouter BYOK key for the smoke test. Estimated cost: ≤$0.05 in tokens for the 4-client × 1-prompt smoke.
+
+---
+
 ## Sign-off
 
 This SPEC takes effect once committed. Refinements after that require a new dated section (`## Revision YYYY-MM-DD`) plus a falsifier explaining why the change is load-bearing. The original matrix stays; nothing edits in place.

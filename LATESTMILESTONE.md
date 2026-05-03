@@ -6,6 +6,88 @@
 
 ---
 
+## M3.8 — Option 3 lock: defer Phase 2 + EXPERIMENT-1 to v1.x; ship narrower v1.0 (2026-05-03)
+
+### Status
+
+Accepted. SPEC Revision 2026-05-03i pinned; PLAN.bn discharge updated; MAIN.md scope narrowed.
+
+### Context
+
+After three research-lift cycles (M3.5 / M3.6 / M3.7) the $0 research-lift pool was exhausted — PLAN.bn dropped from 17 → 6 EXPLORE items. Remaining 6 are either structural compositional dilution (3 discharge claims) or measurement-gated (cross_model_verification, phase_2_wrapper, smart_fast_tier_choice).
+
+The M3.2 retrospective surfaced a load-bearing concern: Phase 2 EXPERIMENT-1's TB-3 multistep slice has a failure-mode mix (code-execution / system-success failures) orthogonal to the substrate's strength (reasoning-with-citations consistency). Running Arm B as-specified would likely return FAIL-B for the wrong reason — axis mismatch, not hypothesis falsification.
+
+Three options live: (1) run as specified expecting FAIL-B, (2) reframe Arm B benchmark, (3) defer entirely. Operator picked Option 3 at end of M3.7.
+
+### Decision
+
+Defer Phase 2 (auto wrapper MIN + EXPERIMENT-1) and Phase 2's substrate-as-runtime-verifier-head test to v1.x. Ship cheapcode v1.0 at narrower scope: 5 tier registration only, auto = STUB to cheap, no compound-LLM wrapper.
+
+Cascade:
+
+- **SPEC** Revision 2026-05-03i: documents Option 3, marks cells #18 (auto-wrapper LoC) and #19 (substrate verifier LoC) as N/A for v1.0. Cells #14 (LoC budget) honors MIN ≤500 (only 214 LoC ships).
+- **PLAN.bn** SECTION W (`cheapcode_v1_ships_via_phase_completion`): theorem assume-clause now drops `phase_2_wrapper_passes_at_least_min`. v1.0 ships when phases 0, 1, 3, 4, 5 + project_no_halt + smart_fast_tier_choice hold. Discharge confidence rises 0.45 → 0.65 (no more phase_2's 0.65 dragging the joint).
+- **MAIN.md**: goal narrowed to "5 tier IDs + zero-patch package". Three-axis comprehensive-dominance, smarter-than-frontier, auto-wrapper claims explicitly moved to "what you are NOT getting (v1.0)". Progress bar 0% → 50%.
+- **Khazīna atom 0016** (`substrate-as-deterministic-verifier-head`): runtime claim stays `drafted-but-not-validated` per Option 3 election. Build-time interpretation IS validated (atom 0010 caught 0.7pp over-statement in cheapcode M1.9; cheapllm v1 logged 7× atom-0015 firings).
+
+### Consequences
+
+**Good:**
+- v1.0 ships clean, narrow, auditable. The smallest distinguishing experiment (atom 0011) for the npm-package mechanism IS Phase 3 smoke regression — and that closes the original Phase 1 falsifier gate (5 tiers in `--list-models`).
+- $4-5 + 6h wall reclaimed; comfortable headroom for Phase 3 + 4 + 5.
+- Compound-LLM ambitions live as forward-looking PLAN.bn claims (v2/v3) at honest forward-looking confidences. They get their own dedicated investigation later, ideally with a fitter benchmark than TB-3.
+- Per atom 0013 (calibration-discipline-as-credential): the honest narrow scope IS the credential. Phase 4 README's Model Card scorecard discloses what's in / what's out / what's deferred / why.
+
+**Bad / honest tradeoffs:**
+- The "smarter than GPT-5.5 on multistep" pitch is gone from v1.0. cheapcode v1.0 markets as "5 routing tiers + zero patches" — significantly less ambitious than the original M1.2 framing.
+- Khazīna atom 0016's runtime interpretation stays untested indefinitely. The build-time discipline still validates, but the structural claim that substrate IS a runtime verifier head is in limbo until v1.x or a follow-on project tests it on a fitter benchmark.
+- Operators who came expecting comprehensive-dominance might be disappointed. The honest disclosure rules out the silent failure mode where we ship a wrapper that fails on TB-3 and call it "calibration."
+
+### Pointer for Phase 3 entry
+
+Phase 3 process per SPEC Revision 2026-05-02f, with one wording update from Revision 2026-05-03i: smoke verifies 5 tiers in `--list-models` AND that one prompt routes correctly through `cheap` tier. The auto-stub returning to cheap IS acceptable v1.0 behavior; verify it returns SOMETHING (no error), not that it does compound logic.
+
+Operator action required: provide OpenRouter BYOK key for the smoke. Estimated cost ≤$0.05 across 4 clients × 1 prompt.
+
+After Phase 3 closes: write Phase 4 README per Model Cards format; v1.0.0 git tag in Phase 5.
+
+---
+
+## M3.7 — batch lift: apophatic +0.10, plan_decompose +0.05, honest-skip cross_model (2026-05-03)
+
+Status: Accepted. PLAN.bn 8 → 6 EXPLORE items. $0 research-lift pool exhausted.
+- auto_wrapper_apophatic 0.80 → 0.90 (3 L1 + 2 L3)
+- plan_decompose 0.80 → 0.85 (3 L3 ceiling)
+- cross_model_verification SKIPPED — atom 0015 fires; Phase 2 EXPERIMENT-1 was the smallest distinguishing experiment, now deferred per M3.8.
+
+## M3.6 — cross_witness_pattern_lifts_hard_reasoning 0.80 → 0.90 (2026-05-03)
+
+Status: Accepted. 2 L1 in-house (atoms 0010, 0014) + 5 L3 mutawatir (Wang 2022 self-consistency, Optimal-SC 2025, Adaptive-TTC, Forest-of-Thought 2024, Difficulty-Adaptive NAACL 2025). PLAN.bn 9 → 8 EXPLORE items.
+
+## M3.5 — weekly_rebase_holds 0.80 → 0.97 (2026-05-03)
+
+Status: Accepted. Lifted on zero-patch self-evidence (M3.0 + M3.2 confirmed Phase 1 + Phase 2 architecture both stay at 0 patches). With 0 patches, weekly rebase reduces to `git fetch && git rebase` with no conflicts possible. Paired with burhan@de3e844 (deep-walk joint computation through theorem assumes). PLAN.bn 10 → 9 EXPLORE items.
+
+## M3.4 — plan refactor: cheapcode_v1_ships discharge added; orphan obs retired (2026-05-03)
+
+Status: Accepted. Acted on M3.3 burhan-revisit findings. Added SECTION W theorem composing phase_0..5 + project_no_halt + smart_fast_tier_choice into `cheapcode_v1_ships @0.45`. Removed orphaned `obs_phase_2_experiment_1_partial`. Paired with burhan@4867e9c (theorem regex anchored to start-of-line — false-matching `# theorem ties...` comments was hiding v1's theorem from closure walker). PLAN.bn 17 → 10 EXPLORE items.
+
+## M3.3 — substrate tooling: burhan auto-confidence-propagation + branch-revisit (2026-05-03)
+
+Status: Accepted. Operator redirect: "we are missing from our tool substrate a way to propagate confidence through burhan files automatically, and a way to auto highlight branches that need revisiting (explore/move/dissect/merge/remove) when something changes from main.md or more burhan is added." Built three tools in burhan/bin/ (snapshot, diff, revisit) + two cheapcode wrappers. Substrate now reflexively audits its own plan-graph; surfaces drift on MAIN.md hash change AND new burhan files added.
+
+## M3.2 — Phase 2 entry research: architecture, prior art, retrospective (2026-05-03)
+
+Status: Accepted. Three Phase 2 entry investigations at $0:
+1. **Architecture** — opencode source-read confirmed npm-package-only is viable (zero patches needed for compound-LLM auto-wrapper). LanguageModelV3.doGenerate is treated as opaque by opencode.
+2. **Arm B prior art** — novel; ~0.30 prior-art coverage, well below mizaj-16 0.85 skip threshold. Adjacent papers (HERMES, LLM-Modulo, LINC) all shift at least one variable.
+3. **$0 retrospective** — checked cheapllm v1's TB-3 misses; substrate would have caught 0/2 (best case). TB / Terminal-Bench failure mix is code-execution dominated; substrate's strength is reasoning-with-citations consistency. Orthogonal axes. Surfaced three options to operator.
+
+## M3.1 — substrate-as-deterministic-verifier-head + EXPERIMENT-1 arm split (2026-05-03)
+
+Status: Accepted. Operator reframe lands a Phase-2-architecture decision and adds Arm B (substrate-on) vs Arm A (substrate-off) to EXPERIMENT-1. Convergent-evolution credential: muḥaddithūn + Cochrane GRADE independently arrived at tiered-source authentication for multi-step claims. Khazīna atom 0016 drafted (drafted-but-not-validated; runtime claim hypothesis-status). SPEC Revision 2026-05-03h committed.
+
 ## M3.0 — Phase 1 ships: zero-patch 5-tier provider package (2026-05-02)
 
 ### Status
