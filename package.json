@@ -1,7 +1,7 @@
 {
   "name": "@cheapcode/ai-sdk-provider",
-  "version": "0.1.0-phase-1",
-  "description": "5 synthetic tier models (cheap, cheap-fast, smart, smart-fast, auto) for opencode via OpenRouter. Phase 1 ships the 4 simple tiers + auto stub; Phase 2 adds the structured-reasoning wrapper.",
+  "version": "0.1.0-rc1",
+  "description": "General-agent routing intelligence for opencode. 5 tier-IDs (cheap/cheap-fast/smart/smart-fast/auto); auto tier classifies tasks by failure-mode signature and dispatches to the documented value-optimum frontier model. Zero patches to opencode upstream.",
   "type": "module",
   "main": "src/cheapcode-tiers.ts",
   "exports": {
@@ -11,11 +11,13 @@
   },
   "files": [
     "src/cheapcode-tiers.ts",
-    "README.md",
-    "LICENSE"
+    "src/auto-wrapper.ts",
+    "src/router.ts",
+    "README.md"
   ],
   "peerDependencies": {
-    "@openrouter/ai-sdk-provider": "*"
+    "@openrouter/ai-sdk-provider": "*",
+    "ai": "^6.0.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0"
@@ -28,7 +30,7 @@
     "ai",
     "openrouter",
     "opencode",
-    "cheapllm",
+    "router",
     "ai-sdk",
     "provider"
   ]

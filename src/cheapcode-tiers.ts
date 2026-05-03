@@ -121,6 +121,13 @@ export interface CheapcodeProvider {
   (modelId: TierId | string): ReturnType<ReturnType<typeof createOpenRouter>>
   /** Lists the 5 synthetic tier IDs (for opencode --list-models surfacing). */
   models: readonly TierId[]
+  /**
+   * Vercel AI SDK convention: provider exposes `.languageModel(id)` method.
+   * opencode calls this after loading the package (provider.ts:195).
+   * Also defined as a callable function for convenience (the openrouter
+   * pattern). Both shapes resolve to the same model.
+   */
+  languageModel: (modelId: TierId | string) => ReturnType<ReturnType<typeof createOpenRouter>>
 }
 
 /**
@@ -248,6 +255,16 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
 
   Object.defineProperty(provider, "models", {
     value: Object.keys(CHEAPCODE_TIERS) as readonly TierId[],
+    writable: false,
+    enumerable: true,
+  })
+
+  // Vercel AI SDK convention: provider exposes `.languageModel(id)` so
+  // opencode (and any AI-SDK consumer) can call `sdk.languageModel(modelID)`
+  // after loading the package. Mirrors the callable `provider(modelId)`
+  // shape used by `@openrouter/ai-sdk-provider`.
+  Object.defineProperty(provider, "languageModel", {
+    value: (modelId: string) => provider(modelId),
     writable: false,
     enumerable: true,
   })
