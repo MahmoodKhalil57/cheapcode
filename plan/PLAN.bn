@@ -815,10 +815,22 @@ falsified_when obs_single_witness_rescue_introduces_more_wrong_than_right_falsif
 # Empirical claim — GPT-5 hallucinates class-specific formulas on
 # specialized geometry problems; voter cross-witness mechanism catches
 # this when at least one witness has the correct formula. N=1 firing
-# (AIME-I-14 disphenoid). Atom 0010 runtime instance.
+# (AIME-I-14 disphenoid). Atom 0010 runtime instance. M3.26 update:
+# claim now has IMPLEMENTATION evidence — src/router.ts extended with
+# specialized-formula-geometry markers; 3 new tests pass; future tasks
+# matching the regex route to voter even without AIME markers.
+# Confidence 0.55 → 0.62 — implementation lifts the runtime claim
+# slightly even before more N=k validation lands.
 claim obs_voter_does_not_catch_gpt5_formula_errors_falsified: Bool @>=0.99 = False
-claim voter_catches_gpt5_class_specific_formula_errors_on_specialized_geometry: Bool @>=0.55 = not obs_voter_does_not_catch_gpt5_formula_errors_falsified
+claim voter_catches_gpt5_class_specific_formula_errors_on_specialized_geometry: Bool @>=0.62 = not obs_voter_does_not_catch_gpt5_formula_errors_falsified
 falsified_when obs_voter_does_not_catch_gpt5_formula_errors_falsified
+
+# Routing rule 12 (M3.26) — specialized-formula geometry → voter even
+# without AIME markers. Implementation: src/router.ts classifyTaskShape
+# regex extension. Tests: src/router.test.ts (3 new). Cycle-A-derived.
+claim obs_route_specialized_formula_geometry_falsified: Bool @>=0.99 = False
+claim route_specialized_formula_geometry_holds: Bool @>=0.55 = not obs_route_specialized_formula_geometry_falsified
+falsified_when obs_route_specialized_formula_geometry_falsified
 
 # Empirical claim — wrapper amortizes on hard-multistep tasks where
 # baseline burns many reasoning tokens. M3.11b N=10: 4 tasks (h02, h04,

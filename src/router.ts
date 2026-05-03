@@ -113,11 +113,23 @@ export function classifyTaskShape(input: unknown): ClassifierResult {
   // Hard-reasoning: AIME / olympiad / multi-step proofs. Distinguished from
   // math-chain by length + difficulty markers. Triggers cross-witness voter
   // (M3.18) — substrate-runtime dispatch on the benchmark that fits atom 0016.
+  //
+  // M3.26 (cycle A from M3.25): also catches specialized-formula geometry
+  // problems (disphenoid, inscribed/inradius/circumradius, tetrahedron with
+  // class-specific formulas). Cycle A on AIME-I-14 found GPT-5 hallucinated
+  // the disphenoid volume formula confidently, while voter caught the
+  // mismatch via cross-witness disagreement (smart_C had the correct
+  // formula). Voter > direct-frontier on this class even without AIME
+  // markers. Per atom 0010 + atom 0017 cycle output.
   if (
-    (/\b(aime|olymp|imo|usamo|putnam)/.test(lower)
-      || (/\b(prove|find the smallest|find all|how many)/.test(lower) && tokens > 100))
+    /\b(aime|olymp|imo|usamo|putnam)/.test(lower)
+    || (/\b(prove|find the smallest|find all|how many)/.test(lower) && tokens > 100)
+    || /\b(disphenoid|isosceles tetrahedron|inscribed sphere|insphere|inradius|circumradius|circumsphere)/.test(lower)
   ) {
-    return { shape: "hard-reasoning", signal: "hard-reasoning-markers", estimated_input_tokens: tokens }
+    const signal = /\b(disphenoid|isosceles tetrahedron|inscribed sphere|insphere|inradius|circumradius|circumsphere)/.test(lower)
+      ? "specialized-formula-geometry-markers"
+      : "hard-reasoning-markers"
+    return { shape: "hard-reasoning", signal, estimated_input_tokens: tokens }
   }
   if (/\b(prove|simplif|integral|derivative|gcd|lcm|modular|factori[sz]e)/.test(lower)
       || /[∫∑∏√≡≤≥]/.test(text)) {

@@ -126,3 +126,29 @@ test("simple math (no AIME marker, short) still routes to math-chain not hard-re
   expect(decision.shape).toBe("math-chain")
   expect(decision.use_voter).toBe(false)
 })
+
+test("M3.26: specialized-formula geometry without AIME markers routes to hard-reasoning/voter", () => {
+  // Cycle A (from M3.25) finding: GPT-5 hallucinates class-specific formulas
+  // on disphenoid problems. Voter cross-witness catches it.
+  const disphenoidPrompt =
+    "Let ABCD be a tetrahedron with AB=CD=sqrt 41, AC=BD=sqrt 80, BC=AD=sqrt 89. " +
+    "Find the inradius of the inscribed sphere."
+  const decision = route(disphenoidPrompt, opts)
+  expect(decision.shape).toBe("hard-reasoning")
+  expect(decision.use_voter).toBe(true)
+  expect(decision.signal).toBe("specialized-formula-geometry-markers")
+})
+
+test("M3.26: inscribed-sphere keyword alone triggers specialized-formula route", () => {
+  const decision = route(
+    "Compute the inradius of an isosceles tetrahedron with given edges.",
+    opts,
+  )
+  expect(decision.shape).toBe("hard-reasoning")
+  expect(decision.signal).toBe("specialized-formula-geometry-markers")
+})
+
+test("M3.26: ordinary geometry (no class-specific formula keyword) does NOT trigger specialized route", () => {
+  const decision = route("What's the area of a triangle with sides 3, 4, 5?", opts)
+  expect(decision.shape).not.toBe("hard-reasoning")
+})

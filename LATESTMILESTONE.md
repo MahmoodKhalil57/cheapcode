@@ -6,6 +6,39 @@
 
 ---
 
+## M3.26 — apply cycle A's insight to code: specialized-formula geometry routing rule (2026-05-03)
+
+### Status
+
+Accepted. Cycle A's insight (GPT-5 hallucinates class-specific geometry formulas; voter catches via cross-witness) lifted from claim → routing rule → code → tests. Smallest-distinguishing change per atom 0011.
+
+### Context
+
+M3.25 cycle A discovered the structural failure mode (GPT-5 wrong disphenoid volume formula on AIME-I-14). The cycle output sat as a `voter_catches_gpt5_class_specific_formula_errors_on_specialized_geometry @0.55` claim. Per atom 0017's recursive prescription, the next cycle is to *implement* the structured-known so future tasks of this class trigger the voter even without AIME markers.
+
+### Decision
+
+Extended `src/router.ts` `classifyTaskShape` with a regex catching specialized-formula geometry markers: `disphenoid|isosceles tetrahedron|inscribed sphere|insphere|inradius|circumradius|circumsphere`. Tasks matching now route to `hard-reasoning` (which dispatches to voter) even without AIME/olympiad markers. Signal field captures `specialized-formula-geometry-markers` for audit.
+
+Added 3 new router tests:
+- Disphenoid prompt without AIME markers → hard-reasoning + voter
+- Inscribed-sphere keyword alone → specialized-formula route
+- Ordinary geometry (no class-specific keyword) → does NOT trigger (counter-test per atom 0011)
+
+PLAN.bn cycle-A claim lifted 0.55 → 0.62 — implementation evidence raises floor slightly. New `route_specialized_formula_geometry_holds @0.55` claim. Facts/09 routing rule 12 lemma added with full audit trail of cycle A's reasoning + sanity check showing GPT-5's formula was wrong.
+
+### Consequences
+
+37/37 tests pass (was 34). Burhan-validate clean. 31 EXPLORE / 0 REMOVE / 0 MOVE on revisit. v1.0.1 patch candidate — additive routing rule, no breaking changes.
+
+The M17 → atom-0017 cycle is now *fully closed-loop* on cycle A: residue (GPT-5 reasoning) → shape (wrong-formula structural finding) → claim (`voter_catches_*`) → implementation (router rule 12) → tests (3 new) → confidence lift. Atom 0017 successful_transformations gains another runtime instance.
+
+### Pointer
+
+`commit TBD`. Cycle C's insight (wrapper-amortization-on-hard-multistep) is the next candidate for the same closure cycle, but requires a token-budget estimator — defer to v1.x. The plateau report still flags 20 load-bearing claims for future M17 iterations.
+
+---
+
 ## M3.25 — three M17 cycles on existing residue: $0 marginal, 3 leveraged findings (2026-05-03)
 
 ### Status

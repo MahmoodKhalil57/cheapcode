@@ -142,6 +142,32 @@ lemma route_closed_book_avoid_gpt55_prefer_opus
   proves True
   by audit cheapcode-routing-rule-10-closed-book-l4-gpt55-overconfidence-plus-opus-baseline
 
+# Rule 12 (M3.26, cycle-A-derived): specialized-formula geometry
+# (disphenoid, isosceles tetrahedron, inscribed sphere/insphere/inradius/
+# circumradius/circumsphere) → cross-witness voter even without AIME markers.
+#
+# Cycle A finding (M3.25): on AIME-I-14, GPT-5 used the WRONG disphenoid
+# volume formula confidently. Its formula V = (1/12)·√(2Σp²q²−Σp⁴) fails
+# sanity check on regular tetrahedron. Correct formula
+# V = (1/(6√2))·√((p²+q²−r²)(p²−q²+r²)(−p²+q²+r²)) gives V = 160/3 →
+# r = 20√21/63 → m+n+p = 104 (gold). Voter caught the mismatch via
+# cross-witness disagreement; smart_C apparently used the correct formula.
+#
+# Atom 0010 runtime instance on a specialized-formula problem class. The
+# class is characterized by: (a) the canonical formula is class-specific
+# (not derivable from a universal formula at run-time), (b) confidence in
+# the formula is high (model commits without sanity-checking), (c) cross-
+# witness disagreement on the formula choice is the structural failure-
+# detection signal.
+#
+# Falsifier per mizaj 01: paired test on N≥3 specialized-formula geometry
+# problems shows voter does NOT outperform direct frontier on completion.
+# Atom 0015 caveats: small N (1 firing case so far); may overstate transfer
+# to non-disphenoid specialized-formula classes.
+lemma route_specialized_formula_geometry_to_cross_witness_voter
+  proves True
+  by audit cheapcode-routing-rule-12-specialized-formula-geometry-m3-26-cycle-a
+
 # ============================================================
 # Discrimination evidence (M3.11 + M3.11b in-house L1)
 #
