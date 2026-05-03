@@ -1,0 +1,253 @@
+# plan/facts/08-frontier-model-failure-envelopes.bn
+#
+# Per-model failure envelope research (M3.12). Operator reframe
+# 2026-05-03: cheapcode's value is "general-agent that routes optimally
+# based on documented failure modes," not "compound wrapper that beats
+# single frontier." This file documents what's known about top general
+# models at each price point — speed/cost/intelligence envelopes —
+# so the auto-tier router can make sound dispatch decisions.
+#
+# Substrate discipline (mizaj 11 source-tier ladder):
+#   L1 own-measurement (we have very few): ceiling 0.95
+#   L2 vendor docs / pricing pages:        ceiling 0.85
+#   L3 peer-reviewed academic / leaderboard: ceiling 0.85
+#   L4 vendor blog / not peer-reviewed:    ceiling 0.40
+#   L5 anonymous / forums:                 ceiling 0.10
+#
+# Anti-fabrication discipline (atom 0010): every numerical claim cites a
+# source. "needs-source-attempt-failed" markers are first-class — they
+# document where research couldn't reach, not invention.
+#
+# As of 2026-05-03 the live frontier roster is:
+#   Tier 1 (flagship):    GPT-5.5 / Claude Opus 4.7 / Gemini 3.1 Pro / Grok 4.3
+#   Tier 2 (mid):         GPT-5.4 mini / Claude Sonnet 4.6 / Gemini 3 Flash / Grok 4.1 Fast
+#   Tier 3 (cheap base):  DeepSeek V4 Pro / GPT-5.4 nano / Claude Haiku 4.5 / Llama 4 Scout
+# The tier-spec in cheapcode-tiers.ts uses the names as of Phase 0 lock
+# (2026-05-02); router rules below cite current names since this is
+# routing intelligence not implementation strings.
+
+# ============================================================
+# TIER 1 — FRONTIER FLAGSHIP
+# ============================================================
+
+# GPT-5.5 (xhigh): AA Intelligence Index 60 (rank #1); P95 latency 84s
+# at xhigh; ~$11.25/M blended; 75 t/s output. SWE-bench Pro 58.6%.
+lemma gpt55_aa_intelligence_index_60
+  proves True
+  by audit artificialanalysis-leaderboards-models-l4
+
+# Critical failure: hallucinates 86% of the time on overconfidence
+# benchmark when forced closed-book (no tool grounding). Vendor's own
+# "+9 penalty for overconfident-wrong" only fires under tool-use.
+# Routing implication: GPT-5.5 ONLY with grounding enabled.
+lemma gpt55_closed_book_hallucination_86pct
+  proves True
+  by audit findskill-blog-gpt55-hallucination-rate-l4
+
+lemma gpt55_overconfidence_penalty_only_with_tool_use
+  proves True
+  by audit openai-index-why-language-models-hallucinate-l2
+
+# Claude Opus 4.7: SWE-bench Pro 64.3% (LEADS frontier); MCP-Atlas 77.3%
+# (LEADS frontier on tool use). $5/$25 per M. Slower than Gemini at 51 t/s.
+# MRCR-v2 @ 1M context 76% (4.6 baseline; 4.7 likely ≥).
+lemma opus_4_7_swebench_pro_64_3_pct_leads_frontier
+  proves True
+  by audit apiyi-llm-stats-opus-4-7-swebench-l4
+
+lemma opus_4_7_mcp_atlas_77_3_pct_leads_tool_use
+  proves True
+  by audit apiyi-mcp-atlas-leaderboard-l4
+
+lemma opus_4_6_mrcr_76pct_at_1m_long_context_holds
+  proves True
+  by audit awesomeagents-long-context-benchmarks-leaderboard-l4
+
+# Gemini 3.1 Pro: AA Index 57 (T2). Fastest flagship at 122 t/s output.
+# MRCR-v2 84.9% @ 128k → 26.3% @ 1M (RETENTION COLLAPSES past 128k).
+# This is the load-bearing routing fact for "long-context retention."
+lemma gemini_3_1_pro_long_context_collapses_past_128k
+  proves True
+  by audit awesomeagents-mrcr-v2-leaderboard-l4
+
+lemma gemini_3_1_pro_fastest_flagship_122_tps
+  proves True
+  by audit artificialanalysis-leaderboards-models-l4
+
+# Grok 4.3: AA Index 53; aggressive flagship pricing (~$1.56/M blended);
+# fastest at 180 t/s. AIME 94% (Grok 4 baseline; Heavy 100%).
+# Independent eval coverage thin (mostly vendor self-report).
+lemma grok_4_3_aggressive_flagship_pricing_1_56_per_m
+  proves True
+  by audit artificialanalysis-leaderboards-models-l4
+
+lemma grok_4_3_fastest_flagship_180_tps_output
+  proves True
+  by audit artificialanalysis-leaderboards-models-l4
+
+# ============================================================
+# TIER 2 — MID (smart-but-cheaper)
+# ============================================================
+
+# GPT-5.4 mini (xhigh): OSWorld-Verified 72.1% — DOMINATES tier-2 on
+# computer-use. Terminal-Bench 60.0%. SWE-bench Pro 54.4%. AA Index 49.
+# But AIME 2026 6.67% — math chain failure (regression vs nano's 30%!).
+lemma gpt54_mini_osworld_72_1_pct_dominates_tier2_compute_use
+  proves True
+  by audit datacamp-gpt54-mini-nano-l4
+
+lemma gpt54_mini_aime_2026_6_67_pct_math_chain_failure
+  proves True
+  by audit datacamp-gpt54-mini-nano-l4
+
+# Gemini 3 Flash: GPQA-Diamond 90.4% at $1.13/M blended — value optimum
+# for PhD-style reasoning. P50 1.06s — FASTEST in entire matrix.
+# AA Intelligence Index 35 (low overall; narrow benchmark strength).
+lemma gemini_3_flash_gpqa_90_4_pct_at_1_13_per_m
+  proves True
+  by audit google-blog-gemini-3-flash-gpqa-l4
+
+lemma gemini_3_flash_p50_1_06s_fastest_in_matrix
+  proves True
+  by audit artificialanalysis-leaderboards-models-l4
+
+# Grok 4.1 Fast: cheapest in tier-2 at $0.28/M blended; 2M advertised
+# context; AA Index 39. Long-context claim at 2M unverified by independent
+# NIAH/RULER (vendor self-report only).
+lemma grok_4_1_fast_cheapest_tier2_2m_context_advertised
+  proves True
+  by audit artificialanalysis-grok-fast-l4
+
+lemma grok_4_1_fast_2m_niah_unverified_independent
+  proves True
+  by audit needs-source-attempt-failed-grok-2m-niah-l5
+
+# Claude Sonnet 4.6: P95 105.91s — WORST tier-2 latency. ~$6.56/M blended.
+# Reasoning-trace verbosity inflates output cost.
+lemma sonnet_4_6_worst_tier2_latency_p95_106s
+  proves True
+  by audit artificialanalysis-leaderboards-models-l4
+
+# ============================================================
+# TIER 3 — CHEAP BASE
+# ============================================================
+
+# DeepSeek V4 Pro: SWE-bench Verified 80.6% (V4 Pro); HMMT 2026 95.2%
+# AIME 2026 96.0% (V3.2-Speciale). AA Intelligence Index 52 — TIES
+# Sonnet 4.6 at 1/3 the price. ~$2.17/M blended; vendor split $0.28/$0.42.
+lemma deepseek_v4_pro_swebench_80_6_pct_at_third_sonnet_price
+  proves True
+  by audit nxcode-deepseek-v4-release-l4
+
+lemma deepseek_v3_2_speciale_aime_2026_96_0_pct
+  proves True
+  by audit deepseek-docs-v3-2-speciale-l4
+
+# L1 OWN-MEASUREMENT: cheapllm v1 verified 2/2 NIAH PASS @ 2M tokens,
+# p50 4.08s, $0.75/run. This is the strongest evidence in this file —
+# direct measurement, not vendor self-report.
+lemma deepseek_v4_2m_niah_2_of_2_pass_l1_own_measurement
+  proves True
+  by audit cheapllm-scorecard-v1-final-2026-05-03-l1
+
+# L1 OWN-MEASUREMENT counter-instance: 33% TB-3 accuracy (1/3 tasks).
+# Same model FAILS on complex agentic system tasks despite passing math.
+# Routing rule: deepseek-v4 for cheap math/long-context, NOT for agentic.
+lemma deepseek_v4_tb3_33_pct_l1_agentic_weakness
+  proves True
+  by audit cheapllm-scorecard-v1-final-2026-05-03-l1
+
+# Claude Haiku 4.5: $0.80/$4.00. SWE-bench Verified 73.3% (BEATS GPT-5.1).
+# SWE-bench Pro 39.5%. P95 10.99s; 112 t/s. Cheap-tier code champion.
+lemma haiku_4_5_swebench_73_3_pct_at_0_80_per_m_input
+  proves True
+  by audit anthropic-news-claude-haiku-4-5-l2
+
+lemma haiku_4_5_p95_10_99s_112_tps_output
+  proves True
+  by audit artificialanalysis-leaderboards-models-l4
+
+# GPT-5.4 nano: AA Intelligence Index 44 (HIGH for cheap tier).
+# Counterintuitive: AIME 2026 30.0% (BEATS 5.4 mini's 6.67%).
+# Computer-use weak (OSWorld 39% vs mini's 72%).
+lemma gpt54_nano_aa_index_44_high_for_cheap_tier
+  proves True
+  by audit datacamp-gpt54-mini-nano-l4
+
+lemma gpt54_nano_aime_30_pct_beats_mini_6_67_pct
+  proves True
+  by audit datacamp-gpt54-mini-nano-l4
+
+# Llama 4 Scout: AA Intelligence Index 14. Use ONLY for extraction /
+# classification. Sub-1s P50 (0.81s) — class leader in latency but not
+# reasoning.
+lemma llama_4_scout_aa_index_14_extraction_only
+  proves True
+  by audit artificialanalysis-leaderboards-models-l4
+
+# ============================================================
+# EXPLOITABLE-GAP SYNTHESIS — router dispatch rules
+# ============================================================
+
+# These are the load-bearing routing-decision lemmas the cheapcode
+# auto-tier should encode. Each one is a (task-shape → preferred-model)
+# rule with a citation chain back to the per-model lemmas above.
+
+lemma router_long_context_above_128k_use_deepseek_or_grok_fast
+  proves True
+  by audit cheapcode-routing-synthesis-deepseek-2m-niah-l1-plus-grok-2m-vendor-l4
+
+lemma router_agentic_swe_pick_opus_4_7
+  proves True
+  by audit cheapcode-routing-synthesis-opus-mcp-atlas-77-3-l4
+
+lemma router_closed_book_no_tool_avoid_gpt55
+  proves True
+  by audit cheapcode-routing-synthesis-gpt55-overconfidence-86-pct-l4
+
+lemma router_phd_reasoning_per_dollar_pick_gemini_3_flash
+  proves True
+  by audit cheapcode-routing-synthesis-gemini-flash-gpqa-90-4-pct-at-1-13-l4
+
+lemma router_math_chain_pick_deepseek_v3_2_speciale_or_v4
+  proves True
+  by audit cheapcode-routing-synthesis-deepseek-aime-96-pct-l4
+
+lemma router_bounded_code_pick_haiku_4_5
+  proves True
+  by audit cheapcode-routing-synthesis-haiku-swebench-73-3-pct-plus-operator-empirical-memory-l1l4
+
+lemma router_computer_use_osworld_pick_gpt54_mini
+  proves True
+  by audit cheapcode-routing-synthesis-gpt54-mini-osworld-72-1-pct-l4
+
+lemma router_subsecond_p50_pick_gemini_flash_or_llama_scout
+  proves True
+  by audit cheapcode-routing-synthesis-gemini-flash-1_06s-llama-scout-0_81s-l4
+
+# ============================================================
+# CONFIDENCE & NEXT STEPS
+# ============================================================
+
+# As-of 2026-05-03, the bulk of routing evidence is L4 (vendor blogs +
+# leaderboards). Per mizaj 11 L4 ceiling = 0.40, the routing claims
+# above bound the joint at @0.40 unless lifted by:
+#   - L1 own-measurement (we'd need to run our own slice — costs $)
+#   - L3 peer-reviewed (requires academic publication of these benchmarks)
+#   - Multi-source convergence (mutawatir adjustment): some claims have
+#     2-3 independent sources and could lift to 0.85 ceiling per mizaj 14
+#
+# The deepseek long-context claim (L1 cheapllm own-measurement) is the
+# strongest single-claim anchor and shows what L1 routing rules look like.
+
+# What's documented but UNTESTED in cheapcode's own measurements:
+#   - haiku-4.5 quality on bounded code (operator memory says yes;
+#     no in-house cheapcode receipt yet)
+#   - opus-4.7 SWE-bench-Pro lead (vendor benchmark only)
+#   - GPT-5.5 closed-book hallucination rate (vendor-derived)
+#   - Gemini 3 Flash GPQA 90.4% (vendor blog only)
+#
+# Atom 0011 (smallest distinguishing experiment) suggests: when we want
+# to lift any L4 → L1, the smallest distinguishing test is to run a
+# focused 5-10 task probe of the specific routing claim, not a generic
+# "wrapper-vs-baseline" comparison.

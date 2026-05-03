@@ -477,3 +477,85 @@ claim cheapcode_v1_ships: Bool @>=0.50 = cite cheapcode_v1_ships_via_phase_compl
 # Phase 2 EXPERIMENT-1 Arm A FAIL falsifies v1.0 — that's the smart-axis
 # load-bearing falsifier per atom 0013 (calibration-as-credential).
 falsified_when obs_phase_0_research_falsifies_umbrella or obs_phase_1_5_tiers_dont_appear_in_model_list or obs_phase_2_experiment_1_fails_all_axes or obs_phase_3_any_client_falsifies_propagation or obs_phase_4_measured_contradicts_spec_targets or obs_phase_5_administrative_failure or obs_project_wall_clock_22h_phase_2_not_started
+
+# ============================================================
+# SECTION X - GENERAL-AGENT routing discharge (M3.12 reframe)
+#
+# Operator pushback 2026-05-03: "if we do alot of research and minimal
+# experimentation on when 'top general models' of different price points
+# 'fail' on speed or intelligence we can help suggest an update to our
+# burhan plan that gives us more value to our cheapcode fork and help us
+# reach our most valuable version of our product 'general agent'."
+#
+# This section adds the load-bearing routing-decision claims that
+# operationalize cheapcode's value as a general-agent router. Each rule
+# pairs a task-shape with the documented value-optimum model. Falsifiers
+# are independent re-evals showing the published per-model envelope is
+# wrong.
+#
+# Compositional with sections G/V/W: cheapcode_v1_ships still requires
+# the phase plan; this section adds a NEW discharge for the general-agent
+# value claim that cheapcode v1.0 carries forward (or scopes for v1.x).
+#
+# As of M3.12 most evidence is L4 (vendor blogs + leaderboards). Per mizaj
+# 11 L4 ceiling = 0.40, individual routing rules cap at @0.40 unless
+# multi-source converged. Some rules with 2-3 independent sources lift
+# to L4-mutawatir ~0.55. The cheapcode-own-measurement L1 anchors
+# (deepseek long-context, M3.11/M3.11b experiment data) lift specific
+# rules to ~0.85.
+# ============================================================
+
+# Routing-rule observation claims (default False = rule holds)
+claim obs_route_long_context_falsified: Bool @>=0.99 = False
+claim obs_route_agentic_swe_falsified: Bool @>=0.99 = False
+claim obs_route_bounded_code_falsified: Bool @>=0.99 = False
+claim obs_route_math_chain_falsified: Bool @>=0.99 = False
+claim obs_route_phd_factual_falsified: Bool @>=0.99 = False
+claim obs_route_computer_use_falsified: Bool @>=0.99 = False
+claim obs_route_multistep_default_compound_works_falsified_by_l1: Bool @>=0.99 = True
+claim obs_route_subsecond_falsified: Bool @>=0.99 = False
+claim obs_route_closed_book_falsified: Bool @>=0.99 = False
+
+# Routing-rule claims (each cites facts/09 routing rule + facts/08 envelope)
+claim route_long_context_holds: Bool @>=0.85 = not obs_route_long_context_falsified
+falsified_when obs_route_long_context_falsified
+
+claim route_agentic_swe_holds: Bool @>=0.55 = not obs_route_agentic_swe_falsified
+falsified_when obs_route_agentic_swe_falsified
+
+claim route_bounded_code_holds: Bool @>=0.65 = not obs_route_bounded_code_falsified
+falsified_when obs_route_bounded_code_falsified
+
+claim route_math_chain_holds: Bool @>=0.55 = not obs_route_math_chain_falsified
+falsified_when obs_route_math_chain_falsified
+
+claim route_phd_factual_holds: Bool @>=0.40 = not obs_route_phd_factual_falsified
+falsified_when obs_route_phd_factual_falsified
+
+claim route_computer_use_holds: Bool @>=0.40 = not obs_route_computer_use_falsified
+falsified_when obs_route_computer_use_falsified
+
+# Special: this rule is the M3.11/M3.11b L1 finding — compound-as-default
+# was ALREADY falsified by our own experiment data. The rule "compound is
+# NOT the default for general multistep" is HIGH confidence because we
+# have own-measurement evidence.
+claim route_multistep_no_compound_default: Bool @>=0.92 = obs_route_multistep_default_compound_works_falsified_by_l1
+falsified_when not obs_route_multistep_default_compound_works_falsified_by_l1
+
+claim route_subsecond_holds: Bool @>=0.55 = not obs_route_subsecond_falsified
+falsified_when obs_route_subsecond_falsified
+
+claim route_closed_book_holds: Bool @>=0.40 = not obs_route_closed_book_falsified
+falsified_when obs_route_closed_book_falsified
+
+# General-agent discharge theorem
+theorem cheapcode_general_agent_routes_optimally_via_failure_envelopes
+  assume route_long_context_holds and route_agentic_swe_holds and route_bounded_code_holds and route_math_chain_holds and route_phd_factual_holds and route_computer_use_holds and route_multistep_no_compound_default and route_subsecond_holds and route_closed_book_holds
+  proves True
+  by audit cheapcode-general-agent-router-discharge-m3-12
+
+# Discharge claim — cheapcode's RESHAPED value proposition. Confidence
+# bounded by the weakest routing rule; honest reflection of L4-heavy
+# evidence stack.
+claim cheapcode_general_agent_routes_optimally: Bool @>=0.40 = cite cheapcode_general_agent_routes_optimally_via_failure_envelopes
+falsified_when obs_route_long_context_falsified or obs_route_agentic_swe_falsified or obs_route_math_chain_falsified or obs_route_phd_factual_falsified or obs_route_computer_use_falsified or obs_route_subsecond_falsified or obs_route_closed_book_falsified

@@ -4,20 +4,34 @@ The one-page summary. Update the bracketed `[fields]` as the project moves. Don'
 
 ---
 
-## Goal (restored M3.9 per substrate signal — see SPEC Revision 2026-05-03j)
+## Goal (M3.12 reframe — "general agent that routes optimally")
 
-A working `cheapcode` binary — a small spin-off of opencode — that on hard reasoning tasks (TB-medium / TB-hard multistep slice) is **cheaper, faster, AND smarter** than calling GPT-5.5 directly. All three at once, measured, with the numbers cited in the README.
+A working `cheapcode` binary — a small spin-off of opencode — that operates as a **general agent which routes each task to the documented value-optimum frontier model** based on per-model failure envelopes (speed limits, intelligence limits, cost-per-task). Cheaper, faster, AND smarter than calling any single frontier model alone — across the *full mix* of tasks an agent encounters, not by beating one model at one slice.
+
+The original framing ("compound wrapper that beats raw GPT-5.5 on multistep") was tested in M3.11 + M3.11b and definitively failed cost+latency axes — compound architecture has structural overhead. Smart-axis was untestable due to benchmark saturation. **The reframe replaces the compound-wrapper bet with a routing-intelligence bet** grounded in research on each frontier model's documented failure modes (facts/08 + facts/09).
 
 Concrete v1.0 deliverables:
 
 - A small npm package `@cheapcode/ai-sdk-provider` that opencode loads via `provider.cheapcode.npm` in opencode.json
-- 5 tier IDs registered: `cheap` → deepseek-v4-flash, `cheap-fast` → deepseek-v4-flash (race-K), `smart` → gpt-5-mini, `smart-fast` → claude-haiku-4.5, `auto` → **structured-reasoning wrapper** (plan-decompose → parallel cheap-leaves → best-of-K=3 frontier → cross-model verifier → retry-with-feedback)
-- Long-context override > 128k → grok-4-fast (cheap/auto only)
-- Operator override via `cheapcode.toml` (zero env-var feature flags per cell #11)
-- A measured Model Card scorecard in the README ([Model Cards](https://arxiv.org/abs/1810.03993)) showing 3-axis dominance ratios on TB-multistep
-- Zero patches to opencode upstream (cell #15 = 0; weekly rebase is `git fetch && git rebase`)
+- 5 tier IDs registered as price points: `cheap`, `cheap-fast`, `smart`, `smart-fast`, `auto`
+- `auto` tier = **failure-mode-aware router** that classifies task shape and dispatches to the value-optimum model per facts/09 routing matrix:
+  - long-context >128k → DeepSeek V4 Pro (L1 own-measurement: 2/2 NIAH @ 2M tokens) or Opus 4.7 (frontier+long)
+  - agentic SWE loop → Opus 4.7 (MCP-Atlas 77.3% leads frontier)
+  - bounded code → Haiku 4.5 (SWE-bench Verified 73.3% at $0.80/M)
+  - math chain → DeepSeek V3.2-Speciale or V4 (AIME 96% at <$0.50/M output)
+  - PhD factual → Gemini 3 Flash (GPQA 90.4% at $1.13/M blended)
+  - computer-use → GPT-5.4 mini (OSWorld 72.1% leads tier-2)
+  - sub-2s latency → Gemini 3 Flash (1.06s P50) or Llama 4 Scout (0.81s)
+  - closed-book without tools → AVOID GPT-5.5 (86% hallucination per overconfidence benchmark)
+  - general multistep → strongest frontier WITHOUT compound wrapper (M3.11 evidence: compound costs more and slower with no completion lift on saturated tasks)
+- Compound wrapping invoked ONLY when task signature suggests baseline failure (e.g., novel multi-domain reasoning where single-frontier scoring is sub-50%)
+- Operator override via `cheapcode.toml`
+- Model Card scorecard in the README disclosing routing rules + their evidence tier (mostly L4 vendor-blog-attested as of M3.12; aspires to lift to L1 in v1.x via own measurement)
+- Zero patches to opencode upstream
 
-**v1.0 ships only on EXPERIMENT-1 Arm A PASS** — the smart-axis claim is exercised, not hand-waved. Per atom 0013, the measurement IS the credential.
+**v1.0 value-prop: cheapcode is the routing intelligence layer that knows where each frontier model fails.** No wrapper, no compound architecture by default — just the right model for the right task signature, with the load-bearing routing rules documented in PLAN.bn SECTION X.
+
+Per atom 0013 (calibration-as-credential): the routing rules' evidence tiers and falsifiers ARE the credential — they're auditable and replaceable as new model evidence accumulates.
 
 ---
 
@@ -33,26 +47,30 @@ Concrete v1.0 deliverables:
 
 # AGENT UPDATE BELOW
 
-## What you ARE getting (v1.0, post-M3.9 restoration)
+## What you ARE getting (v1.0, post-M3.12 reframe)
 
-- A working binary that's cheaper, faster, AND smarter than raw GPT-5.5 on hard multistep reasoning — **measured and cited**, not claimed
+- A general-agent **routing-intelligence layer** that knows the cost/speed/intelligence envelope of every top frontier model
 - 5 tier-IDs in opencode: `cheap`, `cheap-fast`, `smart`, `smart-fast`, `auto`
-- Routing to cheap AIs for routine work (~30× cheaper than GPT-5.5 per cheapllm v1 receipts)
-- Long-context option > 128k tokens via grok-4-fast (NIAH 2M PASS at $0.37/call per cheapllm v1)
-- `auto` tier with structured-reasoning wrapper: plan-decompose + best-of-K=3 + cross-model verifier + retry
+- The `auto` tier dispatches each task to its *value-optimum* model per documented failure modes (10 routing rules in facts/09)
+- Routing decisions cited to source — operators can audit *why* the router picked model X for shape Y
+- Cheaper *across the mix* than calling any single frontier model alone — because routine work routes cheap, agentic SWE routes Opus, math routes DeepSeek, etc.
+- Faster *per task* than compound wrappers (M3.11 evidence: compound is structurally 5× slower)
+- Long-context handling via DeepSeek V4 Pro (L1 own-measurement: 2/2 NIAH @ 2M tokens, p50 4.08s, $0.75/run)
 - Operator-side override via `cheapcode.toml`
 - Zero patches to opencode upstream — weekly rebase trivial by construction
-- Model Card README scorecard with 3-axis dominance ratios
+- Model Card README scorecard listing routing rules + evidence tier per rule
 
 ---
 
 ## What you are NOT getting (v1.0 honest disclosure)
 
-- **Not smarter than GPT-5 on single-step tasks.** Wrapper is bounded above by best frontier model in the ensemble; multistep is where we win.
-- **No substrate-as-runtime-verifier (atom 0016 runtime claim).** Deferred to v1.x or follow-on project. Per M3.2 retrospective, TB-3's failure-mode mix (code-execution, system-success) is orthogonal to substrate's strength (reasoning-with-citations consistency). The build-time interpretation IS validated.
+- **Not a compound wrapper that beats single frontier on every axis.** M3.11 + M3.11b confirmed compound architecture costs ~1.3-1.9× more and runs ~5× slower than raw frontier, with no completion lift on benchmarks where baseline saturates. The reframe drops this claim.
+- **Not L1-measured on every routing rule.** Most routing evidence as of v1.0 is L4 (vendor blog + leaderboard). Lifting to L1 own-measurement is v1.x work.
+- **Not smarter than the best frontier model on a single task slice.** When a task fits gpt-5.5's strength, gpt-5.5 wins — and cheapcode routes to it. Cheapcode's value is *across the task mix*, not on any single benchmark.
+- **No substrate-as-runtime-verifier (atom 0016 runtime claim).** Deferred to v1.x — TB-3's failure-mode mix is orthogonal to substrate's strength per M3.2 retrospective.
 - **Smart-fast latency is research-grounded, not measured.** Pick claude-haiku-4.5 pending TTFT verification.
 - **Not a free service.** You need an OpenRouter API key + pay per usage.
-- **Not multi-tenant or cloud.** Single user, single machine. Multi-account features deferred.
+- **Not multi-tenant or cloud.** Single user, single machine.
 
 ---
 

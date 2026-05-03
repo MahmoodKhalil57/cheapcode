@@ -1,0 +1,219 @@
+# plan/facts/09-task-shape-routing-matrix.bn
+#
+# Task-shape × model-tier routing matrix (M3.12). Pairs canonical task
+# shapes with the cost-quality optimum across tiers, drawing on the
+# per-model envelope research in facts/08.
+#
+# Operator reframe 2026-05-03: cheapcode's value is "general-agent that
+# routes optimally based on documented failure modes." This file is the
+# routing decision-table feeding the auto-tier dispatch logic.
+#
+# Substrate: mizaj 11 (tier-the-source) for evidence ladder; mizaj 02
+# (generate-before-select) — generate the matrix BEFORE picking which
+# slice cheapcode commits to in v1.0.
+#
+# As of 2026-05-03 the matrix is L4-mostly (vendor + leaderboard data).
+# Per mizaj 14, claims at L4 cap at 0.40 unless mutawatir-adjusted
+# upward by multiple independent sources (which several of these are).
+
+# ============================================================
+# Canonical task shapes
+# ============================================================
+
+# These are the shapes cheapcode's router needs to discriminate. Each
+# is a function from task-features to a preferred-model dispatch.
+
+lemma task_shape_long_context_above_128k_retrieval
+  proves True
+  by audit cheapcode-task-shape-canon-l1-design-decision
+
+lemma task_shape_agentic_swe_loop_with_tools
+  proves True
+  by audit cheapcode-task-shape-canon-l1-design-decision
+
+lemma task_shape_bounded_code_synthesis
+  proves True
+  by audit cheapcode-task-shape-canon-l1-design-decision
+
+lemma task_shape_math_chain_aime_or_olympiad_class
+  proves True
+  by audit cheapcode-task-shape-canon-l1-design-decision
+
+lemma task_shape_phd_factual_reasoning_gpqa_class
+  proves True
+  by audit cheapcode-task-shape-canon-l1-design-decision
+
+lemma task_shape_computer_use_osworld_class
+  proves True
+  by audit cheapcode-task-shape-canon-l1-design-decision
+
+lemma task_shape_multistep_general_reasoning
+  proves True
+  by audit cheapcode-task-shape-canon-l1-design-decision
+
+lemma task_shape_classification_or_extraction
+  proves True
+  by audit cheapcode-task-shape-canon-l1-design-decision
+
+lemma task_shape_subsecond_latency_required_streaming_ux
+  proves True
+  by audit cheapcode-task-shape-canon-l1-design-decision
+
+lemma task_shape_closed_book_factual_no_tools
+  proves True
+  by audit cheapcode-task-shape-canon-l1-design-decision
+
+# ============================================================
+# Routing decision-table (each rule = task-shape → model + rationale)
+#
+# Each rule below cites BOTH the task-shape canon AND a per-model
+# envelope claim from facts/08-frontier-model-failure-envelopes.bn —
+# so the burhan dependency graph traces a clean path from "router fires
+# for shape X" → "shape X canon" + "model Y envelope says it dominates
+# at this slice."
+# ============================================================
+
+# Rule 1: long-context >128k → DeepSeek V4 (cheap+long) or Opus 4.7
+# (frontier+long). DeepSeek for cost-sensitive; Opus for retention-critical.
+lemma route_long_context_to_deepseek_v4_or_opus_4_7
+  proves True
+  by audit cheapcode-routing-rule-1-long-context-l1-deepseek-niah-plus-l4-opus-mrcr
+
+# Rule 2: agentic SWE loop → Claude Opus 4.7. Retry-cost dominates token-cost
+# in long agentic loops; Opus's MCP-Atlas 77.3% lead is the load-bearing receipt.
+lemma route_agentic_swe_to_opus_4_7
+  proves True
+  by audit cheapcode-routing-rule-2-agentic-swe-l4-opus-mcp-atlas
+
+# Rule 3: bounded code synthesis → Claude Haiku 4.5. SWE-bench Verified
+# 73.3% beats GPT-5.1 at $0.80/M input. Operator memory L1 confirms
+# quality-equivalence on bounded code in their dispatch experiments.
+lemma route_bounded_code_to_haiku_4_5
+  proves True
+  by audit cheapcode-routing-rule-3-bounded-code-l4-haiku-swebench-plus-operator-l1
+
+# Rule 4: math chain (AIME / olympiad) → DeepSeek V3.2-Speciale or V4
+# Pro. AIME 2026 96.0% / HMMT 95.2% at <$0.50/M output. Frontier-equivalent
+# math at cheap price.
+lemma route_math_chain_to_deepseek_v3_2_or_v4
+  proves True
+  by audit cheapcode-routing-rule-4-math-chain-l4-deepseek-aime-hmmt
+
+# Rule 5: PhD factual reasoning → Gemini 3 Flash. GPQA-Diamond 90.4%
+# at $1.13/M blended is the value optimum across all tiers.
+lemma route_phd_factual_to_gemini_3_flash
+  proves True
+  by audit cheapcode-routing-rule-5-phd-factual-l4-gemini-flash-gpqa
+
+# Rule 6: computer-use / OSWorld → GPT-5.4 mini. OSWorld-Verified 72.1%
+# at tier-2 price. Specifically NOT GPT-5.4 nano (39%) or claude-haiku
+# (no public OSWorld score; default exclude).
+lemma route_computer_use_to_gpt54_mini
+  proves True
+  by audit cheapcode-routing-rule-6-computer-use-l4-gpt54-mini-osworld
+
+# Rule 7: multistep general reasoning (TB-medium/hard, GSM8K-hard) —
+# DEPENDS on baseline saturation. If frontier already saturates, no
+# wrapper helps (M3.11 evidence). If frontier fails ≥30%, route to
+# strongest available frontier (Opus 4.7 or GPT-5.5 with grounding).
+# DO NOT default to compound wrapper here — M3.11 + M3.11b confirmed
+# wrapper costs more + slower with no completion lift on saturated tasks.
+lemma route_multistep_general_to_strongest_frontier_no_compound_default
+  proves True
+  by audit cheapcode-routing-rule-7-multistep-l1-experiment-1-evidence
+
+# Rule 8: classification / extraction → Llama 4 Scout. AA Intelligence
+# Index 14 — but sub-1s P50 (0.81s). Use ONLY when reasoning isn't
+# needed. Cheaper alternatives have 10-30× the price.
+lemma route_classification_to_llama_4_scout
+  proves True
+  by audit cheapcode-routing-rule-8-classification-l4-llama-scout-fast-low-int
+
+# Rule 9: sub-2s latency required → Gemini 3 Flash (1.06s) or Llama 4
+# Scout (0.81s). Frontier flagships are excluded — no flagship breaks 2s.
+lemma route_subsecond_latency_excludes_flagships
+  proves True
+  by audit cheapcode-routing-rule-9-subsecond-l4-aa-leaderboard-latency
+
+# Rule 10: closed-book factual (no tools allowed) → AVOID GPT-5.5.
+# 86% hallucination on overconfidence benchmark when forced closed-book.
+# Prefer Opus 4.7 (better calibration) or route through verifier.
+lemma route_closed_book_avoid_gpt55_prefer_opus
+  proves True
+  by audit cheapcode-routing-rule-10-closed-book-l4-gpt55-overconfidence-plus-opus-baseline
+
+# ============================================================
+# Discrimination evidence (M3.11 + M3.11b in-house L1)
+#
+# These are cheapcode's own L1 measurements that bound the routing
+# matrix's prescriptions. Specifically: when does compound wrapping
+# help, and when is single-model routing better?
+# ============================================================
+
+# L1 in-house: compound wrapper costs ~1.3-1.9× more than single
+# frontier on multistep tasks across two attempts. Structural to
+# compound-LLM architecture.
+lemma cheapcode_compound_wrapper_costs_more_l1_2_attempts
+  proves True
+  by audit cheapcode-experiment-1-attempt-1-and-2-l1-receipt
+
+# L1 in-house: compound wrapper P50 5-7× SLOWER than single frontier.
+# Sequential pipeline overhead dominates regardless of difficulty.
+lemma cheapcode_compound_wrapper_slower_l1_2_attempts
+  proves True
+  by audit cheapcode-experiment-1-attempt-1-and-2-l1-receipt
+
+# L1 in-house: completion-rate inconclusive on saturated benchmarks.
+# Smart-axis claim untested when baseline hits 100%. Routing implication:
+# DO NOT default to compound wrapper — only invoke when baseline is
+# known to fail on the specific task shape.
+lemma cheapcode_compound_smart_axis_untested_when_baseline_saturates_l1
+  proves True
+  by audit cheapcode-experiment-1-attempt-1-and-2-l1-receipt
+
+# ============================================================
+# Synthesis: the auto-tier router contract
+# ============================================================
+
+# When the router fires `auto`, it should:
+# 1. Classify task shape (long-context / agentic / math-chain / PhD-factual
+#    / computer-use / bounded-code / classification / closed-book / general)
+# 2. Look up the routing rule for that shape (rules 1-10 above)
+# 3. Dispatch to the rule's preferred model
+# 4. Default to compound wrapper ONLY when the task signature suggests
+#    baseline will fail (e.g., novel / multi-domain / reasoning-heavy
+#    where single-frontier scoring is sub-50%)
+#
+# This is the load-bearing claim cheapcode_general_agent_routes_optimally
+# in PLAN.bn cites.
+
+lemma router_classifier_dispatches_per_task_shape
+  proves True
+  by audit cheapcode-router-contract-design-decision-m3-12
+
+lemma router_compound_wrapper_invoked_only_on_known_failure_signatures
+  proves True
+  by audit cheapcode-router-contract-design-decision-m3-12
+
+# ============================================================
+# Falsifiers per routing rule
+#
+# Each rule has a falsifier — what would make us revise it? These get
+# wired into PLAN.bn's `falsified_when` clauses for the discharge claim.
+# ============================================================
+
+lemma routing_rules_falsifier_set_v1
+  proves True
+  by audit cheapcode-routing-falsifiers-v1-design
+
+# Specific falsifier seeds (encoded as observation claims in PLAN.bn):
+#
+# - obs_routing_rule_1_long_context_falsified: independent NIAH/RULER
+#   shows flagship retention parity with deepseek-v4 at <2× price
+# - obs_routing_rule_2_agentic_swe_falsified: GPT-5.5 SWE-bench Pro
+#   overtakes Opus 4.7 in independent eval ≥65%
+# - obs_routing_rule_4_math_chain_falsified: independent re-run shows
+#   ≥10pt regression on deepseek vendor self-report
+# - obs_routing_rule_7_compound_default_falsified: any benchmark where
+#   baseline single-frontier scores <50% AND compound wrapper lifts ≥10pp
+#   AND cost ratio holds <2× — would justify compound-as-default
