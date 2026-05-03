@@ -278,11 +278,16 @@ falsified_when obs_cheapcode_beats_vanilla_opencode_falsified
 # SECTION I - cited evidence anchors (substrate L1)
 # ============================================================
 
-claim cheapllm_receipts_anchor: Bool @>=0.99 = cite cheapllm_per_task_cost_0032_on_tb_easy
-claim cheapllm_context_anchor: Bool @>=0.99 = cite cheapllm_niah_2m_pass_grok_4_fast
-claim iai_router_pattern_anchor: Bool @>=0.99 = cite atom_0011_smallest_distinguishing_experiment_first
-claim mizaj_substrate_anchor: Bool @>=0.99 = cite mizaj_15_consult_atom_before_reinventing
-claim khatim_negative_knowledge_anchor: Bool @>=0.99 = cite khatim_1152_ts_tsx_files_in_packages
+# 5 substrate-citation anchors below: lowered from @>=0.99 to @>=0.85
+# per mizan-converge CAP recommendation (sole-witness fact-file). These
+# are anchor citations to single lemmas, not full empirical claims —
+# the @>=0.85 cap is appropriate. To restore @>=0.99 in future, wire
+# second independent witnesses from different fact-files (Q3 in QUEUE.md).
+claim cheapllm_receipts_anchor: Bool @>=0.85 = cite cheapllm_per_task_cost_0032_on_tb_easy
+claim cheapllm_context_anchor: Bool @>=0.85 = cite cheapllm_niah_2m_pass_grok_4_fast
+claim iai_router_pattern_anchor: Bool @>=0.85 = cite atom_0011_smallest_distinguishing_experiment_first
+claim mizaj_substrate_anchor: Bool @>=0.85 = cite mizaj_15_consult_atom_before_reinventing
+claim khatim_negative_knowledge_anchor: Bool @>=0.85 = cite khatim_1152_ts_tsx_files_in_packages
 
 # CAP-fix 2026-05-03 via mizan-converge audit: transfer_overstated_anchor
 # now composed from atom_0015 (substrate-primitive in facts/04) AND
