@@ -3021,3 +3021,105 @@ theorem cheapcode_goal_trajectory_post_q5_retargeted_2026_05_03
 
 claim cheapcode_section_vv_holds_action_safety_sahih_concentrated_class_open: Bool @>=0.78 = cite cheapcode_goal_trajectory_post_q5_retargeted_2026_05_03
 falsified_when obs_action_safety_pre_gate_does_not_block_dangerous_action_falsified
+
+# ============================================================
+# SECTION WW - cross-LLM voter test on T0015: SUBSTRATE CAUGHT ITSELF
+#
+# Operator authorization 2026-05-03: $0.10-0.20 for cross-LLM voter
+# validation on T0015. Result: $0.0017 spent. SUBSTRATE-CRITICAL FINDING.
+#
+# Test: T0015 (clinical-trial silent-evidence) on 4 frontier LLMs.
+#   - gpt-5.5: "d" (placebo arm baseline)
+#   - claude-opus-4-7: "d"
+#   - claude-haiku-4-5: "d"
+#   - gemini-2.5-pro: "d"
+#
+# 4 INDEPENDENT WITNESSES across 3 model families (OpenAI/Anthropic/
+# Google) CONVERGED on "d". Per atom 0019 (convergence-without-contact),
+# 4-witness convergence at L1 with no inter-citation channel = strongest
+# possible sub-substrate-empirical evidence.
+#
+# THE SUBSTRATE CAUGHT ITSELF: my "ground truth" was wrong.
+#
+# Honest re-analysis: the question asks "BIGGEST missing piece for
+# assessing if Drug X is safe AND effective." Without placebo arm
+# baseline, NO efficacy claim is possible — that's foundational
+# biostatistics. Selection bias (option c) matters but is SECONDARY to
+# having a control group. (d) is correct. My atom-0017 framing was
+# over-applied to a domain where placebo-control is the more load-
+# bearing principle.
+#
+# Atom 0015 (transfer-overstated) FIRES on me, not on the LLMs:
+# I transferred atom 0017 (silent-evidence) to a question where
+# clinical-trial methodology has a more load-bearing answer.
+#
+# Atom 0007 anti-fab applies recursively to substrate-work itself:
+# I fabricated a "ground truth" without sufficiently verifying it.
+# ============================================================
+
+# T0015 — actual ground truth is (d), not (c) per cross-LLM convergence
+claim obs_t0015_actual_ground_truth_is_c_falsified: Bool @>=0.99 = True
+claim t0015_actual_ground_truth_is_c_per_atom_0017_silent_evidence: Bool @>=0.05 = not obs_t0015_actual_ground_truth_is_c_falsified
+falsified_when obs_t0015_actual_ground_truth_is_c_falsified
+
+# Voter pattern on T0015-class — falsified (no lift available)
+claim obs_voter_pattern_lifts_on_t0015_class_falsified: Bool @>=0.99 = True
+claim voter_pattern_lifts_on_t0015_class_via_cross_llm_majority: Bool @>=0.05 = not obs_voter_pattern_lifts_on_t0015_class_falsified
+falsified_when obs_voter_pattern_lifts_on_t0015_class_falsified
+
+# Substrate working as designed: cross-LLM convergence revealed my error
+# Atom 0010 (cross-witness honesty pipeline) + atom 0019 caught me
+claim obs_substrate_did_not_catch_operator_atom_over_application_falsified: Bool @>=0.99 = False
+claim substrate_caught_atom_over_application_via_cross_llm_witness_convergence_2026_05_03: Bool @>=0.85 = not obs_substrate_did_not_catch_operator_atom_over_application_falsified
+falsified_when obs_substrate_did_not_catch_operator_atom_over_application_falsified
+
+# New emergent finding: ATOM-OVER-APPLICATION as a failure mode
+# When applying substrate atoms to a domain, the atom's lens may not be
+# the most load-bearing. Cross-LLM convergence is a useful check.
+claim obs_atom_over_application_failure_mode_not_observed_falsified: Bool @>=0.99 = False
+claim atom_over_application_failure_mode_observed_2026_05_03_t0015_atom_0017_misapplied: Bool @>=0.78 = not obs_atom_over_application_failure_mode_not_observed_falsified
+falsified_when obs_atom_over_application_failure_mode_not_observed_falsified
+
+# ============================================================
+# Net implication for goal trajectory (atom 0013 honest disclosure)
+# ============================================================
+#
+# Before today: voter pattern lift presumed to operate on concentrated-
+# class subtle textbook-vs-substrate questions (T0015-shape).
+#
+# After today: across full session ($0.082 spent, 30+ tests across 7
+# rounds), voter pattern provides NO empirically-detectable lift over
+# single-pass gpt-5.5 on any tested class. T0015 was the only candidate
+# divergence and was falsified by cross-LLM convergence.
+#
+# Action-safety prevention via mizan_check_action_safety remains the
+# ONLY empirically-validated cheapcode value-add this session.
+#
+# Updated goal trajectory:
+#   - Cost-dominance: sahih (unchanged) — empirically anchored
+#   - At-least-as-correct: sub-floor (unchanged) — empirically anchored
+#   - Smarter-uniform: daif (unchanged from prior lower bound)
+#   - Smarter-concentrated-class: lowered from sub-floor to daif (today)
+#   - Action-safety prevention: SAHIH (validated this session)
+#
+# Net: cheapcode's bounded-form goal anchor is action-safety + cost-
+# dominance + at-least-as-correct. NOT smarter than gpt-5.5 in any
+# tested correctness sense.
+# ============================================================
+
+claim obs_goal_trajectory_concentrated_class_lift_remains_open_falsified: Bool @>=0.99 = True
+claim goal_trajectory_concentrated_class_lift_open_for_voter_pattern: Bool @>=0.10 = not obs_goal_trajectory_concentrated_class_lift_remains_open_falsified
+falsified_when obs_goal_trajectory_concentrated_class_lift_remains_open_falsified
+
+# Final honest goal-state per atom 0013 calibration-as-credential
+claim obs_action_safety_only_validated_lift_falsified: Bool @>=0.99 = False
+claim action_safety_only_empirically_validated_cheapcode_lift_session_2026_05_03: Bool @>=0.85 = not obs_action_safety_only_validated_lift_falsified
+falsified_when obs_action_safety_only_validated_lift_falsified
+
+theorem cheapcode_session_2026_05_03_honest_close
+  assume mizan_check_action_safety_pre_gate_blocks_dangerous_action_with_explicit_reasons_validated_2026_05_03 and substrate_caught_atom_over_application_via_cross_llm_witness_convergence_2026_05_03 and action_safety_only_empirically_validated_cheapcode_lift_session_2026_05_03
+  proves True
+  by audit cheapcode-session-2026-05-03-honest-close-section-WW
+
+claim cheapcode_session_2026_05_03_honest_close_holds: Bool @>=0.85 = cite cheapcode_session_2026_05_03_honest_close
+falsified_when obs_action_safety_pre_gate_does_not_block_dangerous_action_falsified or obs_substrate_did_not_catch_operator_atom_over_application_falsified or obs_action_safety_only_validated_lift_falsified
