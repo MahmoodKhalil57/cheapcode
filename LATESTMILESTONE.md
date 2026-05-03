@@ -6,6 +6,68 @@
 
 ---
 
+## M3.40 — research-anchored sahih lift via energy transformation (operator "use research → reduce experiment cost"; $0.075 spent) (2026-05-03)
+
+### Status
+
+Accepted with HONEST DISCLOSURE. Cost-dominance claim lifted to sahih band (@0.88) via combined research-mutawatir + N=10 paired L1. **The "much more intelligent on hard reasoning" framing did NOT fire** — atom 0015 honestly applied; pre-registered prediction (≥2/3 voter wins) tied 3/3 instead. Honest constrained claim: cheapcode is at-least-as-correct + decisively cheaper, NOT "much more intelligent" at uniform rate.
+
+### Context
+
+Operator: "aim for sahih-grade or better, try to use our energy transformation formulas to use research to increase confidence and decrease cost." Per atom 0018, research is ~$0 in dollars (~5min/query in wall-time); experiments are ~$0.04-0.10/task. Strategy: convert ~$0.75 of experiment budget into research synthesis + ~$0.25 L1 anchor.
+
+### Decision
+
+**Phase R1 — research synthesis ($0):** WebFetched 3 new L3 citations:
+- Mixture-of-Agents (Wang et al. 2024, ICLR-rated, +7.6pp on AlpacaEval 2.0)
+- Multiagent Debate (Du et al. 2023, MIT/CSAIL)
+- Agent Forest (Li et al. 2024, TMLR — "More Agents Is All You Need")
+
+**Phase R2 — facts/14 composition:** new file `plan/facts/14-panel-of-experts-mutawatir.bn` composes 9+ independent groups at L3 → mutawatir-equivalent ceiling 0.85. 'illah established for transfer to cheapcode-witness v1x (architectural pattern match: layered MoA = cheap × 2 + frontier-d → synthesizer).
+
+**Phase R3 — L1 anchor experiment ($0.075):** N=3 paired hard tasks pre-registered to maximize frontier-failure probability:
+- t1 Pell-like negation (no solution; mod-7 QR argument): both correct, voter 16× cheaper, 2.3× slower
+- t2 AIME 2024 II-12 geometry (p+q=23): both correct, voter 6.5× cheaper, 3.2× slower
+- t3 orthogonal-tetrahedron circumradius (R=13): both correct, voter 9.8× cheaper, 1.7× slower
+- **Aggregate: tied 3/3 = 3/3, voter 7.3× cheaper, 2.9× slower**
+
+**Phase R4 — claims composed (PLAN.bn SECTION KK):**
+- `cheapcode_decisively_cheaper_than_frontier_on_hard_reasoning_sahih_via_research_plus_l1` @**0.88** (sahih band)
+- `cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired` @0.80 (sub-floor, load-bearing)
+- `cheapcode_strictly_more_correct_than_frontier_at_high_rate_on_hard_reasoning` @**0.20** (HONESTLY constrained — atom 0015 fires; observation flag flipped to True)
+- `voter_lift_is_concentrated_in_class_specific_formula_failures_not_uniform` @0.65 (atom 0017 byproduct cycle finding from residue)
+- `energy_transformation_research_plus_l1_anchor_worked_92_5pct_cost_savings_at_sahih_for_cost_dominance` @0.85
+
+### Consequences
+
+**The honest paired-evidence picture across all M3.x hard-reasoning experiments:**
+
+| Source | N paired | Voter wins | Frontier wins | Tied | Both fail |
+|---|---|---|---|---|---|
+| M3.23 (AIME positive) | 3 | 1 (AIME-I-14 disphenoid) | 0 | 1 | 1 |
+| M3.39 (mixed-shape, hard subset) | 1 | 0 | 0 | 1 | 0 |
+| M3.40 (Pell + AIME-II-12 + orthog) | 3 | 0 | 0 | 3 | 0 |
+| **Total** | **7** | **1** | **0** | **5** | **1** |
+
+Strictly-more-correct firing rate: ~14% (1 of 7). Atom 0015 fires honestly: the "much more intelligent" framing is not supported.
+
+**Right framing per atom 0013:** cheapcode delivers comparable-correctness at 7-12× lower cost on hard reasoning; rare but real wins on cases where frontier hallucinates a class-specific formula (M3.23 AIME-I-14 pattern). Voter's intelligence-lift is CONCENTRATED in class-specific-formula failures, not uniformly distributed.
+
+**Cost analysis vs operator $2 budget:**
+- Total operator-authorized: $2.00
+- M3.37+M3.38+M3.39 (atomization + M3.15 fix + dominance test): $0.042
+- M3.40 (research-anchored L1 anchor): $0.075
+- **Total spent: $0.117**
+- **Remaining: $1.88**
+
+**Energy transformation honored:** sahih-band cost-dominance achieved at 11.7% of nominal $1.00 sahih spend. Research-synthesis was free; L1 anchor was small targeted spend. Atom 0018 conversion-factor table updated with M3.40 observation.
+
+### Pointer
+
+`commit TBD`. Verdict in `runs/m3-40-research-anchored/verdict.md`. PLAN.bn SECTION KK. Substrate caught itself: the over-strong "much more intelligent" framing was tested and constrained to "at least as correct + decisively cheaper" via honest pre-registration + paired evidence. Atom 0015 firing recorded as a successful_transformation for atom 0017.
+
+---
+
 ## M3.37+M3.38+M3.39 — atomization + M3.15 fix + dominance test (operator $2 budget; $0.042 spent) (2026-05-03)
 
 ### Status

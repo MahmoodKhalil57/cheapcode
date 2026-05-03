@@ -1417,6 +1417,74 @@ falsified_when obs_cheapcode_uniformly_slower_than_frontier_falsified
 claim cheapcode_partially_validates_hearsay_impossible_dominance_at_n3: Bool @>=0.62 = cheapcode_dominates_frontier_on_cost_across_mixed_task_set_n3 and cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3
 falsified_when obs_cheapcode_does_not_dominate_frontier_on_cost_across_mix_falsified or obs_cheapcode_less_smart_than_frontier_across_mix_falsified
 
+# ============================================================
+# SECTION KK - M3.40 research-anchored sahih lift via energy transformation
+#
+# Operator directive: "aim for sahih-grade or better, try to use our
+# energy transformation formulas to use research to increase confidence
+# and decrease cost."
+#
+# Strategy per atom 0018: research is ~free in dollars (~5 min wall per
+# query); experiments are ~$0.04-0.10 per task. Convert ~$0.75 of
+# experiment budget into ~30 min research synthesis + ~$0.25 L1 anchor.
+#
+# EXECUTED:
+# Research-synthesis (facts/14): 3 new L3 citations (Mixture-of-Agents
+# Wang 2024, Multiagent Debate Du 2023, Agent Forest Li 2024 TMLR)
+# composed with 6 existing facts/06 citations → 9+ independent groups
+# at L3 → mutawatir-equivalent ceiling 0.85. 'illah for transfer to
+# cheapcode-witness v1x architecturally established (layered MoA match).
+# Spend: $0.
+#
+# L1 anchor experiment (M3.40): 3 paired hard tasks chosen to maximize
+# frontier-failure probability (Pell-like negation, AIME-2024-II-12,
+# orthogonal-tetrahedron circumradius). Tied 3/3 = 3/3 on correctness.
+# Voter 7.3× cheaper. Spend: $0.075.
+#
+# Total energy-transformation cost: $0.075 vs nominal $1.00 sahih spend
+# = 92.5% cost savings. BUT the operator-implied "MUCH more intelligent"
+# framing did NOT fire — atom 0015 honestly applied.
+# ============================================================
+
+# Cost-dominance claim — research-mutawatir + N=10 paired L1 (M3.23+M3.39+M3.40)
+# converges. Lifts to sahih band.
+claim obs_cheapcode_does_not_decisively_cheaper_than_frontier_falsified: Bool @>=0.99 = False
+claim cheapcode_decisively_cheaper_than_frontier_on_hard_reasoning_sahih_via_research_plus_l1: Bool @>=0.88 = not obs_cheapcode_does_not_decisively_cheaper_than_frontier_falsified
+falsified_when obs_cheapcode_does_not_decisively_cheaper_than_frontier_falsified
+
+# At-least-as-correct claim — load-bearing sub-floor.
+# N=7 paired (M3.23+M3.39+M3.40 hard tasks): 1 voter-win, 0 voter-loss,
+# 5 ties, 1 both-fail. Plus facts/14 research-mutawatir at L3 ceiling.
+# Lift to 0.80 (sub-floor / load-bearing) but honestly NOT sahih.
+claim obs_cheapcode_less_correct_than_frontier_on_hard_reasoning_falsified: Bool @>=0.99 = False
+claim cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired: Bool @>=0.80 = not obs_cheapcode_less_correct_than_frontier_on_hard_reasoning_falsified
+falsified_when obs_cheapcode_less_correct_than_frontier_on_hard_reasoning_falsified
+
+# Strictly-more-correct claim — operator-implied framing, atom 0015
+# fires honestly. M3.40 was pre-registered to fire ≥2/3 wins; instead
+# it tied 3/3. Combined N=7 firing rate is ~14% (1 win in 7 paired).
+# Lower than hasan; honestly daif-band claim about "MUCH more intelligent."
+claim obs_cheapcode_strictly_more_correct_at_high_rate_on_hard_reasoning_falsified: Bool @>=0.99 = True
+claim cheapcode_strictly_more_correct_than_frontier_at_high_rate_on_hard_reasoning: Bool @>=0.20 = not obs_cheapcode_strictly_more_correct_at_high_rate_on_hard_reasoning_falsified
+falsified_when obs_cheapcode_strictly_more_correct_at_high_rate_on_hard_reasoning_falsified
+
+# Class-specific firing claim — voter's intelligence-lift seems CONCENTRATED
+# in class-specific-formula problems (M3.23 AIME-I-14 disphenoid). Atom
+# 0017 byproduct-recursion: residue from M3.40 ties suggests voter's
+# value isn't uniform across hard reasoning; it's targeted at specific
+# failure modes.
+claim obs_voter_lift_is_uniform_across_hard_reasoning_falsified: Bool @>=0.99 = True
+claim voter_lift_is_concentrated_in_class_specific_formula_failures_not_uniform: Bool @>=0.65 = obs_voter_lift_is_uniform_across_hard_reasoning_falsified
+falsified_when not obs_voter_lift_is_uniform_across_hard_reasoning_falsified
+
+# Process claim — energy transformation worked (cost dramatically below
+# nominal sahih spend). Even though pre-registered "MUCH more intelligent"
+# prediction didn't fire, the experiment was load-bearing because it
+# constrained an over-strong claim and confirmed the load-bearing-correct
+# claims at far lower cost than nominal.
+claim energy_transformation_research_plus_l1_anchor_worked_92_5pct_cost_savings_at_sahih_for_cost_dominance: Bool @>=0.85 = cheapcode_decisively_cheaper_than_frontier_on_hard_reasoning_sahih_via_research_plus_l1
+falsified_when obs_cheapcode_does_not_decisively_cheaper_than_frontier_falsified
+
 # Forward-looking quality claim — the living estimator converges on true
 # values as observations accumulate (Bernoulli's law of large numbers).
 # Validated by future longitudinal use; initial confidence reflects

@@ -1,0 +1,71 @@
+{
+  "attempt": "m3-40-research-anchored",
+  "date": "2026-05-03T14:57:51.529Z",
+  "N": 3,
+  "frontier": {
+    "correct": 3,
+    "total_cost": 0.06609000000000001,
+    "total_latency_ms": 89527.632635
+  },
+  "cheapcode": {
+    "correct": 3,
+    "total_cost": 0.00905533,
+    "total_latency_ms": 259380.649664
+  },
+  "per_task": [
+    {
+      "task_id": "t1-pell-negation-mod7",
+      "shape": "negation-non-classical",
+      "path": "frontier",
+      "text_tail": "d 7), we get x² ≡ 5 (mod 7). But the quadratic residues modulo 7 are 0, 1, 2, and 4, so 5 is not a quadratic residue modulo 7. Hence, no integers x and y can satisfy the equation. ⏎  ⏎ Answer: no solution",
+      "correct": true,
+      "cost_usd": 0.00804125,
+      "latency_ms": 11030.975299000002
+    },
+    {
+      "task_id": "t1-pell-negation-mod7",
+      "shape": "negation-non-classical",
+      "path": "cheapcode-voter",
+      "text_tail": "r, the quadratic residues modulo 7 are 0, 1, 2, and 4; 5 is not a quadratic residue. Therefore, no integer \\(x\\) satisfies this congruence, so no positive integer solutions exist. ⏎  ⏎ Answer: no solution",
+      "correct": true,
+      "cost_usd": 0.00048006000000000004,
+      "latency_ms": 25072.773057000006
+    },
+    {
+      "task_id": "t2-aime-2024-II-12",
+      "shape": "hard-aime-non-classical",
+      "path": "frontier",
+      "text_tail": "1. ⏎  ⏎ For AB, we have θ = π/3 (cos θ = 1/2, sin θ = √3/2), so t = √3. Hence ⏎ C = (u, v) = (1/8, 3√3/8). ⏎  ⏎ Thus OC^2 = (1/8)^2 + (3√3/8)^2 = 1/64 + 27/64 = 28/64 = 7/16, ⏎ so p + q = 7 + 16 = 23. ⏎  ⏎ Answer: 23",
+      "correct": true,
+      "cost_usd": 0.05106875,
+      "latency_ms": 67935.406648
+    },
+    {
+      "task_id": "t2-aime-2024-II-12",
+      "shape": "hard-aime-non-classical",
+      "path": "cheapcode-voter",
+      "text_tail": " = \\left( \\frac{1}{8} \\right)^2 + \\left( \\frac{3\\sqrt{3}}{8} \\right)^2 = \\frac{1}{64} + \\frac{27}{64} = \\frac{28}{64} = \\frac{7}{16} \\). Thus \\( p = 7 \\), \\( q = 16 \\), and \\( p+q = 23 \\). ⏎  ⏎ Answer: 23",
+      "correct": true,
+      "cost_usd": 0.00786253,
+      "latency_ms": 216641.683804
+    },
+    {
+      "task_id": "t3-tetrahedron-non-disphenoid-circumradius",
+      "shape": "specialized-formula-geometry",
+      "path": "frontier",
+      "text_tail": "o O and A gives x=3; to O and B gives y=4; to O and C gives z=12. Thus the circumcenter is (3,4,12), and the circumradius is the distance to O: R = sqrt(3^2 + 4^2 + 12^2) = sqrt(169) = 13. ⏎  ⏎ Answer: 13",
+      "correct": true,
+      "cost_usd": 0.006980000000000007,
+      "latency_ms": 10561.250688
+    },
+    {
+      "task_id": "t3-tetrahedron-non-disphenoid-circumradius",
+      "shape": "specialized-formula-geometry",
+      "path": "cheapcode-voter",
+      "text_tail": "f a trirectangular tetrahedron with legs 6, 8, and 24 is half the space diagonal of the enclosing rectangular box, which is \\(\\frac{1}{2}\\sqrt{6^2+8^2+24^2} = \\frac{1}{2}\\sqrt{676} = 13\\). ⏎  ⏎ Answer: 13",
+      "correct": true,
+      "cost_usd": 0.0007127399999999999,
+      "latency_ms": 17666.192802999984
+    }
+  ]
+}
