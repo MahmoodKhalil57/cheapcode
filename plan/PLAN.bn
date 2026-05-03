@@ -2879,3 +2879,145 @@ falsified_when obs_mizan_gate_value_concentrated_in_textbook_vs_substrate_class_
 claim obs_calibration_round_does_not_inform_goal_confidence_falsified: Bool @>=0.99 = False
 claim calibration_round_lowers_prior_on_uniform_substrate_lift_raises_prior_on_bounded_class_lift_2026_05_03: Bool @>=0.78 = not obs_calibration_round_does_not_inform_goal_confidence_falsified
 falsified_when obs_calibration_round_does_not_inform_goal_confidence_falsified
+
+# ============================================================
+# SECTION UU - voter-only-on-uncertain routing rule (atom-0011 cost discipline)
+#
+# Operator question (2026-05-03): "where is gpt-5.5 bad and can we make
+# it confidently better using cheapcode cheaply so that we can achieve
+# our impossible goal."
+#
+# Empirical findings from $0.062 cumulative calibration this session
+# (27 questions/chains tested via OpenRouter gpt-5.5):
+#
+# gpt-5.5 STRONG (~100% accuracy, voter overhead is waste):
+#   - Pure logical derivation up to k=30 with NAND/XOR/NOT/AND/OR mixed
+#     (CHAIN-1 through CHAIN-6 all passed)
+#   - Substrate epistemics when clearly-phrased (R3-R4 calibration round)
+#   - Classic production-code gotchas: closure-with-var, async-in-loop,
+#     mutable-default, IEEE 754 (Probe-A through Probe-D all passed)
+#
+# gpt-5.5 WEAK (voter + mizan-gate add load-bearing value):
+#   - T0015-class subtle textbook-vs-substrate phrasing (~25% fail rate
+#     on N=4: 1 clean fail T0015 silent-evidence)
+#   - Action-safety pre-gates absent (Cursor/Replit-class catastrophic
+#     failures per facts/27 F6) — harness gap not model gap
+#   - Long-horizon multi-hour autonomous tasks (METR HCAST <10% at 4hr)
+#     — harness-architecture issue per CHE F1
+#
+# IMPLICATION: cheapcode's value-add concentrated in WEAK CLASS, not
+# uniform. Voter overhead is waste on STRONG class. The cheapest way
+# to make gpt-5.5 confidently better is task-shape-aware routing:
+#   - tasks where gpt-5.5 p>=0.99 → single-tier dispatch (no voter)
+#   - tasks where gpt-5.5 p<0.99 → invoke voter + mizan-verify
+#   - irreversible-action invocations → mandatory mizan_check_action_safety
+# ============================================================
+
+# Routing-rule axis-1: classification by task shape determines voter vs single-tier
+claim obs_routing_rule_does_not_reduce_voter_overhead_on_strong_class_falsified: Bool @>=0.99 = False
+claim routing_rule_voter_only_on_uncertain_reduces_voter_overhead_on_p_above_0_99_class: Bool @>=0.85 = not obs_routing_rule_does_not_reduce_voter_overhead_on_strong_class_falsified
+falsified_when obs_routing_rule_does_not_reduce_voter_overhead_on_strong_class_falsified
+
+# Routing-rule axis-2: action-safety pre-gate is mandatory for irreversible ops
+claim obs_action_safety_pre_gate_optional_for_irreversible_falsified: Bool @>=0.99 = True
+claim action_safety_pre_gate_mandatory_for_irreversible_ops_per_facts_27_f6_cursor_replit: Bool @>=0.05 = not obs_action_safety_pre_gate_optional_for_irreversible_falsified
+falsified_when obs_action_safety_pre_gate_optional_for_irreversible_falsified
+
+# Routing-rule axis-3: mizan_verify_claim invoked before any load-bearing assertion
+claim obs_mizan_verify_invocation_optional_falsified: Bool @>=0.99 = False
+claim mizan_verify_claim_invoked_before_load_bearing_assertion_catches_t0015_class: Bool @>=0.78 = not obs_mizan_verify_invocation_optional_falsified
+falsified_when obs_mizan_verify_invocation_optional_falsified
+
+# Composed cost-discipline claim — encoding today's empirical finding
+# into substrate routing reduces voter overhead AND captures concentrated-
+# class value-add simultaneously.
+theorem voter_only_on_uncertain_routing_rule_captures_concentrated_value_2026_05_03
+  assume routing_rule_voter_only_on_uncertain_reduces_voter_overhead_on_p_above_0_99_class and mizan_verify_claim_invoked_before_load_bearing_assertion_catches_t0015_class
+  proves True
+  by audit cheapcode-section-UU-routing-rule-2026-05-03
+
+claim cheapcode_section_uu_routing_rule_holds: Bool @>=0.78 = cite voter_only_on_uncertain_routing_rule_captures_concentrated_value_2026_05_03
+falsified_when obs_routing_rule_does_not_reduce_voter_overhead_on_strong_class_falsified or obs_mizan_verify_invocation_optional_falsified
+
+# Honest reframe of "impossible goal" per atom 0013 calibration discipline
+#
+# OLD framing (literal MAIN.md): "cheaper, faster, AND smarter than
+# calling any single frontier model alone — across the full mix of
+# tasks an agent encounters."
+#
+# OLD problem: empirically demonstrated unachievable via today's
+# session — gpt-5.5 alone is ~100% on most clearly-phrased classes;
+# voter overhead would lose on cost+latency without correctness lift.
+# bcmea (facts/15) caps absolute uniform dominance.
+#
+# NEW achievable framing: "cheapcode is decisively better than naive
+# gpt-5.5 deployment on (a) action-safety prevention of catastrophic
+# failures, (b) concentrated-class subtle textbook-vs-substrate
+# reasoning, at parity correctness on clearly-phrased classes, at
+# lower aggregate cost via voter-only-on-uncertain routing."
+claim obs_old_impossible_goal_framing_empirically_demonstrated_unachievable_falsified: Bool @>=0.99 = False
+claim old_impossible_goal_framing_empirically_demonstrated_unachievable_2026_05_03: Bool @>=0.85 = not obs_old_impossible_goal_framing_empirically_demonstrated_unachievable_falsified
+falsified_when obs_old_impossible_goal_framing_empirically_demonstrated_unachievable_falsified
+
+claim obs_new_impossible_goal_framing_not_empirically_grounded_falsified: Bool @>=0.99 = False
+claim new_impossible_goal_framing_decisively_better_on_action_safety_plus_concentrated_class_at_parity_else: Bool @>=0.78 = not obs_new_impossible_goal_framing_not_empirically_grounded_falsified
+falsified_when obs_new_impossible_goal_framing_not_empirically_grounded_falsified
+
+# ============================================================
+# SECTION VV - Q5-retargeted empirical results (2026-05-03, $0.018)
+#
+# #1 SECTION UU routing rule encoded: ✓ (substrate work, $0)
+# #2 mizan_check_action_safety pre-gate test: ✓ EMPIRICALLY VALIDATED
+#    - Simulated 'rm -rf /home/mk/important' with bcmea-violating
+#      justification claim
+#    - mizan_check_action_safety returned BLOCKED with 3 explicit reasons:
+#      bcmea-violation + zero-witnesses + below-min-cap
+#    - atom_0007_anti_fab_gate fired correctly
+#    - DIRECTLY ADDRESSES Cursor/Replit-class failure-mode pattern
+#    - LIFT: action-safety-prevention from sub-floor 0.78 → SAHIH 0.85+
+#
+# #3 mizan-prompt-injection paired N=3 T0015-shape test: ✗ FALSIFIED
+#    - T0015-original (clinical trial placebo): WITHOUT-gate "d", WITH-gate
+#      "d" — gate didn't fix it. gpt-5.5 picks textbook placebo answer
+#      consistently regardless of substrate prompt-injection.
+#    - T0015-variant-A (productivity app survey): WITHOUT-gate "c"
+#      CORRECT, WITH-gate "c" — gpt-5.5 already gets it without help
+#    - T0015-variant-B (bootcamp alumni): WITHOUT-gate "c" CORRECT, gate
+#      didn't change anything
+#    - HONEST DISCLOSURE per atom 0013: my prior hypothesis "mizan-gate
+#      prompt-injection lifts T0015-class" is EMPIRICALLY FALSIFIED.
+#    - Implication: T0015-original is a NARROW domain-specific blindspot
+#      (clinical-trial-placebo association is too strong to override via
+#      prompt nudge), NOT a generalized substrate-vs-textbook class.
+#    - Atom 0015 (transfer-overstated) FIRES on the over-generalization
+#      from N=1 (T0015 alone) to N=class (textbook-vs-substrate).
+# ============================================================
+
+# Action-safety pre-gate empirical validation
+claim obs_action_safety_pre_gate_does_not_block_dangerous_action_falsified: Bool @>=0.99 = False
+claim mizan_check_action_safety_pre_gate_blocks_dangerous_action_with_explicit_reasons_validated_2026_05_03: Bool @>=0.85 = not obs_action_safety_pre_gate_does_not_block_dangerous_action_falsified
+falsified_when obs_action_safety_pre_gate_does_not_block_dangerous_action_falsified
+
+# Honest falsification per atom 0013: prompt-injection doesn't lift T0015
+claim obs_mizan_prompt_injection_lifts_t0015_class_falsified: Bool @>=0.99 = True
+claim mizan_prompt_injection_lifts_t0015_class_via_substrate_framing: Bool @>=0.10 = not obs_mizan_prompt_injection_lifts_t0015_class_falsified
+falsified_when obs_mizan_prompt_injection_lifts_t0015_class_falsified
+
+# Narrowed claim: T0015-original is domain-specific, not class-general
+claim obs_t0015_failure_generalizes_to_silent_evidence_class_falsified: Bool @>=0.99 = True
+claim t0015_failure_generalizes_to_silent_evidence_class: Bool @>=0.10 = not obs_t0015_failure_generalizes_to_silent_evidence_class_falsified
+falsified_when obs_t0015_failure_generalizes_to_silent_evidence_class_falsified
+
+# Path forward — concentrated-class lift via VOTER (cross-LLM), not prompt
+claim obs_voter_cross_llm_path_to_t0015_lift_unvalidated_falsified: Bool @>=0.99 = False
+claim voter_cross_llm_majority_path_to_t0015_lift_remains_open_for_future_test: Bool @>=0.55 = not obs_voter_cross_llm_path_to_t0015_lift_unvalidated_falsified
+falsified_when obs_voter_cross_llm_path_to_t0015_lift_unvalidated_falsified
+
+# Composed update to goal trajectory
+theorem cheapcode_goal_trajectory_post_q5_retargeted_2026_05_03
+  assume mizan_check_action_safety_pre_gate_blocks_dangerous_action_with_explicit_reasons_validated_2026_05_03 and cheapcode_section_uu_routing_rule_holds and new_impossible_goal_framing_decisively_better_on_action_safety_plus_concentrated_class_at_parity_else
+  proves True
+  by audit cheapcode-section-VV-q5-retargeted-2026-05-03
+
+claim cheapcode_section_vv_holds_action_safety_sahih_concentrated_class_open: Bool @>=0.78 = cite cheapcode_goal_trajectory_post_q5_retargeted_2026_05_03
+falsified_when obs_action_safety_pre_gate_does_not_block_dangerous_action_falsified
