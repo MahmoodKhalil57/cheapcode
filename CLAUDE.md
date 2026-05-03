@@ -55,7 +55,36 @@ Output: structured JSON with current wall time, ms-since-last-commit, ms-since-l
 - "We have time for this" / "we don't have time for that"
 - Choosing between research vs experiment at a decision boundary
 
-**The conversion-factor table (atom 0018, cheapcode-derived):**
+**The conversion-factor table is LIVING — query the estimator, not memory:**
+
+```bash
+bun tools/conversion-factors.ts list                                # full table
+bun tools/conversion-factors.ts estimate research-query             # single category
+bun tools/conversion-factors.ts list --agent claude-opus-4.7        # filter by agent
+bun tools/conversion-factors.ts list --scope aime-math --broaden    # filter by scope, fall back if empty
+```
+
+The estimator computes median + IQR (Florence Nightingale 1854 robustness) over an append-only JSONL log; values converge on truth as observations accumulate (Bernoulli's law of large numbers, 1713). Multi-dimensional: `(agent_id × scope_tags × category) → estimate`. Drift detection per atom 0015 (2× threshold over 3+ recent observations).
+
+After every milestone closes, **record the actual observation**:
+
+```bash
+bun tools/conversion-factors.ts record small-experiment 5400000 0.135 \
+    --scope aime-math \
+    --agent claude-opus-4.7
+```
+
+This is the atom 0017 byproduct-recursion applied to the conversion-factor table itself: each cycle produces empirical data that updates future estimates.
+
+**Programmatic (agent-friendly):**
+```typescript
+import { quickEstimate, recordObservation } from "./tools/conversion-factors"
+const est = await quickEstimate("small-experiment")  // uses defaults
+// ... do the experiment ...
+await recordObservation({ category: "small-experiment", time_ms: actualMs, cost_usd: actualCost })
+```
+
+**Initial seed (cheapcode-derived M3.x bootstrap; subject to convergence):**
 - 1 targeted research query: ~3-5 min wall, ~$0 spend
 - 1 small experiment: ~30-90 min wall, $0.05-0.50 spend
 - 1 substrate primitive add (M18-disciplined): ~1-2 hours wall, $0 spend, ~5-15 commits

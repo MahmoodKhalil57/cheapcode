@@ -1,0 +1,7 @@
+{"timestamp_iso":"2026-05-03T12:33:11.803Z","category":"small-experiment","time_ms":510000,"cost_usd":0.0516,"agent_id":"claude-opus-4.7","scope_tags":["aime-math","negation","voter-probe"]}
+{"timestamp_iso":"2026-05-03T12:33:11.826Z","category":"small-experiment","time_ms":540000,"cost_usd":0.0658,"agent_id":"claude-opus-4.7","scope_tags":["aime-math","paired-baseline"]}
+{"timestamp_iso":"2026-05-03T12:33:11.845Z","category":"small-experiment","time_ms":300000,"cost_usd":0.028,"agent_id":"claude-opus-4.7","scope_tags":["knowledge-synthesis","v0-witness"]}
+{"timestamp_iso":"2026-05-03T12:33:11.868Z","category":"small-experiment","time_ms":360000,"cost_usd":0.135,"agent_id":"claude-opus-4.7","scope_tags":["knowledge-synthesis","v1x-witness"]}
+{"timestamp_iso":"2026-05-03T12:33:11.891Z","category":"substrate-primitive-add","time_ms":5400000,"cost_usd":0,"agent_id":"claude-opus-4.7","scope_tags":["code-witness"]}
+{"timestamp_iso":"2026-05-03T12:33:11.913Z","category":"substrate-primitive-add","time_ms":5400000,"cost_usd":0,"agent_id":"claude-opus-4.7","scope_tags":["reality-check"]}
+{"timestamp_iso":"2026-05-03T12:33:11.937Z","category":"substrate-primitive-add","time_ms":4500000,"cost_usd":0,"agent_id":"claude-opus-4.7","scope_tags":["conversion-factors","multi-dim"]}

@@ -1206,6 +1206,103 @@ claim obs_reality_check_does_not_help_with_constraint_conversion_falsified: Bool
 claim reality_check_helps_agent_ground_claims_and_convert_constraints: Bool @>=0.55 = not obs_reality_check_does_not_help_with_constraint_conversion_falsified
 falsified_when obs_reality_check_does_not_help_with_constraint_conversion_falsified
 
+# ============================================================
+# SECTION HH - living conversion-factor estimator (M3.34)
+#
+# Operator: "make sure that the conversion-factor table is baked in in
+# a flexible way where it can be meaningfully updated over time to
+# converge on the true values."
+#
+# The static table in cheapcode/CLAUDE.md (M3.33) is documentation, not
+# a converging estimator. Per atom 0017 byproduct-recursion + Statistics.md
+# Bernoulli's law of large numbers (1713) — sample-mean converges on
+# true population mean as N grows — the conversion factors should be a
+# LIVING estimator that:
+#
+#   1. Persists observations (each milestone-class action's actual
+#      time + cost) to an append-only JSONL log
+#   2. Computes robust descriptive statistics (median + IQR per
+#      Statistics.md insight — mean is sensitive to outliers, median is
+#      not; matches Florence Nightingale 1854 methodology)
+#   3. Surfaces drift via atom 0015 firing when recent observations
+#      diverge from cached estimate
+#   4. Is queryable (agent reads current best estimate at decision
+#      boundary, writes outcome after milestone closes)
+#
+# Tool: cheapcode/tools/conversion-factors.ts
+# Storage: cheapcode/runs/conversion-factors.jsonl (append-only)
+#
+# This is M3.34 (M18-disciplined fork-addition):
+# - SECTION HH IS the burhan claim (Step 1 — claim first)
+# - tools/conversion-factors.test.ts will be Step 2 (test first)
+# - tools/conversion-factors.ts will be Step 3 (implement)
+# - Coverage of fork-additions ~100% (Step 4)
+# ============================================================
+
+# Structural claim 1: recordObservation appends a structured entry to
+# the JSONL log with timestamp, category, time_ms, cost_usd, metadata.
+# Falsifier: appended line missing required fields OR not parseable JSON.
+claim obs_record_observation_writes_invalid_jsonl_falsified: Bool @>=0.99 = False
+claim record_observation_writes_structured_jsonl_with_required_fields: Bool @>=0.92 = not obs_record_observation_writes_invalid_jsonl_falsified
+falsified_when obs_record_observation_writes_invalid_jsonl_falsified
+
+# Structural claim 2: getEstimate returns median + IQR + sample_size for
+# the requested category. When sample_size < 3, returns null estimates
+# with explicit "insufficient_data: true" flag (atom 0011 honest about
+# small N — mizaj 14 daif grade).
+claim obs_get_estimate_wrong_aggregation_falsified: Bool @>=0.99 = False
+claim get_estimate_returns_median_iqr_with_insufficient_data_flag_when_n_lt_3: Bool @>=0.92 = not obs_get_estimate_wrong_aggregation_falsified
+falsified_when obs_get_estimate_wrong_aggregation_falsified
+
+# Structural claim 3: when 3+ recent observations diverge from the
+# cached median by ≥2× (in either direction), drift is flagged in the
+# estimate output. This is atom 0015 firing on conversion-factor drift.
+claim obs_drift_detection_misses_2x_divergence_falsified: Bool @>=0.99 = False
+claim drift_detection_flags_when_3_recent_observations_diverge_2x: Bool @>=0.85 = not obs_drift_detection_misses_2x_divergence_falsified
+falsified_when obs_drift_detection_misses_2x_divergence_falsified
+
+# Structural claim 4: getAllEstimates returns a complete table with
+# entries for every category that has at least one observation, plus
+# explicit "no_data" entries for categories with zero observations.
+claim obs_get_all_estimates_misses_categories_falsified: Bool @>=0.99 = False
+claim get_all_estimates_returns_complete_table_with_no_data_for_empty_categories: Bool @>=0.85 = not obs_get_all_estimates_misses_categories_falsified
+falsified_when obs_get_all_estimates_misses_categories_falsified
+
+# Process claim — M3.34 itself satisfies M18.
+claim obs_m3_34_violates_m18_discipline_falsified: Bool @>=0.99 = False
+claim m3_34_conversion_factors_addition_complies_with_mizaj_18: Bool @>=0.92 = not obs_m3_34_violates_m18_discipline_falsified
+falsified_when obs_m3_34_violates_m18_discipline_falsified
+
+# Forward-looking quality claim — the living estimator converges on true
+# values as observations accumulate (Bernoulli's law of large numbers).
+# Validated by future longitudinal use; initial confidence reflects
+# structural soundness of median+IQR over append-only JSONL.
+claim obs_living_estimator_does_not_converge_on_true_values_falsified: Bool @>=0.99 = False
+claim living_conversion_factor_estimator_converges_on_true_values_as_n_grows: Bool @>=0.78 = not obs_living_estimator_does_not_converge_on_true_values_falsified
+falsified_when obs_living_estimator_does_not_converge_on_true_values_falsified
+
+# Multi-dimensional filtering claim (M3.34 operator-named):
+# "the conversion factor table should also be multi dimensional, as you
+# are usually claude opus 4.7 (until they release a newer version or i
+# downgrade) so generally it should be constantish, while within scopes
+# it is more complicated as specific research can take more time than
+# specific experiments depending on the dimention you are looking at."
+# Filter dimensions: agent_id × scope_tags × category. Falls back to
+# broader filters with broadened_to breadcrumb when narrow returns no_data.
+claim obs_multi_dim_filter_misses_agent_or_scope_falsified: Bool @>=0.99 = False
+claim conversion_factor_filter_handles_agent_id_and_scope_tags_dimensions: Bool @>=0.85 = not obs_multi_dim_filter_misses_agent_or_scope_falsified
+falsified_when obs_multi_dim_filter_misses_agent_or_scope_falsified
+
+# Agent-intuitive claim (M3.34 operator-named):
+# "remember to also implement it in a way where agents like claude can
+# use it intuitively and properly straight away."
+# Defaults to env CHEAPCODE_AGENT_ID or DEFAULT_AGENT_ID. CLI subcommands
+# list/estimate/record/help self-document. quickEstimate(category) is
+# the one-liner agent-friendly API.
+claim obs_conversion_factor_tool_not_agent_intuitive_falsified: Bool @>=0.99 = False
+claim conversion_factor_tool_provides_agent_intuitive_defaults_and_one_liner: Bool @>=0.85 = not obs_conversion_factor_tool_not_agent_intuitive_falsified
+falsified_when obs_conversion_factor_tool_not_agent_intuitive_falsified
+
 # Sub-claim 2: cross-witness voter pattern lifts agentic-correctness on
 # SWE-shape tasks. UNTESTED — needs M3.30 SDE.
 claim obs_voter_pattern_does_not_lift_agentic_correctness_on_swe_falsified: Bool @>=0.99 = False

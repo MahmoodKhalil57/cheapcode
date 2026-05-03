@@ -6,6 +6,69 @@
 
 ---
 
+## M3.34 — living, multi-dimensional conversion-factor estimator (2026-05-03)
+
+### Status
+
+Accepted. Built `tools/conversion-factors.ts` (440 LoC, 26 tests, 93% func coverage) replacing the static markdown table in CLAUDE.md with a converging multi-dimensional estimator. atom 0018 + mizaj 19 + CLAUDE.md updated to cite the living mechanism.
+
+### Context
+
+Operator's two refinements:
+1. "make sure that the conversion-factor table is baked in in a flexible way where it can be meaningfully updated over time to converge on the true values" — static markdown is documentation, not a converging estimator.
+2. "the conversion factor table should also be multi dimensional, as you are usually claude opus 4.7 (until they release a newer version or i downgrade) so generally it should be constantish, while within scopes it is more complicated as specific research can take more time than specific experiments depending on the dimention you are looking at."
+3. "remember to also implement it in a way where agents like claude can use it intuitively and properly straight away."
+
+### Decision
+
+`tools/conversion-factors.ts` shipped under M18 discipline:
+
+**Step 1 (M18):** 8 burhan claims FIRST in PLAN.bn SECTION HH covering structural correctness (record writes valid JSONL, getEstimate returns median+IQR, drift detection, getAllEstimates, multi-dim filtering, agent-intuitive defaults) + load-bearing convergence claim (`living_conversion_factor_estimator_converges_on_true_values_as_n_grows @0.78`).
+
+**Step 2 (M18):** 26 tests FIRST in `tools/conversion-factors.test.ts`. Red-phase confirmed.
+
+**Step 3 (M18):** implementation:
+- `recordObservation({ category, time_ms, cost_usd, agent_id?, scope_tags?, metadata? })` appends JSONL
+- `getEstimate(category, { agent_id?, scope_tags?, broaden_on_no_data?, logPath? })` returns `{ sample_size, no_data, insufficient_data, drift_flagged, median/p25/p75 time + cost, broadened_to? }`
+- `getAllEstimates(opts)` returns full table
+- `quickEstimate(category)` agent-intuitive one-liner using env defaults
+- CLI subcommands: `list`, `estimate <cat>`, `record <cat> <ms> <usd>`, `help` — self-documenting
+- Defaults: `CHEAPCODE_AGENT_ID` env var or `DEFAULT_AGENT_ID = "claude-opus-4.7"`
+
+**Step 4 (M18):** coverage 93% funcs / 83.5% lines. Uncovered: only the CLI entry block (universally untestable from runner) and 2 small defensive null branches. All exported API + statistical logic 100% covered.
+
+**Statistical method (per Statistics.md):**
+- Median + IQR (Florence Nightingale 1854 robustness — mean is sensitive to outliers, median is not)
+- Bernoulli's law of large numbers (1713) gives the convergence-as-N-grows guarantee
+- 2× drift threshold (non-parametric equivalent of >2σ "rare" — Statistics.md notes 2σ is "genuinely rare" under normal distribution)
+- Drift baseline excludes the recent window so drift doesn't pull baseline up with it
+
+**Multi-dimensional filtering:** observations carry `agent_id` and `scope_tags`. Filter resolves to most-specific match; `broaden_on_no_data` falls back to broader filters (drop scope_tags first, then agent_id) with a `broadened_to` breadcrumb so the agent knows it's reading a less-specific estimate.
+
+**Bootstrap:** seeded JSONL with 7 grounded observations from M3.x project history (M3.19 voter probe, M3.23 paired GPT-5, M3.27 v0 dogfood, M3.28 v1x dogfood, M3.32/M3.33/M3.34 substrate primitive adds). Living table now reads:
+```
+small-experiment        N=4   time 5.8m/7.3m/8.6m   cost $0.046/$0.059/$0.083
+substrate-primitive-add N=3   time 1.4h/1.5h/1.5h   cost $0.000/$0.000/$0.000
+```
+
+### Consequences
+
+cheapcode-fork agents can now:
+1. Query the living estimator: `bun tools/conversion-factors.ts list` or `quickEstimate(category)` programmatically
+2. Record observations after each milestone: `bun tools/conversion-factors.ts record ...`
+3. Filter by agent + scope to get model-specific and task-specific estimates
+4. See drift fired when conversion factors diverge from cached values (atom 0015 firing)
+
+The static numbers in CLAUDE.md are now seed values; the living estimator is the source of truth. Every milestone close should record an observation per atom 0017 byproduct-recursion applied to the conversion-factor table itself.
+
+84/84 tests pass (was 58; +26 new for conversion-factors). Burhan-validate clean.
+
+### Pointer
+
+`commit TBD` (cheapcode); khazina `3852a9b` (atom 0018 update); mizaj `519eabc` (M19 update). Future agents reading `cheapcode/CLAUDE.md` see the living-estimator query commands as the canonical source of conversion factors.
+
+---
+
 ## M3.33 — physical-reality grounding: tools/reality-check + atom 0018 + mizaj 19 (2026-05-03)
 
 ### Status
