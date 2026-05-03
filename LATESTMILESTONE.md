@@ -6,6 +6,155 @@
 
 ---
 
+## M3.16 — Phase 4 README per Model Cards format (2026-05-03)
+
+### Status
+
+Accepted. README rewritten as Model Card per SPEC Revision 2026-05-02g adoption 1 (Mitchell et al. 2019).
+
+### Decision
+
+Replaces the scaffold-era README with a v1.0-rc1 Model Card. 9 Model Card sections + quick-start + reading-order. Headline disclosure: 10 routing rules table with confidences, evidence tier per rule, and load-bearing falsifiers. M3.11+M3.11b L1 measurement summary in §7. Compound-wrapper preserved-but-default-off explicitly disclosed in §9 caveats per atom 0013.
+
+### Consequences
+
+The evidence-tier-per-rule format IS the credential. Operators can audit, debug, replace any rule. README is the Phase 4 deliverable and unblocks Phase 5 (ship tag) once Phase 3 closes.
+
+### Pointer
+
+`README.md` ([commit 660ed09](.)).
+
+---
+
+## M3.15 partial — 5-tier list passes opencode `models`; dispatch needs v1.14.33 upgrade (2026-05-03)
+
+### Status
+
+Partial pass. The L3 binary-level evidence (5 tiers register) is achieved; actual dispatch blocked on opencode version mismatch (v1.14.25 local vs SPEC pin v1.14.33).
+
+### Context
+
+Phase 3 4-client smoke regression begun. `bun pm pack` + `bun add ./tgz` + opencode.json with `provider.cheapcode.npm` produces a valid registration: `opencode models` lists all 5 cheapcode tiers cleanly. But `opencode run --model cheapcode/cheap "..."` throws `ProviderInitError` after `getSDK` succeeds.
+
+Title-agent (small=true) succeeds; build-agent (small=false) fails. Same loaded SDK, both invocations.
+
+### Decision
+
+Commit the package.json fixes (files manifest now includes auto-wrapper.ts + router.ts; peerDependency `ai: ^6.0.0` added; version bumped to 0.1.0-rc1). Add `.languageModel(id)` method to the provider (Vercel AI SDK convention; opencode calls `sdk.languageModel(modelID)` per provider.ts:195). Defer dispatch debug — root cause hypothesis is opencode v1.14.25 vs v1.14.33 contract mismatch.
+
+### Consequences
+
+Phase 3 falsifier gate at L3 (5 tiers in `--list-models`) is closed for the original Phase 1 propagation thesis. Full Phase 3 dispatch verification requires operator action (upgrade opencode to v1.14.33 OR build from upstream source).
+
+### Pointer
+
+`commit 66efe98`. Phase 3 full pass deferred until opencode version match. Phase 5 ship can proceed against v1.14.33 once this is resolved.
+
+---
+
+## M3.14 — router decision-table; failure-mode-aware dispatch (2026-05-03)
+
+### Status
+
+Accepted. New `src/router.ts` (184 LoC, cell #20 MIN ≤200 ✓) + 15-test `src/router.test.ts` all passing. `CheapcodeAutoModel.doGenerate` now classifies task → dispatches direct (default) or compound (opt-in only).
+
+### Context
+
+Operationalizes the M3.12 reframe per SPEC Revision 2026-05-03k. cheapcode's `auto` tier is now a router, not a default-on compound wrapper.
+
+### Decision
+
+10 routing rules wired live, each with rule citation + evidence tier on the response's `providerMetadata.cheapcode.route`. Per atom 0008 — runtime-anchored claim-shape on every dispatch. Compound invoked CONDITIONALLY (operator opt-in via `forceCompoundOnMultistep`).
+
+### Consequences
+
+cheapcode auto delivers documented value-optimum routing across 10 task shapes. Operators can override per-shape via `cheapcode.toml`. The compound wrapper code stays in repo as conditional path for future v1.x research.
+
+### Pointer
+
+`src/router.ts`, `src/router.test.ts` ([commit eb33f54](.)).
+
+---
+
+## M3.12 — strategic reframe to general-agent router (2026-05-03)
+
+### Status
+
+Accepted. SPEC Revision 2026-05-03k locks the reframe.
+
+### Context
+
+Operator pushback post-M3.11/M3.11b: "if we do alot of research and minimal experimentation on when 'top general models' of different price points 'fail' on speed or intelligence we can help suggest an update to our burhan plan that gives us more value to our cheapcode fork and help us reach our most valuable version of our product 'general agent'."
+
+M3.11+M3.11b empirically falsified compound-wrapper-as-default on cost+latency. Smart-axis was untestable due to benchmark saturation.
+
+### Decision
+
+Reframe cheapcode v1's value from "compound wrapper that beats single frontier on 3 axes" to "general-agent routing intelligence that dispatches each task to its documented value-optimum frontier model based on per-model failure envelopes."
+
+Cascade:
+- `plan/facts/08-frontier-model-failure-envelopes.bn` — 12 models × 3 tiers, 8 exploitable-gap routing rules
+- `plan/facts/09-task-shape-routing-matrix.bn` — 10 canonical task shapes × 10 routing rules
+- PLAN.bn SECTION X — `cheapcode_general_agent_routes_optimally @0.40` discharge composing 9 routing-rule claims
+- MAIN.md goal rewritten
+- SPEC Revision 2026-05-03k locks Phase 2 wrapper as conditional, adds cell #20 (router LoC budget)
+
+### Consequences
+
+Plan-graph clean (14 EXPLORE all honest forward-looking; 0 REMOVE; 0 MOVE). Routing rules carry evidence tiers (mostly L4 vendor+leaderboard; L1 own anchor for deepseek long-context). v1.x roadmap: lift L4 → L1 per atom 0011 own-measurement.
+
+### Pointer
+
+`SPEC.md` Revision 2026-05-03k, `plan/facts/08+09`, `plan/PLAN.bn` SECTION X ([commit cd128c0](.)).
+
+---
+
+## M3.11 + M3.11b — EXPERIMENT-1 Arm A (compound wrapper FAIL on cost+latency) (2026-05-03)
+
+### Status
+
+Accepted as L1 own-measurement evidence. Cumulative spend $0.16 across 20 task-runs.
+
+### Context
+
+Pre-registered EXPERIMENT-1 Arm A on simple-multistep (M3.11) + hand-curated harder-multistep (M3.11b) benchmarks. Two attempts to discriminate the compound-wrapper-vs-frontier 3-axis dominance claim.
+
+### Decision
+
+Both attempts FAIL outcome. Cost ratio 1.85× / 1.33× (target ≤0.30, definitively FAIL — structural compound overhead). Latency ratio 5.49× / 5.13× (target ≤0.70, definitively FAIL — sequential pipeline overhead). Completion 100%/100% on both — INCONCLUSIVE due to ceiling effect.
+
+Atom 0009 fired twice (benchmark scoring bugs caught: t05 vowel miscount in attempt-1, Unicode minus normalization in attempt-2). Atom 0015 fired (research-pipeline overstated cost+latency).
+
+### Consequences
+
+Compound architecture's cost+latency overhead is structural — would NOT clear targets on ANY benchmark. Smart-axis (completion) untestable on these benchmarks due to baseline saturation. Triggers M3.12 reframe to routing intelligence.
+
+### Pointer
+
+`runs/experiment-1-attempt-1/`, `runs/experiment-1-attempt-2/` (verdict.md per Model Cards). Attempt-3 AIME in-flight at this milestone close.
+
+---
+
+## M3.10 — auto-wrapper Arm A implementation (2026-05-03)
+
+### Status
+
+Accepted. New `src/auto-wrapper.ts` (~396 LoC at commit; 441 LoC after M3.14 router-aware additions; cell #18 EXPECTED tier ≤700).
+
+### Context
+
+Per SPEC Revision 2026-05-03j, implemented compound wrapper with plan-decompose → parallel cheap-leaves → best-of-K=3 frontier synthesis → cross-model verifier → retry-with-feedback. Architecture per M3.2: zero upstream patches; ships as custom LanguageModelV3 in npm package.
+
+### Consequences
+
+EXPERIMENT-1 attempts 1+2 ran against this code; surfaced cost+latency structural failure that triggered M3.12 reframe. Code preserved in repo; per M3.14 invoked CONDITIONALLY rather than default-on.
+
+### Pointer
+
+`src/auto-wrapper.ts` ([commit 65e30e2](.)).
+
+---
+
 ## M3.9 — supersede M3.8 over-narrowing; restore Phase 2 + EXPERIMENT-1 Arm A (2026-05-03)
 
 ### Status
