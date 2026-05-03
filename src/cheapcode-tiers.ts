@@ -269,12 +269,69 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
     enumerable: true,
   })
 
+  // M3.38 fix for M3.15 ProviderInitError: opencode's AI SDK ProviderV2
+  // contract requires the provider to expose specificationVersion +
+  // languageModel + chatModel + completionModel + embeddingModel +
+  // textEmbeddingModel + imageModel. Title-agent (small=true) only
+  // probed languageModel and worked; build-agent (small=false) probed
+  // additional methods → ProviderInitError. This block defines all the
+  // required keys.
+  //
+  // For embedding + image: cheapcode does not support these modalities
+  // (it's a routing layer for chat-completion models). Per atom 0007
+  // (anti-fab via artifact verification), the stubs THROW a clear
+  // "not supported" error rather than silently returning a stub the
+  // caller would treat as valid.
+
+  Object.defineProperty(provider, "specificationVersion", {
+    value: "v3",
+    writable: false,
+    enumerable: true,
+  })
+
   // Vercel AI SDK convention: provider exposes `.languageModel(id)` so
   // opencode (and any AI-SDK consumer) can call `sdk.languageModel(modelID)`
   // after loading the package. Mirrors the callable `provider(modelId)`
   // shape used by `@openrouter/ai-sdk-provider`.
   Object.defineProperty(provider, "languageModel", {
     value: (modelId: string) => provider(modelId),
+    writable: false,
+    enumerable: true,
+  })
+
+  // chatModel + completionModel are aliases — cheapcode tiers route
+  // to chat-completion models regardless. Per AI SDK v3 ProviderV2.
+  Object.defineProperty(provider, "chatModel", {
+    value: (modelId: string) => provider(modelId),
+    writable: false,
+    enumerable: true,
+  })
+  Object.defineProperty(provider, "completionModel", {
+    value: (modelId: string) => provider(modelId),
+    writable: false,
+    enumerable: true,
+  })
+
+  // Embedding + image: NOT SUPPORTED. Throw clearly so callers know to
+  // route elsewhere (per atom 0007 anti-fab).
+  const notSupported = (kind: string) => (modelId: string): never => {
+    throw new Error(
+      `cheapcode does not support ${kind} models (requested modelId="${modelId}"). ` +
+      `Route ${kind} requests to a dedicated provider (e.g., @openrouter/ai-sdk-provider directly).`,
+    )
+  }
+  Object.defineProperty(provider, "textEmbeddingModel", {
+    value: notSupported("text embedding"),
+    writable: false,
+    enumerable: true,
+  })
+  Object.defineProperty(provider, "embeddingModel", {
+    value: notSupported("embedding"),
+    writable: false,
+    enumerable: true,
+  })
+  Object.defineProperty(provider, "imageModel", {
+    value: notSupported("image"),
     writable: false,
     enumerable: true,
   })

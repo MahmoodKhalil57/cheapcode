@@ -6,6 +6,75 @@
 
 ---
 
+## M3.37+M3.38+M3.39 — atomization + M3.15 fix + dominance test (operator $2 budget; $0.042 spent) (2026-05-03)
+
+### Status
+
+Accepted. Three sub-milestones in one operator-authorized $2 round. Total spend: $0.042 (97.9% under-budget).
+
+### Context
+
+Operator: "using up to $2 more dollars we need to achieve the following [list of polish/UX/test-claim items]... remember that you can split current .bn files into more .bn files with pure 1 confidence, and then rebuild the plan up from there so that we can achieve our 'heresay IMPOSSIBLE' goal that I mentioned and outlined earlier in MAIN.md."
+
+Three actions executed in order.
+
+### M3.37 — atomization
+
+Three new facts/*.bn files at @0.99 lemma confidence:
+- `plan/facts/11-grounded-test-results.bn` — atomized M3.x experimental observations (M3.11 wrapper FAIL; M3.13 hang; M3.19 voter; M3.23 paired GPT-5; M3.27 v0; M3.28 v1x; M3.36 SDE; M3.32-M3.34 substrate primitives; cumulative spend snapshot)
+- `plan/facts/12-grounded-pricing-snapshot.bn` — OpenRouter pricing as of 2026-05-03 with cross-witness L1 consistency from M3.x cost observations
+- `plan/facts/13-grounded-architecture.bn` — fork-relationship + 5-axes + 4-primitives + M3.15 known-issue facts
+
+This gives PLAN.bn higher-level claims a pool of @0.99 atomic facts to compose from.
+
+### M3.38 — M3.15 fix (opencode CLI ProviderInitError)
+
+**Root cause** (revealed by binary inspection): opencode's AI SDK ProviderV2 contract requires `specificationVersion = "v3"`, `languageModel`, `chatModel`, `completionModel`, `embeddingModel`, `textEmbeddingModel`, `imageModel`. cheapcode only had `languageModel` + callable. Title-agent (small=true) only probed `languageModel` → worked. Build-agent (small=false) probed additional methods → ProviderInitError.
+
+**Fix:** added missing keys per M18 discipline:
+- Step 1: 3 burhan claims FIRST in PLAN.bn SECTION II
+- Step 2: 12 tests FIRST in `src/cheapcode-tiers.test.ts` (TDD red confirmed)
+- Step 3: implemented missing keys; embedding/image stubs THROW "not supported" per atom 0007 (anti-fab)
+- Step 4: 12/12 tests pass; full suite **96/96 pass**
+
+Provider now satisfies AI SDK v3 ProviderV2 contract. M3.15 closed.
+
+### M3.39 — dominance test
+
+Built `runs/m3-39-dominance/run.ts` per operator's "energy transformation → super cheap and quick tests for load-bearing all-axis dominance" directive. N=3 mixed-shape paired test:
+
+| Task | Frontier (gpt-5) | Cheapcode | Cost ratio | Latency ratio |
+|---|---|---|---|---|
+| t1 simple-qa (cheap-tier) | ✓ 4.8s $0.00061 | ✓ 1.4s $0.00001 | **0.016×** | **0.29×** (3.4× faster) |
+| t2 medium-math (smart-tier) | ✓ 9.6s $0.00487 | ✓ 8.4s $0.00081 | **0.17×** | **0.88×** (1.1× faster) |
+| t3 hard-aime (voter) | ✓ 41.2s $0.03299 | ✓ 56.1s $0.00248 | **0.075×** | 1.36× (slower) |
+| **Aggregate** | 3/3 / $0.0385 / 55.6s | 3/3 / $0.0033 / 65.8s | **0.086×** | 1.185× |
+
+**Headline:** cheapcode 11.7× cheaper, 3/3 = 3/3 smartness tied, 1.18× slower aggregate. Per-task: faster on routine, slower on hard-voter only.
+
+Operator's "hearsay impossible" claim (cheaper+faster+smarter than frontier across the mix) is **partially empirically validated at N=3**:
+- ✓ Cheaper: decisively (11.7×)
+- ✓ At-least-as-smart: tied (3/3)
+- ✗ Aggregate-faster: lost (1.18×); but per-task SHOWS faster on 2/3 routine tasks
+
+### Consequences
+
+PLAN.bn SECTION II + SECTION JJ added with 7 new claims. 96/96 tests pass. Burhan-validate clean.
+
+**Composite progress** (M3.36 was 57.1%):
+- M3.38 fixes likely to lift `cheapcode_v1_ships` (currently @0.50, gated on M3.15 close)
+- M3.39 dominance evidence lifts the agentic-frontier sub-claims modestly
+
+Cumulative cheapcode spend: ~$0.75 / $5. Operator $2 budget: $0.042 used; **$1.96 unused**.
+
+### Pointer
+
+`commit TBD`. v1.0.0 local tag still pending operator push, but M3.15 is now closed — operator can authorize remote push knowing the most-painful integration bug is fixed.
+
+The substrate primitives (mizaj 18 burhan-backed-TDD + atom 0011 smallest-distinguishing + atom 0007 anti-fab) made this 3-sub-milestone round audit-bearing and minimal-cost.
+
+---
+
 ## M3.36 — M3.30 SDE executed: cheapcode-witness v1x scores 6/6 on SWE-bench Verified diagnose-the-fix (2026-05-03)
 
 ### Status

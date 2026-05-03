@@ -7,3 +7,4 @@
 {"timestamp_iso":"2026-05-03T12:33:11.937Z","category":"substrate-primitive-add","time_ms":4500000,"cost_usd":0,"agent_id":"claude-opus-4.7","scope_tags":["conversion-factors","multi-dim"]}
 {"timestamp_iso":"2026-05-03T12:45:52.999Z","category":"substrate-primitive-add","time_ms":5400000,"cost_usd":0,"agent_id":"claude-opus-4.7","scope_tags":["plan-graph-cleanup","recursive-m17-cycles","m3-35"]}
 {"timestamp_iso":"2026-05-03T13:43:26.328Z","category":"small-experiment","time_ms":300000,"cost_usd":0.094,"agent_id":"claude-opus-4.7","scope_tags":["swe-bench-verified","m3-30-sde","paired-n2"]}
+{"timestamp_iso":"2026-05-03T14:32:27.866Z","category":"small-experiment","time_ms":200000,"cost_usd":0.042,"agent_id":"claude-opus-4.7","scope_tags":["dominance-test","paired-n3","mixed-shape","m3-39"]}

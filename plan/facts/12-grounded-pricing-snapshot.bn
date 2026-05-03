@@ -1,0 +1,79 @@
+# plan/facts/12-grounded-pricing-snapshot.bn
+#
+# Atomized pricing facts as of 2026-05-03 OpenRouter snapshot. Each
+# lemma states a price-per-million-tokens at a specific date, sourced
+# from OpenRouter's vendor-published pricing page (L4) AND consistent
+# with cheapcode's own M3.x test-run cost data (L1 cross-witness via
+# usage.raw.cost in run results).
+#
+# Confidence: lemma form @0.99. These are operator-checkable facts that
+# either match OpenRouter's live pricing OR diverge by a known % (in
+# which case the lemma needs update). Drift detection: if observed
+# per-call cost in M3.x runs diverges >2× from these prices, atom 0015
+# fires (transfer-overstated on pricing-stable assumption).
+
+# ============================================================
+# Cheap tier (deepseek-v4-flash)
+# ============================================================
+
+# DeepSeek V4 Flash on OpenRouter: ~$0.07/M input, ~$1.10/M output as of
+# 2026-05-03. Used as cheap-tier in cheapcode_tiers.ts and as cheap-a/
+# cheap-b in cross-witness voter (M3.18). Validated by M3.19 voter probe
+# at $0.0002/task on negation tasks.
+lemma deepseek_v4_flash_pricing_0_07_in_1_10_out_per_M_2026_05_03_l4_plus_l1_consistent
+  proves True
+  by audit openrouter-pricing-page-2026-05-03-plus-cheapcode-m3-19-cost-data
+
+# ============================================================
+# Smart tier (gpt-5-mini)
+# ============================================================
+
+# OpenAI GPT-5 mini on OpenRouter: ~$0.40/M input, ~$1.60/M output as of
+# 2026-05-03. Used as smart-tier in cheapcode_tiers.ts and as smart_C
+# escalation/synthesizer. Validated by M3.19 + M3.28 + M3.36 cost data.
+lemma gpt5_mini_pricing_0_40_in_1_60_out_per_M_2026_05_03_l4_plus_l1_consistent
+  proves True
+  by audit openrouter-pricing-page-2026-05-03-plus-cheapcode-m3-19-m3-28-m3-36-cost-data
+
+# ============================================================
+# Frontier (GPT-5, Sonnet 4.6, Opus 4.7)
+# ============================================================
+
+# OpenAI GPT-5 on OpenRouter: ~$1.25/M input, ~$10/M output. Used as
+# direct-frontier baseline in M3.23. Validated by M3.23 cost
+# observations (gpt-5: $0.022 avg per AIME task, ~3000 output tokens).
+lemma gpt5_pricing_1_25_in_10_out_per_M_2026_05_03_l4_plus_l1_consistent
+  proves True
+  by audit openrouter-pricing-page-2026-05-03-plus-cheapcode-m3-23-cost-data
+
+# Anthropic Claude Sonnet 4.6 on OpenRouter: ~$3/M input, ~$15/M output.
+# Used as frontier-d in cheapcode-witness v1x (M3.28). Validated by
+# M3.28 + M3.36 cost data. (Operator API key has 61500-token output cap
+# requiring explicit maxOutputTokens=4000 in tool call.)
+lemma sonnet_4_6_pricing_3_in_15_out_per_M_2026_05_03_l4_plus_l1_consistent
+  proves True
+  by audit openrouter-pricing-page-2026-05-03-plus-cheapcode-m3-28-m3-36-cost-data
+
+# ============================================================
+# Bounded-code champion (Haiku 4.5)
+# ============================================================
+
+# Anthropic Claude Haiku 4.5 on OpenRouter: ~$0.80/M input, ~$4/M output.
+# Per facts/08, SWE-bench Verified 73.3%. Routes to bounded-code shape
+# per facts/09 routing rule 3.
+lemma haiku_4_5_pricing_0_80_in_4_out_per_M_2026_05_03_l4
+  proves True
+  by audit openrouter-pricing-page-2026-05-03-anthropic-haiku-4-5
+
+# ============================================================
+# Cost-asymmetry: cheap-tier vs frontier
+# ============================================================
+
+# Frontier-to-cheap cost ratio: ~18× input + ~9× output cost (gpt-5
+# vs deepseek-v4-flash). For a 1000-token-output task: cheap-tier costs
+# ~$0.0011, frontier costs ~$0.0125. Cross-witness pattern using cheap × 2
+# + smart escalation costs ~$0.005 per task (M3.19 grounded median for
+# escalated cases) — still ~2.5× cheaper than direct frontier per task.
+lemma cheap_tier_to_frontier_cost_asymmetry_18x_in_9x_out_2026_05_03_l4_plus_l1
+  proves True
+  by audit cheapcode-pricing-arithmetic-grounded-by-m3-19-m3-23-cost-data
