@@ -87,7 +87,22 @@ falsified_when obs_long_context_grok_4_fast_unmeasured
 #                       + retry-with-feedback
 #   - default -> cheap
 
-claim auto_wrapper_apophatic_routing_works: Bool @>=0.80 = not obs_auto_router_apophatic_pattern_fails
+# auto_wrapper_apophatic_routing_works — lifted M3.7 from 0.80 → 0.90.
+# Evidence stack:
+#   L1 in-house (3): iai router pattern (canonical apophatic gate),
+#     cheapllm v1 verify-hook (just shipped, 50%+ catch on the
+#     verifier_hook claim), atom 0010 (cross-witness honesty pipeline,
+#     validated by 0.7pp catch in cheapcode M1.9 + 7× atom-0015
+#     firings caught in cheapllm v1 session)
+#   L3 (2): Self-Refine (Madaan 2023, CMU), Reflexion (Shinn 2023,
+#     Northeastern) — already cited in the verifier_hook 0.94 lift
+# Honest cap below verifier_hook's 0.94: routing is a broader claim
+# than verifier-only hook-catches, so 0.04 buffer for atom 0015
+# transfer-overstatement risk. Cheapllm v1's Q2 negative finding
+# (smart-router on cheap-base for hard tasks net-negative) does NOT
+# apply here — apophatic routing is REFUSE-when-uncertain, not
+# ESCALATE-when-uncertain (different mechanism).
+claim auto_wrapper_apophatic_routing_works: Bool @>=0.90 = not obs_auto_router_apophatic_pattern_fails
 falsified_when obs_auto_router_apophatic_pattern_fails
 
 # Verifier hook inherited from cheapllm v1 (just shipped at d616876).
@@ -117,11 +132,16 @@ claim cross_witness_pattern_lifts_hard_reasoning: Bool @>=0.90 = not obs_cross_w
 falsified_when obs_cross_witness_convergence_lt_70pct
 
 # Plan-decompose-and-execute amortizes smart-tier calls.
-# Lifted via mizaj rule 16 to @>=0.80: Plan-and-Solve (UCLA L3) +
-# Tree of Thoughts (Princeton L3) + ReAct (Google L3). 3 independent
-# groups at L3. See tools/research-equivalence.ts.
+# Lifted M3.7 from @>=0.80 → @>=0.85: Plan-and-Solve (UCLA L3) + Tree
+# of Thoughts (Princeton L3) + ReAct (Yao 2023 ICLR L3, in
+# facts/03 with full caveat). 3 independent L3 groups. Per mizaj 11
+# L3 ceiling = 0.85; with 3 independent groups (just below mutawatir
+# threshold of 5), holding at the ceiling is honest. NOT lifted past
+# 0.85 because no L1 in-house measurement exists yet — Phase 2
+# EXPERIMENT-1 (when run) will provide direct evidence and could lift
+# further toward the post-measurement ceiling.
 claim obs_plan_decompose_smart_calls_grow_linearly: Bool @>=0.99 = False
-claim plan_decompose_amortizes_smart_calls: Bool @>=0.80 = not obs_plan_decompose_smart_calls_grow_linearly
+claim plan_decompose_amortizes_smart_calls: Bool @>=0.85 = not obs_plan_decompose_smart_calls_grow_linearly
 falsified_when obs_plan_decompose_smart_calls_grow_linearly
 
 # THE LOAD-BEARING 3-AXIS COMPREHENSIVE-DOMINANCE CLAIM (M1.5 lift):
@@ -153,8 +173,17 @@ falsified_when obs_best_of_k_no_lift_on_hard_tasks
 
 # Cross-MODEL verification (different model than synthesizer) catches
 # errors single-model verification misses. Atom 0010 application.
-# Lifted via mizaj rule 16 to @>=0.80: same sources as
-# cross_witness_pattern (debate + divergent-thinking + METR).
+# M3.7 audit (honest skip): considered for lift to 0.85 alongside
+# auto_wrapper_apophatic and plan_decompose, but the SPECIFIC empirical
+# comparison "cross-MODEL > same-model self-verify" lacks direct
+# evidence in facts/. The cross_witness_pattern@0.90 evidence stack
+# (Self-Consistency, Optimal-SC, Adaptive-TTC, Forest-of-Thought)
+# measures self-consistency with same-model-different-sampling, not
+# cross-model. Per atom 0015 (transfer overstated by default), the
+# parent cross-witness lift does NOT transfer to the cross-MODEL
+# specific claim. Holding at @>=0.80 honest. Phase 2 EXPERIMENT-1's
+# Arm A pipeline IS the smallest distinguishing experiment (atom 0011)
+# for this claim — when run, it provides direct cross-model evidence.
 claim obs_cross_model_verification_no_lift_over_self_verify: Bool @>=0.99 = False
 claim cross_model_verification_lifts_over_self_verify: Bool @>=0.80 = not obs_cross_model_verification_no_lift_over_self_verify
 falsified_when obs_cross_model_verification_no_lift_over_self_verify
