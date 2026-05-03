@@ -1,0 +1,152 @@
+{
+  "attempt": "experiment-1-attempt-2-rescored",
+  "date": "2026-05-03T01:58:15.773Z",
+  "N": 10,
+  "scoring_correction": "Unicode dash/minus characters (−–—\\u00ad) normalized to ASCII hyphen. h01-compound-percent wrapper answered correctly (−0.6%) but original ASCII-only matcher marked it wrong.",
+  "cost": {
+    "baseline_usd": 0.050019999999999995,
+    "wrapper_usd": 0.06661974999999999,
+    "ratio": 1.3318622550979609,
+    "target": 0.3,
+    "pass": false
+  },
+  "latency": {
+    "baseline_p50_ms": 7284.907378999997,
+    "wrapper_p50_ms": 37341.17780600011,
+    "ratio": 5.12582739399577,
+    "target": 0.7,
+    "pass": false
+  },
+  "completion": {
+    "baseline_rate": 1,
+    "wrapper_rate": 1,
+    "ratio": 1,
+    "delta_pp": 0,
+    "target_ratio": 1.1,
+    "pass_ratio": false
+  },
+  "axes_passing": 0,
+  "outcome": "FAIL",
+  "per_task": [
+    {
+      "task": "h01-compound-percent",
+      "arm": "baseline",
+      "correct": true,
+      "text": "-0.6%"
+    },
+    {
+      "task": "h01-compound-percent",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "Multiply the monthly multipliers: 1.20 × 0.75 × 1.30 × 0.85 = 0.9945.  \nCumulative change = (0.9945 "
+    },
+    {
+      "task": "h02-flight-schedule",
+      "arm": "baseline",
+      "correct": true,
+      "text": "6:00 PM\n\nReason: Arrival at 7:30 PM minus 90 minutes flight time = 6:00 PM, which matches a schedule"
+    },
+    {
+      "task": "h02-flight-schedule",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "Final answer: 6:00 PM.\n\nReasoning (brief): Arrival 7:30 PM − flight time 1 hr 30 min = 6:00 PM. That"
+    },
+    {
+      "task": "h03-deductive-chain",
+      "arm": "baseline",
+      "correct": true,
+      "text": "True"
+    },
+    {
+      "task": "h03-deductive-chain",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "Final answer: True.\n\nBrief reasoning: A is true and (1) gives B false. B false and (2) gives C true."
+    },
+    {
+      "task": "h04-light-time",
+      "arm": "baseline",
+      "correct": true,
+      "text": "12.7 minutes"
+    },
+    {
+      "task": "h04-light-time",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "8 min 20 s = 8 + 20/60 = 8.333... min.  \nTime to Mars = 8.333... × 1.524 = 12.7 minutes.  \n\nFinal an"
+    },
+    {
+      "task": "h05-combinatorics",
+      "arm": "baseline",
+      "correct": true,
+      "text": "2880\n\nReason:\n- Choose 4 non-adjacent seats for the boys among 8 seats: C(8−4+1, 4) = C(5,4) = 5.\n- "
+    },
+    {
+      "task": "h05-combinatorics",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "Arrange the 4 distinct girls: 4! = 24 ways. This creates 5 gaps; choose 4 of them for the boys: C(5,"
+    },
+    {
+      "task": "h06-conditional-prob",
+      "arm": "baseline",
+      "correct": true,
+      "text": "1/2"
+    },
+    {
+      "task": "h06-conditional-prob",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "Final answer: 1/2.\n\nBrief reasoning: Even sums occur in 18 of the 36 ordered outcomes (counts 1,3,5,"
+    },
+    {
+      "task": "h07-inscribed-radius",
+      "arm": "baseline",
+      "correct": true,
+      "text": "2\n\nExplanation:\n- Hypotenuse c = √(5² + 12²) = 13\n- Area A = (1/2)·5·12 = 30\n- Semiperimeter s = (5 "
+    },
+    {
+      "task": "h07-inscribed-radius",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "Final answer: 2.\n\nBrief reasoning: Hypotenuse = sqrt(5^2+12^2)=13. Area A = (1/2)*5*12 = 30, semiper"
+    },
+    {
+      "task": "h08-leap-year-day",
+      "arm": "baseline",
+      "correct": true,
+      "text": "Saturday.\n\nReason:\n- From June 1, 2024 (Saturday) to March 1, 2025, the month-to-month day shifts ar"
+    },
+    {
+      "task": "h08-leap-year-day",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "Final answer: Saturday.\n\nReasoning (brief): From June 1, 2024 to Dec 31, 2024 = 29+31+31+30+31+30+31"
+    },
+    {
+      "task": "h09-balls-prob",
+      "arm": "baseline",
+      "correct": true,
+      "text": "Total non-red balls = 4 + 3 = 7. \nProbability no red in two draws = C(7,2)/C(12,2) = 21/66 = 7/22.\nT"
+    },
+    {
+      "task": "h09-balls-prob",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "Total ways C(12,2)=66. Non-red = 4+3=7, ways to pick 2 non-red = C(7,2)=21, so P(no red)=21/66=7/22."
+    },
+    {
+      "task": "h10-quadratic-positive",
+      "arm": "baseline",
+      "correct": true,
+      "text": "2, 3"
+    },
+    {
+      "task": "h10-quadratic-positive",
+      "arm": "wrapper",
+      "correct": true,
+      "text": "Factor: n^2 − 5n + 6 = (n − 2)(n − 3).  \nSet factors to zero: n = 2 or n = 3, both positive.  \nFinal"
+    }
+  ]
+}
