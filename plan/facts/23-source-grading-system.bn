@@ -1,0 +1,124 @@
+# plan/facts/23-source-grading-system.bn
+#
+# Operator directive (2026-05-03): "do more research on less credible
+# sources, but make sure to not be gullible, as such you need to develop
+# a system to grade less credible sources by practicality and honesty so
+# that you can increase your confidence without actually running tests."
+#
+# This file extends mizaj 11+14's L0-L3 stratification to LOWER
+# confidence strata (L4 practitioner-mutawatir / L5 corroborated-
+# practitioner / L6 single-source-practitioner) WITH explicit anti-
+# gullibility grading. It is a substrate primitive — definitional, @1.
+#
+# Rationale (per atom 0013 + atom 0015): peer-reviewed L3 sources are
+# expensive to produce + slow + biased toward what publishes. Real
+# practitioner deployment at production carries different signal:
+# concrete cost, real failure modes, incentive-aligned criticism. But
+# credibility floor is lower → must grade explicitly.
+
+# ============================================================
+# THE 5-AXIS GRADING RUBRIC (each axis 0-3, max 15)
+# ============================================================
+#
+# Axis S — Skin-in-the-game
+#   0: no demonstrable engineering or financial investment
+#   1: hobbyist exploration; can walk away
+#   2: small business / startup deployment with users
+#   3: production at meaningful scale (>100 users, >$100/mo cost)
+#
+# Axis C — Concrete content
+#   0: pure narrative / vibes ("it felt faster")
+#   1: vague numbers ("seemed 2x quicker")
+#   2: specific numbers with units (47ms, $0.0023/req, 82.4%)
+#   3: reproducible recipe + numbers + raw artifacts
+#
+# Axis D — Calibration discipline (per atom 0013)
+#   0: claims without falsifier or caveat
+#   1: claims with caveats acknowledged
+#   2: pre-registered failures + admitted later
+#   3: explicit ongoing calibration track-record (e.g. dated previous
+#      predictions cross-checked against later outcomes)
+#
+# Axis I — Incentive alignment
+#   0: vendor marketing for own paid product
+#   1: vendor blog with comparison they likely win
+#   2: independent practitioner (no direct revenue from claim)
+#   3: ADVERSARIAL incentive (criticizing what they're paid for, or
+#      surfacing inconvenient finding against own preference)
+#
+# Axis V — Convergence
+#   0: single isolated source
+#   1: 2-3 independent sources agreeing
+#   2: 5+ independent sources agreeing across unrelated communities
+#   3: mutawatir-equivalent (>10 across unrelated traditions/forums)
+#
+# Sum = total/15.
+#
+# BANDS:
+#   12-15 → L4 (practitioner-mutawatir; load-bearing for sub-floor lift)
+#   9-11  → L5 (corroborated-practitioner; usable as composing input)
+#   6-8   → L6 (single-source-practitioner; weak hint only)
+#   0-5   → DISCARD (too gullible to compose with)
+#
+# Composition rule per mizaj 11+14: L4 + L1-own-measurement composes
+# to sub-floor (0.78); L5 + L3-research composes to similar level.
+# L4 alone caps at sub-floor 0.78 (cannot reach sahih 0.85 alone).
+
+lemma source_grading_5_axis_rubric_S_C_D_I_V_with_band_thresholds_L4_L5_L6_discard_definitional
+  proves True
+  by audit substrate-primitive-source-grading-rubric-2026-05-03
+
+# ============================================================
+# Anti-gullibility EXPLICIT RED FLAGS
+# ============================================================
+#
+# Per atom 0015 + facts/15 bcmea:
+#
+# RF1 — Absolutism: "this ALWAYS works" / "10× better universally" →
+#   atom 0015 fires; per bcmea, no claim absolute. Auto-grade -2.
+#
+# RF2 — Engagement-optimized: viral post with low concrete content but
+#   high reaction → engagement-driven distortion. Auto-grade -2 on C axis.
+#
+# RF3 — Anonymous + no track record: handle with 0 prior verifiable
+#   claims → auto-grade 0 on D axis regardless of content.
+#
+# RF4 — Vendor-favorable absent comparison details: "our product wins"
+#   without methodology → I=0 + C max 1.
+#
+# RF5 — Overfitted N=1 generalization: "I tried it once, here's the
+#   universal lesson" → V=0 + C max 1.
+#
+# RF6 — Time-frozen claim about moving target: "model X is bad" without
+#   date stamp → auto-discard (LLM landscape changes monthly).
+#
+# RF7 — Confident at the limit when bcmea applies: claims uniform
+#   superiority on a domain known to have bounded duals → atom 0015 fires.
+lemma anti_gullibility_red_flags_RF1_RF7_explicit_filter_definitional
+  proves True
+  by audit anti-gullibility-red-flags-RF1-RF7-2026-05-03
+
+# ============================================================
+# Per-source grading (filled as we research; each is a graded receipt)
+# ============================================================
+#
+# Format: graded_source_<id>: scores S/C/D/I/V → total → band
+# Sources deemed L4 or higher become composable lemmas.
+# Sources deemed L6 or below are recorded but NOT composed.
+
+# (Sources will be appended below as research is conducted with grading.)
+
+# ============================================================
+# Composition meta-rule
+# ============================================================
+# Less-credible-source confidence CANNOT exceed L1-own-measurement
+# confidence on the same claim. Less-credible sources can REINFORCE
+# existing peer-reviewed claims at L4 mutawatir (lift from 0.78 → 0.82
+# composing) but cannot ESTABLISH new claims above sub-floor without
+# an L3 or L1 anchor.
+#
+# This is the anti-gullibility floor: practitioner-mutawatir lifts the
+# margin, never replaces the foundation.
+lemma less_credible_sources_lift_margin_not_foundation_anti_gullibility_floor_definitional
+  proves True
+  by audit substrate-anti-gullibility-floor-rule-2026-05-03

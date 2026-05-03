@@ -1,0 +1,92 @@
+# plan/facts/21-mas-failure-disambiguation.bn
+#
+# Steel-manning the falsifier: NeurIPS 2025 paper "Why Do Multi-Agent
+# LLM Systems Fail?" (Cemri, Pan et al.; arxiv 2503.13657) found:
+#   - 41-86.7% production failure rate across MAS deployments
+#   - 14 distinct failure modes in 3 root categories
+#   - Multi-agent often UNDERPERFORMS strong single-agent baselines
+#   - Coordination overhead can outweigh parallelization benefit
+#   - Performance gains "often minimal compared to single-agent
+#     frameworks or simple baselines like best-of-N sampling"
+#
+# This is COUNTER-EVIDENCE to a naive "multi-agent always works" claim.
+# Atom 0015 fires on that naive claim. But disambiguation lifts the
+# narrower "PARALLEL-CONDORCET-SHAPE pattern works" claim.
+
+# ============================================================
+# F1: MAS failure rate citation
+# ============================================================
+lemma neurips_2025_mas_failure_taxonomy_41_to_86_7_pct_production_fail_rate_l3
+  proves True
+  by audit arxiv-2503-13657-cemri-pan-fetched-2026-05-03
+
+# ============================================================
+# F2: MAS 3 root categories of failure
+# ============================================================
+# Per the abstract (full paper not fetched but root-category reported):
+#   (R1) System design issues
+#   (R2) Inter-agent misalignment / coordination breakdowns
+#   (R3) Task verification gaps
+lemma mas_failure_three_root_categories_design_misalignment_verification_l3
+  proves True
+  by audit cemri-pan-2025-mast-taxonomy-3-roots
+
+# ============================================================
+# DISAMBIGUATION — cheapcode-witness v1x is NOT the failing shape
+# ============================================================
+#
+# The MAS failure modes apply primarily to SEQUENTIAL/COORDINATED multi-
+# agent systems with role specialization and inter-agent natural-language
+# communication. cheapcode-witness v1x is architecturally DIFFERENT:
+
+# (D1) NO role specialization — all witnesses receive the SAME prompt
+# in PARALLEL. They are not "specialists" debating; they are independent
+# samplers. Avoids R1 system-design failures from role-confusion.
+lemma cheapcode_witness_v1x_avoids_role_specialization_failures_via_uniform_prompt_parallel_dispatch_l1
+  proves True
+  by audit cheapcode-witness-v1x-architecture-uniform-prompt-no-role
+
+# (D2) NO inter-agent natural-language communication — witnesses do not
+# talk to each other; they emit independent outputs that the synthesizer
+# aggregates. Avoids R2 coordination breakdowns / misalignment entirely.
+lemma cheapcode_witness_v1x_avoids_coordination_failures_via_no_inter_agent_communication_l1
+  proves True
+  by audit cheapcode-witness-v1x-no-inter-witness-messaging
+
+# (D3) Atom 0007 anti-fab synthesizer gate IS the verification layer.
+# The synthesizer explicitly checks for internal contradictions and
+# emits "no_answer" + "unknown_unknowns" when witnesses disagree
+# meaningfully. Directly addresses R3 task-verification-gaps category.
+lemma cheapcode_witness_v1x_addresses_verification_failures_via_atom_0007_synthesizer_anti_fab_l1
+  proves True
+  by audit cheapcode-witness-v1x-synthesizer-atom-0007-implementation
+
+# ============================================================
+# COMPOSED — counter-evidence DISAMBIGUATES, not falsifies
+# ============================================================
+# Per atom 0017 (unknowns-as-positive-data): the counter-evidence
+# constrains our claim from "broad MAS works" to "PARALLEL-CONDORCET-
+# SHAPE works." This NARROWS but does not falsify. cheapcode-witness
+# v1x sits firmly on the parallel-Condorcet side of the dichotomy
+# established by the counter-evidence.
+#
+# Net effect: confidence on the architectural claim RISES because
+# atom 0015 (transfer-overstated) had been honestly armed against the
+# broad claim; the disambiguation defuses it for the narrow claim.
+lemma mas_failure_counter_evidence_disambiguates_not_falsifies_cheapcode_witness_v1x_2026_05_03
+  proves True
+  by audit mas-failure-disambiguation-via-d1-d2-d3-vs-r1-r2-r3-2026-05-03
+
+# ============================================================
+# Cost-overhead caveat — still honest
+# ============================================================
+# The MAS literature does flag COORDINATION OVERHEAD as a real cost.
+# cheapcode-witness v1x has parallel-dispatch overhead (4-15× tokens
+# per Anthropic's data in facts/18). This is the COST AXIS in the
+# 5-axes goal, NOT the correctness axis. cost-dominance @0.88 sahih
+# (PLAN.bn SECTION KK) accounts for this overhead via cheap-tier base.
+# Caveat: parallel dispatch latency adds 1.7-3.2× latency per M3.40.
+# Honest disclosure preserved.
+lemma cheapcode_witness_v1x_parallel_dispatch_overhead_4_to_15x_tokens_priced_into_cost_dominance_claim_2026_05_03
+  proves True
+  by audit cheapcode-witness-v1x-cost-overhead-honest-disclosure

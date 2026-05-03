@@ -1,0 +1,151 @@
+# plan/facts/25-contrarian-honest-extraction-strategy.bn
+#
+# Operator directive (2026-05-03): "the 'less credible but honest' pool
+# of researchers is a MUCH LARGER pool, so we need an effective strategy
+# so that we are methodical about it and are able to extract practical
+# information from unintuitive but CORRECT train of thought."
+#
+# This file is a substrate primitive — a METHODICAL STRATEGY for mining
+# the larger pool of less-credible-but-honest sources, with explicit
+# filters for unintuitive-but-correct trains of thought.
+#
+# Per atom 0017 (unknowns-as-positive-data): the value of the larger
+# pool is precisely the unconventional ideas that don't get amplified
+# by mainstream attention. Search algorithms surface popular = consensus.
+# Leverage is in the unconsensus-but-coherent residue.
+
+# ============================================================
+# CHE — Contrarian-Honest-Extraction strategy (5 stages)
+# ============================================================
+#
+# STAGE 1 — METHODICAL SAMPLING (cast wide net)
+#   Sources to query:
+#     S1 personal blogs of practitioners with public track-record
+#        (Simon Willison, Andrej Karpathy archive, latent.space, etc.)
+#     S2 GitHub issues + discussions on canonical repos (sst/opencode,
+#        anthropic/claude-code, vercel/ai, microsoft/autogen, langchain)
+#     S3 Hacker News threads on specific incidents/decisions (filter by
+#        comment-depth not upvotes; deep threads have honest debate)
+#     S4 Reddit subreddits anchored to practitioners (LocalLLaMA,
+#        MachineLearning, ChatGPTCoding)
+#     S5 conference / podcast transcripts where practitioners speak
+#        unscripted (latent.space, ML street talk, ai engineer summit)
+#     S6 production postmortems / incident reports (the Cursor wipe,
+#        Replit wipe, Code Interpreter incidents, etc.)
+#     S7 Twitter/X threads from in-the-arena practitioners (filter
+#        carefully via grading rubric, time-window 12mo)
+#     S8 Stack Exchange answers from high-rep users on specific questions
+#     S9 GitHub gists with reproducible code+results
+#   Anti-pattern (do NOT sample): vendor marketing, listicle SEO sites,
+#   AI-tool-aggregator content farms, no-name Twitter accounts.
+#
+# STAGE 2 — 5-AXIS GRADE per facts/23 (S/C/D/I/V → 0-15)
+#   Discard 0-5. Keep 6+. Tag L4 (12-15) / L5 (9-11) / L6 (6-8).
+#   This is the anti-gullibility filter. Same rubric as facts/23.
+#
+# STAGE 3 — UNINTUITIVE-BUT-CORRECT FILTER (4 signals U1-U4)
+#   U1 — GOES-AGAINST-CONSENSUS
+#     Claim contradicts mainstream framing/orthodoxy. Examples:
+#       "The bottleneck is harness not model"
+#       "Cost is rising not falling"
+#       "Vote > debate" (validated by ACL 2025 findings 606)
+#     Score: 0 if matches mainstream, 1 if mildly contrarian, 2 if
+#     strongly contrarian.
+#   U2 — INTERNALLY-COHERENT
+#     Not just contrarian but has a structural argument with mechanism.
+#     Score: 0 if pure assertion, 1 if has informal mechanism, 2 if
+#     formal/derivable.
+#   U3 — FALSIFIABLE-AND-NOT-YET-FALSIFIED
+#     Makes specific predictions that are testable; the prediction
+#     hasn't been refuted by independent evidence.
+#     Score: 0 if vague, 1 if testable-in-principle, 2 if testable-and-
+#     time-aged-without-refutation.
+#   U4 — CONVERGENCE-WITH-ORTHOGONAL-EVIDENCE
+#     Coheres with known facts from a DIFFERENT domain (not just the
+#     same forum). Cross-domain orthogonality is the load-bearing
+#     signal — same-forum agreement could be echo chamber.
+#     Score: 0 if isolated, 1 if 1 cross-domain anchor, 2 if 2+ cross-
+#     domain anchors.
+#
+#   U-total = U1+U2+U3+U4 (max 8).
+#   THRESHOLDS:
+#     6-8 → high-leverage unintuitive-but-correct candidate (compose)
+#     3-5 → potentially valuable but needs more verification (queue)
+#     0-2 → likely wrong-contrarian or echo-chamber (discard)
+#
+# STAGE 4 — ANTI-ECHO-CHAMBER GUARD
+#   Trace each L4/L5 source's UPSTREAM. If 5 blogs all cite the same
+#   Twitter thread or paper, V (convergence) score = 1 not 5. Effective
+#   independence requires:
+#     - Different community (HN vs Reddit vs Twitter vs blog)
+#     - Different time window (not all within 1 week of each other)
+#     - Different domain framing (engineering vs research vs business)
+#   If any 2 sources share upstream, treat as 1 source.
+#
+# STAGE 5 — COMPOSE WITH CALIBRATION DISCIPLINE
+#   Per facts/23 anti-gullibility floor: less-credible sources LIFT
+#   MARGIN, never replace L1-L3 foundation.
+#   - Multiple L4 unintuitive-but-correct (U-total >=6) sources
+#     converging across orthogonal domains can lift cheapcode claims
+#     toward sub-floor 0.78.
+#   - L5 sources can compose as supporting but not primary evidence.
+#   - atom 0015 (transfer-overstated) stays armed: if "I want this to
+#     be true" bias is detected, force adversarial-incentive search
+#     before composing.
+
+lemma che_strategy_5_stages_S1_S9_grade_U1_U4_threshold_anti_echo_anti_gullibility_definitional
+  proves True
+  by audit substrate-primitive-che-strategy-2026-05-03
+
+# ============================================================
+# Methodical query-batch design (per stage 1)
+# ============================================================
+#
+# Each research pass = N=4-8 queries spanning S1-S9 source classes.
+# Queries should target:
+#   Q1 — orthogonal-claim verification: "is X actually true in
+#        practice" where X is a load-bearing claim from existing facts.
+#   Q2 — failure-mode harvest: "where does Y fail in production"
+#        where Y is the substrate's pattern.
+#   Q3 — contrarian-claim mining: "is mainstream Z actually wrong"
+#        where Z is a popular framing we should question.
+#   Q4 — adversarial-incentive surfacing: search for criticism FROM
+#        people paid to defend something (e.g., MAS researchers
+#        admitting MAS limitations).
+#   Q5 — time-aged-validation: search for old predictions about
+#        agents/LLMs and check if they held up.
+#
+# Each query yields N=5-15 results; grade them, filter to L4-L5,
+# extract U1-U4 candidates, anti-echo-chamber check, compose.
+lemma che_methodical_query_batch_q1_q5_per_research_pass_definitional
+  proves True
+  by audit che-methodical-query-batch-design-2026-05-03
+
+# ============================================================
+# Calibration self-check — atom 0013 + atom 0015 inside CHE
+# ============================================================
+#
+# After each composition, run two self-checks:
+#   SC1 (atom 0013) — track what the CHE pass predicted vs what
+#     happens later. Failed predictions stay visible. Good-track-record
+#     CHE pass earns higher composition weight in future rounds.
+#   SC2 (atom 0015) — for each composed claim, ask "is this transfer
+#     overstated?" If the unintuitive-but-correct candidate's mechanism
+#     hasn't been validated on cheapcode-specific tasks, atom 0015
+#     fires and confidence caps at sub-floor.
+#
+# These self-checks make CHE recursive — each pass calibrates the next.
+lemma che_self_check_sc1_track_record_sc2_atom_0015_recursive_calibration_definitional
+  proves True
+  by audit che-self-check-recursive-calibration-2026-05-03
+
+# ============================================================
+# Composed — CHE is a substrate primitive
+# ============================================================
+# CHE composes facts/23 (5-axis rubric) + facts/15 (bcmea anti-
+# absolutism) + atom 0017 (unknowns-as-positive-data) + atom 0013
+# (calibration discipline) + atom 0015 (transfer-overstated guard).
+# It is now a NAMED, REPEATABLE strategy for free-research lifts.
+lemma che_strategy_is_named_repeatable_substrate_primitive_for_free_research_lifts_2026_05_03
+  proves True
+  by audit che-strategy-substrate-primitive-2026-05-03

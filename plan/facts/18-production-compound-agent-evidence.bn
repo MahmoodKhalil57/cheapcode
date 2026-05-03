@@ -1,0 +1,51 @@
+# plan/facts/18-production-compound-agent-evidence.bn
+#
+# Production-deployed compound-AI-systems evidence (fetched 2026-05-03)
+# that lifts cheapcode's substrate-pattern from research-only mutawatir
+# (facts/14) to research-PLUS-production. This is the strongest
+# transfer-illah we can compose: the same architectural pattern
+# (orchestrator + multi-witness + synthesizer) is empirically deployed
+# at production scale by frontier labs and shows quantified lift.
+
+# ============================================================
+# E1: Anthropic multi-agent research system (Anthropic 2025-06)
+# ============================================================
+# Orchestrator-worker pattern: Claude Opus 4 lead + Claude Sonnet 4
+# subagents in parallel → outperforms single-agent Claude Opus 4 by
+# 90.2% on internal research eval. Token cost: ~15× chat (or ~4×
+# subagent-vs-chat). Real-world impact documented: users save days
+# of work, find overlooked opportunities, navigate complex healthcare
+# decisions. THIS IS DIRECT PRODUCTION VALIDATION OF cheapcode's
+# substrate pattern.
+lemma anthropic_orchestrator_subagent_lifts_research_eval_90_2pct_at_15x_token_cost_l3_production
+  proves True
+  by audit anthropic-multi-agent-research-system-fetched-2026-05-03
+
+# ============================================================
+# E2: Berkeley/BAIR Compound AI Systems thesis (Zaharia et al. 2024-02)
+# ============================================================
+# 4-reason argument: (1) better cost/perf — scaling 30→35% via model
+# is inefficient vs engineering 80% via sampling+testing; (2) dynamic
+# knowledge via retrieval; (3) enhanced control / verification; (4)
+# perf flexibility. Canonical examples (production-deployed):
+#   - AlphaCode 2: ~1M solutions sampled+filtered → 85th percentile
+#   - AlphaGeometry: LLM + symbolic solver → olympiad geometry
+#   - Medprompt: NN-search + CoT + ensemble vote → beats medical-finetune
+#   - Gemini CoT@32: 32 chained calls + agreement selection
+# THESIS: SOTA is increasingly compound, not monolithic. Direct
+# substrate-pattern validation at L3 from senior infra-systems lab.
+lemma bair_compound_ai_systems_thesis_4_reasons_4_canonical_production_examples_l3_2024
+  proves True
+  by audit bair-blog-2024-02-18-compound-ai-systems-fetched-2026-05-03
+
+# ============================================================
+# Composed — production + research convergence
+# ============================================================
+# Anthropic production (E1) + Berkeley thesis (E2) + facts/14 academic
+# mutawatir (9+ groups) + facts/05 prior production evidence (Devin,
+# Claude Code, NVIDIA NeMo) = >12 independent witnesses across academic
+# and production strata. The substrate pattern is over-determined;
+# transfer to cheapcode-witness v1x rides at maximum L3 ceiling 0.85.
+lemma compound_agent_pattern_over_determined_via_research_plus_production_witnesses_2026_05_03
+  proves True
+  by audit anthropic-bair-facts-14-facts-05-aggregation-2026-05-03

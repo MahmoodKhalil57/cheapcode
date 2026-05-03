@@ -1,0 +1,75 @@
+# plan/facts/16-human-task-benchmark-corpora.bn
+#
+# Canonical "general agent for human tasks" benchmark corpora — the
+# external-world referent for the operator's goal phrase. Each is
+# at-or-near @1 for EXISTENCE (citation receipt at least L3), with
+# specific numerical claims about scale + difficulty receipted to
+# named papers fetched 2026-05-03.
+#
+# Per atom 0007 anti-fab: cheapcode has measured ZERO of these
+# benchmarks at full N. M3.36 SWE-bench-Verified-DIAGNOSE 6/6 at N=2
+# is the closest anchor; M3.36 was diagnose-only, not full agent loop.
+# These benchmarks define the EMPIRICAL TARGET for the goal.
+
+# ============================================================
+# B1: SWE-bench Verified (Princeton/OpenAI co-curated 2024)
+# ============================================================
+# 500-task agentic coding benchmark; full loop = generate patch +
+# execute tests. M3.36 anchored DIAGNOSE-ONLY at N=2. Full-loop
+# canonical anchor for "agent for software-engineering human tasks."
+lemma swe_bench_verified_500_tasks_full_loop_canonical_software_engineering_human_task_benchmark_l3
+  proves True
+  by audit princeton-openai-swe-bench-verified-fetched-2026-05-03
+
+# ============================================================
+# B2: METR HCAST + RE-Bench (METR 2024-25)
+# ============================================================
+# RE-Bench = 7 ML research engineering environments, 8-hour time
+# horizon. HCAST = broader human-equivalent task suite. Canonical
+# anchor for "agent for ML/research human tasks." Fetched 2026-05-03
+# from metr.org/blog/2024-11-22-evaluating-r-d-capabilities-of-llms.
+lemma metr_re_bench_7_environments_8_hour_horizon_research_engineering_human_task_benchmark_l3
+  proves True
+  by audit metr-2024-11-22-re-bench-fetched-2026-05-03
+
+# Time-horizon trend (METR 2025-03-19): exponential doubling ~7 months.
+# Frontier ~100% success on tasks <4 min; <10% on tasks >4 hours.
+# Extrapolation: generalist agents on week-long tasks within 2-4 years.
+# Implication: goal is OPEN (far from saturation) and TREND-FAVORABLE.
+lemma metr_time_horizon_doubling_7_months_4_min_to_4_hour_envelope_l3
+  proves True
+  by audit metr-2025-03-19-time-horizon-fetched-2026-05-03
+
+# ============================================================
+# B3: GAIA — General AI Assistant (Mialon et al. 2023)
+# ============================================================
+# 466 questions (166 public, 300 private), conceptually simple for
+# humans, hard for AI. Human 92% vs GPT-4-with-plugins 15%. 77pp
+# gap. Designed for everyday questions, not expert-level — direct
+# match for "general agent for human tasks" framing.
+lemma gaia_466_questions_human_92_pct_vs_gpt4_15_pct_77pp_gap_general_assistant_benchmark_l3
+  proves True
+  by audit arxiv-2311-12983-gaia-fetched-2026-05-03
+
+# ============================================================
+# B4: OSWorld (Xie et al. 2024)
+# ============================================================
+# 369 tasks (361 excluding problematic Google Drive tasks). Domains:
+# web/desktop/file-system. Cross-application coordination required.
+# Human 72.36% vs best model 12.24% — 60pp gap. Canonical anchor for
+# "agent for computer-use human tasks."
+lemma osworld_369_tasks_human_72pct_vs_best_12pct_60pp_gap_computer_use_benchmark_l3
+  proves True
+  by audit os-world-github-io-fetched-2026-05-03
+
+# ============================================================
+# COMPOSED — 4 canonical corpora cover the goal's empirical envelope
+# ============================================================
+# Together B1+B2+B3+B4 form a 4-corner empirical map of "general agent
+# for human tasks": software (B1), research/ML (B2), general assistant
+# (B3), computer-use (B4). Goal-progress is measurable on this map.
+# Per mizaj 14, 4 independent named-and-cited corpora is mutawatir-
+# equivalent at L3 for goal-definition (not for any specific lift claim).
+lemma four_canonical_corpora_cover_general_agent_for_human_tasks_envelope_l3
+  proves True
+  by audit b1-swe-b2-metr-b3-gaia-b4-osworld-corpora-aggregation-2026-05-03

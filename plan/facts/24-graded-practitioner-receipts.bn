@@ -1,0 +1,130 @@
+# plan/facts/24-graded-practitioner-receipts.bn
+#
+# Less-credible-but-graded sources from 2026-05-03 research pass.
+# Each is scored per facts/23 5-axis rubric (S/C/D/I/V → 0-15) before
+# composition. Sources at L4 (12-15) are load-bearing; L5 (9-11) are
+# composable as supporting input; L6 (6-8) recorded but NOT composed.
+#
+# Per facts/23 anti-gullibility floor: L4-L6 sources LIFT MARGIN, never
+# replace L1-L3 foundation. Composition with M3.x own-measurement +
+# facts/14+18 research-mutawatir keeps these honest.
+
+# ============================================================
+# L4 PRACTITIONER-MUTAWATIR sources (load-bearing)
+# ============================================================
+
+# G1 — Anthropic publicly DOUBLED Claude Code dev cost estimate
+# (S=3 production data, C=3 exact numbers, D=3 vendor admits prior
+# estimate was low, I=3 adversarial — vendor admitting against own
+# preference, V=3 confirmed across multiple outlets).
+# Score: 15/15 — L4 max.
+# Content: $13/active-day, $150-250/dev/month. 90% of users below
+# $30/active-day. Prior estimate $6/active-day pre-2026-04-16.
+# IMPLICATION for cheapcode: real-world frontier-only Claude Code
+# costs are HIGH and increasing — cost-dominance headroom is large.
+lemma g1_anthropic_doubles_claude_code_cost_estimate_to_13_per_active_day_l4_max
+  proves True
+  by audit anthropic-cost-doubling-2026-04-16-fetched-2026-05-03
+
+# G2 — Simon Willison's tracking of Claude Code costs and workflows
+# (S=3 production blog 3+ yr, C=3 specific numbers, D=3 long
+# calibration record, I=2 independent practitioner, V=2 corroborated
+# by HN). Score: 13/15 — L4.
+# Content: confusion about pricing models; transparency about own
+# experience; admits when uncertain; cites specific dollar amounts.
+lemma g2_simonw_claude_code_cost_confusion_2026_04_22_l4
+  proves True
+  by audit simonwillison-net-2026-04-22-claude-code-confusion
+
+# G3 — HN "Staff engineer's journey with Claude Code" + similar threads
+# (S=3 staff-engineer at production company, C=2-3 specific dollar
+# amounts $0.04/PR-review × 200+ PRs = $19.50 in Feb on Opus 4.6,
+# D=2 admits both wins and failures, I=2 independent, V=3 multiple
+# HN threads converging). Score: 12-13/15 — L4.
+# Content: Real production teams using Claude Code-class harnesses
+# at $0.04 per code-review with 2 review rounds each = $19.50/month
+# for 200+ PRs.
+lemma g3_hn_staff_engineer_claude_code_19_50_per_month_200_prs_l4
+  proves True
+  by audit news-ycombinator-com-45107962-fetched-2026-05-03
+
+# G4 — opencode GitHub issues #16367 / #14972 / #20387
+# (S=3 production users, C=3 reproducible repros with file paths +
+# error messages, D=3 explicit failure-mode descriptions, I=3
+# adversarial — filing bugs costs time and damages relationships
+# with tool one depends on, V=2 multiple converging issues).
+# Score: 14/15 — L4.
+# Content load-bearing for Phase II-prime substrate-harness wiring:
+#   #16367: agent silent-hang on permission "ask" + opencode-attach
+#           (server waits for UI prompt that doesn't exist on remote)
+#   #14972: agent loop exits prematurely with OpenAI-compat providers
+#           because finish_reason="stop" not "tool-calls"
+#   #20387: plugin hooks cannot spawn AI sub-agent (no "type":"agent"
+#           hook); blocks Claude-Code-style hook patterns
+# Phase II-prime substrate-harness work MUST address these specific
+# failure modes — they are the empirical specification of where
+# substrate signals would compose with the inherited harness.
+lemma g4_opencode_gh_issues_16367_14972_20387_l4_phase_ii_prime_specification
+  proves True
+  by audit github-anomalyco-opencode-issues-16367-14972-20387-fetched-2026-05-03
+
+# ============================================================
+# L5 CORROBORATED-PRACTITIONER sources (composable as supporting input)
+# ============================================================
+
+# G5 — Cursor production database wipes (DataTalks.Club terraform
+# destroy + Pocketos Railway 9-second wipe + several similar)
+# (S=3 actual production deployment, C=2 specific incident timeline,
+# D=1 post-hoc not pre-registered, I=3 ADVERSARIAL — vendor admits
+# failure, victim publicizes against own SaaS reputation, V=2
+# multiple incidents). Score: 11/15 — L5.
+# Content: Catastrophic agent-action failures in production at multi-
+# org scale. Direct pattern-match to where atom 0007 anti-fab + atom
+# 0010 cross-witness substrate signals would have caught the action.
+# IMPLICATION: substrate's value extends beyond correctness-lift to
+# CATASTROPHIC-FAILURE-PREVENTION axis. New goal sub-axis surfaces.
+lemma g5_cursor_production_db_wipe_incidents_2026_l5_failure_prevention_axis
+  proves True
+  by audit register-2026-04-27-cursor-opus-pocketos-fetched-2026-05-03
+
+# G6 — Uber's 2026 AI budget burned on Claude Code in 4 months (HN)
+# (S=3 production at scale, C=2 budget+timeline numbers, D=1, I=2
+# independent reporting, V=2). Score: 10/15 — L5.
+# Content: Mega-scale orgs are spending real budget on frontier-only
+# coding agents. Demand exists; cheapcode's cost-dominance value-prop
+# is well-anchored.
+lemma g6_uber_claude_code_4_month_budget_burn_l5
+  proves True
+  by audit news-ycombinator-com-47976415-fetched-2026-05-03
+
+# ============================================================
+# COMPOSED — practitioner-mutawatir lifts cheapcode claim graph
+# ============================================================
+#
+# Cost-dominance claim — was sahih @0.88 (PLAN.bn SECTION KK) via
+# research-mutawatir + N=10 paired L1. NOW supplemented by L4
+# practitioner-mutawatir on real-world frontier costs ($150-250/
+# dev/month). This reinforces but does not exceed the existing sahih
+# band — L4 lifts margin not foundation per facts/23.
+lemma cost_dominance_practitioner_mutawatir_corroborates_existing_sahih_at_l4_l5_2026_05_03
+  proves True
+  by audit practitioner-mutawatir-cost-dominance-corroboration-2026-05-03
+
+# Failure-prevention sub-axis — NEW emergent claim from G5 incidents.
+# Substrate signals (atom 0007 anti-fab catches contradictions; atom
+# 0010 cross-witness adds independent verification; atom 0015
+# transfer-overstated catches over-confident actions) directly
+# pattern-match the failure modes documented in production DB-wipe
+# incidents. This adds a new VALUE AXIS to the goal beyond the 5
+# original axes (correctness, cost, latency, breadth, robustness).
+lemma cheapcode_substrate_pattern_matches_production_catastrophic_failure_prevention_axis_l5
+  proves True
+  by audit g5-failure-prevention-pattern-match-cheapcode-substrate-signals
+
+# Phase II-prime engineering specification — G4 opencode issues
+# constitute a FREE empirical specification of where substrate-harness
+# wiring should fire. Engineering risk drops because target failure
+# modes are pre-identified.
+lemma g4_opencode_issues_constitute_free_phase_ii_prime_engineering_specification_l4
+  proves True
+  by audit g4-opencode-issues-as-free-engineering-spec-2026-05-03

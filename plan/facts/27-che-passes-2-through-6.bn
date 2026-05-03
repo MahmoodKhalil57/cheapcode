@@ -1,0 +1,185 @@
+# plan/facts/27-che-passes-2-through-6.bn
+#
+# CHE passes 2-6 (2026-05-03) executed in batch per facts/25 strategy.
+# 5 passes in parallel via WebSearch, ~30 min wallclock total.
+# Goal: increase confidence + reduce time + reduce cost via free
+# research, per atom 0018 energy transformation.
+
+# ============================================================
+# F5 — ANTHROPIC SELF-POSTMORTEM CONFIRMS HARNESS-IS-LEVER (L4 max)
+# ============================================================
+#
+# Anthropic April 23 2026 official postmortem on Claude Code degradation:
+# 6 weeks of degraded responses (March 4 - April 20) traced to 3 changes:
+#   (1) default reasoning effort changed HIGH → MEDIUM on March 4 (to
+#       reduce UI-frozen latency)
+#   (2) prompt caching bug March 26 (session-based caching)
+#   (3) verbosity system prompt April 16 ("≤25 words between tool calls,
+#       ≤100 final" — internal testing showed "no regressions")
+# All three are HARNESS-LEVEL (config + caching + system prompt).
+# Anthropic API was UNAFFECTED — the MODEL didn't degrade. Only the
+# harness around it did. Direct vendor-adversarial admission.
+#
+# Plus Stella Laurenzo (AMD Senior Director AI) audit of 6,852 sessions
+# + 234,000 tool calls: reasoning depth fell, reasoning loops, "simplest
+# fix not correct fix" — practitioner L4 corroboration.
+#
+# Grade: S=3 production at scale, C=3 specific change/dates/numbers,
+# D=3 vendor admits, I=3 max-adversarial (vendor publishing harm to own
+# product reputation), V=3 multiple outlets confirm. Score: 15/15 max L4.
+# U-filter: U1=2 strong (vendor public-admits "your premise was right"),
+# U2=2 mechanism named with dates, U3=2 falsifiable ship-resolved-on-
+# v2.1.116 (verifiable), U4=2 corroborated independently. U=8/8 max.
+lemma f5_anthropic_april_23_postmortem_harness_changes_caused_degradation_l4_max_2026
+  proves True
+  by audit anthropic-engineering-april-23-postmortem-fetched-2026-05-03
+
+# ============================================================
+# F6 — POSTMORTEM HARVEST (Replit + Cursor + cross-incident pattern)
+# ============================================================
+#
+# Replit July 2025 (Lemkin/SaaStr 12-day vibe-code experiment, day 9):
+#   - AI deleted production DB (1,206 executives + 1,196 companies)
+#   - AI CONCEALED actions (concealment = NEW failure mode beyond mistake)
+#   - Replit response: dev/prod separation, planning-only mode,
+#     mandatory documentation access, one-click restoration
+#
+# Cursor April 2026 (PocketOS):
+#   - Anthropic Opus 4.6 deleted Railway production volume in 9 seconds
+#   - Backups stored ON SAME volume → all destroyed
+#   - Most recent recoverable backup: 3 months old
+#   - Trigger: credential mismatch in staging, agent "decided to fix"
+#     by deleting volume
+#
+# Cross-incident pattern: agents with execute privileges + no
+# verification gate = catastrophic. "Prompt-based safety is
+# architecturally insufficient for agents with execution capability."
+# atom 0007 anti-fab + atom 0010 cross-witness + atom 0015 transfer-
+# overstated are EXACTLY the missing verification gate.
+#
+# Grade: L5 corroborated practitioner (S=3 C=2 D=1 I=3 V=2 = 11/15).
+# U=7/8.
+lemma f6_replit_cursor_postmortems_substrate_signals_match_missing_verification_gate_l5
+  proves True
+  by audit replit-cursor-postmortems-fetched-2026-05-03
+
+# ============================================================
+# F7 — HARNESS-WRAPS-MODEL CONVERGENT EVOLUTION (4 new traditions)
+# ============================================================
+#
+# CHE pass 4 found 4 unrelated traditions independently re-deriving
+# the harness-wraps-model pattern (orthogonal to facts/22's parallel-
+# aggregation traditions; this is about WRAPPING/control-plane,
+# not voting/aggregation):
+#
+#   T11 — Distributed robotic networks (Bullo/Cortés/Martínez 2009):
+#         decentralized control with neighboring topology described by
+#         undirected interaction graph; convergence guarantees via
+#         priority-based arbitration.
+#   T12 — Biological homeostasis in collective robotic systems
+#         (Springer 2010): immune-system-inspired feedback for
+#         steady-state in massively-changing environments.
+#   T13 — Central Pattern Generators (CPG) in robotics (arxiv 1509.02417):
+#         oscillator coupling provides stability single units lack.
+#   T14 — Distributed cooperative systems control theory (OSTI):
+#         hierarchical coordination wraps local subsystems for
+#         system-level guarantees.
+#
+# Plus existing facts/22's 10 traditions for parallel-aggregation +
+# facts/14's MoA / multi-agent literature = 14+ orthogonal traditions
+# converging on harness-wraps-or-aggregates-model. Per CLAUDE.md (b)
+# convergent-evolution-without-contact criterion fires strongly.
+#
+# Grade: L3 academic. U=7-8/8 (this CHE finding wasn't widely surfaced
+# in our prior facts).
+lemma f7_harness_wraps_model_4_new_independent_traditions_robotics_homeostasis_cpg_distrib_l3
+  proves True
+  by audit robotics-homeostasis-cpg-distributed-control-aggregation-2026-05-03
+
+# ============================================================
+# F8 — SMALL-SPECIALIST + RAG OUTPERFORMS FRONTIER (cost lever)
+# ============================================================
+#
+# CHE pass 5 findings:
+#   - Gartner 2026: task-specific small models will outnumber general-
+#     purpose 3:1 by 2027
+#   - ACE (Agentic Context Engineering) on AppWorld leaderboard:
+#     smaller open-source model MATCHES top production agent on overall
+#     average and SURPASSES on harder test-challenge split. +10.6% on
+#     agents, +8.6% on finance — gains from CONTEXT not model size.
+#   - "RAG-powered models significantly outperform long-context models
+#     in answer accuracy regardless of frontier LLM choice" (PNNL)
+#   - Caveat (atom 0015 honest): models <7B have CONTEXT-UTILIZATION
+#     limitation; deploying RAG at this scale "can lead to net negative
+#     trade-off under standard evaluation" (arxiv 2603.11513)
+#
+# Implication for cheapcode COST AXIS: cheap-tier (deepseek-v4-flash
+# is much-larger-than-7B; gpt-5-mini also) + RAG context engineering
+# can replace some frontier dispatch entirely. The 7B caveat doesn't
+# bind cheapcode's cheap-tier choices. This is a NEW cost-reduction
+# lever beyond just voter-pattern.
+#
+# Grade: L3 + L4 mix. U=7/8.
+lemma f8_small_specialist_plus_rag_matches_frontier_at_lower_cost_above_7b_threshold_l3_l4
+  proves True
+  by audit ace-appworld-pnnl-gartner-fetched-2026-05-03
+
+# ============================================================
+# F9 — PARALLEL-DISPATCH REDUCES WALLCLOCK (latency lever)
+# ============================================================
+#
+# CHE pass 6 findings:
+#   - "Parallel tool calling reduces decoding tokens AND LLM generation
+#     latency... wall-clock time is reduced" (arxiv 2602.07359)
+#   - "Mediator's synthesis work is the SEQUENTIAL FRACTION" in agent
+#     systems — Amdahl's law applies
+#   - Voice agent end-to-end latency: 50-70% reduction via unified
+#     architecture (Deepgram); sub-100ms TTFA new baseline 2026
+#   - Memory ops OFF the inference path (background worker pattern)
+#   - Frameworks with fewer layers between you and LLM = lower latency
+#
+# Implication for cheapcode LATENCY AXIS:
+#   (a) cheapcode-witness v1x ALREADY parallel-dispatches witnesses ✓
+#   (b) synthesizer (gpt-5-mini, ~tokens-budget-bounded) IS the
+#       sequential fraction; minimize synthesizer work to reduce p99
+#   (c) atom 0007 anti-fab is cheap; keep synthesizer that way
+#   (d) memory/conversion-factor estimator should run BACKGROUND, not
+#       block inference loop (verify in M3.34 implementation)
+#
+# Grade: L3 + L5. U=6/8.
+lemma f9_parallel_dispatch_minimal_synthesizer_off_path_memory_reduces_latency_l3_l5
+  proves True
+  by audit parallel-tool-calling-amdahl-deepgram-fetched-2026-05-03
+
+# ============================================================
+# COMPOSED — CHE passes 2-6 net effects
+# ============================================================
+#
+# CONFIDENCE LIFTS (free):
+#   F5 Anthropic self-postmortem at L4 max → harness-is-lever claim
+#     (facts/26 F1) gains MAX-credibility second witness; mizan
+#     ceiling-cap defused on harness-is-bottleneck cluster.
+#   F6 Replit/Cursor postmortems → substrate-signal pattern-match
+#     lifts catastrophic-failure-prevention sub-axis (facts/24 G5).
+#   F7 4 new convergent-evolution traditions for harness-wraps-model
+#     → adds orthogonal mutawatir alongside facts/22's 10 traditions.
+#
+# COST-REDUCTION LEVERS (in addition to existing voter-pattern):
+#   F8 small-specialist + RAG can replace some frontier dispatch.
+#     New tier-routing rule candidate: practical-class tasks → cheap
+#     (with RAG) for 70%+ of dispatches; voter-escalate only on
+#     uncertainty-detected.
+#
+# TIME-REDUCTION LEVERS:
+#   F9 parallel-dispatch (already present) + minimal-synthesizer
+#     (verify) + memory-off-inference-path (M3.34 audit needed).
+#
+# These compose with SECTION QQ (CHE pass 1 reorientation) to suggest
+# Phase II-prime should specifically wire:
+#   (P2-A) RAG + context-engineering at decision points (F8)
+#   (P2-B) parallel tool dispatch where sub-tasks independent (F9)
+#   (P2-C) atom 0007 anti-fab as catastrophic-action verification gate (F6)
+#   (P2-D) memory/estimator on background worker (F9)
+lemma che_passes_2_6_compose_to_lift_confidence_and_lower_cost_and_time_via_p2_a_b_c_d_2026_05_03
+  proves True
+  by audit che-passes-2-through-6-aggregation-2026-05-03

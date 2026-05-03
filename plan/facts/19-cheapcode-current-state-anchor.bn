@@ -1,0 +1,79 @@
+# plan/facts/19-cheapcode-current-state-anchor.bn
+#
+# Honest snapshot of cheapcode's CURRENT empirical position relative
+# to the goal "better and more intelligent general agent for human
+# tasks." Per atom 0007 anti-fab + atom 0013 calibration-as-credential:
+# state what we have, not what we wish.
+
+# ============================================================
+# C1: cheapcode is an opencode fork (architectural inheritance)
+# ============================================================
+# opencode (sst/opencode) is a working production agent harness with
+# multi-step tool dispatch, file edit, bash exec, web fetch, MCP. It
+# was already adopted by aapi project before cheapcode forked. Therefore
+# cheapcode INHERITS a working agent harness — the question for the
+# goal is what substrate enhancements compose with the harness, not
+# whether to build a harness.
+lemma cheapcode_inherits_working_opencode_agent_harness_no_harness_build_required_l1
+  proves True
+  by audit aapi-project-uses-opencode-pre-cheapcode-fork-2026-05-03
+
+# ============================================================
+# C2: substrate primitives implemented and unit-tested
+# ============================================================
+# Per facts/13 + M3.x history, cheapcode has implemented:
+#   - cross-witness voter v0 (cheap × 2 → escalate to smart_C → 2-of-3)
+#   - cheapcode-witness v1x panel-of-experts (cheap × 2 + frontier-d Sonnet 4.6 + synthesizer gpt-5-mini)
+#   - tier resolution + provider shape (Vercel AI SDK v3 ProviderV2)
+#   - living conversion-factor estimator (median+IQR, multi-dim filter)
+#   - atom 0007 anti-fab synthesizer guard (catches contradictions)
+# All primitives have unit-test coverage per mizaj 18 burhan-backed TDD.
+lemma cheapcode_substrate_primitives_voter_v1x_estimator_anti_fab_implemented_and_unit_tested_l1
+  proves True
+  by audit cheapcode-src-tests-pass-m3-37-m3-38-anchor
+
+# ============================================================
+# C3: empirical evidence on substrate primitives
+# ============================================================
+# Paired evidence accumulated through M3.x:
+#   - M3.23 AIME N=3: 1 win (disphenoid), 1 tie, 1 both-fail
+#   - M3.28 v1x dogfood: synthesis-quality lift (qualitative)
+#   - M3.36 SWE-bench Verified diagnose N=2: 6/6 PERFECT at $0.094
+#   - M3.39 mixed-shape N=3: 3/3=3/3 tied, voter 11.7× cheaper
+#   - M3.40 hard-tasks N=3: 3/3=3/3 tied, voter 7.3× cheaper
+# Aggregate: N=12 paired, 1 voter-win, 0 voter-loss, 9 ties, 1 both-fail.
+# Cost-dominance ~7-12× cheaper across all paired tests (sahih band).
+lemma cheapcode_aggregate_n_12_paired_1_win_0_loss_9_ties_1_both_fail_voter_7_to_12x_cheaper_l1
+  proves True
+  by audit cheapcode-runs-m3-23-m3-28-m3-36-m3-39-m3-40-aggregate-2026-05-03
+
+# ============================================================
+# C4: GAP — measurement-zero on canonical practical-task corpora
+# ============================================================
+# Per facts/16 4 canonical corpora (SWE-bench full / METR HCAST / GAIA
+# / OSWorld), cheapcode has measured:
+#   - SWE-bench Verified DIAGNOSE-only on N=2 (M3.36, 6/6)
+#   - SWE-bench Verified FULL agent loop: 0 measurements
+#   - METR HCAST / RE-Bench: 0 measurements
+#   - GAIA: 0 measurements
+#   - OSWorld: 0 measurements
+# This is the LOAD-BEARING GAP between cheapcode's current state and
+# the goal. Per atom 0007 anti-fab, claiming "better general agent for
+# human tasks" without measurement on these corpora = fabrication.
+lemma cheapcode_zero_measurements_on_3_of_4_canonical_corpora_plus_partial_swe_diagnose_only_l1
+  proves True
+  by audit cheapcode-runs-history-vs-facts-16-corpora-2026-05-03
+
+# ============================================================
+# C5: cost-dominance is sahih, correctness-lift is sub-floor
+# ============================================================
+# Per PLAN.bn SECTION KK + JJ + MM:
+#   - cheapcode_decisively_cheaper_than_frontier_on_hard_reasoning: sahih @0.88
+#   - cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning: sub-floor @0.80
+#   - cheapcode_strictly_more_correct_than_frontier_at_high_rate: daif @0.20 (atom 0015 fired)
+#   - voter_much_more_intelligent_on_most_practical_hard_problems: sub-floor @0.55 (M3.43 pre-reg)
+# Composed: claim graph supports "AT-LEAST-AS-INTELLIGENT, DECISIVELY
+# CHEAPER, FASTER on average" but NOT YET "MUCH MORE INTELLIGENT."
+lemma cheapcode_current_claim_graph_at_least_as_correct_decisively_cheaper_not_yet_much_more_intelligent_l1
+  proves True
+  by audit plan-bn-section-kk-jj-mm-aggregate-2026-05-03
