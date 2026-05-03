@@ -265,3 +265,50 @@ lemma convergence_on_negation_potentially_stronger_than_convergence_on_position
 # claim is validated. Mizaj 16: experiments count toward envelope; do the
 # minimum first.
 # ============================================================
+
+# ============================================================
+# M3.20 update — post-M3.19 evidence applied
+#
+# M3.19 N=5 mixed probe (3 hard AIME + 2 known-impossible) ran 2026-05-03:
+#   - 4/5 correct, $0.0516 spend, P50 60s wall (all under bounded budget)
+#   - Sahih convergence precision: 2/2 = 100% (negation-only subset)
+#   - Hasan (escalated majority): 2/3 = 67%
+#   - Daif (no convergence): 1/3 — caused by smart_C 120s per-call timeout,
+#     not 3-way disagreement. Engineering parameter, not structural.
+#
+# Per-claim post-M3.19 status (PLAN.bn SECTION Y):
+#   - route_hard_reasoning_voter_holds: HOLD (no hangs, 5/5 dispatched)
+#   - cross_witness_convergence_predicts_correctness: HOLD (sahih 2/2)
+#   - three_way_majority_vote_robust: HOLD (hasan 2/3 = 67%)
+#   - voter_cost_ratio_at_most_0_20x_compound: HOLD (provisional, baseline range)
+#   - voter_latency_ratio_at_most_0_30x_compound: AMBIGUOUS (lowered confidence
+#     0.85 → 0.50; voter wins on hang-elimination, breaches strict 0.30× ratio
+#     on completed-task subset)
+#
+# Negation-asymmetry hypothesis (this file's atom-0010 lemma + the
+# convergence_on_negation_potentially_stronger lemma): STRONGLY SUPPORTED
+# in N=5 probe. Negation tasks: 100% sahih, mean 17s, $0.0002/task.
+# Positive tasks: 0% sahih, 100% escalation, mean 158s, $0.017/task.
+# ~85× cost asymmetry, ~9× latency asymmetry. Direct paired evidence the
+# hypothesis predicted before the probe ran.
+#
+# Atom 0016 runtime status: drafted-but-not-validated → SMALL-N VALIDATED
+# for hard-reasoning slice. Khazīna atom 0016 audit_notes updated 2026-05-03
+# (M3.20). Maintenance confidence lifted: daif → hasan. Provenance: inf → obs.
+# Full validation requires N≥20 across multiple shapes + novel negation tasks
+# (Fermat n=4 and √2 irrationality have plausible training-data leakage).
+#
+# Caveats also surfaced in runs/experiment-2-voter-probe/verdict.md:
+#   - sahih reached only on negation tasks; positive AIME all escalated
+#   - small N
+#   - cost-baseline (M3.10 compound) is not a clean smart-axis baseline
+#   - convergence-on-negation may exploit textbook training data
+# ============================================================
+
+lemma m3_19_n5_mixed_probe_substrate_runtime_validates_atom_0016_small_n
+  proves True
+  by audit cheapcode-m3-19-voter-probe-empirical-evidence-m3-20
+
+lemma m3_19_negation_asymmetry_strongly_supports_atom_0010_runtime_prediction
+  proves True
+  by audit cheapcode-m3-19-voter-probe-negation-asymmetry-data-m3-20

@@ -1,0 +1,70 @@
+{
+  "attempt": "experiment-2-voter-probe-m3-19",
+  "date": "2026-05-03T04:08:19.525Z",
+  "N": 5,
+  "N_positive": 3,
+  "N_negative": 2,
+  "total_cost_usd": 0.05158676000000001,
+  "p50_latency_ms": 60512.892347999965,
+  "total_correct": 4,
+  "positive_correct": 2,
+  "negative_correct": 2,
+  "positive_correct_rate": 0.6666666666666666,
+  "negative_correct_rate": 1,
+  "sahih_convergence_count": 2,
+  "sahih_correctness_rate": 1,
+  "sahih_on_positive_rate": null,
+  "sahih_on_negation_rate": 1,
+  "per_task": [
+    {
+      "task": "aime-2024-I-11",
+      "shape": "combinatorics-symmetry",
+      "expects_negation": false,
+      "correct": false,
+      "convergence": "daif",
+      "agreed_answer": null,
+      "cost_usd": 0.00137494,
+      "latency_ms": 230498
+    },
+    {
+      "task": "aime-2024-I-14",
+      "shape": "geometry-tetrahedron",
+      "expects_negation": false,
+      "correct": true,
+      "convergence": "hasan",
+      "agreed_answer": "104",
+      "cost_usd": 0.03244081,
+      "latency_ms": 183670
+    },
+    {
+      "task": "aime-2024-II-13",
+      "shape": "complex-roots-of-unity",
+      "expects_negation": false,
+      "correct": true,
+      "convergence": "hasan",
+      "agreed_answer": "321",
+      "cost_usd": 0.017388250000000008,
+      "latency_ms": 60513
+    },
+    {
+      "task": "neg-fermat-quartic",
+      "shape": "negative-result-fermat-n=4",
+      "expects_negation": true,
+      "correct": true,
+      "convergence": "sahih",
+      "agreed_answer": "no solution",
+      "cost_usd": 0.00015694000000000125,
+      "latency_ms": 13289
+    },
+    {
+      "task": "neg-sqrt-2-rational",
+      "shape": "negative-result-sqrt-2-irrational",
+      "expects_negation": true,
+      "correct": true,
+      "convergence": "sahih",
+      "agreed_answer": "no solution",
+      "cost_usd": 0.00022582000000000158,
+      "latency_ms": 20677
+    }
+  ]
+}
