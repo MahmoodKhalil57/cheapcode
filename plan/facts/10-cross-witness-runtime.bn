@@ -126,3 +126,65 @@ lemma voter_latency_ratio_vs_compound_wrapper_at_most_0_30x
 lemma atom_0016_runtime_validated_for_hard_reasoning_when_60pct_holds
   proves True
   by audit cheapcode-atom-0016-runtime-validation-conditional-on-m3-19
+
+# ============================================================
+# BetterQ-inspired enhancement (v1.x roadmap; M3.18 closure note)
+#
+# Operator pointer 2026-05-03: "get inspired from ~/apps/betterq results
+# showing that there is a 'converging best grammar' for the quraan based
+# on muqataat but it is hard to calculate, and we did a bunch of these
+# calculations."
+#
+# Survey-Explore findings (M3.18 close):
+#   - betterq's "convergence" is POSITIONAL matching to Hafs ground truth,
+#     NOT witness-agreement. Initial transfer assumption (cross-witness
+#     voting) was OVERSTATED — atom 0015 fires.
+#   - betterq's actual load-bearing primitive: rule-driven enumeration
+#     with EXPLICIT precision/recall measurement per rule. 13 grammar
+#     rules from Sibawayhi/al-Khalil; each rule's firing rate +
+#     accuracy on Hafs is measured. Errors categorized by which rule
+#     missed (43.8% no rule fires, 22.3% stem-alignment bugs, etc.)
+#   - betterq's "convergence" is post-hoc triangulation across 3 variants
+#     (max-grammar / max-coherence / max-mmlu), not parallel voting.
+#
+# Honest transfer to cheapcode (NOT in scope for v1.0; v1.x roadmap):
+#
+#   1. Per-rule rolling precision/recall tracker. Each routing-rule
+#      dispatch logs to a daftar-style isnad with: shape detected,
+#      target_model, response_grade (sahih/hasan/daif), operator-correction
+#      (if any). Operators run `cheapcode telemetry summarize` → per-rule
+#      precision/recall accumulated over time. v1.x lifts L4 → L1 by
+#      accumulating dispatch evidence rather than running separate
+#      experiments. Atom 0011 applied: each dispatch IS a tiny
+#      smallest-distinguishing experiment.
+#
+#   2. Error categorization on daif outcomes. When 3-way disagreement
+#      fires, log the divergence shape: "two cheap models said X, smart
+#      said Y, gold-when-known is Z." Categories build over time;
+#      surface frequent-failure-shapes for v1.x rule additions.
+#
+#   3. Triangulation-not-voting frame. betterq runs 3 variants and
+#      compares to ground truth POST-HOC. For cheapcode: dispatch normally,
+#      log result, periodically batch-compare to operator-known-correct
+#      answers. The dispatch isn't a vote; it's a witness whose accuracy
+#      can be measured. This is more honest than "majority is right" —
+#      majority is just CONFIDENCE, not truth.
+
+lemma betterq_inspired_telemetry_v1x_roadmap
+  proves True
+  by audit cheapcode-betterq-survey-m3-18-close-explore-agent-l1
+
+lemma atom_0015_fires_on_betterq_voting_transfer
+  proves True
+  by audit cheapcode-betterq-transfer-overstated-honest-disclosure-m3-18
+
+# ============================================================
+# Why this isn't in v1.0
+#
+# Adding telemetry now would balloon cell #20 (router LoC) and cell #14
+# (total). Per atom 0011 (smallest distinguishing experiment): the M3.19
+# N=5 AIME probe is the smallest test of M3.18's voter. Telemetry-driven
+# rolling precision/recall is the v1.x lift, AFTER the voter's basic
+# claim is validated. Mizaj 16: experiments count toward envelope; do the
+# minimum first.
+# ============================================================
