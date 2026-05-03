@@ -671,6 +671,91 @@ Operator action required: provide OpenRouter BYOK key for the smoke test. Estima
 
 ---
 
+## Revision 2026-05-03j — supersede M3.8 over-narrowing; restore Phase 2 + Arm A as load-bearing
+
+**Operator pushback (post-M3.8):** "are we straying away from our goal again? we should aim for smarter than gpt 5.5"
+
+**Substrate diagnosis** (burhan-revisit + atom 0011 + atom 0015 + mizaj 01/16): the M3.8 narrowing severed `phase_2_wrapper_passes_at_least_min` from any discharge closure (REMOVE flag fired). Atom 0011 (smallest-distinguishing-experiment-first) prescribes EXPERIMENT-1 Arm A as the minimum experiment needed to earn-or-kill the smart-axis claim. Atom 0015 confirms research alone has been exhausted (M3.7 hit ceiling). Mizaj 01 says the falsifier must be exercised.
+
+### What was wrong with M3.8's framing
+
+At M3.7's choice point I conflated two separable things into one "Option 3":
+
+- **Arm A** — implement compound wrapper + run 3-axis dominance test on TB-multistep slice. THIS IS THE SMART-AXIS TEST.
+- **Arm B** — run with substrate verifier ON to test marginal lift. M3.2 retrospective surfaced this as mismatched to TB-3 failure-mode mix.
+
+My Option 3 said "defer EXPERIMENT-1 entirely" — which dropped both arms. That killed the smart-axis claim, which IS the core goal per MAIN.md ("cheaper, faster, AND smarter than calling GPT-5.5 directly").
+
+The M3.2 retrospective only flagged Arm B as mismatched. It said nothing structurally wrong about Arm A — the compound wrapper's 3-axis dominance claim is about wrapper-vs-raw-frontier, which has no substrate-failure-mode-mismatch concern.
+
+### Correction (this revision)
+
+| | Arm A (wrapper 3-axis dominance) | Arm B (substrate runtime verifier) |
+|---|---|---|
+| Status | **RESTORED as load-bearing for v1.0** | **Deferred to v1.x** per M3.2 retrospective |
+| Budget | ~$5, ~3h via operator BYOK | n/a for v1.0 |
+| Falsifier | `obs_cheapcode_auto_misses_any_3_axis_target` | `obs_substrate_marginal_lift_fails` (deferred) |
+| v1.0 ship gate | PASS-MIN or better | n/a |
+
+Cells #18 (auto wrapper LoC, MIN ≤350) and #19 (substrate verifier LoC) re-disposition:
+
+- Cell #18 — RESTORED to MIN ≤350 LoC for v1.0 (Phase 2 wrapper Arm A only)
+- Cell #19 — STAYS N/A for v1.0 (Arm B deferred)
+
+### What v1.0 IS (revised)
+
+The original SPEC Revision 2026-05-02b/d framing is restored, **minus Arm B**:
+
+- 5 tier-IDs registered via opencode's `provider.<id>.npm` mechanism
+- `auto` tier IS the structured-reasoning wrapper: plan-decompose → parallel cheap-leaves → best-of-K=3 frontier → cross-model verifier → retry-with-feedback
+- 3-axis comprehensive-dominance claim (cheaper + faster + smarter on multistep) — **measured and cited per atom 0013**
+- Honest scorecard per Model Cards format
+- Zero patches to opencode upstream (cell #15 = 0)
+- Substrate-as-runtime-verifier (atom 0016 runtime claim) — explicitly NOT tested in v1.0; deferred to v1.x or follow-on project with fitter benchmark
+
+### What v1.0 IS NOT (revised)
+
+- No Arm B substrate-verifier-pass at runtime (deferred per M3.2 mismatch — substrate strength is reasoning-with-citations consistency; TB-3 failure mix is code-execution / system-success)
+- No measured smart-fast tier latency (deferred to v1.x; current pick claude-haiku-4.5 is research-grounded)
+- No multi-account / multi-tenant features (deferred per cell #6/#7)
+
+### Plan-graph cascade
+
+- **PLAN.bn** SECTION W — `cheapcode_v1_ships_via_phase_completion` theorem RESTORES `phase_2_wrapper_passes_at_least_min` to its assume-clause. v1.0 ships only when phase_0..5 + project_no_halt + smart_fast_tier_choice all hold. Discharge confidence reverts ~0.50 (between original 0.45 and post-M3.8 0.65 — accounting for the fact that we're actually going to RUN the experiment, but the experiment hasn't run yet).
+- **`falsified_when`** of `cheapcode_v1_ships` RESTORES `obs_phase_2_experiment_1_fails_all_axes`. Phase 2 Arm A FAIL falsifies v1.0.
+- **MAIN.md** — restores "cheaper, faster, AND smarter than GPT-5.5 on multistep" as the v1.0 goal. Confidence note revised back to ~65% pre-experiment (Option 3's ~80% was for the narrower-scope v1.0 that's now superseded).
+- **Khazīna atom 0016** — audit_notes stay accurate: runtime claim still untested per Option-3-Arm-B disposition. Build-time interpretation IS validated.
+
+### Phase 2 procedure (Arm A only, this revision)
+
+1. Implement `auto`-tier wrapper inside `@cheapcode/ai-sdk-provider` package — custom `LanguageModelV3.doGenerate` per M3.2 architecture decision (zero upstream patches).
+2. Wrapper components per SPEC Revision 2026-05-02d:
+   - Plan-decompose (1× smart-tier call per task)
+   - Parallel leaf execution at cheap-tier
+   - Best-of-K=3 frontier synthesis (3× smart-tier samples)
+   - Cross-model verifier (1× different frontier model — Claude Opus or Gemini-pro)
+   - Retry-with-feedback (max 1×)
+3. Run EXPERIMENT-1 per `plan/EXPERIMENT-1.md` — N=10 multistep TB-medium/hard slice.
+4. Three ratios per Arm A kill-criteria table (PASS-IDEAL / PASS-EXPECTED / PASS-MIN / PARTIAL / FAIL).
+5. Update `plan/EXPERIMENT-1.md` to drop Arm B references (or mark as deferred).
+
+### Substrate validation that this is the right call
+
+- Burhan-revisit REMOVE flag on phase_2 IS the substrate's signal that the smart-axis work was orphaned (validated the operator's pushback at M3.9 entry).
+- Atom 0011: Arm A is the smallest distinguishing experiment for the smart-axis claim. Running it earns or kills the redesign.
+- Atom 0015: research-pipeline overstates by default; M3.5-M3.7 lift cycles capped at L3 ceiling. Next confidence movement requires L1 measurement.
+- Mizaj 01: every load-bearing claim must have a falsifier exercised; `obs_cheapcode_auto_misses_any_3_axis_target` was unexercised.
+- Mizaj 16: research-equivalent confidence at L3 ceiling = 0.85; lifting past that requires the experiment.
+
+### Pointer for next agent
+
+After committing M3.9 (this SPEC revision + plan/main updates):
+
+- M3.10: implement auto-wrapper Arm A skeleton (~250 LoC TypeScript, npm-package-only). No API spend.
+- M3.11: surface to operator → request OpenRouter BYOK for EXPERIMENT-1 Arm A execution (~$5, ~3h). v1.0 ships only on PASS.
+
+---
+
 ## Sign-off
 
 This SPEC takes effect once committed. Refinements after that require a new dated section (`## Revision YYYY-MM-DD`) plus a falsifier explaining why the change is load-bearing. The original matrix stays; nothing edits in place.

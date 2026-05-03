@@ -4,20 +4,20 @@ The one-page summary. Update the bracketed `[fields]` as the project moves. Don'
 
 ---
 
-## Goal — v1.0 narrowed (per Option 3, M3.8)
+## Goal (restored M3.9 per substrate signal — see SPEC Revision 2026-05-03j)
 
-A working `cheapcode` binary — a small spin-off of opencode — that exposes **5 routing tiers** (`cheap`, `cheap-fast`, `smart`, `smart-fast`, `auto`) over OpenRouter. Operator can rebase against upstream weekly without pain because cheapcode ships zero patches to opencode.
-
-The 3-axis comprehensive-dominance claim (cheaper + faster + smarter than GPT-5.5 on multistep) is **deferred to v1.x** — needs Phase 2 wrapper + EXPERIMENT-1, both gated on a fitter benchmark than TB-3 (M3.2 retrospective surfaced the failure-mode mismatch).
+A working `cheapcode` binary — a small spin-off of opencode — that on hard reasoning tasks (TB-medium / TB-hard multistep slice) is **cheaper, faster, AND smarter** than calling GPT-5.5 directly. All three at once, measured, with the numbers cited in the README.
 
 Concrete v1.0 deliverables:
 
 - A small npm package `@cheapcode/ai-sdk-provider` that opencode loads via `provider.cheapcode.npm` in opencode.json
-- 5 tier IDs registered: `cheap` → deepseek-v4-flash, `cheap-fast` → deepseek-v4-flash (race-K stub), `smart` → gpt-5-mini, `smart-fast` → claude-haiku-4.5, `auto` → STUB to cheap (Phase 2 wrapper deferred)
+- 5 tier IDs registered: `cheap` → deepseek-v4-flash, `cheap-fast` → deepseek-v4-flash (race-K), `smart` → gpt-5-mini, `smart-fast` → claude-haiku-4.5, `auto` → **structured-reasoning wrapper** (plan-decompose → parallel cheap-leaves → best-of-K=3 frontier → cross-model verifier → retry-with-feedback)
 - Long-context override > 128k → grok-4-fast (cheap/auto only)
 - Operator override via `cheapcode.toml` (zero env-var feature flags per cell #11)
-- A measured Model Card scorecard in the README ([Model Cards](https://arxiv.org/abs/1810.03993)) honestly disclosing what's in scope, what's deferred, and why
-- A small open-source fork of [opencode](https://github.com/sst/opencode) (pinned at v1.14.33) — actually zero-patch, so "fork" is a misnomer; cheapcode is a separate npm package consumed by upstream-vanilla opencode
+- A measured Model Card scorecard in the README ([Model Cards](https://arxiv.org/abs/1810.03993)) showing 3-axis dominance ratios on TB-multistep
+- Zero patches to opencode upstream (cell #15 = 0; weekly rebase is `git fetch && git rebase`)
+
+**v1.0 ships only on EXPERIMENT-1 Arm A PASS** — the smart-axis claim is exercised, not hand-waved. Per atom 0013, the measurement IS the credential.
 
 ---
 
@@ -33,59 +33,61 @@ Concrete v1.0 deliverables:
 
 # AGENT UPDATE BELOW
 
-## What you ARE getting (v1.0)
+## What you ARE getting (v1.0, post-M3.9 restoration)
 
-- 5 tier-IDs in opencode's model picker: `cheap`, `cheap-fast`, `smart`, `smart-fast`, `auto`
-- Routing to a cheap AI for routine work (~30× cheaper than GPT-5.5 per cheapllm v1's L1 receipts)
-- A long-context option > 128k tokens via grok-4-fast (cheapllm v1's NIAH 2M PASS at $0.37/call)
+- A working binary that's cheaper, faster, AND smarter than raw GPT-5.5 on hard multistep reasoning — **measured and cited**, not claimed
+- 5 tier-IDs in opencode: `cheap`, `cheap-fast`, `smart`, `smart-fast`, `auto`
+- Routing to cheap AIs for routine work (~30× cheaper than GPT-5.5 per cheapllm v1 receipts)
+- Long-context option > 128k tokens via grok-4-fast (NIAH 2M PASS at $0.37/call per cheapllm v1)
+- `auto` tier with structured-reasoning wrapper: plan-decompose + best-of-K=3 + cross-model verifier + retry
 - Operator-side override via `cheapcode.toml`
-- Zero patches to opencode upstream — weekly rebase is `git fetch && git rebase` with no conflicts possible by construction (M3.5 lifted weekly_rebase_holds to @0.97 on this self-evidence)
-- A Model Card README that honestly discloses scope + deferrals + why
+- Zero patches to opencode upstream — weekly rebase trivial by construction
+- Model Card README scorecard with 3-axis dominance ratios
 
 ---
 
 ## What you are NOT getting (v1.0 honest disclosure)
 
-- **Not smarter than GPT-5.5 on multistep.** v1.0 is a routing harness, not a reasoning amplifier. The compound-LLM auto wrapper is deferred to v1.x — Option 3 picked at M3.7 specifically because the M3.2 retrospective surfaced that EXPERIMENT-1's TB-3 slice has a failure-mode mismatch with substrate-style verifiers.
-- **Auto tier is a STUB to cheap.** The `auto` model name is honest in surface but doesn't yet do plan-decompose + best-of-K + verify. v1.x replaces this.
-- **No 3-axis dominance claim.** That claim survives in PLAN.bn at @0.45-0.85 confidence as a v1.x target, not a v1.0 ship target.
-- **Smart-fast latency is unmeasured.** We picked claude-haiku-4.5 pending TTFT verification. v1.x runs the latency probe.
+- **Not smarter than GPT-5 on single-step tasks.** Wrapper is bounded above by best frontier model in the ensemble; multistep is where we win.
+- **No substrate-as-runtime-verifier (atom 0016 runtime claim).** Deferred to v1.x or follow-on project. Per M3.2 retrospective, TB-3's failure-mode mix (code-execution, system-success) is orthogonal to substrate's strength (reasoning-with-citations consistency). The build-time interpretation IS validated.
+- **Smart-fast latency is research-grounded, not measured.** Pick claude-haiku-4.5 pending TTFT verification.
 - **Not a free service.** You need an OpenRouter API key + pay per usage.
-- **Not multi-tenant or cloud.** Single user, single machine. Multi-account features may come later but are explicitly deferred.
+- **Not multi-tenant or cloud.** Single user, single machine. Multi-account features deferred.
 
 ---
 
 ## Progress
 
 ```
-[██████████          ] 50%  (Phase 0+1 shipped; Phase 2 deferred per Option 3; Phase 3+4+5 ahead)
+[████████            ] 40%  (Phase 0+1 shipped; Phase 2 Arm A coming next; Phase 3+4+5 ahead)
 ```
 
-### Phase plan (UPDATED 2026-05-03 per SPEC Revision 2026-05-03i)
+### Phase plan (RESTORED M3.9 per SPEC Revision 2026-05-03j)
 
 | Phase | Goal | Wall | $ | Status |
 |---|---|---|---|---|
 | 0 | Final research synthesis | 2h | $0 | `[x]` ✅ M2.0 |
-| 1 | Fork + 5-tier registration | 4h | $0 | `[x]` ✅ M3.0 (zero-patch ship) |
-| 2 | Auto wrapper MIN + EXPERIMENT-1 | 6h | $5 | `[~]` 🟡 **DEFERRED to v1.x** per Option 3 (M3.8) |
-| 3 | 4-client smoke regression | 2h | $0-1 | `[ ]` next — needs operator BYOK |
+| 1 | Fork + 5-tier registration | 4h | $0 | `[x]` ✅ M3.0 (zero-patch) |
+| 2 | Auto wrapper MIN + EXPERIMENT-1 **Arm A** | 6h | $5 | `[ ]` next — wrapper ~250 LoC + experiment |
+| 3 | 4-client smoke regression | 2h | $0-1 | `[ ]` |
 | 4 | Scorecard + README (Model Card) | 2h | $1 | `[ ]` |
 | 5 | Ship (v1.0.0 tag + daftar) | 1h | $0 | `[ ]` |
-| | Buffer (Phase 2 cost reclaimed) | 13h | $9 | comfortable headroom |
 
-**Substrate-tooling sub-stream (M3.3-M3.7):** added `tools/burhan-snapshot.sh` + `tools/burhan-revisit.sh` — auto-propagation of confidence + 5-action heuristic scanner (explore/move/dissect/merge/remove) + MAIN.md drift detection. Built outside the original phase plan; surfaced and resolved 11 of 17 plan-graph drift items via successive lift cycles (M3.4-M3.7).
+**Arm B deferred** to v1.x per M3.2 retrospective — substrate-runtime-verifier test mismatched to TB-3 failure-mode mix (code-execution vs reasoning-with-citations). Arm A (3-axis dominance test on TB-multistep slice) IS the smart-axis credential per atom 0013.
 
-**Phase 0 decisions** locked in [`runs/phase-0/decisions.md`](runs/phase-0/decisions.md). **Phase 1 shipped** per [`runs/phase-1/result.md`](runs/phase-1/result.md). **Phase 2 deferred** per [SPEC](SPEC.md) Revision 2026-05-03i.
+**Substrate-tooling sub-stream (M3.3-M3.7):** added `tools/burhan-snapshot.sh` + `tools/burhan-revisit.sh` — auto-propagation of confidence + 5-action heuristic scanner + MAIN.md drift detection. Surfaced and resolved 11 of 17 plan-graph drift items via lift cycles (M3.4-M3.7), then surfaced the M3.8 over-narrowing (REMOVE flag on phase_2 fired) which led to this M3.9 correction.
 
-**Mizaj 16 discipline:** before any experiment in any phase, run research-synthesis check first. **Experiments count toward the 24h envelope; research is free.**
+**Phase 0 decisions** locked in [`runs/phase-0/decisions.md`](runs/phase-0/decisions.md). **Phase 1 shipped** per [`runs/phase-1/result.md`](runs/phase-1/result.md). **Phase 2 Arm A** in progress per [SPEC](SPEC.md) Revision 2026-05-03j.
+
+**Mizaj 16 discipline:** research-synthesis check before any experiment. M3.5-M3.7 exhausted the $0 research-lift pool; Arm A is the L1 measurement that lifts beyond research ceiling.
 
 ---
 
 ## Confidence
 
-**~80% v1.0 ship within remaining envelope** as of 2026-05-03 post Option 3 (M3.8). Phase 0 ✅ + Phase 1 ✅ shipped. Phase 3 + 4 + 5 ahead, ~5h wall, ≤$1. Phase 2 deferred per Option 3.
+**~65% v1.0 ship within remaining envelope** as of 2026-05-03 post-M3.9. Phase 0 ✅ + Phase 1 ✅ shipped. Phase 2 Arm A next (~6h, ~$5), then Phase 3 + 4 + 5 (~5h, ≤$1). Total remaining ~11h, $5-6.
 
-The original 65% v1 confidence applied to a v1 that included compound-LLM auto-wrapper. After Option 3 narrowing, v1.0 is structurally simpler (routing harness only) so confidence in shipping THIS v1.0 is higher — ~80% — at the cost of accepting that 3-axis dominance claims are deferred to v1.x.
+The 65% reflects the original ambitious v1 (5 tiers + auto-wrapper + measured 3-axis dominance). M3.5-M3.7 lift cycles validated the research-supported confidences; Arm A measurement determines whether the wrapper actually delivers the smart-axis claim. PASS-EXPECTED on Arm A lifts the joint to ~74% per SPEC Revision 2026-05-02f's pivot table.
 
 | State                                              | Joint confidence | What you'd need                                         |
 | -------------------------------------------------- | ---------------- | ------------------------------------------------------- |

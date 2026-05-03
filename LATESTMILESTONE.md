@@ -6,6 +6,55 @@
 
 ---
 
+## M3.9 — supersede M3.8 over-narrowing; restore Phase 2 + EXPERIMENT-1 Arm A (2026-05-03)
+
+### Status
+
+Accepted. SPEC Revision 2026-05-03j supersedes the over-narrowed parts of Revision 2026-05-03i. M3.8 stays in the historical record (atoms are append-only; SPEC revisions stack).
+
+### Context
+
+Operator pushback post-M3.8: "are we straying away from our goal again? we should aim for smarter than gpt 5.5"
+
+Substrate diagnosis (operator request: "run burhan, consider mizaj/daftar/khazina"):
+
+- **burhan-revisit:** REMOVE flag fired on `phase_2_wrapper_passes_at_least_min` — orphaned, not in any discharge closure. The smart-axis work was structurally severed from the v1.0 ship discharge by M3.8.
+- **Khazīna atom 0011** (smallest-distinguishing-experiment-first): EXPERIMENT-1 Arm A IS the minimum experiment to earn-or-kill the smart-axis claim. Mode of failure is exactly what 0011 was designed to detect — refactor adopted without exercising the experiment that distinguishes it from status quo.
+- **Khazīna atom 0015** (research-pipeline overstates): M3.5-M3.7 hit the research-lift ceiling. Atom 0015 says: research alone overstates by default; measurement is required.
+- **Mizaj 01** (falsifier-first): the smart-axis falsifier `obs_cheapcode_auto_misses_any_3_axis_target` was unexercised.
+- **Mizaj 16** (research-as-experiment-equivalent): research caps at L3 ceiling (~0.85); lifting past requires the experiment.
+
+Framing error in M3.7 was conflating Arm A (3-axis dominance, the smart-axis test) with Arm B (substrate-runtime test). M3.2 retrospective only flagged Arm B as mismatched to TB-3; Arm A's compound-wrapper-vs-frontier comparison has no such mismatch concern.
+
+### Decision
+
+SPEC Revision 2026-05-03j restores Phase 2 + EXPERIMENT-1 Arm A as load-bearing for v1.0. Defers Arm B explicitly per M3.2 retrospective (substrate-runtime test → v1.x or follow-on project with fitter benchmark).
+
+Cascade:
+- **SPEC** Revision 2026-05-03j — Phase 2 wrapper + Arm A restored. Cell #18 (auto-wrapper LoC) MIN ≤350 LoC restored. Cell #19 (substrate verifier LoC) STAYS N/A.
+- **PLAN.bn** SECTION W — `cheapcode_v1_ships_via_phase_completion` theorem RESTORES `phase_2_wrapper_passes_at_least_min` to assume-clause. Discharge claim `cheapcode_v1_ships @0.50` (between original 0.45 and post-M3.8 0.65 — accounts for fact we're going to RUN the experiment but it hasn't yet). `falsified_when` restores `obs_phase_2_experiment_1_fails_all_axes` — Arm A FAIL falsifies v1.0.
+- **MAIN.md** — goal restored to "cheaper, faster, AND smarter than GPT-5.5 on multistep, measured." Auto tier described as wrapper, not stub. Confidence note ~65% pre-experiment (vs M3.8's misleading ~80% on the narrower scope).
+- **Khazīna atom 0016** — audit_notes stay accurate; runtime-claim untested per Arm-B deferral; build-time interpretation IS validated.
+
+### Consequences
+
+**Good:**
+- Smart-axis claim is back to load-bearing; v1.0 once again pursues the original ambition (cheaper + faster + smarter).
+- Burhan-revisit confirms cleanup: REMOVE flag on phase_2 cleared; 6 EXPLORE items remain (3 structural discharges + phase_2 + cross_model + smart_fast — all gated on Arm A or measurement probes).
+- Substrate tooling (M3.3-M3.7) demonstrably worked: it surfaced the over-narrowing as a REMOVE flag, the operator caught the drift, and the substrate prescribed the correction — exactly the reflexive-audit cycle atom 0016 (build-time interpretation) was meant to enable.
+
+**Bad / honest tradeoffs:**
+- Two SPEC revisions on the same architectural question in 24h — M3.8 (Option 3 narrow) and M3.9 (restoration). The historical record is a bit messy; future readers should follow the dated revisions, not just SECTION-G/W in PLAN.bn.
+- ~30 minutes wall-clock spent on the M3.8 → M3.9 round trip. Honest cost of agent-misframing the option set at M3.7. The substrate tooling caught it within one operator-feedback cycle, which is the discipline working as intended.
+
+### Pointer for next agent
+
+M3.10 — implement auto-wrapper Arm A skeleton (~250 LoC TypeScript in `src/auto-wrapper.ts` + small update to `src/cheapcode-tiers.ts` to branch on `modelId === "auto"`). Architecture per M3.2 decision (npm-package-only, custom `LanguageModelV3.doGenerate`). No API spend.
+
+M3.11 — request OpenRouter BYOK from operator; run EXPERIMENT-1 Arm A on TB-multistep slice per `plan/EXPERIMENT-1.md` Arm A kill-criteria table. ~$5, ~3h. v1.0 ships only on PASS.
+
+---
+
 ## M3.8 — Option 3 lock: defer Phase 2 + EXPERIMENT-1 to v1.x; ship narrower v1.0 (2026-05-03)
 
 ### Status
