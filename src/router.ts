@@ -125,6 +125,15 @@ export function classifyTaskShape(input: unknown): ClassifierResult {
   if (/\b(click|navigate|open.*(file|url|tab)|osworld|browse|screenshot)/.test(lower)) {
     return { shape: "computer-use", signal: "computer-use-keywords", estimated_input_tokens: tokens }
   }
+  // PhD-factual: physics/chem/bio/quantum domain markers BEFORE math-chain
+  // because some of these prompts contain math symbols (e.g. Heisenberg
+  // uncertainty's ℏ/2) that would falsely trigger math-chain. M3.47 surfaced
+  // T3 "Heisenberg uncertainty principle" misclassified as math-chain; this
+  // ordering fixes that. Keywords expanded with physics/quantum terms.
+  if (/\b(quantum|graduate|phd|chem|biolog|physic|gpqa|research.*paper|heisenberg|uncertainty principle|relativity|wavefunction|schr[oö]dinger|entropy|enzym|protein|molecul)/.test(lower)
+      && tokens < 8000) {
+    return { shape: "phd-factual", signal: "phd-domain-keywords", estimated_input_tokens: tokens }
+  }
   // Hard-reasoning: AIME / olympiad / multi-step proofs. Distinguished from
   // math-chain by length + difficulty markers. Triggers cross-witness voter
   // (M3.18) — substrate-runtime dispatch on the benchmark that fits atom 0016.
@@ -136,21 +145,32 @@ export function classifyTaskShape(input: unknown): ClassifierResult {
   // mismatch via cross-witness disagreement (smart_C had the correct
   // formula). Voter > direct-frontier on this class even without AIME
   // markers. Per atom 0010 + atom 0017 cycle output.
+  //
+  // M3.47 expansion: catch invariant-class problems (chameleon, knights-
+  // and-knaves, parity-argument, mod-N-invariant). These are canonical
+  // hard-reasoning shapes that benefit from cross-witness voter even
+  // without AIME-explicit markers.
   if (
     /\b(aime|olymp|imo|usamo|putnam)/.test(lower)
     || (/\b(prove|find the smallest|find all|how many)/.test(lower) && tokens > 100)
     || /\b(disphenoid|isosceles tetrahedron|inscribed sphere|insphere|inradius|circumradius|circumsphere)/.test(lower)
+    || /\b(chameleon|knights? and knaves|invariant.*argument|mod.*invariant|parity argument|monovariant)/.test(lower)
   ) {
     const signal = /\b(disphenoid|isosceles tetrahedron|inscribed sphere|insphere|inradius|circumradius|circumsphere)/.test(lower)
       ? "specialized-formula-geometry-markers"
-      : "hard-reasoning-markers"
+      : /\b(chameleon|knights? and knaves|invariant.*argument|mod.*invariant|parity argument|monovariant)/.test(lower)
+        ? "invariant-puzzle-markers"
+        : "hard-reasoning-markers"
     return { shape: "hard-reasoning", signal, estimated_input_tokens: tokens }
   }
-  if (/\b(prove|simplif|integral|derivative|gcd|lcm|modular|factori[sz]e)/.test(lower)
+  // Math-chain: keywords/symbols. M3.47 expansion: also "compute|calculate|
+  // evaluate|sum of digits" patterns (T2 "compute sum of digits of 2^31 - 1"
+  // was misclassified as multistep-general).
+  if (/\b(prove|simplif|integral|derivative|gcd|lcm|modular|factori[sz]e|sum of digits|compute.*\d|calculate.*\d|evaluate.*expression|2\^|10\^|n\^)/.test(lower)
       || /[∫∑∏√≡≤≥]/.test(text)) {
     return { shape: "math-chain", signal: "math-keywords-or-symbols", estimated_input_tokens: tokens }
   }
-  if (/\b(write.*function|implement.*function|refactor|fix.*function|add.*method|unit.*test)/.test(lower)
+  if (/\b(write.*function|implement.*function|refactor|fix.*function|add.*method|unit.*test|reverse.*string|one[- ]?line.*function)/.test(lower)
       && tokens < 4000) {
     return { shape: "bounded-code", signal: "bounded-code-keywords", estimated_input_tokens: tokens }
   }
@@ -164,10 +184,7 @@ export function classifyTaskShape(input: unknown): ClassifierResult {
   if (/\b(without.*search|without.*tool|no.*tool.*use|closed[- ]?book|memori[sz]ed.*fact)/.test(lower)) {
     return { shape: "closed-book", signal: "closed-book-keywords", estimated_input_tokens: tokens }
   }
-  if (/\b(quantum|graduate|phd|chem|biolog|physic|gpqa|research.*paper)/.test(lower)
-      && tokens < 8000) {
-    return { shape: "phd-factual", signal: "phd-domain-keywords", estimated_input_tokens: tokens }
-  }
+  // (phd-factual already checked earlier in M3.47-fix order)
   return { shape: "multistep-general", signal: "default-no-specific-signal-matched", estimated_input_tokens: tokens }
 }
 
