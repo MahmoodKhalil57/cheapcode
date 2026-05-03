@@ -6,6 +6,50 @@
 
 ---
 
+## M3.28 — v1x panel-of-experts: cheapcode-witness BEATS single-pass Claude on knowledge synthesis (2026-05-03)
+
+### Status
+
+Accepted. v1x implementation (frontier-witness + synthesizer) lifts cheapcode-witness from "matches but doesn't beat" (M3.27) to **beats single-pass Claude Opus 4.7 on knowledge synthesis** at $0.045 per artifact.
+
+### Context
+
+M3.27 dogfood found: v0 matches my baseline but doesn't beat it; identified 3 specific changes for v1.x. M3.28 implemented #1 (frontier witness in pool) + #3 (synthesizer step). Skipped #2 (semantic convergence) because synthesizer subsumes its purpose.
+
+### Decision
+
+Extended `tools/cheapcode-witness.ts` with `--v1x` flag activating panel-of-experts pattern:
+- 3 PARALLEL witnesses across different model families (cheap-a + cheap-b from deepseek + frontier-d from anthropic claude-sonnet-4.6)
+- `maxOutputTokens: 4000` cap (avoid OpenRouter API key budget hit)
+- Synthesizer (gpt-5-mini) reads all 3 witness outputs and emits unified artifact with `[CONSENSUS]` / `[DISAGREEMENT: A says X, B says Y, D says Z]` / `[UNIQUE-A/B/D]` / `[ERROR]` tags
+
+Re-ran M3.27 dogfood questions paired against my baseline.
+
+### Consequences
+
+**v1x beats single-pass on all 3 questions:**
+
+- **Q1 disphenoid:** tie on formula correctness; v1x **wins on derivation richness** (3 distinct methods: Gram determinant, corner-of-box, centered-box subtraction) + **synthesizer caught cheap-a's discarded "/72" tentative error**
+- **Q2 primes n²+1:** tie on top-level (open / Landau / Iwaniec 1978); v1x **wins on technical depth** (parity-problem obstruction, asymptotic-sieve attribution, Bateman-Horn explicit constant attempt) + **synthesizer caught D's imprecise "semiprime" wording** (semiprime = exactly 2 factors; Iwaniec proved P2 = ≤2 factors)
+- **Q3 apophatic traditions (CLEANEST WIN):** v1x added **Jewish strand (Philo + Maimonides)** and **al-Ghazālī's *Mishkāt al-Anwār*** absent from my baseline; surfaced **methodological-vs-poetic Daoism distinction**; flagged **Greek→Islamic transmission caveat that DIRECTLY corrects khazina atom 0017's "no transmission" overclaim**
+
+**Atom 0017 self-improvement:** Q3's v1x output directly improved atom 0017's convergent-evolution credential. Citations expanded to include Philo, Maimonides, al-Ghazālī. "No transmission" claim qualified for the Greek→Islamic case. Daoism methodological-vs-poetic question flagged. **The substrate iterated on its own atom via cheapcode dispatching, not via me.** This is the strongest evidence to date that the recursive substrate cycle works.
+
+**Cost / latency:**
+- v1x: $0.045 avg per artifact (range $0.019–$0.062), ~2 min per artifact
+- v0: $0.0093 avg per artifact, ~107s
+- v1x 4.8× more expensive than v0 but **wins on quality + eliminates daif-grade bug**
+
+PLAN.bn SECTION DD: 5 new claims (v1x-beats-single-pass @0.72, v1x-cost-cap @0.85, synthesizer-eliminates-daif-bug @0.95, cross-family-diversity @0.65, m3-28-improves-atom-0017 @0.78). 37/37 tests pass. Burhan-revisit: 39 EXPLORE / 0 REMOVE / 0 MOVE — clean.
+
+### Pointer
+
+`commit TBD`. Verdict in `runs/m3-28-v1x-dogfood/verdict.md`. Khazina atom 0017 update with M3.28 evidence. PLAN.bn SECTION DD. Cumulative cheapcode spend: ~$0.62 / $5.
+
+**v1x is now substrate-prescribed for knowledge-synthesis subtasks during cheapcode self-development.** When a load-bearing claim depends on a knowledge-synthesis question, dispatching to `cheapcode-witness --v1x` is the atom-0010 cross-witness move.
+
+---
+
 ## M3.27 — knowledge-artifact dogfood: cheapcode-witness matches but does not beat single-pass Claude (2026-05-03)
 
 ### Status
