@@ -1,0 +1,58 @@
+{
+  "attempt": "experiment-3-voter-vs-frontier-m3-23",
+  "date": "2026-05-03T05:00:40.808Z",
+  "N": 3,
+  "frontier_model": "openai/gpt-5",
+  "frontier": {
+    "correct": 1,
+    "correct_rate": 0.3333333333333333,
+    "total_cost_usd": 0.06583625,
+    "p50_latency_ms": 131246.08072699996
+  },
+  "voter_m3_19": {
+    "correct": 2,
+    "correct_rate": 0.6666666666666666,
+    "total_cost_usd": 0.051199999999999996,
+    "p50_latency_ms": 183670
+  },
+  "ratios_voter_vs_frontier": {
+    "cost_ratio": 0.7776870644971424,
+    "latency_ratio": 1.3994322648159305,
+    "completion_delta": 1
+  },
+  "per_task": [
+    {
+      "task": "aime-2024-I-11",
+      "shape": "combinatorics-symmetry",
+      "gold": "371",
+      "frontier_correct": null,
+      "frontier_cost": null,
+      "frontier_latency_ms": null,
+      "voter_correct": false,
+      "voter_cost": 0.00137,
+      "voter_latency_ms": 230498
+    },
+    {
+      "task": "aime-2024-I-14",
+      "shape": "geometry-tetrahedron",
+      "gold": "104",
+      "frontier_correct": false,
+      "frontier_cost": 0.0325125,
+      "frontier_latency_ms": 131246,
+      "voter_correct": true,
+      "voter_cost": 0.03244,
+      "voter_latency_ms": 183670
+    },
+    {
+      "task": "aime-2024-II-13",
+      "shape": "complex-roots-of-unity",
+      "gold": "321",
+      "frontier_correct": true,
+      "frontier_cost": 0.03332375,
+      "frontier_latency_ms": 53585,
+      "voter_correct": true,
+      "voter_cost": 0.01739,
+      "voter_latency_ms": 60513
+    }
+  ]
+}

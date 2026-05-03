@@ -1,0 +1,21 @@
+EXPERIMENT-3 baseline — N=3 positive AIME against openai/gpt-5
+
+→ aime-2024-I-11 [combinatorics-symmetry] gold="371"
+   ERROR: aime-2024-I-11-frontier exceeded 300000ms
+→ aime-2024-I-14 [geometry-tetrahedron] gold="104"
+   ✗ 131246ms $0.03251
+   text-tail: …. ⏎  ⏎ Therefore r = 3V/S = 3·(2√21)/(24√21) = 1/4 = 1·√1/4. ⏎ So m=1, n=1, p=4, and m+n+p = 6. ⏎  ⏎ Answer: 6
+→ aime-2024-II-13 [complex-roots-of-unity] gold="321"
+   ✓ 53585ms $0.03332
+   text-tail: …^2 = |(-65 - 64i)|^2 = 65^2 + 64^2 = 8321. ⏎  ⏎ Remainder modulo 1000: 8321 mod 1000 = 321. ⏎  ⏎ Answer: 321
+
+===========================================
+M3.23 QW1.1 voter-vs-frontier paired comparison
+===========================================
+Frontier (openai/gpt-5): 1/3 correct, $0.0658 total, 131246ms P50
+Voter (M3.19):                    2/3 correct, $0.0512 total, 183670ms P50
+
+Voter / frontier ratios:
+  cost:       0.778× (voter cheaper ✓)
+  latency:    1.399× (voter slower ✗)
+  completion: +1 (voter ≥ frontier ✓)

@@ -6,6 +6,52 @@
 
 ---
 
+## M3.23 — substrate-prescribed quick wins: voter beats GPT-5 on 2/3 axes; routing rules cross-witness lifts (2026-05-03)
+
+### Status
+
+Accepted. Two quick wins executed, one with paired empirical evidence (QW1.1), one with cross-witness research lifts (QW2.1). Plan-graph cleaned of stale wrapper falsifier; new SECTION Z documents voter-vs-frontier paired comparison.
+
+### Context
+
+Operator question post-summary: "use our substrate to see if we have any quick wins to get closer to actually saying [voter beats GPT-5 on 3 axes] and [cheapcode routes optimally for general-agent use]." Burhan-revisit identified 2 stale claim-graph items (obs flag never flipped after M3.11/M3.11b FAIL). Substrate primitives (mizaj 11/14/16, atom 0010/0011) prescribed: paired frontier baseline (smallest-distinguishing) + cross-witness research cites (mutawatir-equivalent at L4+L2).
+
+### Decision
+
+**Cleanup first:** flipped `obs_cheapcode_auto_misses_any_3_axis_target` False → True; lowered `cheapcode_auto_3_axis_dominance_on_multistep_over_raw_frontier` confidence 0.85 → 0.05 (honest falsification record); removed the falsified claim from v2 theorem assume-clause (per atom 0013, the falsified claim stays VISIBLE at line 172, but doesn't pollute the v2 derivation).
+
+**QW1.1:** built `runs/experiment-3-voter-vs-frontier/run-baseline.ts` and ran `openai/gpt-5` on M3.19's 3 positive AIME tasks. Paired with M3.19 voter data. Outcome:
+- Voter $0.0512 vs GPT-5 $0.0658 (cost ratio 0.78× — voter cheaper ✓)
+- Voter 2/3 vs GPT-5 1/3 correct (completion +1 — voter higher ✓)
+- Voter P50 184s vs GPT-5 P50 131s (latency ratio 1.40× — voter slower ✗)
+
+Per-task: AIME-I-11 both failed (GPT-5 timeout / voter daif); AIME-I-14 GPT-5 confidently wrong (answered 6, gold 104) while voter escalated and converged correctly; AIME-II-13 both correct, voter at half cost.
+
+**QW2.1:** documented cross-witness research evidence for 2 routing rules:
+- `route_bounded_code_holds` 0.65 → 0.78: Haiku 4.5 SWE-bench L4 + operator's L1 dispatch memory = mutawatir at different tiers.
+- `route_closed_book_holds` 0.40 → 0.55: findskill-blog GPT-5.5 hallucination L4 + OpenAI's own paper L2 disclosure = independent cross-witness.
+- `cheapcode_general_agent_routes_optimally` discharge 0.40 → 0.45 (joint floor still bounded by phd_factual + computer_use single-source rules).
+
+Added PLAN.bn SECTION Z with 4 new claims:
+- `voter_cost_below_direct_frontier_on_hard_reasoning @ 0.78`
+- `voter_completion_at_least_frontier_on_hard_reasoning @ 0.65`
+- `voter_latency_below_direct_frontier_on_hard_reasoning @ 0.10` (HONESTLY falsified, atom 0013)
+- `cheapcode_voter_beats_frontier_on_2_of_3_axes_n3 @ 0.65` (composed)
+
+### Consequences
+
+The honest restatement of the original v1.0 smart-axis claim is now: *"voter beats GPT-5 on cost AND completion at N=3 hard reasoning; loses on latency."* That's a substantive 2-of-3 positive result, not 0-of-3 like the original wrapper. The completion lift (voter caught GPT-5's confidently-wrong answer on AIME-I-14) is structurally important: the substrate's cross-witness mechanism *catches frontier-model errors that direct calls don't*.
+
+Burhan-revisit post-cascade: 24 EXPLORE / 0 REMOVE / 0 MOVE — clean. The new SECTION Z claims are correctly sub-floor (small-N caveats explicit). The latency claim is correctly visible as falsified at @0.10. Atom 0013 disclosure honored.
+
+Total M3.18 → M3.23 spend: ~$0.45 / $5 budget. Atom 0011 smallest-distinguishing budget held at every step.
+
+### Pointer
+
+`commit TBD`. Verdict in `runs/experiment-3-voter-vs-frontier/verdict.md`. v1.x roadmap: include `voter_latency_below_direct_frontier` in the N≥20 voter probe to test whether the latency loss is structural or task-mix-dependent.
+
+---
+
 ## M3.22 — v1.0.0 cut: local annotated tag + version bump (2026-05-03)
 
 ### Status

@@ -162,9 +162,10 @@ falsified_when obs_plan_decompose_smart_calls_grow_linearly
 # baseline). The 3-axis-dominance claim on the COMPOUND WRAPPER is
 # FALSIFIED. Atom 0015 (transfer-overstated) fired and is honestly
 # recorded. The voter-pipeline claim (M3.18-M3.20) is structurally
-# different — see SECTION Y for voter-specific cost/latency claims. The
-# wrapper-specific claim stays as falsified history per atom 0013
-# (calibration-as-credential disclosure: failed experiments stay visible).
+# different — see SECTION Y for voter-specific cost/latency claims and
+# SECTION Z below for voter-vs-frontier paired evidence. The wrapper-
+# specific claim stays as falsified history per atom 0013 (calibration-
+# as-credential disclosure: failed experiments stay visible).
 claim obs_cheapcode_auto_misses_any_3_axis_target: Bool @>=0.99 = True
 # Confidence dropped 0.85 → 0.05 to honestly reflect M3.11/M3.11b FAIL.
 # (Not 0.0 because re-test on different benchmark could still pass; very
@@ -560,7 +561,12 @@ falsified_when obs_route_long_context_falsified
 claim route_agentic_swe_holds: Bool @>=0.55 = not obs_route_agentic_swe_falsified
 falsified_when obs_route_agentic_swe_falsified
 
-claim route_bounded_code_holds: Bool @>=0.65 = not obs_route_bounded_code_falsified
+# M3.23 QW2.1 lift 0.65 → 0.78: Haiku 4.5 SWE-bench Verified 73.3% L4 (Anthropic
+# news + apiyi-llm-stats independent reporting) + operator's own L1 dispatch
+# memory (haiku quality-equivalent on bounded code, faster). Two independent
+# sources at different tiers = mutawatir-equivalent per mizaj 11/14. Atom 0010
+# cross-witness applied at routing-rule-evidence layer.
+claim route_bounded_code_holds: Bool @>=0.78 = not obs_route_bounded_code_falsified
 falsified_when obs_route_bounded_code_falsified
 
 claim route_math_chain_holds: Bool @>=0.55 = not obs_route_math_chain_falsified
@@ -582,7 +588,15 @@ falsified_when not obs_route_multistep_default_compound_works_falsified_by_l1
 claim route_subsecond_holds: Bool @>=0.55 = not obs_route_subsecond_falsified
 falsified_when obs_route_subsecond_falsified
 
-claim route_closed_book_holds: Bool @>=0.40 = not obs_route_closed_book_falsified
+# M3.23 QW2.1 lift 0.40 → 0.55: cross-witness on the avoidance pattern.
+# Source 1: findskill-blog GPT-5.5 closed-book hallucination 86% (L4).
+# Source 2: OpenAI's own paper "Why Language Models Hallucinate" disclosing
+# overconfidence-penalty fires only with tool-use (L2 vendor disclosure
+# CONFIRMING the structural gap). Independent confirmation across L4 + L2,
+# different motives (third-party benchmark vs vendor own-disclosure), so
+# atom 0010 cross-witness applies. Per mizaj 11, vendor self-disclosure of
+# a NEGATIVE property is L2 not L4 (operator confirming vs claiming).
+claim route_closed_book_holds: Bool @>=0.55 = not obs_route_closed_book_falsified
 falsified_when obs_route_closed_book_falsified
 
 # General-agent discharge theorem
@@ -593,8 +607,11 @@ theorem cheapcode_general_agent_routes_optimally_via_failure_envelopes
 
 # Discharge claim — cheapcode's RESHAPED value proposition. Confidence
 # bounded by the weakest routing rule; honest reflection of L4-heavy
-# evidence stack.
-claim cheapcode_general_agent_routes_optimally: Bool @>=0.40 = cite cheapcode_general_agent_routes_optimally_via_failure_envelopes
+# evidence stack. M3.23 QW2.1 micro-lift 0.40 → 0.45: bounded_code +
+# closed_book rules each gained cross-witness anchors (mutawatir-equivalent
+# at L4+L2). Floor confidence still bounded by phd_factual + computer_use
+# rules which remain at single-source L4 (0.40 each).
+claim cheapcode_general_agent_routes_optimally: Bool @>=0.45 = cite cheapcode_general_agent_routes_optimally_via_failure_envelopes
 falsified_when obs_route_long_context_falsified or obs_route_agentic_swe_falsified or obs_route_math_chain_falsified or obs_route_phd_factual_falsified or obs_route_computer_use_falsified or obs_route_subsecond_falsified or obs_route_closed_book_falsified
 
 # ============================================================
@@ -673,3 +690,56 @@ theorem cheapcode_substrate_runtime_validated_on_hard_reasoning
 # detection picks it up (per facts/09 routing-matrix conventions).
 claim cheapcode_substrate_atom_0016_runtime_validated_for_hard_reasoning: Bool @>=0.65 = cite cheapcode_substrate_runtime_validated_on_hard_reasoning
 falsified_when obs_cross_witness_convergence_predicts_correctness_lt_60pct or obs_three_way_majority_vote_robust_lt_60pct
+
+# ============================================================
+# SECTION Z - voter-vs-direct-frontier paired evidence (M3.23 QW1.1)
+#
+# M3.23 QW1.1 ran the M3.19 positive AIME tasks (N=3) against direct
+# openai/gpt-5 dispatch for paired comparison. Closes the missing piece
+# that M3.19 alone couldn't: "is the voter actually doing useful work
+# vs just calling the strongest frontier directly?"
+#
+# Result: voter beats direct gpt-5 on 2 of 3 axes at N=3.
+#   - cost:       voter $0.0512 / gpt-5 $0.0658 = 0.78× ✓ voter cheaper
+#   - completion: voter 2/3 / gpt-5 1/3 = +1 ✓ voter higher
+#   - latency:    voter 184s / gpt-5 131s = 1.40× ✗ voter slower
+#
+# AIME-I-11 was structural-failure for both pipelines (gpt-5 hit 5min
+# timeout; voter produced daif at 230s). AIME-I-14 was the cleanest
+# discriminator: gpt-5 confidently wrong (answered 6, gold 104), voter
+# escalated and converged correctly. AIME-II-13: both correct, voter at
+# half the cost.
+#
+# Confidence: lifting voter-cost claim toward sahih-band (well-supported)
+# and adding new claim for completion-lift. Latency claim STAYS falsified
+# at strict ratio.
+# ============================================================
+
+# Empirical claim — voter cheaper than direct frontier on hard-reasoning N=3.
+# M3.23 paired data: $0.0512 / $0.0658 = 0.78×. Falsifier: paired test
+# on hard reasoning shows voter cost ≥ frontier cost.
+claim obs_voter_cost_gte_frontier_cost_falsified: Bool @>=0.99 = False
+claim voter_cost_below_direct_frontier_on_hard_reasoning: Bool @>=0.78 = not obs_voter_cost_gte_frontier_cost_falsified
+falsified_when obs_voter_cost_gte_frontier_cost_falsified
+
+# Empirical claim — voter completion-rate ≥ direct frontier on hard-reasoning N=3.
+# M3.23 paired data: 2/3 vs 1/3. Falsifier: paired test shows voter completion
+# < frontier completion on hard reasoning shape.
+claim obs_voter_completion_lt_frontier_completion_falsified: Bool @>=0.99 = False
+claim voter_completion_at_least_frontier_on_hard_reasoning: Bool @>=0.65 = not obs_voter_completion_lt_frontier_completion_falsified
+falsified_when obs_voter_completion_lt_frontier_completion_falsified
+
+# Empirical claim — voter latency LOSES to direct frontier on hard-reasoning N=3.
+# M3.23 paired data: 184s / 131s = 1.40×. This is HONEST DISCLOSURE: the
+# voter trades latency for cost+completion. Atom 0013 calibration credential.
+claim obs_voter_latency_at_most_frontier_latency_falsified_n3: Bool @>=0.99 = True
+claim voter_latency_below_direct_frontier_on_hard_reasoning: Bool @>=0.10 = not obs_voter_latency_at_most_frontier_latency_falsified_n3
+falsified_when obs_voter_latency_at_most_frontier_latency_falsified_n3
+
+# Composed claim — voter beats direct frontier on 2 of 3 axes at N=3.
+# Honest restatement of the original (falsified) wrapper-3-axis claim:
+# the substituted voter pipeline lands cost+completion but loses latency.
+# Confidence ~0.65 (small-N paired evidence, cost+completion well-supported,
+# latency-loss honestly recorded).
+claim cheapcode_voter_beats_frontier_on_2_of_3_axes_n3: Bool @>=0.65 = voter_cost_below_direct_frontier_on_hard_reasoning and voter_completion_at_least_frontier_on_hard_reasoning
+falsified_when obs_voter_cost_gte_frontier_cost_falsified or obs_voter_completion_lt_frontier_completion_falsified
