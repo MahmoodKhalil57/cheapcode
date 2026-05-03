@@ -6,6 +6,67 @@
 
 ---
 
+## M3.32 — code-witness: substrate variation in cheapcode-fork (M18-disciplined; first commit under M18) (2026-05-03)
+
+### Status
+
+Accepted. New fork-side primitive `src/code-witness.ts` (170 LoC) + 9-test suite, M18-disciplined throughout. First commit since M3.31 to actually exercise the M18 4-step discipline. 46/46 tests pass; 100% lines / 100% functions coverage of code-witness.ts.
+
+### Context
+
+Operator: "if you see success with our substrate tools then make sure a variation of them is implemented in a way in our cheapcode fork that makes sense and would help with our code."
+
+Successful substrate primitives validated empirically across the project: atom 0010 cross-witness, atom 0017 byproduct-recursion, mizaj 01 falsifier-first + mizaj 14 sahih/hasan/daif, atom 0007 anti-fab, v1x panel-of-experts (M3.28) beats single-pass Claude. The variation that "makes sense and helps with our code" is to adapt the v1x pattern for code-generation and bake the M18-shape into every witness output by construction.
+
+### Decision
+
+Built `src/code-witness.ts` using the M18 4-step form strictly:
+
+**Step 1 (M18):** burhan claims FIRST in PLAN.bn SECTION FF — 5 claims:
+- `code_witness_returns_m18_shaped_artifact_with_code_claim_test_grade @0.85` (structural)
+- `code_witness_grade_logic_returns_sahih_on_cheap_convergence @0.92` (structural)
+- `code_witness_grade_logic_handles_disagreement_with_synthesizer_path @0.85` (structural)
+- `code_witness_lifts_codegen_quality_via_m18_shaped_paired_panel @0.55` (load-bearing quality, dogfood-validated by M3.33)
+- `m3_32_code_witness_addition_complies_with_mizaj_18 @0.92` (process)
+
+**Step 2 (M18):** tests FIRST in `src/code-witness.test.ts` — 9 tests covering each structural claim. Red-phase confirmed: tests failed before `src/code-witness.ts` existed.
+
+**Step 3 (M18):** implemented `src/code-witness.ts`:
+- `runCodeWitness(spec, config)` — parallel cheap × 2 with M18-shaped prompts; convergence check; escalate to smart synthesizer on disagreement; return artifact `{ code, claim, test, grade, witnesses, escalated, synthesized }`
+- `extractCodeBlock(text)` — pulls first fenced block from witness response
+- `extractTaggedLine(text, tag)` — pulls `CLAIM: ...` or `TEST: ...` lines
+- `parseWitnessTrace(source, raw)` — composes a per-witness trace
+- `withTimeout(p, ms, label)` — same primitive as cross-witness-voter (M3.17)
+- All witness outputs are M18-shaped BY CONSTRUCTION via the prompts
+
+**Step 4 (M18):** coverage check via `bun test --coverage`:
+```
+File                 | % Funcs | % Lines | Uncovered
+src/code-witness.ts  | 100.00  | 100.00  | (none)
+```
+
+The 9 tests are the smallest discriminating set per atom 0011 — each maps directly to one of the 3 structural claims, plus 4 supporting tests for the parsing helpers, plus 1 resilience test (cheap-a hang doesn't kill cheap-b via Promise.allSettled).
+
+### Consequences
+
+cheapcode-fork now has a runtime primitive that produces M18-shaped artifacts for any code-gen sub-task: `{ code, claim, test, grade }`. When opencode-via-cheapcode dispatches a code-gen task within an agent loop (future integration M3.34+), the caller receives:
+- The code (whatever was synthesized)
+- A burhan-shape claim about what the code does (mizaj 01)
+- A minimal test for the claim (atom 0011)
+- A grade (sahih/hasan/daif per mizaj 14) bounding caller's trust
+
+This makes the substrate's M18 discipline available at *runtime*, not only at fork-development time. It's the first concrete payoff of the M18 discipline applied to a fork-addition that itself implements substrate primitives — recursive substrate-as-runtime-critic per atom 0016.
+
+The artifact is structurally compatible with the agentic-frontier goal (PLAN.bn SECTION EE): when wired into opencode's auto-tier dispatch, code-witness sub-task outputs will have falsifier-bearing claims + tests by construction, lifting the agent loop's overall correctness via cross-witness pattern at every code-gen step.
+
+46/46 tests pass (was 37; +9 new). Burhan-revisit: 59 EXPLORE / 0 REMOVE / 0 MOVE — clean.
+
+### Pointer
+
+`commit TBD`. Source: `src/code-witness.ts`. Tests: `src/code-witness.test.ts`. Plan: PLAN.bn SECTION FF. v1.x roadmap: (a) wire into auto-tier dispatch for `bounded-code` and `agentic-swe` shapes, (b) add `--frontier` 3rd-witness mode (parallel with cheap × 2) per M3.28 v1x pattern, (c) actual test-execution loop (run the witness's test against the witness's code in a sandbox before returning).
+
+---
+
 ## M3.31 — mizaj 18 (burhan-backed TDD for fork-additions) added per operator requirement (2026-05-03)
 
 ### Status

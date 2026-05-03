@@ -1,0 +1,222 @@
+{
+  "burhan_snapshot_version": 1,
+  "claims": {
+    "cycle_atom_1_smallest_distinguishing_experiment": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [
+        "cite:atom_0011_smallest_distinguishing_experiment_first"
+      ],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/MAIN.bn",
+      "line": 44,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cycle_atom_2_transfer_overstated": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [
+        "cite:atom_0015_research_pipeline_overstates_base_model_specific_transfer"
+      ],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/MAIN.bn",
+      "line": 45,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cycle_atom_3_runtime_anchored_claim_shape": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [
+        "cite:atom_0008_claim_shape_pattern_runtime_anchored"
+      ],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/MAIN.bn",
+      "line": 46,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cycle_atom_4_blinded_witness_deferred": {
+      "assumptions": [],
+      "confidence": 0.5,
+      "derivation": [
+        "obs_calibration_audit_cycle_not_applied"
+      ],
+      "falsifier": "obs_calibration_audit_cycle_not_applied",
+      "file": "/home/mk/apps/cheapcode/plan/MAIN.bn",
+      "line": 52,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cycle_atom_5_cross_witness_honesty": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [
+        "cite:atom_0014_cross_witness_honesty_pipeline"
+      ],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/MAIN.bn",
+      "line": 47,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "cycle_atom_6_artifact_verification": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [
+        "cite:atom_0007_anti_fabrication_via_artifact_verification"
+      ],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/MAIN.bn",
+      "line": 48,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "halt_if_math_contradicted": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [
+        "obs_joint_confidence_math_falsified"
+      ],
+      "falsifier": "obs_joint_confidence_math_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/MAIN.bn",
+      "line": 97,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "joint_confidence_arithmetic_holds": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [
+        "obs_joint_confidence_math_falsified"
+      ],
+      "falsifier": "obs_joint_confidence_math_falsified",
+      "file": "/home/mk/apps/cheapcode/plan/MAIN.bn",
+      "line": 69,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "joint_confidence_capped_below_99999": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [
+        "obs_target_99999_reachable_via_measurement_alone"
+      ],
+      "falsifier": "obs_target_99999_reachable_via_measurement_alone",
+      "file": "/home/mk/apps/cheapcode/plan/MAIN.bn",
+      "line": 66,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "main_md_audit_passes_single_witness": {
+      "assumptions": [],
+      "confidence": 0.85,
+      "derivation": [
+        "cite:main_md_calibration_audit_passes"
+      ],
+      "falsifier": "obs_target_99999_reachable_via_measurement_alone or obs_joint_confidence_math_falsified or obs_calibration_audit_cycle_not_applied",
+      "file": "/home/mk/apps/cheapcode/plan/MAIN.bn",
+      "line": 87,
+      "payload_repr": "True",
+      "status": "live"
+    },
+    "obs_calibration_audit_cycle_not_applied": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/MAIN.bn",
+      "line": 36,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_joint_confidence_math_falsified": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/MAIN.bn",
+      "line": 40,
+      "payload_repr": "False",
+      "status": "live"
+    },
+    "obs_target_99999_reachable_via_measurement_alone": {
+      "assumptions": [],
+      "confidence": 0.99,
+      "derivation": [],
+      "falsifier": null,
+      "file": "/home/mk/apps/cheapcode/plan/MAIN.bn",
+      "line": 32,
+      "payload_repr": "False",
+      "status": "live"
+    }
+  },
+  "created_at": "2026-05-03T11:57:58.304466Z",
+  "joints": {
+    "cycle_atom_1_smallest_distinguishing_experiment": 0.99,
+    "cycle_atom_2_transfer_overstated": 0.99,
+    "cycle_atom_3_runtime_anchored_claim_shape": 0.99,
+    "cycle_atom_4_blinded_witness_deferred": 0.495,
+    "cycle_atom_5_cross_witness_honesty": 0.99,
+    "cycle_atom_6_artifact_verification": 0.99,
+    "halt_if_math_contradicted": 0.9801,
+    "joint_confidence_arithmetic_holds": 0.9801,
+    "joint_confidence_capped_below_99999": 0.9801,
+    "main_md_audit_passes_single_witness": 0.77649
+  },
+  "joints_semantics": "INDEPENDENT-PRODUCT floor. Walks both claim\u2192claim cites AND claim\u2192theorem\u2192claim assume-references. Treats all claims as independent \u2014 overstates dilution per khazina atom 0015. For correlation-aware joints, defer to project-level tooling.",
+  "sources": [
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/01-substrate-citations.bn",
+      "sha256": "b7756809a1a46cf10757db4c53b83382bd089c7462da56d14b96eee007266c55"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/02-cheapllm-receipts.bn",
+      "sha256": "14d9af7d03a9f949dd804400c815d71eab63fc6f1fd7bbdac21d62cc80ff05aa"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/03-research-papers.bn",
+      "sha256": "75fc4dc8b95d6d6880b46de0a89dd05b1aff061749cd2dd8244ca273fb7886e7"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/04-khazina-atoms.bn",
+      "sha256": "ad9f3f2edb88cdc51d12930ed3dac271c3ff058e0804a014476e22299db1b358"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/05-production-deployment-evidence.bn",
+      "sha256": "ac015a453f9e425843ab4fa9435689ca957b3d8e3302a471dfc5e8b318244e76"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/06-test-time-compute-bleeding-edge.bn",
+      "sha256": "202aa2853710e6451e302010c6e05028f8fd34de4aa68ae969e3e48e8e84ee4b"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/07-thin-fork-and-compound-production-evidence.bn",
+      "sha256": "176a6cd5c742689976cd9aa702bb16f19b08639610e08da2449dd6c97865d58b"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/08-frontier-model-failure-envelopes.bn",
+      "sha256": "6c914d8e5038a2681726a8fa5a6e8d042062f8b4d7d3baa9d34b2411e1fc7cc4"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/09-task-shape-routing-matrix.bn",
+      "sha256": "046cf2859ab361580f15ad085ae3d24c598290341c1dc0b5676ab306dc98c519"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/10-cross-witness-runtime.bn",
+      "sha256": "1278d5c42e8d4f1b20f64b4937c10dbb21c20c758ce054955182917249aa624a"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/MAIN.bn",
+      "sha256": "847efb9744e445a37d95655c9826d3bf0486fd5560afdeadc2dcc3d1412626cb"
+    }
+  ],
+  "tracked_files": [
+    {
+      "path": "/home/mk/apps/cheapcode/MAIN.md",
+      "sha256": "584b4798cf513afeaf7fa6dec3243d43996ee021ba3027e8005525db6034635a"
+    }
+  ],
+  "warnings": []
+}

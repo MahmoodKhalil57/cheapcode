@@ -1069,6 +1069,81 @@ claim obs_fork_addition_shipped_without_m18_compliance_falsified: Bool @>=0.99 =
 claim every_fork_addition_post_m3_31_satisfies_m18_compliance: Bool @>=0.85 = not obs_fork_addition_shipped_without_m18_compliance_falsified
 falsified_when obs_fork_addition_shipped_without_m18_compliance_falsified
 
+# ============================================================
+# SECTION FF - code-witness: substrate variation in cheapcode-fork (M3.32)
+#
+# Per operator: "if you see success with our substrate tools then make
+# sure a variation of them is implemented in a way in our cheapcode fork
+# that makes sense and would help with our code."
+#
+# Successful substrate primitives (validated empirically):
+# - atom 0010 cross-witness honesty pipeline (M3.18 voter, M3.28 v1x panel)
+# - atom 0017 unknowns-as-positive-data recursion (M3.25/M3.27/M3.28 cycles)
+# - mizaj 01 falsifier-first + mizaj 14 sahih/hasan/daif grading
+# - atom 0007 anti-fab via artifact verification
+#
+# Variation for cheapcode-fork code generation: src/code-witness.ts.
+# When opencode-via-cheapcode dispatches a code-generation sub-task within
+# an agent loop, run the cross-witness panel adapted for code:
+#   1. Cheap × 2 in parallel, each prompted to produce: (a) code, (b) a
+#      one-line burhan-shape claim of what the code does, (c) a minimal
+#      test for the claim — i.e., M18-shaped output by construction
+#   2. Optional frontier-d witness (Anthropic family) for cross-family
+#      diversity per M3.28
+#   3. Synthesizer (gpt-5-mini) composes the witness outputs into a
+#      unified { code, claim, test } artifact noting agreements/
+#      disagreements/unique-contributions per the v1x pattern
+#
+# This is the v1x knowledge-synthesis pattern adapted for code: every
+# witness produces M18-shaped output by construction (mizaj 01 + atom
+# 0007 baked into the prompt), the synthesizer enforces M18 coverage
+# discipline at composition time. The downstream caller (opencode agent
+# loop) gets code + claim + test as a structured artifact, not just code.
+#
+# This is M3.32 (M18-disciplined fork-addition itself):
+# - This SECTION FF is the burhan claim (Step 1 — claim first)
+# - src/code-witness.test.ts will be Step 2 (test first)
+# - src/code-witness.ts will be Step 3 (implement; tests must pass)
+# - Coverage of fork-additions ~100% (Step 4)
+# ============================================================
+
+# Structural claim 1: code-witness returns the M18-shaped artifact
+# structure (code, claim, test, grade, witnesses, synthesized).
+# Falsifier: code-witness output missing any of the 6 required fields
+# OR fields wrong types.
+claim obs_code_witness_artifact_structure_wrong_falsified: Bool @>=0.99 = False
+claim code_witness_returns_m18_shaped_artifact_with_code_claim_test_grade: Bool @>=0.85 = not obs_code_witness_artifact_structure_wrong_falsified
+falsified_when obs_code_witness_artifact_structure_wrong_falsified
+
+# Structural claim 2: when both cheap witnesses converge on identical
+# code-text (post-extraction), grade is sahih.
+# Falsifier: paired test with identical witness output produces hasan or daif.
+claim obs_code_witness_grade_logic_wrong_on_convergence_falsified: Bool @>=0.99 = False
+claim code_witness_grade_logic_returns_sahih_on_cheap_convergence: Bool @>=0.92 = not obs_code_witness_grade_logic_wrong_on_convergence_falsified
+falsified_when obs_code_witness_grade_logic_wrong_on_convergence_falsified
+
+# Structural claim 3: when cheap witnesses disagree, grade is daif
+# unless synthesizer produces a unified artifact (then hasan).
+claim obs_code_witness_grade_logic_wrong_on_disagreement_falsified: Bool @>=0.99 = False
+claim code_witness_grade_logic_handles_disagreement_with_synthesizer_path: Bool @>=0.85 = not obs_code_witness_grade_logic_wrong_on_disagreement_falsified
+falsified_when obs_code_witness_grade_logic_wrong_on_disagreement_falsified
+
+# LOAD-BEARING quality claim — code-witness produces M18-shaped artifacts
+# that are stricter and more useful than single-pass cheap dispatch on
+# code generation. This is the dogfood-level claim; will be validated
+# (or falsified) by M3.33 paired probe on N≥3 code-generation tasks.
+# Initial confidence reflects M3.28 v1x knowledge-synthesis evidence
+# transferred to code-shape (atom 0015 caveats apply).
+claim obs_code_witness_does_not_lift_codegen_quality_falsified: Bool @>=0.99 = False
+claim code_witness_lifts_codegen_quality_via_m18_shaped_paired_panel: Bool @>=0.55 = not obs_code_witness_does_not_lift_codegen_quality_falsified
+falsified_when obs_code_witness_does_not_lift_codegen_quality_falsified
+
+# Process claim — M3.32 itself satisfies M18 (claim first, test first,
+# source last, ~100% coverage of new code).
+claim obs_m3_32_violates_m18_discipline_falsified: Bool @>=0.99 = False
+claim m3_32_code_witness_addition_complies_with_mizaj_18: Bool @>=0.92 = not obs_m3_32_violates_m18_discipline_falsified
+falsified_when obs_m3_32_violates_m18_discipline_falsified
+
 # Sub-claim 2: cross-witness voter pattern lifts agentic-correctness on
 # SWE-shape tasks. UNTESTED — needs M3.30 SDE.
 claim obs_voter_pattern_does_not_lift_agentic_correctness_on_swe_falsified: Bool @>=0.99 = False
