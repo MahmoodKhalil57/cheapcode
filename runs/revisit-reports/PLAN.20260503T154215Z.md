@@ -1,0 +1,177 @@
+# burhan-revisit — branches needing attention
+
+**Sources:** 1 .bn file(s)
+**Claims evaluated:** 240
+**Discharges detected:** ['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3', 'cheapcode_auto_3_axis_dominance_on_multistep_over_raw_frontier', 'cheapcode_beats_codex_after_pricing_fetch', 'cheapcode_beats_vanilla_opencode_via_routing', 'cheapcode_decisively_cheaper_than_frontier_on_hard_reasoning_sahih_via_research_plus_l1', 'cheapcode_dominates_frontier_on_cost_across_mixed_task_set_n3', 'cheapcode_faster_on_routine_tasks_slower_on_hard_voter_tasks_per_class_n1', 'cheapcode_fork_inherits_agent_loop_infrastructure_from_opencode', 'cheapcode_general_agent_routes_optimally', 'cheapcode_partially_validates_hearsay_impossible_dominance_at_n3', 'cheapcode_strictly_more_correct_than_frontier_at_high_rate_on_hard_reasoning', 'cheapcode_substrate_atom_0016_runtime_validated_for_hard_reasoning', 'cheapcode_substrate_enhancement_axes_validated_against_opencode_baseline', 'cheapcode_v1_ships', 'cheapcode_v2_ships', 'cheapcode_v2_surgical_architecture_audited', 'cheapcode_v2x_swe_completion_at_least_82pct', 'cheapcode_v2x_swe_cost_at_most_50pct_of_codex', 'cheapcode_v2x_swe_latency_at_most_75pct_of_codex', 'cheapcode_v3_ships', 'cheapcode_voter_beats_frontier_on_2_of_3_axes_n3', 'cheapcode_witness_surfaces_citations_single_pass_misses_at_low_rate', 'cheapcode_witness_v0_matches_but_does_not_beat_single_pass_claude_on_knowledge_synthesis', 'cheapcode_witness_v1x_caps_at_0_05_per_artifact', 'cheapcode_witness_v1x_panel_of_experts_beats_single_pass_claude_on_knowledge_synthesis', 'cheapcode_witness_v1x_path_to_beat_single_pass_requires_three_changes', 'mizaj_18_burhan_backed_tdd_mandatory_for_cheapcode_fork_additions', 'obs_cheapcode_auto_misses_any_3_axis_target', 'obs_cheapcode_beats_codex_falsified', 'obs_cheapcode_beats_vanilla_opencode_falsified', 'obs_cheapcode_does_not_decisively_cheaper_than_frontier_falsified', 'obs_cheapcode_does_not_dominate_frontier_on_cost_across_mix_falsified', 'obs_cheapcode_fork_does_not_inherit_opencode_harness_falsified', 'obs_cheapcode_less_correct_than_frontier_on_hard_reasoning_falsified', 'obs_cheapcode_less_smart_than_frontier_across_mix_falsified', 'obs_cheapcode_strictly_more_correct_at_high_rate_on_hard_reasoning_falsified', 'obs_cheapcode_uniformly_slower_than_frontier_falsified', 'obs_cheapcode_v2x_swe_completion_below_82pct_falsified', 'obs_cheapcode_v2x_swe_cost_above_half_of_codex_falsified', 'obs_cheapcode_v2x_swe_latency_above_three_quarters_codex_falsified', 'obs_cheapcode_witness_never_surfaces_new_citations_falsified', 'obs_cheapcode_witness_strictly_beats_single_pass_falsified', 'obs_cheapcode_witness_v1x_cost_above_0_05_per_artifact_falsified', 'obs_cheapcode_witness_v1x_loses_to_single_pass_falsified', 'obs_cheapcode_witness_v1x_three_changes_insufficient_falsified', 'umbrella_cheapcode_cost_ratio_vs_competitors']
+**Items surfaced:** 82
+
+## EXPLORE (40)
+
+- **`cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.32 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.80 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.65 < floor 0.85; load-bearing for 2 discharge(s)
+- **`cheapcode_auto_3_axis_dominance_on_multistep_over_raw_frontier`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.05 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cheapcode_dominates_frontier_on_cost_across_mixed_task_set_n3`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.78 < floor 0.85; load-bearing for 2 discharge(s)
+- **`cheapcode_faster_on_routine_tasks_slower_on_hard_voter_tasks_per_class_n1`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.65 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cheapcode_general_agent_routes_optimally`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.45 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cheapcode_partially_validates_hearsay_impossible_dominance_at_n3`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.62 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cheapcode_strictly_more_correct_than_frontier_at_high_rate_on_hard_reasoning`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.20 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cheapcode_substrate_atom_0016_runtime_validated_for_hard_reasoning`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.65 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cheapcode_v1_ships`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.50 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cheapcode_v2_ships`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.45 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cheapcode_v2x_swe_completion_at_least_82pct`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.42 < floor 0.85; load-bearing for 2 discharge(s)
+- **`cheapcode_v2x_swe_cost_at_most_50pct_of_codex`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.60 < floor 0.85; load-bearing for 2 discharge(s)
+- **`cheapcode_v2x_swe_latency_at_most_75pct_of_codex`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.40 < floor 0.85; load-bearing for 2 discharge(s)
+- **`cheapcode_v3_ships`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.55 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cheapcode_voter_beats_frontier_on_2_of_3_axes_n3`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.65 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cheapcode_witness_surfaces_citations_single_pass_misses_at_low_rate`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.45 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cheapcode_witness_v0_matches_but_does_not_beat_single_pass_claude_on_knowledge_synthesis`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.65 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cheapcode_witness_v1x_panel_of_experts_beats_single_pass_claude_on_knowledge_synthesis`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.78 < floor 0.85; load-bearing for 1 discharge(s)
+- **`cross_model_verification_lifts_over_self_verify`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.80 < floor 0.85; load-bearing for 2 discharge(s)
+- **`cross_witness_convergence_predicts_correctness`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.78 < floor 0.85; load-bearing for 1 discharge(s)
+- **`phase_2_wrapper_passes_at_least_min`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.78 < floor 0.85; load-bearing for 1 discharge(s)
+- **`route_agentic_swe_holds`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.65 < floor 0.85; load-bearing for 1 discharge(s)
+- **`route_bounded_code_holds`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.78 < floor 0.85; load-bearing for 1 discharge(s)
+- **`route_closed_book_holds`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.55 < floor 0.85; load-bearing for 1 discharge(s)
+- **`route_computer_use_holds`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.40 < floor 0.85; load-bearing for 1 discharge(s)
+- **`route_hard_reasoning_voter_holds`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.75 < floor 0.85; load-bearing for 1 discharge(s)
+- **`route_math_chain_holds`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.55 < floor 0.85; load-bearing for 1 discharge(s)
+- **`route_phd_factual_holds`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.40 < floor 0.85; load-bearing for 1 discharge(s)
+- **`route_subsecond_holds`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.55 < floor 0.85; load-bearing for 1 discharge(s)
+- **`smart_fast_tier_choice_pending_measurement`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.75 < floor 0.85; load-bearing for 1 discharge(s)
+- **`substrate_enhances_context_via_atom_0010_cross_witness`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.78 < floor 0.85; load-bearing for 1 discharge(s)
+- **`substrate_improves_innovation_via_atom_0017_byproduct_recursion`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.78 < floor 0.85; load-bearing for 1 discharge(s)
+- **`substrate_increases_knowledgeability_via_v1x_panel_of_experts`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.72 < floor 0.85; load-bearing for 1 discharge(s)
+- **`substrate_reduces_hallucinations_via_atom_0015_and_mizaj_14_grading`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.75 < floor 0.85; load-bearing for 1 discharge(s)
+- **`three_way_majority_vote_robust`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.65 < floor 0.85; load-bearing for 1 discharge(s)
+- **`voter_completion_at_least_frontier_on_hard_reasoning`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.65 < floor 0.85; load-bearing for 1 discharge(s)
+- **`voter_cost_below_direct_frontier_on_hard_reasoning`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.78 < floor 0.85; load-bearing for 1 discharge(s)
+- **`voter_latency_ratio_at_most_0_30x_compound`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - @0.50 < floor 0.85; load-bearing for 1 discharge(s)
+
+## REMOVE (42)
+
+- **`cheap_tier_routing_amortizes_swe_cost_below_frontier_50pct_or_more`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`code_witness_grade_logic_handles_disagreement_with_synthesizer_path`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`code_witness_grade_logic_returns_sahih_on_cheap_convergence`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`code_witness_lifts_codegen_quality_via_m18_shaped_paired_panel`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`code_witness_returns_m18_shaped_artifact_with_code_claim_test_grade`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`conversion_factor_filter_handles_agent_id_and_scope_tags_dimensions`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`conversion_factor_tool_provides_agent_intuitive_defaults_and_one_liner`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`cross_family_frontier_witness_adds_training_data_diversity_to_voter_pool`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`drift_detection_flags_when_3_recent_observations_diverge_2x`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`embedding_and_image_models_throw_not_supported_per_atom_0007`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`energy_transformation_research_plus_l1_anchor_worked_92_5pct_cost_savings_at_sahih_for_cost_dominance`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`every_fork_addition_post_m3_31_satisfies_m18_compliance`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`get_all_estimates_returns_complete_table_with_no_data_for_empty_categories`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`get_estimate_returns_median_iqr_with_insufficient_data_flag_when_n_lt_3`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`living_conversion_factor_estimator_converges_on_true_values_as_n_grows`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`m17_cycle_on_m3_19_residue_produced_leveraged_finding`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`m17_recursive_cycle_produces_compounding_leveraged_findings`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`m3_11b_headline_was_accurate`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`m3_15_opencode_cli_dispatch_is_the_specific_integration_blocker`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`m3_28_v1x_finding_directly_improves_atom_0017_credential`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`m3_30_sde_would_validate_voter_lifts_agentic_correctness_at_low_cost`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`m3_32_code_witness_addition_complies_with_mizaj_18`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`m3_33_reality_check_addition_complies_with_mizaj_18`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`m3_34_conversion_factors_addition_complies_with_mizaj_18`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`m3_38_provider_shape_fix_resolves_m3_15_provider_init_error_for_build_agent`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`m3_41_e2e_opencode_cli_dispatch_works_for_build_agent`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`parallel_subtask_dispatch_reduces_swe_latency_25_to_50pct`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`provider_exposes_specification_version_v3_and_required_model_methods`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`reality_check_helps_agent_ground_claims_and_convert_constraints`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`reality_check_returns_current_timestamp_within_2s_tolerance`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`reality_check_returns_required_physical_state_fields_with_correct_types`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`reality_check_time_deltas_are_nonnegative_or_null`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`record_observation_writes_structured_jsonl_with_required_fields`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`route_specialized_formula_geometry_holds`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`single_witness_rescue_strictly_improves_information_content`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`synthesizer_step_eliminates_extractAnswer_daif_grade_bug`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`voter_catches_gpt5_class_specific_formula_errors_on_specialized_geometry`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`voter_extractAnswer_regex_misclassifies_knowledge_synthesis_as_daif`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`voter_latency_below_direct_frontier_on_hard_reasoning`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`voter_lift_is_concentrated_in_class_specific_formula_failures_not_uniform`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`voter_pattern_lifts_agentic_correctness_on_swe_shape_5_to_15pct`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+- **`wrapper_cheaper_than_baseline_on_hard_multistep_with_large_reasoning_token_budget`** — /home/mk/apps/cheapcode/plan/PLAN.bn
+  - not in transitive cite-closure of any discharge claim (['cheapcode_agent_beats_codex_gpt5_5_on_swe_bench_verified_3_axes', 'cheapcode_at_least_as_correct_as_frontier_on_hard_reasoning_via_research_plus_l1_n7_paired', 'cheapcode_at_least_as_smart_as_frontier_across_mixed_task_set_n3']…)
+
