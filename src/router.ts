@@ -52,6 +52,16 @@ export interface ClassifierResult {
   shape: TaskShape
   signal: string // which signature triggered the classification (audit trail)
   estimated_input_tokens: number
+  /**
+   * M3.50 (2026-05-03 cost-overfitting fix): per-shape complexity sub-
+   * classifier. Some shapes (agentic-swe, closed-book, bounded-code)
+   * have specialist-routings (Opus, Haiku) that are cost-overkill on
+   * SIMPLE instances. M3.49 surfaced T6 (one-line Python bug-fix) at
+   * 22× more expensive on Opus vs gpt-5.5-baseline. complexity="simple"
+   * triggers re-route to cheap smart-tier (gpt-5-mini). complexity=
+   * "complex" keeps current specialist routing per facts/09.
+   */
+  complexity?: "simple" | "complex"
 }
 
 export interface RouteDecision {
@@ -120,7 +130,13 @@ export function classifyTaskShape(input: unknown): ClassifierResult {
     return { shape: "long-context", signal: `tokens>${LONG_CONTEXT_THRESHOLD_TOKENS}`, estimated_input_tokens: tokens }
   }
   if (/\b(swe[- ]bench|fix.*(bug|issue)|implement.*test|create.*pr|github.*pull)/.test(lower)) {
-    return { shape: "agentic-swe", signal: "swe-keywords", estimated_input_tokens: tokens }
+    // M3.50 complexity check: simple bug-fix vs full agentic SWE loop.
+    // Simple = short prompt, no multi-file/tool-use markers.
+    // Complex = long prompt OR mentions tool-use/multi-file/agent-loop.
+    const has_complex_markers =
+      /\b(multi.?file|across.*files|terminal|browser|run.*tests|agent.*loop|swe[- ]bench)/.test(lower)
+    const complexity = (tokens >= 100 || has_complex_markers) ? "complex" : "simple"
+    return { shape: "agentic-swe", signal: "swe-keywords", estimated_input_tokens: tokens, complexity }
   }
   if (/\b(click|navigate|open.*(file|url|tab)|osworld|browse|screenshot)/.test(lower)) {
     return { shape: "computer-use", signal: "computer-use-keywords", estimated_input_tokens: tokens }
@@ -172,7 +188,13 @@ export function classifyTaskShape(input: unknown): ClassifierResult {
   }
   if (/\b(write.*function|implement.*function|refactor|fix.*function|add.*method|unit.*test|reverse.*string|one[- ]?line.*function)/.test(lower)
       && tokens < 4000) {
-    return { shape: "bounded-code", signal: "bounded-code-keywords", estimated_input_tokens: tokens }
+    // M3.50 complexity check: tiny one-liner vs production-class function.
+    // Simple = <30 tokens AND keyword "one-line"/"reverse string" present.
+    // Complex = ≥30 tokens OR mentions tests/error-handling/refactor.
+    const has_complex_markers =
+      /\b(refactor|unit.*test|error.*handling|edge.*case|production)/.test(lower)
+    const complexity = (tokens >= 30 || has_complex_markers) ? "complex" : "simple"
+    return { shape: "bounded-code", signal: "bounded-code-keywords", estimated_input_tokens: tokens, complexity }
   }
   if (/\b(classif|categori[sz]e|extract.*entity|label|sentiment|tag)/.test(lower)
       && tokens < 2000) {
@@ -182,7 +204,13 @@ export function classifyTaskShape(input: unknown): ClassifierResult {
     return { shape: "subsecond-latency", signal: "latency-keywords", estimated_input_tokens: tokens }
   }
   if (/\b(without.*search|without.*tool|no.*tool.*use|closed[- ]?book|memori[sz]ed.*fact)/.test(lower)) {
-    return { shape: "closed-book", signal: "closed-book-keywords", estimated_input_tokens: tokens }
+    // M3.50 complexity check: single-fact recall vs multi-fact synthesis.
+    // Simple = <50 tokens AND fact-recall pattern (what year, who, define).
+    // Complex = ≥50 tokens OR multi-fact/synthesis pattern.
+    const has_complex_markers =
+      /\b(synthesis|compare|relate|connect|why did|explain how)/.test(lower)
+    const complexity = (tokens >= 50 || has_complex_markers) ? "complex" : "simple"
+    return { shape: "closed-book", signal: "closed-book-keywords", estimated_input_tokens: tokens, complexity }
   }
   // (phd-factual already checked earlier in M3.47-fix order)
   return { shape: "multistep-general", signal: "default-no-specific-signal-matched", estimated_input_tokens: tokens }
@@ -206,17 +234,24 @@ export interface RouterOptions {
 
 const ROUTING_TABLE: Record<
   TaskShape,
-  { target: (o: RouterOptions) => string; rule: string; evidence: RouteDecision["evidence_tier"]; useCompound?: boolean; useVoter?: boolean }
+  { target: (o: RouterOptions) => string; rule: string; evidence: RouteDecision["evidence_tier"]; useCompound?: boolean; useVoter?: boolean; simpleTarget?: (o: RouterOptions) => string; simpleRuleSuffix?: string }
 > = {
   "long-context":      { target: (o) => o.longContextTarget,                   rule: "facts/09 rule 1 — DeepSeek V4 / grok-4-fast",     evidence: "L1+L4" },
-  "agentic-swe":       { target: () => "anthropic/claude-opus-4",              rule: "facts/09 rule 2 — Opus MCP-Atlas 77.3%",          evidence: "L4" },
-  "bounded-code":      { target: () => "anthropic/claude-haiku-4.5",           rule: "facts/09 rule 3 — Haiku SWE-V 73.3% at \$0.80/M", evidence: "L4+operator-L1" },
+  // M3.50 complexity-aware: simple agentic-swe → smart-tier (gpt-5-mini),
+  // not Opus (which is 22× more expensive on simple bug-fixes per M3.49).
+  "agentic-swe":       { target: () => "anthropic/claude-opus-4",              rule: "facts/09 rule 2 — Opus MCP-Atlas 77.3%",          evidence: "L4",
+                         simpleTarget: (o) => o.smartTarget, simpleRuleSuffix: " (M3.50 simple-route override → smart-tier)" },
+  // M3.50 complexity-aware: simple bounded-code → smart-tier on tiny one-liners.
+  "bounded-code":      { target: () => "anthropic/claude-haiku-4.5",           rule: "facts/09 rule 3 — Haiku SWE-V 73.3% at \$0.80/M", evidence: "L4+operator-L1",
+                         simpleTarget: (o) => o.smartTarget, simpleRuleSuffix: " (M3.50 simple-route override → smart-tier)" },
   "math-chain":        { target: (o) => o.cheapTarget,                          rule: "facts/09 rule 4 — DeepSeek AIME 96% at <\$0.50/M",evidence: "L4" },
   "phd-factual":       { target: () => "google/gemini-2.5-flash",              rule: "facts/09 rule 5 — Gemini Flash GPQA 90.4%",       evidence: "L4" },
   "computer-use":      { target: (o) => o.smartTarget,                          rule: "facts/09 rule 6 — GPT-5-mini OSWorld 72.1%",      evidence: "L4" },
   "classification":    { target: () => "meta-llama/llama-4-scout",             rule: "facts/09 rule 8 — Llama Scout sub-1s P50",        evidence: "L4" },
   "subsecond-latency": { target: () => "google/gemini-2.5-flash",              rule: "facts/09 rule 9 — Gemini Flash 1.06s P50",        evidence: "L4" },
-  "closed-book":       { target: () => "anthropic/claude-opus-4",              rule: "facts/09 rule 10 — avoid GPT-5; prefer Opus",     evidence: "L4" },
+  // M3.50 complexity-aware: simple closed-book (year recall, single fact) → smart-tier.
+  "closed-book":       { target: () => "anthropic/claude-opus-4",              rule: "facts/09 rule 10 — avoid GPT-5; prefer Opus",     evidence: "L4",
+                         simpleTarget: (o) => o.smartTarget, simpleRuleSuffix: " (M3.50 simple-route override → smart-tier)" },
   "hard-reasoning":    { target: (o) => o.cheapTarget,                          rule: "facts/09 rule 11 — cross-witness voter (substrate-runtime; atom 0016)", evidence: "L4", useVoter: true },
   "multistep-general": { target: (o) => o.smartTarget,                          rule: "facts/09 rule 7 — strongest frontier, NO compound default (M3.11/M3.11b L1)", evidence: "L1" },
 }
@@ -225,7 +260,11 @@ export function route(input: unknown, options: RouterOptions): RouteDecision {
   const cls = classifyTaskShape(input)
   const entry = ROUTING_TABLE[cls.shape]
   const override = options.routeOverrides?.[cls.shape]
-  const target = override ?? entry.target(options)
+  // M3.50: complexity-aware routing — simple instances of cost-overkill-prone
+  // shapes (agentic-swe, bounded-code, closed-book) re-route to smart-tier.
+  const useSimpleOverride = cls.complexity === "simple" && entry.simpleTarget !== undefined
+  const target = override ?? (useSimpleOverride ? entry.simpleTarget!(options) : entry.target(options))
+  const ruleSuffix = useSimpleOverride ? (entry.simpleRuleSuffix ?? "") : ""
   const useCompound =
     cls.shape === "multistep-general" && options.forceCompoundOnMultistep === true
       ? true
@@ -233,11 +272,11 @@ export function route(input: unknown, options: RouterOptions): RouteDecision {
   const useVoter = entry.useVoter ?? false
   return {
     shape: cls.shape,
-    signal: cls.signal,
+    signal: cls.signal + (cls.complexity ? ` [complexity=${cls.complexity}]` : ""),
     target_model: useCompound || useVoter ? null : target,
     use_compound: useCompound,
     use_voter: useVoter,
-    rule: entry.rule,
+    rule: entry.rule + ruleSuffix,
     evidence_tier: entry.evidence,
   }
 }

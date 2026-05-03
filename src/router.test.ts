@@ -84,11 +84,26 @@ test("route opt-in compound for multistep-general", () => {
   expect(decision.target_model).toBeNull()
 })
 
-test("route to bounded-code uses Haiku 4.5 by default", () => {
-  const decision = route("Implement a function that sorts an array", opts)
+test("route to bounded-code uses Haiku 4.5 for COMPLEX instances (M3.50)", () => {
+  // M3.50 (2026-05-03 cost-overfitting fix): simple bounded-code (one-liners,
+  // tiny prompts) routes to gpt-5-mini smart-tier; complex bounded-code
+  // (≥30 tokens OR refactor/error-handling markers) keeps Haiku 4.5.
+  // NOTE: avoid "implement.*test" pattern which would route to agentic-swe.
+  const decision = route(
+    "Write a function to sort an array with proper error handling, refactor for production, and handle edge cases for empty arrays and unicode strings",
+    opts,
+  )
   expect(decision.shape).toBe("bounded-code")
   expect(decision.target_model).toBe("anthropic/claude-haiku-4.5")
   expect(decision.use_compound).toBe(false)
+})
+
+test("M3.50: simple bounded-code routes to smart-tier (cost-overkill fix)", () => {
+  const decision = route("Implement a function that sorts an array", opts)
+  expect(decision.shape).toBe("bounded-code")
+  expect(decision.target_model).toBe("openai/gpt-5-mini")  // M3.50 simple-route override
+  expect(decision.signal).toContain("complexity=simple")
+  expect(decision.rule).toContain("M3.50 simple-route override")
 })
 
 test("route to math-chain uses cheap target (DeepSeek)", () => {
