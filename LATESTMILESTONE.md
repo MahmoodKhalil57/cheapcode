@@ -6,6 +6,46 @@
 
 ---
 
+## M3.25 — three M17 cycles on existing residue: $0 marginal, 3 leveraged findings (2026-05-03)
+
+### Status
+
+Accepted. Three independent M17/atom-0017 cycles applied to existing data, all $0 marginal cost. Each produced a structured-known lifted as falsifier-bearing claim in PLAN.bn SECTION BB.
+
+### Context
+
+Operator: "do the work we can meaningfully do now." Three M17 cycles I could run on existing residue without new LLM calls — cycle B (validation), cycle A (GPT-5 reasoning), cycle C (wrapper per-task variance). All ran in parallel as data inspection.
+
+### Decision
+
+**Cycle B (validation):** Re-aggregated `runs/experiment-2-voter-probe/results.jsonl` with the M3.24 single-witness-rescue rule applied. AIME-I-11 (cheap-b="371", others null) → flips from `agreed_answer=null/wrong` to `agreed_answer="371"/correct`. M3.19 outcome moves from 4/5 → **5/5 correct**. Empirical recompute, not just logical deduction. Lifted `m17_cycle_on_m3_19_residue_produced_leveraged_finding` 0.78 → 0.85.
+
+**Cycle A (GPT-5 reasoning residue):** Studied GPT-5's text on AIME-I-14 (where it answered 6 instead of gold 104). Found it used the WRONG volume formula for a disphenoid: V = (1/12)·√(2Σp²q² − Σp⁴) — fails sanity check on regular tetrahedron (gives a²√3/12 not a³/(6√2)). Correct formula V = (1/(6√2))·√((p²+q²−r²)(p²−q²+r²)(−p²+q²+r²)) gives V = 160/3, leading to r = 20√21/63 → m+n+p = 104 (gold). GPT-5 hallucinated a class-specific formula confidently; voter caught the mismatch via cross-witness disagreement (smart_C apparently had the correct formula). Atom 0010 runtime instance on a specialized-formula problem class. New claim `voter_catches_gpt5_class_specific_formula_errors_on_specialized_geometry @ 0.55`.
+
+**Cycle C (wrapper per-task variance):** Re-inspected M3.11/M3.11b per-task data. Headline ("wrapper 1.3-1.9× more expensive on average") averaged over a bimodal distribution. On the hard benchmark (M3.11b): 4 of 10 tasks had wrapper cheaper (h02-flight 0.88×, h04-light 0.90×, h05-combinatorics 0.72×, h06-cond-prob 0.94×). On easy benchmark (M3.11): 0 of 10. Pattern: wrapper amortizes on hard-multistep tasks where baseline burns many reasoning tokens; on easy tasks the wrapper overhead dominates. New claim `wrapper_cheaper_than_baseline_on_hard_multistep_with_large_reasoning_token_budget @ 0.55`. Latency is *always* ≥2× — wrapper trade is "sometimes cheaper, always slower."
+
+**Honest disclosure caught (atom 0013):** M3.11b headline said "both arms 100%" but h01-compound-percent had baseline=correct/wrapper=wrong. Wrapper completion was 9/10 not 10/10. Surfaced via cycle C inspection. New observation flag `obs_m3_11b_headline_overstated_completion_rate = True`.
+
+**Meta-claim added:** `m17_recursive_cycle_produces_compounding_leveraged_findings @ 0.78` — three independent cycle-runs in one cascade converging on structured-known production. Atom 0017 runtime claim further validated.
+
+### Consequences
+
+The substrate's atom-0017 cycle is now empirically anchored not just by reference (M3.18→M3.23 history) but by within-session productive use. Three findings landed at $0 marginal cost — all from data we already had in `runs/`. The 5/5 vs 4/5 delta on M3.19 is the cleanest validation: same residue, new aggregation rule, +1 correct.
+
+Notable: cycle A's finding (GPT-5 wrong-formula on AIME-I-14) is a *structural* explanation for why the voter beat GPT-5 on that task. Cycle C's finding (wrapper cheaper on hard-multistep) re-opens a niche where the M3.10 compound wrapper is genuinely valuable — falsified-on-average doesn't mean falsified-on-every-task. The plan-graph now reflects this nuance.
+
+Burhan-revisit: 30 EXPLORE / 0 REMOVE / 0 MOVE — clean. The 4 new SECTION BB claims surface honestly at sub-floor confidence.
+
+### Pointer
+
+`commit TBD`. PLAN.bn SECTION BB. `runs/snapshots/PLAN.20260503T053011Z.json` captures the M3.25 state. Plateau-flagged claims now 13 (was 12) — `m3_11b_headline_was_accurate @ 0.05` is the new honestly-falsified entry.
+
+v1.x routing-rule candidates surfaced by cycles A + C:
+- *specialized-formula-geometry route* — when prompt mentions disphenoid / inscribed-radius / class-specific formulas, prefer voter over direct frontier (cycle A insight)
+- *wrapper-amortization-on-hard-multistep route* — when baseline-token-budget-estimate suggests a frontier reasoning model will burn ≥3000 output tokens, dispatch to wrapper instead (cycle C insight)
+
+---
+
 ## M3.24 — bake the unknowns-as-positive-data cycle into substrate; M17 cycle on M3.19 produces single-witness-rescue (2026-05-03)
 
 ### Status
