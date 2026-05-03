@@ -29,6 +29,7 @@
  */
 
 import { generateText } from "ai"
+import { route, type RouterOptions, type RouteDecision } from "./router"
 
 // Use loose typing for LanguageModelV3 — exact interface varies by AI SDK
 // version. Runtime behavior is the contract that matters; opencode calls
@@ -315,28 +316,72 @@ export async function runAutoWrapper(
  * tier (cell #18 budget); EXPECTED tier could implement progressive
  * streaming by emitting plan + leaf-progress + synthesis stages.
  */
+/**
+ * RouterAdapter — looks up an OpenRouter LanguageModelV3 by id at runtime.
+ * Used by CheapcodeAutoModel to dispatch to the route() target_model
+ * when the routing rule says no compound (the M3.12 default).
+ */
+export type RouterAdapter = (orModelId: string) => LanguageModel
+
 export class CheapcodeAutoModel {
   readonly specificationVersion = "v3"
   readonly provider = "cheapcode"
   readonly modelId = "auto"
 
-  constructor(private config: AutoWrapperConfig) {}
+  constructor(
+    private config: AutoWrapperConfig,
+    private routerOptions: RouterOptions,
+    private adapter: RouterAdapter,
+  ) {}
 
   async doGenerate(options: GenerateOptions): Promise<GenerateResult> {
     const task = extractPrompt(options.prompt ?? options.messages ?? options)
+    const decision = route(task, this.routerOptions)
+
+    // Direct dispatch path (M3.12 default): hand the task to the routed
+    // model unchanged. This is what avoids the M3.11/M3.11b cost+latency
+    // overhead.
+    if (!decision.use_compound && decision.target_model) {
+      const directModel = this.adapter(decision.target_model)
+      const direct = await generateText({ model: directModel, prompt: task })
+      return {
+        content: [{ type: "text", text: direct.text }],
+        finishReason: (direct as any).finishReason ?? "stop",
+        usage: (direct as any).usage ?? { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+        providerMetadata: {
+          cheapcode: {
+            route: {
+              shape: decision.shape,
+              signal: decision.signal,
+              target_model: decision.target_model,
+              rule: decision.rule,
+              evidence_tier: decision.evidence_tier,
+              compound: false,
+            },
+          },
+        },
+        warnings: [],
+      }
+    }
+
+    // Compound dispatch path (conditional): only fires when the routing
+    // rule says compound helps. As of M3.12 SPEC Rev 2026-05-03k, no
+    // routing rule defaults to compound — operator must opt-in via
+    // RouterOptions.forceCompoundOnMultistep.
     const { text, trace } = await runAutoWrapper(task, this.config)
     return {
       content: [{ type: "text", text }],
       finishReason: "stop",
-      usage: {
-        // Sum is approximate; per-call usage tracking would aggregate from
-        // each generateText sub-call.
-        inputTokens: 0,
-        outputTokens: 0,
-        totalTokens: 0,
-      },
+      usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
       providerMetadata: {
         cheapcode: {
+          route: {
+            shape: decision.shape,
+            signal: decision.signal,
+            rule: decision.rule,
+            evidence_tier: decision.evidence_tier,
+            compound: true,
+          },
           trace: {
             planSteps: trace.plan.length,
             leafCount: trace.leafResults.length,

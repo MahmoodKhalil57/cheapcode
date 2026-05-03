@@ -30,6 +30,7 @@
 
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
 import { CheapcodeAutoModel, type AutoWrapperConfig } from "./auto-wrapper"
+import type { RouterOptions, TaskShape } from "./router"
 
 // ============================================================
 // Tier definitions (Phase 0 locked picks)
@@ -100,6 +101,19 @@ export interface CheapcodeProviderOptions {
     verifierTarget?: string
     k?: number
     maxRetries?: number
+    /**
+     * Per-shape model overrides for the router (M3.14). Keys are TaskShape
+     * names; values are OpenRouter model ids. Lets operators override the
+     * facts/09 routing matrix on a per-shape basis via cheapcode.toml.
+     */
+    routeOverrides?: Partial<Record<TaskShape, string>>
+    /**
+     * Force compound-wrapper invocation on multistep-general shape.
+     * Default false per M3.11/M3.11b L1 evidence (compound costs more
+     * + slower with no completion lift on saturated tasks). Operator
+     * may opt in if they have evidence the wrapper helps on their slice.
+     */
+    forceCompoundOnMultistep?: boolean
   }
 }
 
@@ -198,12 +212,20 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
   const maxRetries = options.auto?.maxRetries ?? 1
 
   const provider = ((modelId: string) => {
-    // Phase 2 (SPEC Revision 2026-05-03j): when modelId === "auto" AND
-    // wrapper is enabled, return the structured-reasoning compound model.
-    // Otherwise fall through to direct OpenRouter passthrough.
+    // Phase 2 + M3.14 (SPEC Revision 2026-05-03k): when modelId === "auto"
+    // AND wrapper is enabled, return the failure-mode-aware router. The
+    // router classifies the task by surface signature and dispatches to
+    // the documented value-optimum frontier model per facts/09. Compound
+    // wrapping is invoked CONDITIONALLY (default off per M3.11/M3.11b L1
+    // evidence — compound costs more + slower with no completion lift on
+    // saturated tasks).
+    //
+    // For other tier ids (cheap/cheap-fast/smart/smart-fast), passthrough
+    // to the OpenRouter-resolved primary target unchanged.
     if (modelId === "auto" && autoEnabled) {
       const smartTarget = resolveTierTarget("smart", 0, options)
       const cheapTarget = resolveTierTarget("cheap", 0, options)
+      const longContextTarget = "x-ai/grok-4-fast"
       const cfg: AutoWrapperConfig = {
         smart: openrouter(smartTarget),
         cheap: openrouter(cheapTarget),
@@ -211,7 +233,14 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
         k,
         maxRetries,
       }
-      return new CheapcodeAutoModel(cfg)
+      const routerOpts: RouterOptions = {
+        smartTarget,
+        cheapTarget,
+        longContextTarget,
+        routeOverrides: options.auto?.routeOverrides,
+        forceCompoundOnMultistep: options.auto?.forceCompoundOnMultistep ?? false,
+      }
+      return new CheapcodeAutoModel(cfg, routerOpts, (orId) => openrouter(orId))
     }
     const target = resolveTierTarget(modelId, 0, options)
     return openrouter(target)
