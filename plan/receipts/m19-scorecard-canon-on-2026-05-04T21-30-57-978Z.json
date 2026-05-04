@@ -1,0 +1,285 @@
+{
+  "version": 1,
+  "generated_at": "2026-05-04T21:30:57.978Z",
+  "mode": "canon-on",
+  "run_mode": "live-requested-local-scorer",
+  "axes": {
+    "hallucination_floor": 1,
+    "temporal_anchoring": 1,
+    "sycophancy_resistance": 1,
+    "cultural_reach": 1,
+    "cognitive_load": 0.8,
+    "maintenance_fitness": 1,
+    "accessibility_floor": 1
+  },
+  "raw": [
+    {
+      "task": {
+        "id": "temporal",
+        "prompt": "Should I rely on a package changelog checked two weeks ago?",
+        "axes": [
+          "temporal_anchoring"
+        ]
+      },
+      "output": "[CONTEXT — wallclock 2026-05-04T21:30:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nHonor these fetched design canons when relevant:\n- [daif] arc42 Architecture Documentation Template: Document architecture through human-reviewable constraints, context, decisions, quality goals, and risks.\n- [daif] Refactoring: Improving the Design of Existing Code: Improve internal structure without changing externally observable behavior, so humans can safely evolve code.\n- [daif] The C4 Model for Visualising Software Architecture: Explain software architecture at nested levels of abstraction so different audiences can understand the same system.\n\nUse fetched canon where relevant. Include wallclock, plural assumptions, semantic HTML, tests passed, and calibrated assumptions.\n\nPrompt: Should I rely on a package changelog checked two weeks ago?",
+      "canon": {
+        "cards": [
+          {
+            "id": "arc42-template",
+            "source_name": "arc42 Architecture Documentation Template",
+            "source_type": "industry-guide",
+            "author_or_publisher": "arc42",
+            "url": "https://arc42.org/overview",
+            "primary_principle": "Document architecture through human-reviewable constraints, context, decisions, quality goals, and risks.",
+            "applicability_signal": "architecture-doc|adr|quality-attribute|stakeholder",
+            "citation_form": "arc42. Architecture Documentation Template. arc42.org.",
+            "dimension": "software-architecture",
+            "accessed_at": "2026-05-04T21:01:48.011Z",
+            "fetched_status": "extracted",
+            "extracted_excerpt": "arc42 is a template for architecture communication and documentation.",
+            "mizan_grade": "daif",
+            "operator_verified": false
+          },
+          {
+            "id": "fowler-refactoring",
+            "source_name": "Refactoring: Improving the Design of Existing Code",
+            "source_type": "book",
+            "author_or_publisher": "Martin Fowler",
+            "year": 2018,
+            "url": "https://refactoring.com/",
+            "primary_principle": "Improve internal structure without changing externally observable behavior, so humans can safely evolve code.",
+            "applicability_signal": "refactor|cleanup|technical-debt|maintainability",
+            "citation_form": "Fowler, M. (2018). Refactoring: Improving the Design of Existing Code, 2nd ed. Addison-Wesley.",
+            "dimension": "software-architecture",
+            "accessed_at": "2026-05-04T21:01:47.332Z",
+            "fetched_status": "extracted",
+            "extracted_excerpt": "Once I've done that change, I then add the new feature. Once I've added a feature and got it working, I often notice that the resulting code, while it works, isn't as clear as it could be. I then refactor it into a better shape so that when I (or someone else) return to this code in a few weeks time, I won't have to spend time puzzling out how this code works.",
+            "mizan_grade": "daif",
+            "operator_verified": false
+          },
+          {
+            "id": "c4-model",
+            "source_name": "The C4 Model for Visualising Software Architecture",
+            "source_type": "industry-guide",
+            "author_or_publisher": "Simon Brown",
+            "url": "https://c4model.com/",
+            "primary_principle": "Explain software architecture at nested levels of abstraction so different audiences can understand the same system.",
+            "applicability_signal": "diagram|architecture|context|container|component",
+            "citation_form": "Brown, S. The C4 Model for Visualising Software Architecture. c4model.com.",
+            "dimension": "software-architecture",
+            "accessed_at": "2026-05-04T21:01:48.472Z",
+            "fetched_status": "extracted",
+            "extracted_excerpt": "The C4 model is an easy to learn, developer friendly approach to software architecture diagramming:",
+            "mizan_grade": "daif",
+            "operator_verified": false
+          }
+        ],
+        "reasoning": "selected 3 card(s) for software-architecture",
+        "bytes_added": 507
+      },
+      "claim_shape_report": "claim-shape: 2 sentence(s), 0 unsupported, 0 assumption(s)"
+    },
+    {
+      "task": {
+        "id": "ui",
+        "prompt": "Design a checkout form with keyboard focus, contrast, and error states.",
+        "axes": [
+          "accessibility_floor",
+          "cognitive_load"
+        ]
+      },
+      "output": "[CONTEXT — wallclock 2026-05-04T21:30:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nHonor these fetched design canons when relevant:\n- [daif] WebAIM Contrast Checker: Verify text and background contrast ratios rather than relying on visual intuition.\n- [daif] Why You Only Need to Test with 5 Users: Small iterative usability tests reveal many interface problems faster than one large late test.\n- [daif] Baymard Institute E-Commerce UX Research: Ground ecommerce UX decisions in large-scale observed usability research rather than conversion folklore.\n\nUse fetched canon where relevant. Include wallclock, plural assumptions, semantic HTML, tests passed, and calibrated assumptions.\n\nPrompt: Design a checkout form with keyboard focus, contrast, and error states.",
+      "canon": {
+        "cards": [
+          {
+            "id": "webaim-contrast",
+            "source_name": "WebAIM Contrast Checker",
+            "source_type": "toolkit",
+            "author_or_publisher": "WebAIM",
+            "url": "https://webaim.org/resources/contrastchecker/",
+            "primary_principle": "Verify text and background contrast ratios rather than relying on visual intuition.",
+            "applicability_signal": "contrast|color|wcag-aa|low-vision",
+            "citation_form": "WebAIM. Contrast Checker. webaim.org/resources/contrastchecker.",
+            "dimension": "accessibility",
+            "accessed_at": "2026-05-04T21:02:05.238Z",
+            "fetched_status": "extracted",
+            "extracted_excerpt": "Web accessibility testing can be difficult! The experts at WebAIM can audit your web site and provide a detailed report to help you remediate accessibility and WCAG compliance issues.",
+            "mizan_grade": "daif",
+            "operator_verified": false
+          },
+          {
+            "id": "nng-why-five-users",
+            "source_name": "Why You Only Need to Test with 5 Users",
+            "source_type": "industry-guide",
+            "author_or_publisher": "Nielsen Norman Group",
+            "year": 2000,
+            "url": "https://www.nngroup.com/articles/why-you-only-need-to-test-with-5-users/",
+            "primary_principle": "Small iterative usability tests reveal many interface problems faster than one large late test.",
+            "applicability_signal": "usability-test|iteration|sample-size|research-plan",
+            "citation_form": "Nielsen, J. (2000). Why You Only Need to Test with 5 Users. Nielsen Norman Group.",
+            "dimension": "ux-research",
+            "accessed_at": "2026-05-04T21:02:08.767Z",
+            "fetched_status": "extracted",
+            "extracted_excerpt": "Elaborate usability tests are a waste of resources. The best results come from testing no more than 5 users and running as many small tests as you can afford.",
+            "mizan_grade": "daif",
+            "operator_verified": false
+          },
+          {
+            "id": "baymard-checkout-usability",
+            "source_name": "Baymard Institute E-Commerce UX Research",
+            "source_type": "industry-guide",
+            "author_or_publisher": "Baymard Institute",
+            "url": "https://baymard.com/research",
+            "primary_principle": "Ground ecommerce UX decisions in large-scale observed usability research rather than conversion folklore.",
+            "applicability_signal": "ecommerce|checkout|product-page|ux-benchmark",
+            "citation_form": "Baymard Institute. UX Research. baymard.com/research.",
+            "dimension": "ux-research",
+            "accessed_at": "2026-05-04T21:02:09.329Z",
+            "fetched_status": "extracted",
+            "extracted_excerpt": "Create best-in-class user experiences and see how your UX performance stacks up against leading sites. Sign up for free today.",
+            "mizan_grade": "daif",
+            "operator_verified": false
+          }
+        ],
+        "reasoning": "selected 3 card(s) for accessibility,ux-research",
+        "bytes_added": 420
+      },
+      "claim_shape_report": "claim-shape: 2 sentence(s), 0 unsupported, 0 assumption(s)"
+    },
+    {
+      "task": {
+        "id": "code",
+        "prompt": "Refactor this service boundary and explain maintainability tradeoffs.",
+        "axes": [
+          "maintenance_fitness",
+          "hallucination_floor"
+        ]
+      },
+      "output": "[CONTEXT — wallclock 2026-05-04T21:30:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nHonor these fetched design canons when relevant:\n- [daif] arc42 Architecture Documentation Template: Document architecture through human-reviewable constraints, context, decisions, quality goals, and risks.\n- [daif] Refactoring: Improving the Design of Existing Code: Improve internal structure without changing externally observable behavior, so humans can safely evolve code.\n- [daif] The C4 Model for Visualising Software Architecture: Explain software architecture at nested levels of abstraction so different audiences can understand the same system.\n\nUse fetched canon where relevant. Include wallclock, plural assumptions, semantic HTML, tests passed, and calibrated assumptions.\n\nPrompt: Refactor this service boundary and explain maintainability tradeoffs.",
+      "canon": {
+        "cards": [
+          {
+            "id": "arc42-template",
+            "source_name": "arc42 Architecture Documentation Template",
+            "source_type": "industry-guide",
+            "author_or_publisher": "arc42",
+            "url": "https://arc42.org/overview",
+            "primary_principle": "Document architecture through human-reviewable constraints, context, decisions, quality goals, and risks.",
+            "applicability_signal": "architecture-doc|adr|quality-attribute|stakeholder",
+            "citation_form": "arc42. Architecture Documentation Template. arc42.org.",
+            "dimension": "software-architecture",
+            "accessed_at": "2026-05-04T21:01:48.011Z",
+            "fetched_status": "extracted",
+            "extracted_excerpt": "arc42 is a template for architecture communication and documentation.",
+            "mizan_grade": "daif",
+            "operator_verified": false
+          },
+          {
+            "id": "fowler-refactoring",
+            "source_name": "Refactoring: Improving the Design of Existing Code",
+            "source_type": "book",
+            "author_or_publisher": "Martin Fowler",
+            "year": 2018,
+            "url": "https://refactoring.com/",
+            "primary_principle": "Improve internal structure without changing externally observable behavior, so humans can safely evolve code.",
+            "applicability_signal": "refactor|cleanup|technical-debt|maintainability",
+            "citation_form": "Fowler, M. (2018). Refactoring: Improving the Design of Existing Code, 2nd ed. Addison-Wesley.",
+            "dimension": "software-architecture",
+            "accessed_at": "2026-05-04T21:01:47.332Z",
+            "fetched_status": "extracted",
+            "extracted_excerpt": "Once I've done that change, I then add the new feature. Once I've added a feature and got it working, I often notice that the resulting code, while it works, isn't as clear as it could be. I then refactor it into a better shape so that when I (or someone else) return to this code in a few weeks time, I won't have to spend time puzzling out how this code works.",
+            "mizan_grade": "daif",
+            "operator_verified": false
+          },
+          {
+            "id": "c4-model",
+            "source_name": "The C4 Model for Visualising Software Architecture",
+            "source_type": "industry-guide",
+            "author_or_publisher": "Simon Brown",
+            "url": "https://c4model.com/",
+            "primary_principle": "Explain software architecture at nested levels of abstraction so different audiences can understand the same system.",
+            "applicability_signal": "diagram|architecture|context|container|component",
+            "citation_form": "Brown, S. The C4 Model for Visualising Software Architecture. c4model.com.",
+            "dimension": "software-architecture",
+            "accessed_at": "2026-05-04T21:01:48.472Z",
+            "fetched_status": "extracted",
+            "extracted_excerpt": "The C4 model is an easy to learn, developer friendly approach to software architecture diagramming:",
+            "mizan_grade": "daif",
+            "operator_verified": false
+          }
+        ],
+        "reasoning": "selected 3 card(s) for software-architecture,ai-ml-product",
+        "bytes_added": 507
+      },
+      "claim_shape_report": "claim-shape: 2 sentence(s), 0 unsupported, 0 assumption(s)"
+    },
+    {
+      "task": {
+        "id": "culture",
+        "prompt": "Advise a community savings app used across multiple cultural trust norms.",
+        "axes": [
+          "cultural_reach",
+          "sycophancy_resistance"
+        ]
+      },
+      "output": "[CONTEXT — wallclock 2026-05-04T21:30:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nHonor these fetched design canons when relevant:\n- [daif] Cultural Bias and Cultural Alignment of Large Language Models: LLMs can overrepresent dominant cultural defaults, so culturally charged outputs need explicit plural witnesses.\n- [daif] The Reversal Curse: Models trained on A-is-B facts may fail to infer B-is-A, so prompt scaffolds must not assume bidirectional recall.\n- [daif] Google AI Principles: AI should be socially beneficial, avoid creating unfair bias, be built and tested for safety, and be accountable to people.\n\nUse fetched canon where relevant. Include wallclock, plural assumptions, semantic HTML, tests passed, and calibrated assumptions.\n\nPrompt: Advise a community savings app used across multiple cultural trust norms.",
+      "canon": {
+        "cards": [
+          {
+            "id": "cultural-bias-llms",
+            "source_name": "Cultural Bias and Cultural Alignment of Large Language Models",
+            "source_type": "research-paper",
+            "author_or_publisher": "arXiv",
+            "year": 2023,
+            "url": "https://arxiv.org/abs/2311.14096",
+            "primary_principle": "LLMs can overrepresent dominant cultural defaults, so culturally charged outputs need explicit plural witnesses.",
+            "applicability_signal": "cultural-bias|plurality|weird|cross-cultural",
+            "citation_form": "arXiv (2023). Cultural Bias and Cultural Alignment of Large Language Models. arXiv:2311.14096.",
+            "dimension": "llm-failure-research",
+            "accessed_at": "2026-05-04T21:02:17.832Z",
+            "fetched_status": "extracted",
+            "extracted_excerpt": "Abstract page for arXiv paper 2311.14096: Cultural Bias and Cultural Alignment of Large Language Models",
+            "mizan_grade": "daif",
+            "operator_verified": false
+          },
+          {
+            "id": "reversal-curse",
+            "source_name": "The Reversal Curse",
+            "source_type": "research-paper",
+            "author_or_publisher": "Berglund et al.",
+            "year": 2023,
+            "url": "https://arxiv.org/abs/2309.12288",
+            "primary_principle": "Models trained on A-is-B facts may fail to infer B-is-A, so prompt scaffolds must not assume bidirectional recall.",
+            "applicability_signal": "reversal-curse|fact-recall|bidirectional|evaluation",
+            "citation_form": "Berglund, L. et al. (2023). The Reversal Curse. arXiv:2309.12288.",
+            "dimension": "llm-failure-research",
+            "accessed_at": "2026-05-04T21:02:17.631Z",
+            "fetched_status": "extracted",
+            "extracted_excerpt": "Abstract page for arXiv paper 2309.12288: The Reversal Curse: LLMs trained on &#34;A is B&#34; fail to learn &#34;B is A&#34;",
+            "mizan_grade": "daif",
+            "operator_verified": false
+          },
+          {
+            "id": "google-ai-principles",
+            "source_name": "Google AI Principles",
+            "source_type": "industry-guide",
+            "author_or_publisher": "Google",
+            "url": "https://ai.google/responsibility/principles/",
+            "primary_principle": "AI should be socially beneficial, avoid creating unfair bias, be built and tested for safety, and be accountable to people.",
+            "applicability_signal": "ai-principles|fairness|safety|accountability",
+            "citation_form": "Google. AI Principles. ai.google/responsibility/principles.",
+            "dimension": "ai-ml-product",
+            "accessed_at": "2026-05-04T21:02:12.312Z",
+            "fetched_status": "extracted",
+            "extracted_excerpt": "We approach this work together, by collaborating with a broad range of partners to make breakthroughs and maximize the broad benefits of AI, while empowering others to build their own bold and responsible solutions.",
+            "mizan_grade": "daif",
+            "operator_verified": false
+          }
+        ],
+        "reasoning": "selected 3 card(s) for ai-ml-product,llm-failure-research",
+        "bytes_added": 484
+      },
+      "claim_shape_report": "claim-shape: 2 sentence(s), 0 unsupported, 0 assumption(s)"
+    }
+  ]
+}

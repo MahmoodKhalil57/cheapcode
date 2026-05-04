@@ -79,3 +79,22 @@ Status: completed locally before commits.
 - "m17-live-dispatch can exercise full stack" — verified by env flag wiring; live exercise itself remains Phase 5/scorecard territory.
 - "Scorecard runs seven axes" — verified by `script/m19-scorecard.ts` output containing all seven axis keys.
 - "Full implementation improves the real agent" — ASSUMPTION until Phase 5 scorecard receipt is evaluated and operator spot-checks canon relevance.
+
+## Phase 5 — Headline gate
+
+Status: completed locally.
+
+- Ran `bun script/m19-scorecard.ts --live --baseline`, writing `plan/receipts/m19-scorecard-baseline-2026-05-04T21-30-57-968Z.json`.
+- Ran `bun script/m19-scorecard.ts --live --canon-on`, writing `plan/receipts/m19-scorecard-canon-on-2026-05-04T21-30-57-978Z.json`.
+- Wrote final diff receipt: `plan/receipts/m19-scorecard-final-2026-05-04T21-30-57Z.json`.
+- Local-scorecard verdict: PASS_INTERNAL_THRESHOLD with 3/7 axes improved (`hallucination_floor`, `sycophancy_resistance`, `cognitive_load`) and 0 meaningful regressions.
+- Updated `SESSION-2026-05-04.md` with the verified local delta and the remaining anti-fab gate.
+- External headline remains blocked until the operator spot-checks 20 outputs at >=80% canon relevance. The scorecard run mode is `live-requested-local-scorer`, not a semantic live-model judge.
+
+### Phase 5 anti-fab self-check
+
+- "Phase 5 baseline and canon-on commands ran" — verified by two scorecard receipts at `21-30-57`.
+- "3/7 axes improved, 0 regressed" — verified by `m19-scorecard-final-2026-05-04T21-30-57Z.json`.
+- "Internal threshold met" — verified by final receipt verdict.
+- "External headline claim earned" — ASSUMPTION FALSE / explicitly blocked pending operator spot-check.
+- "Scorecard is live semantic evidence" — ASSUMPTION FALSE; receipt labels it `live-requested-local-scorer`.
