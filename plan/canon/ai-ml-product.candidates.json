@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "dimension": "ai-ml-product",
+  "generated_at": "2026-05-04T20:08:27.434Z",
+  "discovery_method": "fetch-only-seed (Phase 1 web-fetch grounded)",
+  "candidates": [
+    {
+      "id": "google-pair-guidebook",
+      "source_name": "People + AI Guidebook",
+      "source_type": "industry-guide",
+      "author_or_publisher": "Google PAIR",
+      "url": "https://pair.withgoogle.com/guidebook/",
+      "primary_principle": "Calibrate user trust with explicit explanations of what the AI can/cannot do; expose data practices so humans can audit, correct, and exit.",
+      "applicability_signal": "ai-product|trust|explainability|user-control|ml-ux",
+      "citation_form": "Google PAIR. People + AI Guidebook. pair.withgoogle.com/guidebook.",
+      "dimension": "ai-ml-product",
+      "accessed_at": "2026-05-04T20:08:26.772Z",
+      "fetched_status": "extracted",
+      "extracted_excerpt": "A toolkit for teams building human-centered AI products.",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    },
+    {
+      "id": "ms-responsible-ai-v2",
+      "source_name": "Microsoft Responsible AI Standard v2",
+      "source_type": "industry-guide",
+      "author_or_publisher": "Microsoft",
+      "year": 2022,
+      "url": "https://www.microsoft.com/en-us/ai/responsible-ai",
+      "primary_principle": "Operationalize fairness, reliability, safety, inclusiveness, transparency, and accountability as concrete product requirements with reviewable artifacts.",
+      "applicability_signal": "responsible-ai|fairness|safety|accountability",
+      "citation_form": "Microsoft (2022). Responsible AI Standard v2. microsoft.com/ai/responsible-ai.",
+      "dimension": "ai-ml-product",
+      "accessed_at": "2026-05-04T20:08:27.218Z",
+      "fetched_status": "extracted",
+      "extracted_excerpt": "Explore how Microsoft is committed to responsible AI practices and advancing AI technology with ethical principles.",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    },
+    {
+      "id": "openai-model-spec",
+      "source_name": "OpenAI Model Spec",
+      "source_type": "industry-guide",
+      "author_or_publisher": "OpenAI",
+      "year": 2024,
+      "url": "https://model-spec.openai.com/",
+      "primary_principle": "Be helpful AND honest AND non-manipulative AND respectful of user autonomy; resolve conflicts via documented hierarchy, not implicit defaults.",
+      "applicability_signal": "model-behavior|alignment|ai-assistant-design",
+      "citation_form": "OpenAI. Model Spec. model-spec.openai.com.",
+      "dimension": "ai-ml-product",
+      "accessed_at": "2026-05-04T20:08:27.434Z",
+      "fetched_status": "ok",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "dimension": "policy-governance",
+  "generated_at": "2026-05-04T20:08:28.775Z",
+  "discovery_method": "fetch-only-seed (Phase 1 web-fetch grounded)",
+  "candidates": [
+    {
+      "id": "eu-ai-act-art-14",
+      "source_name": "EU AI Act, Article 14 — Human Oversight",
+      "source_type": "regulation",
+      "author_or_publisher": "European Union",
+      "year": 2024,
+      "url": "https://artificialintelligenceact.eu/article/14/",
+      "primary_principle": "High-risk AI systems must be designed so natural persons can effectively monitor operation, intervene, and override outputs in real time.",
+      "applicability_signal": "ai-governance|high-risk|oversight|eu-regulation",
+      "citation_form": "Regulation (EU) 2024/1689 of the European Parliament — AI Act, Article 14.",
+      "dimension": "policy-governance",
+      "accessed_at": "2026-05-04T20:08:28.168Z",
+      "fetched_status": "extracted",
+      "extracted_excerpt": "1. High-risk AI systems shall be designed and developed in such a way, including with appropriate human-machine interface tools, that they can be effectively overseen by natural persons during the period in which they are in use.",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    },
+    {
+      "id": "nist-ai-rmf",
+      "source_name": "NIST AI Risk Management Framework 1.0",
+      "source_type": "standard",
+      "author_or_publisher": "U.S. National Institute of Standards and Technology",
+      "year": 2023,
+      "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+      "primary_principle": "Govern, Map, Measure, Manage: four functions that operationalize human-safe AI across the full system lifecycle.",
+      "applicability_signal": "ai-risk|nist|govern-map-measure-manage",
+      "citation_form": "NIST (2023). AI Risk Management Framework 1.0. NIST AI 100-1.",
+      "dimension": "policy-governance",
+      "accessed_at": "2026-05-04T20:08:28.775Z",
+      "fetched_status": "ok",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    }
+  ]
+}

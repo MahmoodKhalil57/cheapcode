@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "dimension": "api-dx",
+  "generated_at": "2026-05-04T20:08:15.803Z",
+  "discovery_method": "fetch-only-seed (Phase 1 web-fetch grounded)",
+  "candidates": [
+    {
+      "id": "google-api-design-guide",
+      "source_name": "Google API Design Guide",
+      "source_type": "industry-guide",
+      "author_or_publisher": "Google Cloud",
+      "url": "https://cloud.google.com/apis/design",
+      "primary_principle": "APIs should be resource-oriented; methods are operations on named, hierarchically-addressable resources, not RPC verbs.",
+      "applicability_signal": "api-design|rest|resource-naming|public-api",
+      "citation_form": "Google Cloud. Google API Design Guide. cloud.google.com/apis/design.",
+      "dimension": "api-dx",
+      "accessed_at": "2026-05-04T20:08:15.471Z",
+      "fetched_status": "extracted",
+      "extracted_excerpt": "A set of guidelines for designing APIs that are consistent with Google AIPs.",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    },
+    {
+      "id": "openapi-best-practices",
+      "source_name": "OpenAPI Specification (v3.1)",
+      "source_type": "standard",
+      "author_or_publisher": "OpenAPI Initiative (Linux Foundation)",
+      "year": 2021,
+      "url": "https://spec.openapis.org/oas/latest.html",
+      "primary_principle": "Describe HTTP APIs declaratively so clients, servers, and humans share a single, machine-checkable contract.",
+      "applicability_signal": "openapi|swagger|api-contract|api-doc",
+      "citation_form": "OpenAPI Initiative (2021). OpenAPI Specification 3.1.0.",
+      "dimension": "api-dx",
+      "accessed_at": "2026-05-04T20:08:15.803Z",
+      "fetched_status": "extracted",
+      "extracted_excerpt": "The OpenAPI Specification (OAS) defines a standard, programming language-agnostic interface description for HTTP APIs.",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    }
+  ]
+}

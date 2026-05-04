@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "dimension": "ui-visual",
+  "generated_at": "2026-05-04T20:08:17.267Z",
+  "discovery_method": "fetch-only-seed (Phase 1 web-fetch grounded)",
+  "candidates": [
+    {
+      "id": "apple-hig",
+      "source_name": "Apple Human Interface Guidelines",
+      "source_type": "industry-guide",
+      "author_or_publisher": "Apple Inc.",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/",
+      "primary_principle": "Design for platform-native intuition: leverage the user's existing motor and visual perception habits rather than inventing novel interactions.",
+      "applicability_signal": "ui|ios|macos|interaction|gesture",
+      "citation_form": "Apple Inc. Human Interface Guidelines. developer.apple.com/design/human-interface-guidelines.",
+      "dimension": "ui-visual",
+      "accessed_at": "2026-05-04T20:08:16.252Z",
+      "fetched_status": "extracted",
+      "extracted_excerpt": "The HIG contains guidance and best practices that can help you design a great experience for any Apple platform.",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    },
+    {
+      "id": "material-design-3",
+      "source_name": "Material Design 3",
+      "source_type": "industry-guide",
+      "author_or_publisher": "Google",
+      "url": "https://m3.material.io/",
+      "primary_principle": "Components and patterns are validated through UX research; expressive, dynamic theming responds to user identity while preserving usability.",
+      "applicability_signal": "material|android|ui-component|theming",
+      "citation_form": "Google. Material Design 3. m3.material.io.",
+      "dimension": "ui-visual",
+      "accessed_at": "2026-05-04T20:08:16.543Z",
+      "fetched_status": "ok",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    },
+    {
+      "id": "fluent-design",
+      "source_name": "Microsoft Fluent Design System",
+      "source_type": "industry-guide",
+      "author_or_publisher": "Microsoft",
+      "url": "https://fluent2.microsoft.design/",
+      "primary_principle": "Layer perceived depth, motion, material, and scale to communicate hierarchy across 2D and 3D contexts at human-perceptual fidelity.",
+      "applicability_signal": "ui|windows|fluent|depth|motion",
+      "citation_form": "Microsoft. Fluent 2 Design System. fluent2.microsoft.design.",
+      "dimension": "ui-visual",
+      "accessed_at": "2026-05-04T20:08:17.267Z",
+      "fetched_status": "extracted",
+      "extracted_excerpt": "Explore the next evolution of Microsoft’s design system, enabling more seamless collaboration and creativity than ever. Move fluidly from design to development, between apps, and across platforms.",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    }
+  ]
+}

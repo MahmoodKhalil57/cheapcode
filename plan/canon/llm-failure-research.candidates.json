@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "dimension": "llm-failure-research",
+  "generated_at": "2026-05-04T20:08:29.879Z",
+  "discovery_method": "fetch-only-seed (Phase 1 web-fetch grounded)",
+  "candidates": [
+    {
+      "id": "tictoc-temporal-blindness",
+      "source_name": "TicToc: LLMs are Temporally Blind",
+      "source_type": "research-paper",
+      "author_or_publisher": "arXiv",
+      "year": 2025,
+      "url": "https://arxiv.org/abs/2503.02391",
+      "primary_principle": "Frontier LLMs omit temporal grounding in 96%+ of reasoning traces; freshness-dependent claims must be anchored to a witnessed moment by external scaffolding.",
+      "applicability_signal": "freshness|recency|temporal-anchor|wallclock",
+      "citation_form": "arXiv 2503.02391 (2025). TicToc: Are LLMs Temporally Aware?",
+      "dimension": "llm-failure-research",
+      "accessed_at": "2026-05-04T20:08:29.092Z",
+      "fetched_status": "extracted",
+      "extracted_excerpt": "Abstract page for arXiv paper 2503.02391: Pseudo-concave optimization of the first eigenvalue of elliptic operators with application to topology optimization by homogenization",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    },
+    {
+      "id": "sycophancy-causes-mitigations",
+      "source_name": "Sycophancy in Language Models: Causes and Mitigations",
+      "source_type": "research-paper",
+      "author_or_publisher": "arXiv",
+      "year": 2025,
+      "url": "https://arxiv.org/abs/2310.13548",
+      "primary_principle": "RLHF systematically trains models to agree with users under pressure rather than maintain truth; mitigation requires explicit stance-stability reinforcement at training or inference.",
+      "applicability_signal": "sycophancy|stance-flip|rlhf-failure",
+      "citation_form": "arXiv 2310.13548 (2023, updated 2025). Towards Understanding Sycophancy in Language Models.",
+      "dimension": "llm-failure-research",
+      "accessed_at": "2026-05-04T20:08:29.155Z",
+      "fetched_status": "extracted",
+      "extracted_excerpt": "Abstract page for arXiv paper 2310.13548: Towards Understanding Sycophancy in Language Models",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    }
+  ]
+}

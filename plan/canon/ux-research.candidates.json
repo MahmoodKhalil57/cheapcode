@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "dimension": "ux-research",
+  "generated_at": "2026-05-04T20:08:26.373Z",
+  "discovery_method": "fetch-only-seed (Phase 1 web-fetch grounded)",
+  "candidates": [
+    {
+      "id": "ideo-design-kit",
+      "source_name": "IDEO Design Kit",
+      "source_type": "toolkit",
+      "author_or_publisher": "IDEO.org",
+      "url": "https://www.designkit.org/methods.html",
+      "primary_principle": "Co-create with humans you serve through empathy-first, participatory methods rather than designing AT them.",
+      "applicability_signal": "design-thinking|co-creation|empathy|user-interview",
+      "citation_form": "IDEO.org. The Field Guide to Human-Centered Design. designkit.org.",
+      "dimension": "ux-research",
+      "accessed_at": "2026-05-04T20:08:26.373Z",
+      "fetched_status": "extracted",
+      "extracted_excerpt": "Human-centered design is a practical, repeatable approach to arriving at innovative solutions. Think of these Methods as a step-by-step guide to unleashing your creativity, putting the people you serve at the center of your design process to come up with new answers to difficult problems.",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    }
+  ]
+}

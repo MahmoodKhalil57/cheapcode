@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "dimension": "software-architecture",
+  "generated_at": "2026-05-04T20:08:14.310Z",
+  "discovery_method": "fetch-only-seed (Phase 1 web-fetch grounded)",
+  "candidates": [
+    {
+      "id": "clean-architecture-martin",
+      "source_name": "Clean Architecture: A Craftsman's Guide to Software Structure and Design",
+      "source_type": "book",
+      "author_or_publisher": "Robert C. Martin",
+      "year": 2017,
+      "url": "https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html",
+      "primary_principle": "The dependency rule: source-code dependencies must point inward toward higher-level policy, never outward toward implementation detail.",
+      "applicability_signal": "code-design|module-structure|layered-architecture",
+      "citation_form": "Martin, R.C. (2017). Clean Architecture. Pearson.",
+      "dimension": "software-architecture",
+      "accessed_at": "2026-05-04T20:08:12.877Z",
+      "fetched_status": "extracted",
+      "extracted_excerpt": "Over the last several years we’ve seen a whole range of ideas regarding the architecture of systems. These include:",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    },
+    {
+      "id": "ddd-evans",
+      "source_name": "Domain-Driven Design: Tackling Complexity in the Heart of Software",
+      "source_type": "book",
+      "author_or_publisher": "Eric Evans",
+      "year": 2003,
+      "url": "https://www.domainlanguage.com/ddd/",
+      "primary_principle": "Use a ubiquitous language shared between developers and domain experts so the code reflects the domain's mental model.",
+      "applicability_signal": "domain-modeling|aggregate|bounded-context|ubiquitous-language",
+      "citation_form": "Evans, E. (2003). Domain-Driven Design. Addison-Wesley.",
+      "dimension": "software-architecture",
+      "accessed_at": "2026-05-04T20:08:13.956Z",
+      "fetched_status": "extracted",
+      "extracted_excerpt": "Our mission is to promote DDD and support the community in learning to apply it effectively. In addition to offering training, Eric Evans and the other instructors are active speakers and writers, communicating about new insights gleaned from projects. Here we&#8217;ve collected some valuable resources for those learning about DDD and trying to adopt it. The...",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    },
+    {
+      "id": "ieee-1016",
+      "source_name": "IEEE 1016 — Software Design Descriptions",
+      "source_type": "standard",
+      "author_or_publisher": "IEEE",
+      "year": 2009,
+      "url": "https://standards.ieee.org/ieee/1016/4502/",
+      "primary_principle": "Software design descriptions are organized around design viewpoints with traceable, auditable concerns to support human reviewers across the lifecycle.",
+      "applicability_signal": "design-doc|architecture-decision-record|regulated-domain",
+      "citation_form": "IEEE Std 1016-2009. Standard for Information Technology — Systems Design — Software Design Descriptions.",
+      "dimension": "software-architecture",
+      "accessed_at": "2026-05-04T20:08:14.310Z",
+      "fetched_status": "extracted",
+      "extracted_excerpt": "Sign up for our monthly newsletter to learn about new developments, including resources, insights and more.",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    }
+  ]
+}

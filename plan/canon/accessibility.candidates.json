@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "dimension": "accessibility",
+  "generated_at": "2026-05-04T20:08:17.470Z",
+  "discovery_method": "fetch-only-seed (Phase 1 web-fetch grounded)",
+  "candidates": [
+    {
+      "id": "wcag-2-2",
+      "source_name": "Web Content Accessibility Guidelines 2.2",
+      "source_type": "standard",
+      "author_or_publisher": "W3C",
+      "year": 2023,
+      "url": "https://www.w3.org/TR/WCAG22/",
+      "primary_principle": "Content must be perceivable, operable, understandable, and robust (POUR) across visual, motor, and cognitive variation; AA conformance is the legal floor in most jurisdictions.",
+      "applicability_signal": "accessibility|a11y|wcag|contrast|aria|screen-reader",
+      "citation_form": "W3C (2023). Web Content Accessibility Guidelines 2.2. W3C Recommendation.",
+      "dimension": "accessibility",
+      "accessed_at": "2026-05-04T20:08:17.470Z",
+      "fetched_status": "extracted",
+      "extracted_excerpt": "Web accessibility depends not only on accessible content but also on accessible web browsers and other user agents. Authoring tools also have an important role in web accessibility. For an overview of how these components of web development and interaction work together, see:",
+      "mizan_grade": "daif",
+      "operator_verified": false
+    }
+  ]
+}
