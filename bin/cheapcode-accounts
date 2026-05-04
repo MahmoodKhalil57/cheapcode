@@ -1,0 +1,323 @@
+#!/usr/bin/env bun
+/**
+ * cheapcode-accounts — multi-account management CLI.
+ *
+ * Subcommands:
+ *   list                       — list all configured accounts
+ *   show <id>                  — show one account in detail
+ *   add                        — interactive add (prompts for fields)
+ *   add --json '<obj>'         — non-interactive add from JSON
+ *   remove <id>                — remove an account
+ *   update <id> <key>=<val>... — update fields
+ *   login <provider>           — wraps `opencode providers login` then prompts to register
+ *
+ * Per memory project_credential_buckets.md: this CLI never asks for raw
+ * credentials. OAuth + API-key entry is delegated to opencode's native
+ * `providers login` flow. cheapcode only manages the metadata (priority,
+ * capabilities, label, tier) on top of opencode-managed auth.
+ *
+ * Per memory feedback_khatim_sanad_naming: this is the Khātim-disk side
+ * (operator's local CLI). Sanad-cloud + Bāb-browser are separate scopes.
+ */
+
+import { spawnSync } from "node:child_process"
+import { existsSync } from "node:fs"
+import {
+  addAccount,
+  removeAccount,
+  updateAccount,
+  listAccounts,
+  showAccount,
+  defaultRegistryPath,
+  opencodeAuthRef,
+  envAuthRef,
+} from "../src/account-mutation"
+import { resolveAuthRef, AuthResolutionError } from "../src/auth-resolver"
+import type { Account, AccountTier, AuthType } from "../src/account-registry"
+
+const VALID_AUTH_TYPES: ReadonlyArray<AuthType> = ["consumer-oauth", "api-key", "managed-pool"]
+const VALID_TIERS: ReadonlyArray<AccountTier> = ["subscription", "paid-per-token", "free"]
+
+// ============================================================
+// Output helpers (color codes; no emojis per CLAUDE.md)
+// ============================================================
+
+const C = {
+  red: (s: string) => `\x1b[31m${s}\x1b[0m`,
+  green: (s: string) => `\x1b[32m${s}\x1b[0m`,
+  yellow: (s: string) => `\x1b[33m${s}\x1b[0m`,
+  cyan: (s: string) => `\x1b[36m${s}\x1b[0m`,
+  dim: (s: string) => `\x1b[2m${s}\x1b[0m`,
+  bold: (s: string) => `\x1b[1m${s}\x1b[0m`,
+}
+
+function fail(msg: string): never {
+  console.error(C.red(`error: ${msg}`))
+  process.exit(1)
+}
+
+// ============================================================
+// Interactive prompt helpers (raw stdin, no readline coupling)
+// ============================================================
+
+async function prompt(question: string, defaultVal?: string): Promise<string> {
+  const def = defaultVal !== undefined ? C.dim(` [${defaultVal}]`) : ""
+  process.stdout.write(`${question}${def}: `)
+  const buf: Buffer[] = []
+  for await (const chunk of process.stdin) {
+    buf.push(chunk as Buffer)
+    if (buf[buf.length - 1].includes(0x0a)) break
+  }
+  const raw = Buffer.concat(buf).toString("utf-8").replace(/\r?\n$/, "")
+  const trimmed = raw.trim()
+  return trimmed.length === 0 && defaultVal !== undefined ? defaultVal : trimmed
+}
+
+async function promptChoice<T extends string>(question: string, choices: ReadonlyArray<T>, defaultVal?: T): Promise<T> {
+  const list = choices.map((c) => (c === defaultVal ? C.bold(c) : c)).join(" / ")
+  while (true) {
+    const ans = await prompt(`${question} (${list})`, defaultVal)
+    if ((choices as readonly string[]).includes(ans)) return ans as T
+    console.error(C.yellow(`  invalid choice; expected one of ${choices.join(", ")}`))
+  }
+}
+
+// ============================================================
+// Subcommands
+// ============================================================
+
+function cmdList(): number {
+  const accounts = listAccounts()
+  if (accounts.length === 0) {
+    console.log(C.dim("(no accounts configured)"))
+    console.log(C.dim(`  registry: ${defaultRegistryPath()}`))
+    console.log(C.dim("  tip: run `cheapcode-accounts add` to add one"))
+    return 0
+  }
+  console.log(C.bold(`${accounts.length} account${accounts.length === 1 ? "" : "s"}:`))
+  for (const a of accounts) {
+    console.log()
+    console.log(`  ${C.bold(a.id)} ${C.dim(`(${a.label})`)}`)
+    console.log(`    provider: ${a.provider}    tier: ${a.tier}    priority: ${a.priority}`)
+    console.log(`    auth_ref: ${a.auth_ref}`)
+    console.log(`    capabilities: ${a.capabilities.join(", ")}`)
+  }
+  return 0
+}
+
+function cmdShow(id: string): number {
+  const acc = showAccount(id)
+  if (acc === null) {
+    fail(`account "${id}" not found`)
+  }
+  console.log(JSON.stringify(acc, null, 2))
+  return 0
+}
+
+async function cmdAdd(jsonArg: string | null): Promise<number> {
+  let account: Account
+  if (jsonArg !== null) {
+    try {
+      account = JSON.parse(jsonArg) as Account
+    } catch (e) {
+      fail(`invalid --json: ${(e as Error).message}`)
+    }
+  } else {
+    account = await promptForAccount()
+  }
+  const result = addAccount(account)
+  if (!result.ok) fail(result.error ?? "add failed")
+  console.log(C.green(`added account "${account.id}"`))
+  console.log(C.dim(`  registry: ${defaultRegistryPath()}`))
+  console.log(C.dim(`  ${result.registry.accounts.length} account(s) total`))
+  // Ping the auth_ref to verify it resolves
+  try {
+    resolveAuthRef(account.auth_ref)
+    console.log(C.green(`  auth_ref resolves OK`))
+  } catch (e) {
+    const code = e instanceof AuthResolutionError ? e.code : "unknown"
+    console.log(C.yellow(`  warning: auth_ref does not yet resolve (${code})`))
+    console.log(C.dim(`    fix by running 'opencode providers login ${account.provider}' or setting the env var`))
+  }
+  return 0
+}
+
+async function promptForAccount(): Promise<Account> {
+  console.log(C.bold("\nadd a new cheapcode multi-account entry"))
+  console.log(C.dim("press Ctrl+C to cancel; default values shown in [brackets]\n"))
+
+  const provider = await prompt("provider (e.g. openai / openrouter / anthropic)", "openai")
+  if (provider.length === 0) fail("provider required")
+
+  const id = await prompt(`account id (unique within registry)`, `${provider}-personal`)
+  if (id.length === 0) fail("id required")
+
+  const label = await prompt("human label", `Personal ${provider} account`)
+
+  const auth_type = await promptChoice("auth type", VALID_AUTH_TYPES, "consumer-oauth")
+
+  let auth_ref: string
+  if (auth_type === "consumer-oauth" || auth_type === "api-key") {
+    const useOpencode = await promptChoice(
+      "credential source",
+      ["opencode-auth.json", "env-var"] as const,
+      "opencode-auth.json",
+    )
+    if (useOpencode === "opencode-auth.json") {
+      const k = await prompt("opencode auth.json provider key", provider)
+      auth_ref = opencodeAuthRef(k)
+    } else {
+      const v = await prompt("env var name", `${provider.toUpperCase()}_API_KEY`)
+      auth_ref = envAuthRef(v)
+    }
+  } else {
+    auth_ref = await prompt("managed-pool id", `${provider}-pool-1`)
+    auth_ref = `managed-pool:${auth_ref}`
+  }
+
+  const capsRaw = await prompt(
+    'capabilities (comma-separated; use "*" for all)',
+    "*",
+  )
+  const capabilities = capsRaw
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
+  if (capabilities.length === 0) fail("at least one capability (or '*') required")
+
+  const tier = await promptChoice("tier", VALID_TIERS, "paid-per-token")
+
+  const priorityRaw = await prompt("priority (higher = preferred)", "50")
+  const priority = parseInt(priorityRaw, 10)
+  if (isNaN(priority)) fail(`priority must be a number, got "${priorityRaw}"`)
+
+  return { id, label, provider, auth_type, auth_ref, capabilities, tier, priority }
+}
+
+function cmdRemove(id: string): number {
+  const result = removeAccount(id)
+  if (!result.ok) fail(result.error ?? "remove failed")
+  console.log(C.green(`removed account "${id}"`))
+  console.log(C.dim(`  ${result.registry.accounts.length} account(s) remaining`))
+  return 0
+}
+
+function cmdUpdate(id: string, kvArgs: string[]): number {
+  if (kvArgs.length === 0) fail("update requires at least one key=value pair")
+  const updates: Record<string, unknown> = {}
+  for (const kv of kvArgs) {
+    const eq = kv.indexOf("=")
+    if (eq === -1) fail(`invalid key=value: "${kv}"`)
+    const key = kv.slice(0, eq)
+    const val = kv.slice(eq + 1)
+    if (key === "id") fail("id is not updatable; use remove + add to rename")
+    if (key === "priority") {
+      const n = parseInt(val, 10)
+      if (isNaN(n)) fail(`priority must be a number, got "${val}"`)
+      updates[key] = n
+    } else if (key === "capabilities") {
+      updates[key] = val.split(",").map((s) => s.trim())
+    } else {
+      updates[key] = val
+    }
+  }
+  const result = updateAccount(id, updates as Partial<Omit<Account, "id">>)
+  if (!result.ok) fail(result.error ?? "update failed")
+  console.log(C.green(`updated account "${id}"`))
+  return 0
+}
+
+function cmdLogin(provider: string): number {
+  // Delegate to opencode's native auth flow. Don't reimplement.
+  console.log(C.cyan(`delegating to: opencode providers login ${provider}`))
+  const r = spawnSync("opencode", ["providers", "login", provider], { stdio: "inherit" })
+  if (r.status !== 0) {
+    return r.status ?? 1
+  }
+  console.log()
+  console.log(C.green(`opencode auth saved for "${provider}"`))
+  console.log(C.dim(`run 'cheapcode-accounts add' to register cheapcode-side metadata`))
+  console.log(C.dim(`  (priority, capabilities, tier, label) for this credential.`))
+  return 0
+}
+
+// ============================================================
+// help
+// ============================================================
+
+function printHelp(): void {
+  console.log(`${C.bold("cheapcode-accounts")} — multi-account management for cheapcode
+
+${C.bold("usage:")}
+  cheapcode-accounts list
+  cheapcode-accounts show <id>
+  cheapcode-accounts add [--json '{...}']
+  cheapcode-accounts remove <id>
+  cheapcode-accounts update <id> <key>=<val> [<key>=<val>...]
+  cheapcode-accounts login <provider>
+
+${C.bold("examples:")}
+  cheapcode-accounts list
+  cheapcode-accounts add                    # interactive
+  cheapcode-accounts login openrouter      # opencode providers login + prompts
+  cheapcode-accounts update openai-team priority=80
+  cheapcode-accounts remove openai-team
+
+${C.bold("registry path:")}
+  ${defaultRegistryPath()}
+
+${C.dim("This CLI manages cheapcode-side metadata (priority, capabilities, etc).")}
+${C.dim("OAuth + API-key entry is delegated to opencode's native flows;")}
+${C.dim("multi-account entries reference auth.json entries via auth_ref.")}`)
+}
+
+// ============================================================
+// Main
+// ============================================================
+
+async function main(): Promise<number> {
+  const argv = process.argv.slice(2)
+  const cmd = argv[0]
+  if (!cmd || cmd === "--help" || cmd === "-h" || cmd === "help") {
+    printHelp()
+    return 0
+  }
+
+  switch (cmd) {
+    case "list":
+    case "ls":
+      return cmdList()
+    case "show": {
+      if (!argv[1]) fail("show requires <id>")
+      return cmdShow(argv[1])
+    }
+    case "add": {
+      const jsonIdx = argv.indexOf("--json")
+      const jsonArg = jsonIdx !== -1 ? argv[jsonIdx + 1] : null
+      return cmdAdd(jsonArg)
+    }
+    case "remove":
+    case "rm": {
+      if (!argv[1]) fail("remove requires <id>")
+      return cmdRemove(argv[1])
+    }
+    case "update":
+    case "set": {
+      if (!argv[1]) fail("update requires <id>")
+      return cmdUpdate(argv[1], argv.slice(2))
+    }
+    case "login": {
+      if (!argv[1]) fail("login requires <provider>")
+      return cmdLogin(argv[1])
+    }
+    default:
+      fail(`unknown command "${cmd}"; run with --help`)
+  }
+}
+
+main()
+  .then((code) => process.exit(code))
+  .catch((e) => {
+    console.error(C.red(`fatal: ${(e as Error).message}`))
+    process.exit(1)
+  })

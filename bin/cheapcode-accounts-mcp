@@ -1,0 +1,405 @@
+#!/usr/bin/env bun
+/**
+ * cheapcode-accounts-mcp — MCP server exposing multi-account management as tools.
+ *
+ * Stdio JSON-RPC 2.0 server, MCP spec 2024-11-05, zero deps. Same shape as
+ * mizan's mcp_server.py (operator's existing pattern).
+ *
+ * Tools:
+ *   cheapcode_account_list   — list all accounts
+ *   cheapcode_account_show   — get one account by id
+ *   cheapcode_account_add    — add a new account
+ *   cheapcode_account_remove — remove an account by id
+ *   cheapcode_account_update — partial update of fields
+ *   cheapcode_account_status — diagnostic: which account would resolve for a target
+ *
+ * Per memory feedback_khatim_consult_protocol: this surfaces in every UI
+ * that loads MCP tools (web/desktop chat panels, TUI conversation, CLI agent
+ * runs). The LLM in any UI can invoke these tools naturally — no custom UI
+ * shell needed. "Embraces opencode spirit" by using opencode's existing
+ * MCP-server loading mechanism instead of inventing a UI surface.
+ *
+ * Register in ~/.config/opencode/opencode.json:
+ *   "mcp": {
+ *     "cheapcode-accounts": {
+ *       "type": "local",
+ *       "command": ["/home/mk/apps/cheapcode/bin/cheapcode-accounts-mcp"]
+ *     }
+ *   }
+ */
+
+import {
+  addAccount,
+  removeAccount,
+  updateAccount,
+  listAccounts,
+  showAccount,
+  defaultRegistryPath,
+} from "../src/account-mutation"
+import {
+  loadRegistry,
+  resolveAccount,
+  type Account,
+} from "../src/account-registry"
+import { resolveAuthRef, isAuthExpired, AuthResolutionError } from "../src/auth-resolver"
+
+// ============================================================
+// Tool definitions (MCP spec 2024-11-05)
+// ============================================================
+
+const TOOLS = [
+  {
+    name: "cheapcode_account_list",
+    description:
+      "List all configured cheapcode multi-account entries. Returns the registry from " +
+      "~/.config/cheapcode/accounts.json with priority, capabilities, tier, auth_ref, etc. " +
+      "Use to inspect current multi-account state before adding/removing.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+    },
+  },
+  {
+    name: "cheapcode_account_show",
+    description:
+      "Get details for one account by id. Returns the full Account object or null if not found.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: { type: "string", description: "account id (unique within registry)" },
+      },
+      required: ["id"],
+    },
+  },
+  {
+    name: "cheapcode_account_add",
+    description:
+      "Add a new cheapcode multi-account entry. The credential MUST already exist " +
+      "in opencode's auth.json (run `opencode providers login <provider>` first) OR " +
+      "be available via env var. This tool only registers cheapcode-side metadata " +
+      "(priority, capabilities, tier, label). Per atom 0007 anti-fab: this never " +
+      "stores the actual credential, only a reference (auth_ref).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
+          description: "unique id within registry (e.g. 'openai-personal', 'openai-team')",
+        },
+        label: { type: "string", description: "human-readable label" },
+        provider: {
+          type: "string",
+          description: "provider key (e.g. 'openai', 'openrouter', 'anthropic')",
+        },
+        auth_type: {
+          type: "string",
+          enum: ["consumer-oauth", "api-key", "managed-pool"],
+          description: "auth flavor",
+        },
+        auth_ref: {
+          type: "string",
+          description:
+            "credential reference. Examples: " +
+            "'~/.local/share/opencode/auth.json#openai' (opencode entry), " +
+            "'env:OPENROUTER_API_KEY' (env var), " +
+            "'managed-pool:team-1' (managed-pool, future)",
+        },
+        capabilities: {
+          type: "array",
+          items: { type: "string" },
+          description: "model ids this account can access; use ['*'] for all",
+        },
+        tier: {
+          type: "string",
+          enum: ["subscription", "paid-per-token", "free"],
+          description: "billing tier (audit + selection hint)",
+        },
+        priority: {
+          type: "number",
+          description: "selection priority; higher = preferred",
+        },
+      },
+      required: ["id", "label", "provider", "auth_type", "auth_ref", "capabilities", "tier", "priority"],
+    },
+  },
+  {
+    name: "cheapcode_account_remove",
+    description: "Remove an account from the registry by id.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: { type: "string", description: "account id to remove" },
+      },
+      required: ["id"],
+    },
+  },
+  {
+    name: "cheapcode_account_update",
+    description:
+      "Update fields of an existing account (priority, capabilities, label, tier, " +
+      "auth_ref, auth_type, provider). The id itself cannot be renamed.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: { type: "string", description: "account id to update" },
+        updates: {
+          type: "object",
+          description: "partial Account; fields to update",
+        },
+      },
+      required: ["id", "updates"],
+    },
+  },
+  {
+    name: "cheapcode_account_status",
+    description:
+      "Diagnostic: which account would be selected for a given target model? " +
+      "Mirrors `cheapcode-account-status` CLI. Reports each account's auth resolution + " +
+      "expiry status, then resolves account selection per priority + quota + capability.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        target_model: {
+          type: "string",
+          description: "target model id (e.g. 'openai/gpt-5.5')",
+        },
+        quota_overrides: {
+          type: "object",
+          description: "optional account-id → quota-remaining (0.0-1.0) overrides for what-if testing",
+        },
+      },
+      required: ["target_model"],
+    },
+  },
+] as const
+
+// ============================================================
+// Tool implementations
+// ============================================================
+
+function tool_list(): unknown {
+  const accounts = listAccounts()
+  return { count: accounts.length, registry_path: defaultRegistryPath(), accounts }
+}
+
+function tool_show(args: Record<string, unknown>): unknown {
+  const id = args.id as string
+  if (typeof id !== "string") throw new Error("id required (string)")
+  const account = showAccount(id)
+  return { id, found: account !== null, account }
+}
+
+function tool_add(args: Record<string, unknown>): unknown {
+  const account = args as unknown as Account
+  const result = addAccount(account)
+  if (!result.ok) throw new Error(result.error ?? "add failed")
+  // Verify auth_ref resolves (informational, not required)
+  let auth_resolves = false
+  let auth_error: string | null = null
+  try {
+    resolveAuthRef(account.auth_ref)
+    auth_resolves = true
+  } catch (e) {
+    auth_error = e instanceof AuthResolutionError ? `${e.code}: ${e.message}` : String(e)
+  }
+  return {
+    ok: true,
+    added: account.id,
+    total_accounts: result.registry.accounts.length,
+    auth_resolves,
+    auth_error,
+  }
+}
+
+function tool_remove(args: Record<string, unknown>): unknown {
+  const id = args.id as string
+  if (typeof id !== "string") throw new Error("id required (string)")
+  const result = removeAccount(id)
+  if (!result.ok) throw new Error(result.error ?? "remove failed")
+  return { ok: true, removed: id, total_accounts: result.registry.accounts.length }
+}
+
+function tool_update(args: Record<string, unknown>): unknown {
+  const id = args.id as string
+  const updates = args.updates as Partial<Omit<Account, "id">>
+  if (typeof id !== "string") throw new Error("id required (string)")
+  if (updates === null || typeof updates !== "object") throw new Error("updates required (object)")
+  const result = updateAccount(id, updates)
+  if (!result.ok) throw new Error(result.error ?? "update failed")
+  const updated = result.registry.accounts.find((a) => a.id === id)
+  return { ok: true, updated_id: id, account: updated }
+}
+
+function tool_status(args: Record<string, unknown>): unknown {
+  const target_model = args.target_model as string
+  if (typeof target_model !== "string") throw new Error("target_model required (string)")
+  const quotaOverrides = (args.quota_overrides as Record<string, number> | undefined) ?? {}
+  const registry = loadRegistry()
+
+  const accountStatus = registry.accounts.map((a) => {
+    let resolved = false
+    let expired = false
+    let error: string | null = null
+    let account_id_from_oauth: string | null = null
+    let expires_iso: string | null = null
+    try {
+      const auth = resolveAuthRef(a.auth_ref)
+      resolved = true
+      expired = isAuthExpired(auth)
+      if (auth.kind === "oauth") {
+        account_id_from_oauth = auth.accountId || null
+        expires_iso = auth.expires === 0 ? null : new Date(auth.expires).toISOString()
+      }
+    } catch (e) {
+      error = e instanceof AuthResolutionError ? `${e.code}: ${e.message}` : String(e)
+    }
+    return { id: a.id, label: a.label, provider: a.provider, priority: a.priority, resolved, expired, error, account_id_from_oauth, expires_iso }
+  })
+
+  // Resolve selection
+  const unavailableIds = new Set<string>(
+    accountStatus.filter((s) => s.error !== null || s.expired).map((s) => s.id),
+  )
+  const quotaRemaining = (acc: Account): number => quotaOverrides[acc.id] ?? 1.0
+  const selection = resolveAccount(registry, {
+    targetModel: target_model,
+    quotaRemaining,
+    unavailableIds,
+  })
+
+  return {
+    target_model,
+    registry_path: defaultRegistryPath(),
+    account_count: registry.accounts.length,
+    accounts: accountStatus,
+    excluded_from_selection: [...unavailableIds],
+    selected_account: selection.account?.id ?? null,
+    selected_account_label: selection.account?.label ?? null,
+    selection_reason: selection.reason,
+  }
+}
+
+const DISPATCH: Record<string, (args: Record<string, unknown>) => unknown> = {
+  cheapcode_account_list: () => tool_list(),
+  cheapcode_account_show: tool_show,
+  cheapcode_account_add: tool_add,
+  cheapcode_account_remove: tool_remove,
+  cheapcode_account_update: tool_update,
+  cheapcode_account_status: tool_status,
+}
+
+// ============================================================
+// JSON-RPC 2.0 protocol layer (matches mizan's mcp_server.py shape)
+// ============================================================
+
+interface RpcRequest {
+  jsonrpc: "2.0"
+  id?: number | string | null
+  method: string
+  params?: Record<string, unknown>
+}
+
+interface RpcResponse {
+  jsonrpc: "2.0"
+  id: number | string | null
+  result?: unknown
+  error?: { code: number; message: string }
+}
+
+function makeResponse(id: RpcRequest["id"], result: unknown): RpcResponse {
+  return { jsonrpc: "2.0", id: id ?? null, result }
+}
+
+function makeError(id: RpcRequest["id"], code: number, message: string): RpcResponse {
+  return { jsonrpc: "2.0", id: id ?? null, error: { code, message } }
+}
+
+function handleInitialize(id: RpcRequest["id"]): RpcResponse {
+  return makeResponse(id, {
+    protocolVersion: "2024-11-05",
+    capabilities: { tools: {} },
+    serverInfo: {
+      name: "cheapcode-accounts",
+      version: "1.0.0",
+    },
+    instructions:
+      "Multi-account management for cheapcode. Use cheapcode_account_list to inspect; " +
+      "cheapcode_account_add to register new account metadata (after `opencode providers " +
+      "login` for OAuth); cheapcode_account_status to diagnose which account would be " +
+      "selected for a given target model.",
+  })
+}
+
+function handleToolsList(id: RpcRequest["id"]): RpcResponse {
+  return makeResponse(id, { tools: TOOLS })
+}
+
+function handleToolsCall(id: RpcRequest["id"], params: Record<string, unknown>): RpcResponse {
+  const name = params.name as string
+  const args = (params.arguments as Record<string, unknown>) ?? {}
+  if (!(name in DISPATCH)) {
+    return makeError(id, -32602, `unknown tool: ${name}`)
+  }
+  try {
+    const result = DISPATCH[name](args)
+    return makeResponse(id, {
+      content: [
+        { type: "text", text: JSON.stringify(result, null, 2) },
+      ],
+      isError: false,
+    })
+  } catch (e) {
+    return makeError(id, -32603, `tool ${name} raised: ${(e as Error).message}`)
+  }
+}
+
+function handleRequest(req: RpcRequest): RpcResponse | null {
+  const { method, id, params } = req
+  if (method === "initialize") return handleInitialize(id)
+  if (method === "initialized" || method === "notifications/initialized") return null
+  if (method === "tools/list") return handleToolsList(id)
+  if (method === "tools/call") return handleToolsCall(id, params ?? {})
+  // No-op handlers for MCP capabilities we don't expose. Returning empty arrays
+  // (instead of method-not-found errors) is more polite to clients like opencode
+  // that probe these regardless of advertised capabilities.
+  if (method === "prompts/list") return makeResponse(id, { prompts: [] })
+  if (method === "resources/list") return makeResponse(id, { resources: [] })
+  if (method === "resources/templates/list") return makeResponse(id, { resourceTemplates: [] })
+  if (method === "ping") return makeResponse(id, {})
+  if (id === undefined || id === null) return null
+  return makeError(id, -32601, `method not found: ${method}`)
+}
+
+// ============================================================
+// stdio loop (newline-delimited JSON-RPC)
+// ============================================================
+
+async function serve(): Promise<void> {
+  const decoder = new TextDecoder()
+  let buffer = ""
+  for await (const chunk of process.stdin) {
+    buffer += decoder.decode(chunk as Uint8Array)
+    const lines = buffer.split("\n")
+    buffer = lines.pop() ?? ""
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (trimmed.length === 0) continue
+      let req: RpcRequest
+      try {
+        req = JSON.parse(trimmed)
+      } catch {
+        process.stdout.write(JSON.stringify(makeError(null, -32700, "parse error")) + "\n")
+        continue
+      }
+      const response = handleRequest(req)
+      if (response !== null) {
+        process.stdout.write(JSON.stringify(response) + "\n")
+      }
+    }
+  }
+}
+
+serve().catch((e) => {
+  process.stderr.write(`[cheapcode-accounts-mcp] fatal: ${(e as Error).message}\n`)
+  process.exit(1)
+})
