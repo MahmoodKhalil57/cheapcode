@@ -27,7 +27,7 @@ import { CooldownTracker, type CooldownReason } from "./cooldown"
 import type { CredentialPool } from "./credential-pool"
 import { pickCredential } from "./credential-pool"
 import type { ResolvedAuth } from "./auth-resolver"
-import { resolveAuthRef } from "./auth-resolver"
+import { defaultOpencodeAuthPath, resolveAuthRef } from "./auth-resolver"
 
 export interface PoolDispatchInput {
   authKey: string
@@ -89,8 +89,10 @@ export async function dispatchWithPool<T>(
   }
 
   // Build auth_ref — for now assume auth.json#<key>; auth-resolver resolves it.
+  // The bare "auth.json" path is relative; default to the canonical opencode
+  // location when caller didn't override (e.g. tests).
   const auth = resolveAuthRef(`auth.json#${authKey}`, {
-    opencodeAuthPath: opts.opencodeAuthPath,
+    opencodeAuthPath: opts.opencodeAuthPath ?? defaultOpencodeAuthPath(),
     envLookup: opts.envLookup,
   })
 
