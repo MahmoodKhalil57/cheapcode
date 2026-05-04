@@ -215,39 +215,84 @@ function cmdDoctor(): number {
 // Subcommand: web
 // ============================================================
 
-function cmdWeb(extraArgs: string[]): number {
+async function cmdWeb(extraArgs: string[]): Promise<number> {
   ensureOpencode()
-  // Default port 4096 unless overridden
+  // Default public port 4096 unless overridden via --port
   const portIdx = extraArgs.indexOf("--port")
-  const port = portIdx === -1 ? DEFAULT_WEB_PORT : parseInt(extraArgs[portIdx + 1] ?? `${DEFAULT_WEB_PORT}`, 10)
-  if (isNaN(port)) fail(`invalid --port value`)
+  const publicPort = portIdx === -1 ? DEFAULT_WEB_PORT : parseInt(extraArgs[portIdx + 1] ?? `${DEFAULT_WEB_PORT}`, 10)
+  if (isNaN(publicPort)) fail(`invalid --port value`)
+  // Run upstream opencode on publicPort + 1; cheapcode proxy listens on publicPort.
+  // CHEAPCODE_DISABLE_OVERLAY=1 → fall back to plain opencode passthrough (no overlay).
+  const overlayDisabled = process.env.CHEAPCODE_DISABLE_OVERLAY === "1"
+  const upstreamPort = publicPort + 1
 
   console.log(C.bold("cheapcode web"))
   console.log()
-  console.log(`  ${C.cyan("→")} starting opencode server with cheapcode wired in...`)
+  console.log(`  ${C.cyan("→")} starting opencode + cheapcode overlay...`)
   console.log()
 
-  const args = ["web", "--port", `${port}`, ...extraArgs.filter((_, i) => i !== portIdx && i !== portIdx + 1)]
+  // Strip --port from extraArgs and pass our chosen port to opencode
+  const passthroughArgs = extraArgs.filter((_, i) => i !== portIdx && i !== portIdx + 1)
+  const opencodePort = overlayDisabled ? publicPort : upstreamPort
+  const args = ["web", "--port", `${opencodePort}`, ...passthroughArgs]
   const child = spawn("opencode", args, { stdio: "inherit" })
 
-  // Print friendly help once server is up
+  // Start the cheapcode proxy unless explicitly disabled. The proxy adds the
+  // `+ Add another` button to opencode's Providers panel via overlay script
+  // injection — operator's M12 multi-account UX. CHEAPCODE_DISABLE_OVERLAY=1
+  // bypasses entirely and runs vanilla opencode.
+  let stopProxy: (() => void) | null = null
+  if (!overlayDisabled) {
+    // Wait for opencode to bind its port (max 10s) before launching proxy
+    await waitForPort(upstreamPort, 10000)
+    try {
+      const { startWebServer } = await import("../src/web-server")
+      const proxy = startWebServer({ publicPort, upstreamPort })
+      stopProxy = proxy.stop
+    } catch (e) {
+      console.error(C.yellow(`couldn't start cheapcode overlay proxy: ${(e as Error).message}`))
+      console.error(C.dim(`  falling back to direct opencode at :${upstreamPort} (no '+ Add another' button)`))
+    }
+  }
+
   setTimeout(() => {
     console.log()
     console.log(C.bold("how to use:"))
     console.log()
-    console.log(`  1. open ${C.cyan(`http://127.0.0.1:${port}/`)} in your browser`)
-    console.log(`  2. click ${C.bold("Providers")} → ${C.bold("Connect")} for any provider you want`)
-    console.log(`  3. in the chat panel, ask the assistant to register the account:`)
-    console.log(C.dim(`     "add my OpenAI credential as a cheapcode account, priority 100, all capabilities"`))
-    console.log(`  4. verify from a shell: ${C.cyan("cheapcode accounts list")}`)
+    console.log(`  1. open ${C.cyan(`http://127.0.0.1:${publicPort}/`)} in your browser`)
+    console.log(`  2. click ${C.bold("Providers")} → ${C.bold("Connect")} for any provider`)
+    console.log(`  3. for ${C.bold("multiple accounts of same provider")}: hover any connected provider`)
+    console.log(`     and click ${C.cyan("+ Add another")} ${C.dim("(cheapcode overlay)")}`)
+    console.log(`  4. verify: ${C.cyan("cheapcode accounts list")}`)
     console.log()
-    console.log(C.dim(`  ctrl-c to stop the server`))
+    console.log(C.dim(`  ctrl-c to stop`))
+    if (overlayDisabled) {
+      console.log(C.dim(`  (CHEAPCODE_DISABLE_OVERLAY=1 — overlay disabled; vanilla opencode only)`))
+    }
     console.log()
   }, 1500)
 
-  return new Promise<number>((resolve) => {
-    child.on("close", (code) => resolve(code ?? 0))
-  }) as never
+  return await new Promise<number>((resolve) => {
+    child.on("close", (code) => {
+      if (stopProxy) {
+        try { stopProxy() } catch { /* ignore */ }
+      }
+      resolve(code ?? 0)
+    })
+  })
+}
+
+async function waitForPort(port: number, timeoutMs: number): Promise<void> {
+  const deadline = Date.now() + timeoutMs
+  while (Date.now() < deadline) {
+    try {
+      const r = await fetch(`http://127.0.0.1:${port}/`, { signal: AbortSignal.timeout(500) })
+      if (r.status >= 200 && r.status < 600) return
+    } catch {
+      // not ready yet
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250))
+  }
 }
 
 // ============================================================
@@ -387,7 +432,7 @@ async function main(): Promise<number> {
   }
   if (cmd === "--version" || cmd === "-v" || cmd === "version") return cmdVersion()
   if (cmd === "doctor") return cmdDoctor()
-  if (cmd === "web") return await (cmdWeb(rest) as unknown as Promise<number>)
+  if (cmd === "web") return await cmdWeb(rest)
   if (cmd === "tui") return await (cmdTui(rest) as unknown as Promise<number>)
   if (cmd === "run") return await (cmdRun(rest) as unknown as Promise<number>)
   if (cmd === "providers" || cmd === "auth") return await (cmdProviders(rest) as unknown as Promise<number>)
