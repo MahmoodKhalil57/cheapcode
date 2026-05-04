@@ -4,6 +4,22 @@
 
 **Status:** v1.0 (M3.22). Phase 1 + Phase 2 (substrate-runtime voter, small-N validated M3.20) + Phase 3 (5-tier registration L3) + Phase 4 (Model Card README) shipped. M3.15 opencode-CLI dispatch ProviderInitError documented as upstream-issue / v1.x follow-up. ([LATESTMILESTONE.md](LATESTMILESTONE.md))
 
+## install
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/MahmoodKhalil57/cheapcode/main/install.sh | sh
+```
+
+The installer pulls opencode + bun if missing, clones cheapcode to `~/.cheapcode/lib`, sets up `~/.cheapcode/bin` in your PATH, and registers cheapcode in opencode's config. Then:
+
+```sh
+cheapcode web        # simple flow: browser at http://127.0.0.1:4096/
+cheapcode doctor     # health check
+cheapcode help       # all subcommands
+```
+
+See [`docs/multi-account-wiring-recipe.md`](docs/multi-account-wiring-recipe.md) for multi-account setup.
+
 ---
 
 This document is structured as a **Model Card** ([Mitchell et al. 2019](https://arxiv.org/abs/1810.03993)) — the format used by HuggingFace, Meta, Google, and OpenAI. It documents what cheapcode IS, what it IS NOT, the evidence tier behind every routing rule, and the experiments that ran (including the FAILed ones, per atom 0013 — calibration-discipline-as-credential).

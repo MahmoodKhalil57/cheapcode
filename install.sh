@@ -74,7 +74,7 @@ info "platform: ${c_bold}${OS}/${ARCH}${c_reset}"
 # (Eventually: download a pre-built binary from a release URL.)
 
 CHEAPCODE_SOURCE="${CHEAPCODE_SOURCE:-}"
-CHEAPCODE_REPO="${CHEAPCODE_REPO:-https://github.com/saastemly/cheapcode.git}"
+CHEAPCODE_REPO="${CHEAPCODE_REPO:-https://github.com/MahmoodKhalil57/cheapcode.git}"
 CHEAPCODE_HOME="${CHEAPCODE_HOME:-$HOME/.cheapcode}"
 CHEAPCODE_LIB="$CHEAPCODE_HOME/lib"
 CHEAPCODE_BIN="$CHEAPCODE_HOME/bin"
