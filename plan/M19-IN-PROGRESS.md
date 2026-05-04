@@ -59,3 +59,23 @@ Status: completed locally.
 - "Phase 2 null results are reflected" — verified by the Anti-claim section and Confidence accounting section.
 - "Phase 1 canon is provisional" — verified by document statements and candidate `mizan_grade: "daif"` files.
 - "This is the perfect internal flow" — ASSUMPTION / design recommendation, pending Phase 4 implementation and Phase 5 scorecard.
+
+## Phase 4 — Implementation
+
+Status: completed locally before commits.
+
+- Added `src/canon-loader.ts` and `src/canon-loader.test.ts` for fail-soft canon shard loading and grade filtering.
+- Added `src/canon-injector.ts` and `src/canon-injector.test.ts` for deterministic dimension classification, 1-3 card selection, and scaffold rendering.
+- Added `src/claim-shape.ts` and `src/claim-shape.test.ts` for local claim-shape tagging and summary reporting.
+- Extended `src/orchestrate.ts` with `canonInjection`, `canonPlanDir`, `canonMaxTokens`, and `claimShapeVerify` flags. Defaults remain off for canon and claim-shape verification.
+- Wired `script/m17-live-dispatch.ts` to exercise the full stack via `CHEAPCODE_CANON_INJECTION=1` and `CHEAPCODE_CLAIM_SHAPE_VERIFY=1`.
+- Added `script/m19-scorecard.ts` for baseline and canon-on seven-axis receipts.
+- Verification: `bun test` passed 388 tests; `bun script/m17-benchmark.ts --dry-run` wrote a receipt and preserved the anti-fab no-headline gate; `bun script/m19-scorecard.ts --baseline` and `--canon-on` both wrote receipts.
+
+### Phase 4 anti-fab self-check
+
+- "New modules exist with tests" — verified by `bun test` running 31 files and 388 passing tests.
+- "Orchestrate flags default off" — verified by `OrchestrateOptions` defaults and existing tests that skip canon/probe unless enabled.
+- "m17-live-dispatch can exercise full stack" — verified by env flag wiring; live exercise itself remains Phase 5/scorecard territory.
+- "Scorecard runs seven axes" — verified by `script/m19-scorecard.ts` output containing all seven axis keys.
+- "Full implementation improves the real agent" — ASSUMPTION until Phase 5 scorecard receipt is evaluated and operator spot-checks canon relevance.
