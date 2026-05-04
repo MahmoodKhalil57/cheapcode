@@ -129,6 +129,8 @@ export async function liveDispatchCheapcode(prompt: string): Promise<DispatchRes
           quota: sharedQuota,
           budget: getSharedBudget(),
           sycophancyRate,
+          canonInjection: process.env.CHEAPCODE_CANON_INJECTION === "1",
+          claimShapeVerify: process.env.CHEAPCODE_CLAIM_SHAPE_VERIFY === "1",
           call: async (input) => {
             const callStart = performance.now()
             const modelId = input.targetModel.includes("/")

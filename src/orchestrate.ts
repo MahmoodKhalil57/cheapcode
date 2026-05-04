@@ -25,6 +25,9 @@ import type { CredentialPool } from "./credential-pool"
 import { dispatchWithPool, type PoolAttribution } from "./dispatch-with-pool"
 import { withTemporalAnchor } from "./temporal-anchor"
 import { probeSycophancy, shouldProbe, type ProbeResult } from "./sycophancy-probe"
+import { loadCanon } from "./canon-loader"
+import { buildCanonScaffold, classifyTaskDimensions, selectCanonCards, type InjectionDecision } from "./canon-injector"
+import { buildClaimShapeReport } from "./claim-shape"
 import {
   QuotaTracker,
   TaskBudget,
@@ -72,6 +75,14 @@ export interface OrchestrateOptions {
   telemetryPath?: string | false
   /** Prepend temporal scaffold (default true). */
   temporalAnchor?: boolean
+  /** Prepend task-relevant canon scaffold (default false until scorecard earns default). */
+  canonInjection?: boolean
+  /** Directory containing *.candidates.json or *.verified.json canon shards. */
+  canonPlanDir?: string
+  /** Token budget for canon scaffold (default 200). */
+  canonMaxTokens?: number
+  /** Append a local claim-shape summary to the result object. */
+  claimShapeVerify?: boolean
   /** Sycophancy probe rate 0..1 (default 0). Set to 0.05 for ~5% sample. */
   sycophancyRate?: number
   /** Override now() for tests. */
@@ -92,6 +103,8 @@ export interface OrchestratedResult {
   budget?: BudgetSnapshot
   /** Probe result when sycophancy detection ran. */
   probe?: ProbeResult
+  canon?: InjectionDecision
+  claim_shape_report?: string
   tokens_in?: number
   tokens_out?: number
 }
@@ -106,6 +119,7 @@ export class BudgetExhaustedError extends Error {
 }
 
 const DEFAULT_TELEMETRY_PATH = join(homedir(), ".local", "share", "cheapcode", "dispatch.jsonl")
+const DEFAULT_CANON_DIR = join(import.meta.dir, "..", "plan", "canon")
 
 export async function orchestrate(opts: OrchestrateOptions): Promise<OrchestratedResult> {
   // 0. Pre-flight budget gate
@@ -114,10 +128,16 @@ export async function orchestrate(opts: OrchestrateOptions): Promise<Orchestrate
   }
 
   // 1. Temporal anchor scaffold (Phase B.1)
-  const enriched =
+  const temporalPrompt =
     opts.temporalAnchor === false
       ? opts.prompt
       : await withTemporalAnchor(opts.prompt, { now: opts.now })
+
+  const canonDecision = opts.canonInjection
+    ? selectCanonCards(loadCanon(opts.canonPlanDir ?? DEFAULT_CANON_DIR), classifyTaskDimensions(opts.prompt), opts.canonMaxTokens ?? 200)
+    : undefined
+  const canonScaffold = canonDecision ? buildCanonScaffold(canonDecision) : ""
+  const enriched = canonScaffold.length > 0 ? `${canonScaffold}\n\n---\n\n${temporalPrompt}` : temporalPrompt
 
   // 2. Pool dispatch — credential pick + cooldown wrap (Phase A)
   const quota = opts.quota ?? new QuotaTracker()
@@ -207,6 +227,8 @@ export async function orchestrate(opts: OrchestrateOptions): Promise<Orchestrate
     attribution: out.attribution,
     budget: snap,
     probe,
+    canon: canonDecision,
+    claim_shape_report: opts.claimShapeVerify ? buildClaimShapeReport(out.result.text) : undefined,
     tokens_in: out.result.tokens_in,
     tokens_out: out.result.tokens_out,
   }

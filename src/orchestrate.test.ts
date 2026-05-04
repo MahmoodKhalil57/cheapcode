@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from "bun:test"
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { CooldownTracker } from "./cooldown"
@@ -72,6 +72,50 @@ test("orchestrate: temporalAnchor:false skips scaffold", async () => {
     },
   })
   expect(seenPrompt).toBe("What is X?")
+})
+
+test("orchestrate: canonInjection prepends selected canon scaffold", async () => {
+  const { authPath, telPath, pool } = await setup()
+  const canonDir = join(tmpDir, "canon")
+  await mkdir(canonDir)
+  await writeFile(join(canonDir, "accessibility.candidates.json"), JSON.stringify({ candidates: [{ id: "wcag", dimension: "accessibility", source_name: "WCAG", source_type: "standard", author_or_publisher: "W3C", url: "https://w3.org", accessed_at: "now", primary_principle: "Make content perceivable.", applicability_signal: "contrast|keyboard", citation_form: "W3C", operator_verified: false, mizan_grade: "hasan" }] }))
+  let seenPrompt = ""
+  const out = await orchestrate({
+    pool,
+    canonical: "openai",
+    dispatchId: "d1",
+    prompt: "Build a UI with keyboard focus and contrast",
+    targetModel: "openai/gpt-5.5",
+    temporalAnchor: false,
+    canonInjection: true,
+    canonPlanDir: canonDir,
+    opencodeAuthPath: authPath,
+    telemetryPath: telPath,
+    call: async ({ prompt }) => {
+      seenPrompt = prompt
+      return { text: "answer", wall_clock_ms: 100, cost_usd_estimate: 0.001 }
+    },
+  })
+  expect(seenPrompt).toContain("Honor these fetched design canons")
+  expect(seenPrompt).toContain("WCAG")
+  expect(out.canon?.cards.length).toBe(1)
+})
+
+test("orchestrate: claimShapeVerify returns local report", async () => {
+  const { authPath, telPath, pool } = await setup()
+  const out = await orchestrate({
+    pool,
+    canonical: "openai",
+    dispatchId: "d1",
+    prompt: "p",
+    targetModel: "openai/gpt-5.5",
+    temporalAnchor: false,
+    claimShapeVerify: true,
+    opencodeAuthPath: authPath,
+    telemetryPath: telPath,
+    call: async () => ({ text: "Tests passed. The system is perfect.", wall_clock_ms: 100, cost_usd_estimate: 0.001 }),
+  })
+  expect(out.claim_shape_report).toContain("unsupported")
 })
 
 test("orchestrate: charges budget and surfaces snapshot", async () => {
