@@ -40,8 +40,29 @@ import {
   resolveAccount,
   type Account,
 } from "../src/account-registry"
-import { loadEffectiveRegistry, classifyAccountSource } from "../src/account-discovery"
+import { loadEffectiveRegistry, classifyAccountSource, defaultOpencodeAuthPath } from "../src/account-discovery"
 import { resolveAuthRef, isAuthExpired, AuthResolutionError } from "../src/auth-resolver"
+import { readFileSync, existsSync } from "node:fs"
+
+// ============================================================
+// opencode HTTP API helpers
+// ============================================================
+//
+// cheapcode-accounts-mcp runs as a stdio child of opencode itself. We use
+// opencode's existing HTTP API for OAuth orchestration so we never reimplement
+// auth flows. OPENCODE_URL env var or fall back to localhost:4096 (the port
+// `cheapcode web` defaults to).
+
+function opencodeBaseURL(): string {
+  return process.env.OPENCODE_URL ?? process.env.OPENCODE_SERVER_URL ?? "http://127.0.0.1:4096"
+}
+
+async function opencodeFetch(path: string, init?: RequestInit): Promise<Response> {
+  return await fetch(`${opencodeBaseURL()}${path}`, {
+    ...init,
+    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+  })
+}
 
 // ============================================================
 // Tool definitions (MCP spec 2024-11-05)
@@ -174,6 +195,94 @@ const TOOLS = [
       required: ["target_model"],
     },
   },
+  {
+    name: "cheapcode_account_apikey_add",
+    description:
+      "EASIEST multi-account flow: add an API-key-based account for any provider. " +
+      "User pastes the API key in chat; tool writes it to opencode's auth.json under " +
+      "the chosen unique name (e.g. 'openrouter-2', 'openai-team') and registers a " +
+      "cheapcode account entry. Use this for OpenRouter keys, OpenAI API keys (sk-...), " +
+      "Anthropic API keys (sk-ant-...), Groq, DeepSeek, Mistral, Together, etc. " +
+      "INSTRUCTION TO LLM: when user says 'add another openrouter key' or similar, " +
+      "first emit a friendly message with the deep link to where they can get a key " +
+      "(e.g. https://openrouter.ai/settings/keys), then call this tool with the key " +
+      "they paste. Suggest a sensible unique name.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        provider: {
+          type: "string",
+          description: "provider family: 'openai' | 'openrouter' | 'anthropic' | 'google' | 'groq' | 'deepseek' | 'mistral' | 'together' | 'fireworks' | (or any custom string)",
+        },
+        name: {
+          type: "string",
+          description: "unique name for this credential (e.g. 'openrouter-2', 'openai-team'). " +
+            "Used as auth.json key + cheapcode account id. Must not already exist in auth.json.",
+        },
+        api_key: {
+          type: "string",
+          description: "the actual API key the user provided. WILL BE STORED in opencode's auth.json.",
+        },
+        label: {
+          type: "string",
+          description: "optional human label for the account (default: name)",
+        },
+        priority: {
+          type: "number",
+          description: "selection priority (default 50; higher = preferred)",
+        },
+        tier: {
+          type: "string",
+          enum: ["subscription", "paid-per-token", "free"],
+          description: "billing tier (default 'paid-per-token' for API keys)",
+        },
+        capabilities: {
+          type: "array",
+          items: { type: "string" },
+          description: "model ids this account can access; default ['*'] (all)",
+        },
+      },
+      required: ["provider", "name", "api_key"],
+    },
+  },
+  {
+    name: "cheapcode_account_oauth_add",
+    description:
+      "OAUTH multi-account flow: add a SECOND (or third+) OAuth-tied account for a " +
+      "provider that supports browser OAuth (currently openai/ChatGPT-Plus, github-copilot, " +
+      "and any other provider opencode has registered for OAuth). Returns an authorization URL " +
+      "to give the user. The tool then waits up to 120 seconds for them to complete OAuth in " +
+      "their browser. CRITICAL UX INSTRUCTION: user MUST open the URL in incognito/private " +
+      "mode OR log out of the provider in their default browser first — otherwise the OAuth " +
+      "will just re-authenticate the SAME account they already have, which the tool will " +
+      "detect and reject. After successful OAuth on a different account, the tool swaps " +
+      "the new credential under the requested custom name and restores the user's previous " +
+      "primary credential under the original provider key. Both accounts then coexist.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        provider_id: {
+          type: "string",
+          description: "the canonical OAuth-supporting provider id (e.g. 'openai', 'github-copilot'). " +
+            "Must match a provider opencode knows OAuth methods for; otherwise tool errors out.",
+        },
+        name: {
+          type: "string",
+          description: "custom name for the new credential (e.g. 'openai-work', 'openai-team'). " +
+            "Must not already exist in auth.json.",
+        },
+        label: {
+          type: "string",
+          description: "optional human label for the account (default: name)",
+        },
+        priority: {
+          type: "number",
+          description: "selection priority (default 80 for OAuth subscription accounts)",
+        },
+      },
+      required: ["provider_id", "name"],
+    },
+  },
 ] as const
 
 // ============================================================
@@ -290,13 +399,267 @@ function tool_status(args: Record<string, unknown>): unknown {
   }
 }
 
-const DISPATCH: Record<string, (args: Record<string, unknown>) => unknown> = {
+// ============================================================
+// API-key add: write auth.json#{name} via opencode's PUT, then register cheapcode account
+// ============================================================
+
+async function tool_apikey_add(args: Record<string, unknown>): Promise<unknown> {
+  const provider = args.provider as string
+  const name = args.name as string
+  const api_key = args.api_key as string
+  const label = (args.label as string | undefined) ?? name
+  const priority = (args.priority as number | undefined) ?? 50
+  const tier = (args.tier as string | undefined) ?? "paid-per-token"
+  const capabilities = (args.capabilities as string[] | undefined) ?? ["*"]
+
+  if (!provider || !name || !api_key) throw new Error("provider, name, and api_key are required")
+  if (typeof api_key !== "string" || api_key.length < 5) throw new Error("api_key looks invalid (too short)")
+
+  // Refuse to overwrite an existing auth.json entry — we add, never silently replace
+  const authPath = defaultOpencodeAuthPath()
+  if (existsSync(authPath)) {
+    try {
+      const auth = JSON.parse(readFileSync(authPath, "utf-8")) as Record<string, unknown>
+      if (name in auth) {
+        throw new Error(
+          `auth.json already has an entry named "${name}". Pick a different name OR remove the existing one first.`,
+        )
+      }
+    } catch (e) {
+      if ((e as Error).message.includes("already has")) throw e
+      // parse error → ignore (will be handled by opencode anyway)
+    }
+  }
+
+  // PUT to opencode's auth API — same endpoint the UI uses for Custom provider
+  const res = await opencodeFetch(`/auth/${encodeURIComponent(name)}`, {
+    method: "PUT",
+    body: JSON.stringify({ type: "api", key: api_key }),
+  })
+  if (!res.ok) {
+    const text = await res.text().catch(() => "(unreadable)")
+    throw new Error(`opencode PUT /auth/${name} failed (${res.status}): ${text}`)
+  }
+
+  // Register cheapcode explicit account so this gets meaningful priority/label
+  const account: Account = {
+    id: name,
+    label,
+    provider,
+    auth_type: "api-key",
+    auth_ref: `~/.local/share/opencode/auth.json#${name}`,
+    capabilities,
+    tier: tier as never,
+    priority,
+  }
+  const result = addAccount(account)
+  if (!result.ok) {
+    // auth.json was written but registry failed — surface but don't roll back
+    return {
+      ok: true,
+      auth_written: name,
+      registry_added: false,
+      registry_error: result.error,
+      message: `auth.json#${name} created, but cheapcode accounts.json registration failed. The account is auto-discoverable but won't have your custom priority/label until you fix the registry.`,
+    }
+  }
+  return {
+    ok: true,
+    auth_written: name,
+    registry_added: true,
+    account_id: name,
+    priority,
+    message: `Account "${name}" added. opencode auth.json + cheapcode accounts.json updated. Active immediately for cheapcode/auto routing.`,
+  }
+}
+
+// ============================================================
+// OAuth add: trigger opencode OAuth, swap-and-rename when complete, restore primary
+// ============================================================
+
+interface OAuthEntry {
+  type: string
+  access?: string
+  refresh?: string
+  expires?: number
+  accountId?: string
+  [k: string]: unknown
+}
+
+function readAuthEntry(providerKey: string): OAuthEntry | null {
+  const path = defaultOpencodeAuthPath()
+  if (!existsSync(path)) return null
+  try {
+    const auth = JSON.parse(readFileSync(path, "utf-8")) as Record<string, unknown>
+    return (auth[providerKey] as OAuthEntry | undefined) ?? null
+  } catch {
+    return null
+  }
+}
+
+function authSnapshot(): Record<string, unknown> {
+  const path = defaultOpencodeAuthPath()
+  if (!existsSync(path)) return {}
+  try {
+    return JSON.parse(readFileSync(path, "utf-8")) as Record<string, unknown>
+  } catch {
+    return {}
+  }
+}
+
+async function tool_oauth_add(args: Record<string, unknown>): Promise<unknown> {
+  const provider_id = args.provider_id as string
+  const name = args.name as string
+  const label = (args.label as string | undefined) ?? name
+  const priority = (args.priority as number | undefined) ?? 80
+
+  if (!provider_id || !name) throw new Error("provider_id and name are required")
+  if (provider_id === name) {
+    throw new Error(
+      `name must differ from provider_id "${provider_id}" — use something like "${provider_id}-2" or "${provider_id}-work"`,
+    )
+  }
+
+  const initial = authSnapshot()
+  if (name in initial) {
+    throw new Error(`auth.json already has "${name}". Pick a different name.`)
+  }
+  const backup = (initial[provider_id] as OAuthEntry | undefined) ?? null
+
+  // 1. Trigger opencode OAuth authorize
+  const authorizeRes = await opencodeFetch(`/provider/${encodeURIComponent(provider_id)}/oauth/authorize`, {
+    method: "POST",
+    body: JSON.stringify({ method: 0 }),
+  })
+  if (!authorizeRes.ok) {
+    const text = await authorizeRes.text().catch(() => "(unreadable)")
+    throw new Error(
+      `opencode OAuth authorize failed for ${provider_id} (${authorizeRes.status}): ${text}. ` +
+      `Provider may not have OAuth methods registered.`,
+    )
+  }
+  let authBody: { url?: string; method?: string; instructions?: string } = {}
+  try {
+    authBody = await authorizeRes.json() as never
+  } catch {
+    /* ignore */
+  }
+  const url = authBody.url
+  if (!url) throw new Error(`opencode returned no auth URL: ${JSON.stringify(authBody)}`)
+
+  // 2. Poll for auth.json change — wait up to ~120s for user to complete OAuth in browser
+  const startMs = Date.now()
+  const timeoutMs = 120_000
+  const pollIntervalMs = 1500
+  const initialPrimary = JSON.stringify(backup ?? {})
+
+  let newPrimary: OAuthEntry | null = null
+  while (Date.now() - startMs < timeoutMs) {
+    await new Promise((resolve) => setTimeout(resolve, pollIntervalMs))
+    const cur = readAuthEntry(provider_id)
+    if (cur && JSON.stringify(cur) !== initialPrimary) {
+      newPrimary = cur
+      break
+    }
+  }
+
+  if (newPrimary === null) {
+    return {
+      ok: false,
+      timed_out: true,
+      auth_url: url,
+      message: `Timed out waiting for OAuth completion (120s). The auth URL is still valid — open it in incognito mode and complete authorization, then re-run this tool.`,
+    }
+  }
+
+  // 3. Detect "same account" — refuse if accountId matches (user didn't switch)
+  if (
+    backup &&
+    typeof backup.accountId === "string" &&
+    typeof newPrimary.accountId === "string" &&
+    backup.accountId === newPrimary.accountId &&
+    backup.accountId.length > 0
+  ) {
+    // Restore backup so we don't leave state mutated, then error
+    if (backup) {
+      const restoreRes = await opencodeFetch(`/auth/${encodeURIComponent(provider_id)}`, {
+        method: "PUT",
+        body: JSON.stringify(backup),
+      })
+      if (!restoreRes.ok) {
+        // Best-effort restore failed — surface
+      }
+    }
+    throw new Error(
+      `OAuth completed BUT same account (accountId=${newPrimary.accountId}) — you authorized the same user opencode already had. ` +
+      `Open the auth URL in incognito/private mode (or log out of the provider first) so you authorize a DIFFERENT account, then retry. ` +
+      `auth_url: ${url}`,
+    )
+  }
+
+  // 4. Save the new tokens under the custom name via PUT
+  const putNewRes = await opencodeFetch(`/auth/${encodeURIComponent(name)}`, {
+    method: "PUT",
+    body: JSON.stringify(newPrimary),
+  })
+  if (!putNewRes.ok) {
+    throw new Error(`opencode PUT /auth/${name} failed (${putNewRes.status})`)
+  }
+
+  // 5. Restore backup under the original provider_id key
+  if (backup) {
+    const restoreRes = await opencodeFetch(`/auth/${encodeURIComponent(provider_id)}`, {
+      method: "PUT",
+      body: JSON.stringify(backup),
+    })
+    if (!restoreRes.ok) {
+      // Best-effort — surface a warning
+      return {
+        ok: true,
+        new_account_name: name,
+        new_account_id: newPrimary.accountId ?? null,
+        primary_restored: false,
+        warning: `Saved new "${name}" but failed to restore primary "${provider_id}". You may need to re-OAuth your primary.`,
+      }
+    }
+  } else {
+    // No backup → user had no prior credential. Just delete the now-duplicate provider_id entry
+    // since we've moved it to `name`.
+    await opencodeFetch(`/auth/${encodeURIComponent(provider_id)}`, { method: "DELETE" }).catch(() => null)
+  }
+
+  // 6. Register cheapcode explicit account
+  const account: Account = {
+    id: name,
+    label,
+    provider: provider_id,
+    auth_type: "consumer-oauth",
+    auth_ref: `~/.local/share/opencode/auth.json#${name}`,
+    capabilities: ["*"],
+    tier: "subscription",
+    priority,
+  }
+  const regResult = addAccount(account)
+  return {
+    ok: true,
+    new_account_name: name,
+    new_account_id: newPrimary.accountId ?? null,
+    primary_restored: backup !== null,
+    registry_added: regResult.ok,
+    registry_error: regResult.ok ? null : regResult.error,
+    message: `OAuth account "${name}" added (different from your existing "${provider_id}"). Both are active for cheapcode routing.`,
+  }
+}
+
+const DISPATCH: Record<string, (args: Record<string, unknown>) => unknown | Promise<unknown>> = {
   cheapcode_account_list: () => tool_list(),
   cheapcode_account_show: tool_show,
   cheapcode_account_add: tool_add,
   cheapcode_account_remove: tool_remove,
   cheapcode_account_update: tool_update,
   cheapcode_account_status: tool_status,
+  cheapcode_account_apikey_add: tool_apikey_add,
+  cheapcode_account_oauth_add: tool_oauth_add,
 }
 
 // ============================================================
@@ -345,14 +708,15 @@ function handleToolsList(id: RpcRequest["id"]): RpcResponse {
   return makeResponse(id, { tools: TOOLS })
 }
 
-function handleToolsCall(id: RpcRequest["id"], params: Record<string, unknown>): RpcResponse {
+async function handleToolsCall(id: RpcRequest["id"], params: Record<string, unknown>): Promise<RpcResponse> {
   const name = params.name as string
   const args = (params.arguments as Record<string, unknown>) ?? {}
   if (!(name in DISPATCH)) {
     return makeError(id, -32602, `unknown tool: ${name}`)
   }
   try {
-    const result = DISPATCH[name](args)
+    // Tool may be sync or async — await handles both
+    const result = await DISPATCH[name](args)
     return makeResponse(id, {
       content: [
         { type: "text", text: JSON.stringify(result, null, 2) },
@@ -364,12 +728,12 @@ function handleToolsCall(id: RpcRequest["id"], params: Record<string, unknown>):
   }
 }
 
-function handleRequest(req: RpcRequest): RpcResponse | null {
+async function handleRequest(req: RpcRequest): Promise<RpcResponse | null> {
   const { method, id, params } = req
   if (method === "initialize") return handleInitialize(id)
   if (method === "initialized" || method === "notifications/initialized") return null
   if (method === "tools/list") return handleToolsList(id)
-  if (method === "tools/call") return handleToolsCall(id, params ?? {})
+  if (method === "tools/call") return await handleToolsCall(id, params ?? {})
   // No-op handlers for MCP capabilities we don't expose. Returning empty arrays
   // (instead of method-not-found errors) is more polite to clients like opencode
   // that probe these regardless of advertised capabilities.
@@ -402,7 +766,7 @@ async function serve(): Promise<void> {
         process.stdout.write(JSON.stringify(makeError(null, -32700, "parse error")) + "\n")
         continue
       }
-      const response = handleRequest(req)
+      const response = await handleRequest(req)
       if (response !== null) {
         process.stdout.write(JSON.stringify(response) + "\n")
       }
