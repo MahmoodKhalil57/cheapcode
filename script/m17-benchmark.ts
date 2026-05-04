@@ -86,22 +86,14 @@ function parseArgs(): Args {
 
 async function dispatchCheapcode(task: Task, dryRun: boolean): Promise<DispatchResult> {
   if (dryRun) return synthDispatch(task, "cheapcode/auto")
-  // LIVE mode: caller wires this when ready. Fail-loud rather than silently
-  // burn credits via a half-implemented path.
-  throw new Error(
-    "live cheapcode arm not wired — operator must edit script/m17-benchmark.ts " +
-      "dispatchCheapcode() to call dispatchWithPool() against a real provider list. " +
-      "See M17-DISPATCH-CONTRACT.md §Smarter/faster/cheaper.",
-  )
+  const { liveDispatchCheapcode } = await import("./m17-live-dispatch")
+  return await liveDispatchCheapcode(task.prompt)
 }
 
 async function dispatchGpt55(task: Task, dryRun: boolean): Promise<DispatchResult> {
   if (dryRun) return synthDispatch(task, "gpt-5.5")
-  throw new Error(
-    "live gpt55 arm not wired — operator must edit script/m17-benchmark.ts " +
-      "dispatchGpt55() to call the OpenAI SDK with the gpt-5.5 model id and a " +
-      "credential resolved from auth.json#openai or auth.json#openai-2.",
-  )
+  const { liveDispatchGpt55 } = await import("./m17-live-dispatch")
+  return await liveDispatchGpt55(task.prompt)
 }
 
 // Synthetic dispatch: deterministic fake response so the harness can be
