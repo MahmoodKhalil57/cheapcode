@@ -56,15 +56,12 @@
         border-radius: 6px;
         cursor: pointer;
         margin-right: 8px;
-        opacity: 0;
-        transition: opacity 200ms;
+        opacity: 0.85;
+        transition: opacity 150ms, color 150ms, border-color 150ms;
       }
-      .group:hover .cheapcode-add-another-btn,
       .cheapcode-add-another-btn:focus,
       .cheapcode-add-another-btn:hover {
         opacity: 1;
-      }
-      .cheapcode-add-another-btn:hover {
         color: var(--text-strong, #fff);
         border-color: var(--border-strong-base, #666);
       }
