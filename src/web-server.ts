@@ -99,6 +99,12 @@ export function startWebServer(opts: WebServerOptions = {}): { stop: () => void;
       const upstreamHeaders = new Headers(req.headers)
       // Strip Host header so upstream sees its own host
       upstreamHeaders.delete("host")
+      // Force identity encoding from upstream so we never receive gzipped
+      // bodies. Bun's fetch auto-decodes gzip on stream access, leading to a
+      // header/body mismatch (browser sees Content-Encoding: gzip but receives
+      // already-decoded text → ERR_CONTENT_DECODING_FAILED). Skipping
+      // compression at the upstream-server boundary side-steps the whole class.
+      upstreamHeaders.set("accept-encoding", "identity")
 
       let upstream: Response
       try {
@@ -144,10 +150,16 @@ export function startWebServer(opts: WebServerOptions = {}): { stop: () => void;
         return new Response(injected, { status: upstream.status, headers })
       }
 
-      // 4. Pass through everything else as-is
+      // 4. Pass through everything else as-is. Defense-in-depth: also strip
+      // Content-Encoding header on pass-through, since Bun's fetch may have
+      // auto-decoded the body even if upstream ignored our identity request.
+      const passHeaders = new Headers(upstream.headers)
+      passHeaders.delete("content-encoding")
+      passHeaders.delete("transfer-encoding")
+      passHeaders.delete("content-length")
       return new Response(upstream.body, {
         status: upstream.status,
-        headers: upstream.headers,
+        headers: passHeaders,
       })
     },
   })
