@@ -42,3 +42,20 @@ Status: completed locally with both synthetic rehearsal receipts and live ChatGP
 - "Temporal, ToM, and cultural countermeasures reduced marker-scored failures" — verified by live receipt deltas.
 - "Sycophancy, reversal, and RLHF-bias did not improve under this scoring" — verified by live receipt deltas of 0.00.
 - "Countermeasures should become active by default" — ASSUMPTION for the three positive modes; Phase 4 scorecard and operator spot-check remain required before runtime defaults change.
+
+## Phase 3 — Agent design synthesis
+
+Status: completed locally.
+
+- Wrote `plan/M19-AGENT-DESIGN.md` with the required eight sections: Telos, Pipeline, Skill catalog, Tool inventory, Mizan integration, Energy transformation, Confidence accounting, and Anti-claim section.
+- Word count: 3267 words by `wc -w plan/M19-AGENT-DESIGN.md`.
+- The design preserves Phase 2 null results: sycophancy, reversal-curse, and RLHF-bias scaffolds did not earn active-default status in the current live benchmark.
+- The design treats Phase 1 canon entries as provisional `daif` candidates, not production proof.
+
+### Phase 3 anti-fab self-check
+
+- "Design doc has all 8 required sections" — verified by reading the document structure.
+- "Design doc is >=3000 words" — verified by `wc -w` returning 3267.
+- "Phase 2 null results are reflected" — verified by the Anti-claim section and Confidence accounting section.
+- "Phase 1 canon is provisional" — verified by document statements and candidate `mizan_grade: "daif"` files.
+- "This is the perfect internal flow" — ASSUMPTION / design recommendation, pending Phase 4 implementation and Phase 5 scorecard.
