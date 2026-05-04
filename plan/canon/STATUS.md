@@ -10,37 +10,36 @@ Each candidate ships with `mizan_grade: "daif"` until Phase 2 verifies.
 
 | Dimension | Reachable / Total | Excerpts extracted |
 |---|---|---|
-| software-architecture | 3/3 | 3/3 |
-| api-dx | 2/2 | 2/2 |
-| ui-visual | 3/3 | 2/3 |
-| accessibility | 1/1 | 1/1 |
-| ux-research | 1/2 | 1/2 |
-| ai-ml-product | 3/3 | 2/3 |
-| policy-governance | 2/2 | 1/2 |
-| llm-failure-research | 2/3 | 2/3 |
-| **total** | **17/19** | **14/19** |
+| software-architecture | 6/8 | 6/8 |
+| api-dx | 6/7 | 5/7 |
+| ui-visual | 8/8 | 7/8 |
+| accessibility | 6/6 | 5/6 |
+| ux-research | 7/7 | 7/7 |
+| ai-ml-product | 6/8 | 5/8 |
+| policy-governance | 6/7 | 5/7 |
+| llm-failure-research | 7/8 | 7/8 |
+| **total** | **52/59** | **47/59** |
 
 ## Known anomalies (Phase 2 must resolve)
 
-1. **TicToc seed (arxiv 2503.02391) returns the wrong paper** — the
-   fetched abstract is about pseudo-concave optimization, not temporal
-   awareness. Provisional `primary_principle` does not match the source.
-   Action: Phase 2 verification with the 4-LLM panel will fail; reseed
-   with the correct TicToc arxiv id (likely 2406.xxxxx range — verify
-   manually before re-running discovery).
+1. ~~**TicToc seed (arxiv 2503.02391) returns the wrong paper**~~ — corrected
+   during M19 Phase 1 to arXiv `2510.23853`, "Your LLM Agents are Temporally
+   Blind: The Misalignment Between Tool Use Decisions and Human Time
+   Perception." The arXiv search result was fetched before reseeding.
 
-2. **NN/G articles index timed out** — the publisher's main URL is
-   not directly fetchable in 8s. Reseed with a more specific stable
-   article URL or use https://www.nngroup.com/topic/.
+2. **Several authoritative pages are reachable without an excerpt** — RFC
+   9110, Material Design 3, OpenAI Model Spec, IBM Equal Access Toolkit, and
+   NIST AI RMF returned fetch-success with sparse or script-rendered HTML.
+   The candidates stay `daif`; Phase 2 must verify against page text or an
+   alternate official mirror before promotion.
 
 3. **Nature 2025 clinical hallucination paper unreachable** — likely
    paywall / 403. Reseed with the open-access preprint URL.
 
-4. **Three excerpts came back empty** (material-design-3, openai-model-spec,
-   nist-ai-rmf) — the page renders client-side, so HTML scraping misses
-   the og:description block. The seed's provisional `primary_principle`
-   stands; Phase 2 verification should compensate by hitting alternate
-   published-text mirrors.
+4. **M19 anti-sycophancy probe caught a poisoned source** —
+   `inclusivedesignprinciples.org` fetched gambling spam content during the
+   first M19 run. It was removed from the seed set and replaced with IBM Equal
+   Access Toolkit rather than papered over as an accessibility source.
 
 ## Phase 2 (cross-witness verification) — not yet run
 
@@ -53,4 +52,3 @@ cleanly through the M17 stack. Once funded, run:
 (Script not yet written — see plan/M18-DISPATCH-CONTRACT.md §2.)
 
 ## Phase 3 + 4 — gated on Phase 2 outputs
-

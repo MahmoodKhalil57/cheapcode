@@ -283,31 +283,32 @@ function computeEstimate(
 
 export async function getEstimate(
   category: Category,
-  opts: FilterOptions = {},
+  opts: FilterOptions | string = {},
 ): Promise<Estimate> {
-  const logPath = opts.logPath ?? DEFAULT_LOG_PATH
+  const options = typeof opts === "string" ? { logPath: opts } : opts
+  const logPath = options.logPath ?? DEFAULT_LOG_PATH
   const obs = await readObservations(logPath)
-  const baseFilter = { agent_id: opts.agent_id, scope_tags: opts.scope_tags }
+  const baseFilter = { agent_id: options.agent_id, scope_tags: options.scope_tags }
   const est = computeEstimate(category, obs, baseFilter)
 
-  if (!opts.broaden_on_no_data || est.sample_size > 0) return est
+  if (!options.broaden_on_no_data || est.sample_size > 0) return est
 
   // Broaden in two steps: first drop scope_tags, then drop agent_id.
-  if (opts.scope_tags !== undefined && opts.scope_tags.length > 0) {
-    const broadened = computeEstimate(category, obs, { agent_id: opts.agent_id })
+  if (options.scope_tags !== undefined && options.scope_tags.length > 0) {
+    const broadened = computeEstimate(category, obs, { agent_id: options.agent_id })
     if (broadened.sample_size > 0) {
       broadened.broadened_to = {
-        from: { agent_id: opts.agent_id, scope_tags: opts.scope_tags },
-        to: { agent_id: opts.agent_id },
+        from: { agent_id: options.agent_id, scope_tags: options.scope_tags },
+        to: { agent_id: options.agent_id },
       }
       return broadened
     }
   }
-  if (opts.agent_id !== undefined) {
+  if (options.agent_id !== undefined) {
     const broadened = computeEstimate(category, obs, {})
     if (broadened.sample_size > 0) {
       broadened.broadened_to = {
-        from: { agent_id: opts.agent_id, scope_tags: opts.scope_tags },
+        from: { agent_id: options.agent_id, scope_tags: options.scope_tags },
         to: {},
       }
       return broadened
