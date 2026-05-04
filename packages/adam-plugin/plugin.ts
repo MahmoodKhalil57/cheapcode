@@ -452,6 +452,114 @@ async function buildSubstrateSnapshot(projectPath?: string): Promise<string | nu
   return _substrateCacheText
 }
 
+// --- multi-account discoverability hint (M11) -----------------------------
+//
+// opencode's Providers panel doesn't surface a button for "add another account
+// of the same provider" — it's one-credential-per-provider in the UI. cheapcode
+// solves this via the cheapcode-accounts MCP tools (oauth_add, apikey_add) but
+// users in the Providers settings page have no path to discover them.
+//
+// This hint surfaces from the chat panel — not the Providers panel itself —
+// but the chat is right there in the same UI. When the LLM runs with this
+// hint in its system context, it can proactively offer multi-account when the
+// user mentions adding/connecting providers, OR answer naturally when the user
+// asks "how do I add another OpenAI account?".
+//
+// Conditioned on:
+//   - cheapcode IS configured (cheapcode-accounts.json exists OR an opencode.json
+//     provider entry references @cheapcode)
+//   - User has at least one configured provider (otherwise nothing to add to)
+//
+// Cached briefly (10 min) since this changes rarely.
+
+const CHEAPCODE_ACCOUNTS_PATH = `${process.env.HOME}/.config/cheapcode/accounts.json`
+const OPENCODE_AUTH_PATH = `${process.env.HOME}/.local/share/opencode/auth.json`
+const OPENCODE_CONFIG_PATH = `${process.env.HOME}/.config/opencode/opencode.json`
+const MA_HINT_REFRESH_MS = 600_000 // 10 min
+let _maHintCache: string | null = null
+let _maHintCachedAt = 0
+
+async function buildMultiAccountHint(): Promise<string | null> {
+  const now = Date.now()
+  if (_maHintCache !== null && now - _maHintCachedAt < MA_HINT_REFRESH_MS) {
+    return _maHintCache
+  }
+  if (process.env.CHEAPCODE_MULTI_ACCOUNT_HINT_OFF === "1") {
+    _maHintCache = null
+    _maHintCachedAt = now
+    return null
+  }
+
+  // Check if cheapcode is configured (otherwise this hint isn't relevant)
+  let cheapcodeConfigured = false
+  try {
+    if (existsSync(CHEAPCODE_ACCOUNTS_PATH)) cheapcodeConfigured = true
+    else if (existsSync(OPENCODE_CONFIG_PATH)) {
+      const cfg = JSON.parse(await fs.readFile(OPENCODE_CONFIG_PATH, "utf-8"))
+      if (cfg?.provider?.cheapcode) cheapcodeConfigured = true
+    }
+  } catch {
+    /* ignore */
+  }
+  if (!cheapcodeConfigured) {
+    _maHintCache = null
+    _maHintCachedAt = now
+    return null
+  }
+
+  // Count connected providers in opencode auth.json (best effort)
+  let providerCount = 0
+  let providerNames: string[] = []
+  try {
+    if (existsSync(OPENCODE_AUTH_PATH)) {
+      const auth = JSON.parse(await fs.readFile(OPENCODE_AUTH_PATH, "utf-8"))
+      providerNames = Object.keys(auth ?? {})
+      providerCount = providerNames.length
+    }
+  } catch {
+    /* ignore */
+  }
+  if (providerCount === 0) {
+    // No providers connected yet — different hint shape; skip for now (the
+    // Providers panel itself prompts new users to connect their first one).
+    _maHintCache = null
+    _maHintCachedAt = now
+    return null
+  }
+
+  const hint = [
+    "## cheapcode multi-account capability (auto-injected discoverability hint)",
+    "",
+    "The user has " + providerCount + " provider(s) connected via opencode's UI: " +
+      providerNames.slice(0, 5).map((n) => "`" + n + "`").join(", ") +
+      (providerNames.length > 5 ? " (and more)" : "") +
+      ".",
+    "",
+    "**cheapcode supports unlimited accounts per provider** — multiple OAuth-tied " +
+    "subscriptions, multiple API keys per provider, mixed shapes. opencode's " +
+    "Providers panel UI doesn't surface this directly, but you have MCP tools for it:",
+    "",
+    "- `cheapcode_account_apikey_add` — for additional API keys (OpenRouter, OpenAI " +
+    "API, Anthropic API, etc.). User pastes a key in chat; you save it as a " +
+    "named credential.",
+    "- `cheapcode_account_oauth_add` — for additional OAuth-tied subscriptions " +
+    "(ChatGPT-Plus, etc.). Auto-launches a private/incognito browser window so " +
+    "the user just signs in with the second account. **Same UX as opencode's " +
+    "first-account Connect button** thanks to the auto-launch.",
+    "",
+    "**When user mentions adding accounts, connecting providers, or 'I have multiple " +
+    "OpenRouter keys', proactively offer these tools.** Don't redirect to the " +
+    "Providers UI for second-account adds — it doesn't have that surface.",
+    "",
+    "_atom 0017 unknowns-as-positive-data: this discoverability gap is information; " +
+    "the chat-tool path is the resolution until upstream PRs land for opencode UI._",
+  ].join("\n")
+
+  _maHintCache = hint
+  _maHintCachedAt = now
+  return hint
+}
+
 // --- plugin entry point ---
 
 export const AdamPlugin: Plugin = async () => {
@@ -493,6 +601,10 @@ export const AdamPlugin: Plugin = async () => {
       if (process.env.CHEAPCODE_SUBSTRATE_OFF === "1") return
       const snapshot = await buildSubstrateSnapshot()
       if (snapshot) output.system.push(snapshot)
+      // M11: discoverability hint for multi-account capability so the LLM
+      // can offer cheapcode_account_oauth_add / apikey_add when relevant.
+      const maHint = await buildMultiAccountHint()
+      if (maHint) output.system.push(maHint)
     },
 
     "experimental.text.complete": async (input, output) => {
