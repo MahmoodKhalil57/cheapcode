@@ -119,17 +119,21 @@ export function startWebServer(opts: WebServerOptions = {}): { stop: () => void;
       // 3. If response is HTML and contains </head>, inject our overlay script
       const contentType = upstream.headers.get("content-type") ?? ""
       if (contentType.includes("text/html")) {
+        // Reading .text() implicitly decodes any Content-Encoding (gzip/br/deflate),
+        // so we MUST strip those headers from the outgoing response — otherwise
+        // the browser tries to decompress already-decompressed text and bails
+        // with ERR_CONTENT_DECODING_FAILED.
         const text = await upstream.text()
         const injected = text.includes(OVERLAY_SCRIPT_TAG)
           ? text
           : text.replace("</head>", `${OVERLAY_SCRIPT_TAG}</head>`)
         const headers = new Headers(upstream.headers)
-        // Content-Length will be wrong after injection; let runtime recompute
-        headers.delete("content-length")
-        // Allow our overlay script to run (relax CSP if upstream sets one)
-        // opencode's index.html sets a strict CSP we need to amend so our
-        // self-hosted script can execute. We add 'self' which already allows
-        // /cheapcode-overlay.js since it comes from the same origin.
+        headers.delete("content-length") // wrong after injection
+        headers.delete("content-encoding") // body is decoded plain text now
+        headers.delete("transfer-encoding") // bun will set chunked/identity itself
+        // Allow our overlay script to run (relax CSP if upstream sets one).
+        // opencode's index.html sets a strict CSP; we add 'self' (which already
+        // allows /cheapcode-overlay.js since it comes from the same origin).
         const csp = headers.get("content-security-policy")
         if (csp && !csp.includes("'self'")) {
           headers.set(
