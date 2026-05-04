@@ -6,14 +6,22 @@
 
 ## install
 
+**linux / macos:**
+
 ```sh
 curl -fsSL https://raw.githubusercontent.com/MahmoodKhalil57/cheapcode/main/install.sh | sh
 ```
 
-The installer pulls opencode + bun if missing, clones cheapcode to `~/.cheapcode/lib`, sets up `~/.cheapcode/bin` in your PATH, and registers cheapcode in opencode's config. Then:
+**windows (PowerShell):**
 
-```sh
-cheapcode web        # simple flow: browser at http://127.0.0.1:4096/
+```powershell
+irm https://raw.githubusercontent.com/MahmoodKhalil57/cheapcode/main/install.ps1 | iex
+```
+
+Either installer pulls opencode + bun if missing, clones cheapcode to `~/.cheapcode/lib`, sets up `~/.cheapcode/bin` in your PATH, and registers cheapcode in opencode's config. Open a new shell, then:
+
+```
+cheapcode web        # simple flow: browser at http://127.0.0.1:4096/, log in to providers
 cheapcode doctor     # health check
 cheapcode help       # all subcommands
 ```

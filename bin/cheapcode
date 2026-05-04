@@ -27,6 +27,7 @@ import { spawn, spawnSync } from "node:child_process"
 import { existsSync, readFileSync, mkdirSync } from "node:fs"
 import { homedir } from "node:os"
 import { dirname, join } from "node:path"
+import { fileURLToPath } from "node:url"
 
 // ============================================================
 // Version + paths
@@ -39,9 +40,11 @@ const DEFAULT_WEB_PORT = 4096
 function getCheapcodeRoot(): string {
   // The repo this binary was built/run from. When installed via curl-install,
   // this is ~/.cheapcode/lib/cheapcode. During development it's the repo path.
-  // Resolved by walking up from this file to find package.json.
-  let dir = dirname(import.meta.url.replace(/^file:\/\//, ""))
-  while (dir !== "/" && dir !== ".") {
+  // fileURLToPath handles Windows file:///C:/... URLs correctly (without it,
+  // the leading slash from the URL becomes an invalid path on Windows).
+  const here = fileURLToPath(import.meta.url)
+  let dir = dirname(here)
+  while (dir !== dirname(dir)) {
     if (existsSync(join(dir, "package.json"))) {
       try {
         const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf-8"))
@@ -53,7 +56,7 @@ function getCheapcodeRoot(): string {
     dir = dirname(dir)
   }
   // Fallback: assume we're at <root>/bin/cheapcode
-  return dirname(dirname(import.meta.url.replace(/^file:\/\//, "")))
+  return dirname(dirname(here))
 }
 
 const CHEAPCODE_ROOT = getCheapcodeRoot()
