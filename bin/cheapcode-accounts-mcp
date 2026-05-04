@@ -42,6 +42,7 @@ import {
 } from "../src/account-registry"
 import { loadEffectiveRegistry, classifyAccountSource, defaultOpencodeAuthPath } from "../src/account-discovery"
 import { resolveAuthRef, isAuthExpired, AuthResolutionError } from "../src/auth-resolver"
+import { launchPrivateBrowser, buildLaunchMessage } from "../src/browser-launch"
 import { readFileSync, existsSync } from "node:fs"
 
 // ============================================================
@@ -250,14 +251,17 @@ const TOOLS = [
     description:
       "OAUTH multi-account flow: add a SECOND (or third+) OAuth-tied account for a " +
       "provider that supports browser OAuth (currently openai/ChatGPT-Plus, github-copilot, " +
-      "and any other provider opencode has registered for OAuth). Returns an authorization URL " +
-      "to give the user. The tool then waits up to 120 seconds for them to complete OAuth in " +
-      "their browser. CRITICAL UX INSTRUCTION: user MUST open the URL in incognito/private " +
-      "mode OR log out of the provider in their default browser first — otherwise the OAuth " +
-      "will just re-authenticate the SAME account they already have, which the tool will " +
-      "detect and reject. After successful OAuth on a different account, the tool swaps " +
-      "the new credential under the requested custom name and restores the user's previous " +
-      "primary credential under the original provider key. Both accounts then coexist.",
+      "and any other provider opencode has registered for OAuth). " +
+      "The tool AUTOMATICALLY OPENS a fresh private/incognito browser window — the user " +
+      "just signs in with the account they want to add. Same flow + feel as opencode's " +
+      "first-account Connect button. The tool waits up to 120 seconds for OAuth completion. " +
+      "If auto-launch fails (rare — no incognito-capable browser detected), the tool returns " +
+      "the URL and the LLM should ask the user to manually open it in private mode. " +
+      "Internally: tool detects 'same account' via accountId match — refuses if the user " +
+      "accidentally re-authenticates the same account (and restores their primary). On " +
+      "successful different-account OAuth, the tool swaps the new credential under the " +
+      "requested custom name and restores the user's previous primary credential under " +
+      "the original provider key. Both accounts coexist for cheapcode routing.",
     inputSchema: {
       type: "object",
       properties: {
@@ -547,6 +551,14 @@ async function tool_oauth_add(args: Record<string, unknown>): Promise<unknown> {
   const url = authBody.url
   if (!url) throw new Error(`opencode returned no auth URL: ${JSON.stringify(authBody)}`)
 
+  // 1.5. Auto-launch a fresh private/incognito browser window so the user
+  //      doesn't have to manually open the URL. This is the M10 piece that
+  //      makes multi-OAuth feel-identical to opencode's first-Connect.
+  //      Failure mode is graceful: if no incognito browser is detected, we
+  //      return the URL in the response and the LLM tells the user.
+  const launchResult = launchPrivateBrowser(url)
+  const launchMessage = buildLaunchMessage(url, launchResult, name)
+
   // 2. Poll for auth.json change — wait up to ~120s for user to complete OAuth in browser
   const startMs = Date.now()
   const timeoutMs = 120_000
@@ -568,7 +580,13 @@ async function tool_oauth_add(args: Record<string, unknown>): Promise<unknown> {
       ok: false,
       timed_out: true,
       auth_url: url,
-      message: `Timed out waiting for OAuth completion (120s). The auth URL is still valid — open it in incognito mode and complete authorization, then re-run this tool.`,
+      browser_launched: launchResult.launched,
+      browser: launchResult.browser,
+      message:
+        `Timed out waiting for OAuth completion (120s). ` +
+        (launchResult.launched
+          ? `The private window in ${launchResult.browser} is still open — sign in there to complete, then ask me to retry adding this account.`
+          : `Open this URL in incognito/private mode to complete: ${url}`),
     }
   }
 
@@ -591,9 +609,10 @@ async function tool_oauth_add(args: Record<string, unknown>): Promise<unknown> {
       }
     }
     throw new Error(
-      `OAuth completed BUT same account (accountId=${newPrimary.accountId}) — you authorized the same user opencode already had. ` +
-      `Open the auth URL in incognito/private mode (or log out of the provider first) so you authorize a DIFFERENT account, then retry. ` +
-      `auth_url: ${url}`,
+      `OAuth completed BUT same account (accountId=${newPrimary.accountId}) — you authorized the user opencode already had. ` +
+      (launchResult.launched
+        ? `Sign out in the ${launchResult.browser} private window and try a different account, then retry adding this account.`
+        : `Open the auth URL in incognito/private mode and authorize a DIFFERENT account, then retry. auth_url: ${url}`),
     )
   }
 
@@ -647,6 +666,9 @@ async function tool_oauth_add(args: Record<string, unknown>): Promise<unknown> {
     primary_restored: backup !== null,
     registry_added: regResult.ok,
     registry_error: regResult.ok ? null : regResult.error,
+    browser_launched: launchResult.launched,
+    browser: launchResult.browser,
+    pre_auth_message: launchMessage,
     message: `OAuth account "${name}" added (different from your existing "${provider_id}"). Both are active for cheapcode routing.`,
   }
 }
