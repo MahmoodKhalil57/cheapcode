@@ -31,12 +31,15 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
 import { createOpenAI } from "@ai-sdk/openai"
 import type { LanguageModelV2 } from "@ai-sdk/provider"
+import { existsSync, readFileSync } from "node:fs"
 import { CheapcodeAutoModel, type AutoWrapperConfig } from "./auto-wrapper"
 import type { RouterOptions, TaskShape } from "./router"
 import { type AccountRegistry, type Account } from "./account-registry"
 import { loadEffectiveRegistry } from "./account-discovery"
 import { wrapWithMultiAccount } from "./multi-account-language-model"
 import type { ResolvedAuth } from "./auth-resolver"
+import { defaultOpencodeAuthPath } from "./auth-resolver"
+import { createOAuthLanguageModel } from "./oauth-language-model"
 
 // ============================================================
 // Multi-account state — loaded lazily on first provider construction.
@@ -341,11 +344,56 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
     if (modelId === "local") {
       return localOpenAI(resolveTierTarget("local", 0, options))
     }
+
+    // M20: when the operator has no OpenRouter key but DOES have consumer
+    // ChatGPT-Plus OAuth in auth.json, route all non-local tiers through
+    // chatgpt.com/backend-api/codex/responses via OAuthLanguageModelV2.
+    // Tier targets that are openai/<model> map to codex models directly;
+    // openrouter-vendored targets (deepseek, anthropic, etc.) are not
+    // dispatchable on the consumer-Plus path — surface a clear error.
     if (apiKeyMissing && modelId !== "local") {
+      const consumerPlus = detectConsumerPlusOAuth()
+      if (consumerPlus) {
+        const tierModelId = pickOAuthModelForTier(modelId, options)
+        if (modelId === "auto" && autoEnabled) {
+          const smartCodex = pickOAuthModelForTier("smart", options)
+          const cheapCodex = pickOAuthModelForTier("cheap", options)
+          const cfg: AutoWrapperConfig = {
+            smart: createOAuthLanguageModel({ authPath: consumerPlus.authPath, authKey: consumerPlus.authKey, modelId: smartCodex }),
+            cheap: createOAuthLanguageModel({ authPath: consumerPlus.authPath, authKey: consumerPlus.authKey, modelId: cheapCodex }),
+            verifier: createOAuthLanguageModel({ authPath: consumerPlus.authPath, authKey: consumerPlus.authKey, modelId: smartCodex }),
+            k,
+            maxRetries,
+            perCallTimeoutMs: options.auto?.perCallTimeoutMs,
+          }
+          const routerOpts: RouterOptions = {
+            smartTarget: `openai/${smartCodex}`,
+            cheapTarget: `openai/${cheapCodex}`,
+            longContextTarget: `openai/${smartCodex}`,
+            routeOverrides: options.auto?.routeOverrides,
+            forceCompoundOnMultistep: options.auto?.forceCompoundOnMultistep ?? false,
+            hardClassDetection:
+              process.env.CHEAPCODE_HARD_CLASS === "1" || process.env.CHEAPCODE_HARD_CLASS === "true",
+          }
+          return new CheapcodeAutoModel(cfg, routerOpts, (orId) =>
+            createOAuthLanguageModel({
+              authPath: consumerPlus.authPath,
+              authKey: consumerPlus.authKey,
+              modelId: orId.startsWith("openai/") ? orId.slice("openai/".length) : tierModelId,
+            }),
+          )
+        }
+        return createOAuthLanguageModel({
+          authPath: consumerPlus.authPath,
+          authKey: consumerPlus.authKey,
+          modelId: tierModelId,
+        })
+      }
       throw new Error(
-        `cheapcode: apiKey required for non-local tier "${modelId}" (set OPENROUTER_API_KEY). ` +
-        `For local-only usage, use --model=cheapcode/local with iai-katib running on ` +
-        `${process.env.CHEAPCODE_LOCAL_BASE_URL ?? "http://127.0.0.1:8000/v1"}`,
+        `cheapcode: no dispatchable credentials for non-local tier "${modelId}". ` +
+          `Either set OPENROUTER_API_KEY, OR connect openai (consumer ChatGPT-Plus) ` +
+          `via 'cheapcode web' → Settings → Providers, OR use --model=cheapcode/local ` +
+          `with iai-katib running on ${process.env.CHEAPCODE_LOCAL_BASE_URL ?? "http://127.0.0.1:8000/v1"}.`,
       )
     }
 
@@ -500,3 +548,52 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
  */
 export const PHASE_2_AUTO_WRAPPER_IMPLEMENTED = true as const
 export const EXPERIMENT_1_ARM_A_PENDING = true as const
+
+// ============================================================
+// M20 — consumer ChatGPT-Plus OAuth fallback
+// ============================================================
+
+/**
+ * Detect "operator has only consumer ChatGPT-Plus OAuth" mode. Returns the
+ * authPath + authKey of the first oauth-typed openai entry found, or
+ * undefined when no such entry exists. Read once per provider construction.
+ */
+export function detectConsumerPlusOAuth(): { authPath: string; authKey: string } | undefined {
+  const authPath = defaultOpencodeAuthPath()
+  if (!existsSync(authPath)) return undefined
+  try {
+    const map = JSON.parse(readFileSync(authPath, "utf8")) as Record<string, { type?: string; providerID?: string }>
+    // Prefer the canonical "openai" entry, fall back to any oauth entry whose
+    // providerID metadata points at "openai" (alias from M16).
+    if (map["openai"]?.type === "oauth") return { authPath, authKey: "openai" }
+    for (const [key, entry] of Object.entries(map)) {
+      if (entry?.type === "oauth" && (entry.providerID === "openai" || key.startsWith("openai-"))) {
+        return { authPath, authKey: key }
+      }
+    }
+  } catch {
+    // malformed auth.json — treat as no consumer-Plus available
+  }
+  return undefined
+}
+
+/**
+ * Map a cheapcode tier id to a CODEX_ALLOWED_MODELS entry. Defaults are
+ * conservative and operator-overridable via tierOverrides:
+ *   cheap, cheap-fast, smart-fast → gpt-5.4-mini
+ *   smart                         → gpt-5.5
+ *   auto                          → gpt-5.5 (the smart slot of the auto wrapper)
+ */
+export function pickOAuthModelForTier(
+  tierId: string,
+  options: CheapcodeProviderOptions,
+): string {
+  const override = options.tierOverrides?.[tierId as TierId]
+  if (override) {
+    const stripped = override.startsWith("openai/") ? override.slice("openai/".length) : override
+    return stripped
+  }
+  if (tierId === "smart" || tierId === "auto") return "gpt-5.5"
+  if (tierId === "smart-fast") return "gpt-5.4"
+  return "gpt-5.4-mini"
+}

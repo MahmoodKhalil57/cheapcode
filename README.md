@@ -2,7 +2,7 @@
 
 > A general-agent **routing intelligence layer** for opencode. Knows where each top frontier model fails (speed limits, intelligence limits, cost per task) and dispatches each task to its documented value-optimum model.
 
-**Status:** v1.0 (M3.22). Phase 1 + Phase 2 (substrate-runtime voter, small-N validated M3.20) + Phase 3 (5-tier registration L3) + Phase 4 (Model Card README) shipped. M3.15 opencode-CLI dispatch ProviderInitError documented as upstream-issue / v1.x follow-up. ([LATESTMILESTONE.md](LATESTMILESTONE.md))
+**Status:** v1.x (M16–M19 shipped, 2026-05-04). Multi-account-per-provider in the fork UI (M16), credential-aware auto-router with cooldown / quota / temporal-anchor / sycophancy-probe / orchestrate composition (M17, 388 tests, first real paired-benchmark receipt), Eve-curated human-design canon (M18 + M19, 52 fetched candidates across 8 dimensions), runtime canon-injection + claim-shape tagging gated behind a 7-axis scorecard (M19 internal threshold met, external claim still blocked behind operator spot-check per atom 0007 anti-fab). See [SESSION-2026-05-04.md](SESSION-2026-05-04.md) for the honest log.
 
 ## install
 

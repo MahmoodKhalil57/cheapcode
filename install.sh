@@ -1,8 +1,8 @@
 #!/bin/sh
 # cheapcode installer — curl-pipe-able install script.
 #
-# Usage (production, when hosting lands):
-#   curl -fsSL https://cheapcode.dev/install | sh
+# Usage (linux / macos — what to share with friends):
+#   curl -fsSL https://raw.githubusercontent.com/MahmoodKhalil57/cheapcode/main/install.sh | sh
 #
 # Usage (local dev — install from a checked-out repo):
 #   CHEAPCODE_SOURCE=/home/mk/apps/cheapcode sh /path/to/install.sh
