@@ -251,11 +251,38 @@ async function cmdWeb(extraArgs: string[]): Promise<number> {
   console.log()
   console.log(`  ${C.cyan("→")} launching cheapcode (forked opencode) from source...`)
   console.log(`  ${C.dim(`source: ${OPENCODE_FORK_PATH}`)}`)
+
+  // Point opencode at our pre-built packages/app/dist (built once at install
+  // time). Fork patch in shared/ui.ts respects OPENCODE_UI_DIST and serves
+  // local files instead of proxying upstream — that's how the native
+  // "+ Add another" button reaches the browser.
+  const uiDist = join(OPENCODE_FORK_PATH, "packages", "app", "dist")
+  if (existsSync(uiDist)) {
+    console.log(`  ${C.dim(`UI dist: ${uiDist}`)}`)
+  } else {
+    console.log(C.yellow(`  warning: ${uiDist} not found — UI will proxy upstream (no '+ Add another' button).`))
+    console.log(C.dim(`  run: bun --cwd ${OPENCODE_FORK_PATH}/packages/app build`))
+  }
   console.log()
 
   const passthroughArgs = extraArgs.filter((_, i) => i !== portIdx && i !== portIdx + 1)
   const args = ["web", "--port", `${port}`, ...passthroughArgs]
-  const child = spawnOpencodeFork(args)
+  const child = spawn(
+    "bun",
+    [
+      "run",
+      "--cwd", OPENCODE_FORK_PKG,
+      "--conditions=browser",
+      OPENCODE_FORK_ENTRY,
+      ...args,
+    ],
+    {
+      stdio: "inherit",
+      env: existsSync(uiDist)
+        ? { ...process.env, OPENCODE_UI_DIST: uiDist }
+        : process.env,
+    },
+  )
 
   setTimeout(() => {
     console.log()

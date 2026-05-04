@@ -119,6 +119,11 @@ else
 fi
 info "installing fork dependencies (this is a large monorepo; first install can take a few minutes)"
 (cd "$CHEAPCODE_OPENCODE" && bun install --silent)
+info "building packages/app SPA (vite build; produces dist/ for runtime serving)"
+(cd "$CHEAPCODE_OPENCODE/packages/app" && bun run build > /tmp/cheapcode-app-build.log 2>&1) || {
+  warn "packages/app build failed; cheapcode web will fall back to upstream UI (no '+ Add another' button visible)"
+  warn "see /tmp/cheapcode-app-build.log for details"
+}
 ok "cheapcode-opencode fork ready at $CHEAPCODE_OPENCODE"
 
 # ============================================================
