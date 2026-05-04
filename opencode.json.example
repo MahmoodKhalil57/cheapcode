@@ -27,6 +27,10 @@
         "auto": {
           "name": "auto (Phase 2 wrapper: plan-decompose + best-of-K + cross-model verify)",
           "tools": true
+        },
+        "local": {
+          "name": "local (iai-katib OpenAI-compatible endpoint, $0 marginal)",
+          "tools": true
         }
       }
     }

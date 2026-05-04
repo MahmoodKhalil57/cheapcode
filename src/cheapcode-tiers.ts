@@ -29,6 +29,7 @@
  */
 
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
+import { createOpenAI } from "@ai-sdk/openai"
 import { CheapcodeAutoModel, type AutoWrapperConfig } from "./auto-wrapper"
 import type { RouterOptions, TaskShape } from "./router"
 
@@ -66,6 +67,24 @@ export const CHEAPCODE_TIERS = {
     receipt: "Phase 1 stub. Phase 2 EXPERIMENT-1 validates the 3-axis dominance claim",
     long_context_override: "x-ai/grok-4-fast",
     is_phase_1_stub: true,
+  },
+  local: {
+    // r170-F (2026-05-04): iai-katib local OpenAI-compatible endpoint.
+    // Validated 9/9 pass + 2.09× faster than gpt-5.5-codex on bounded
+    // code-task pilot (results/r170f/iai-katib_run.json + gpt-5.5-codex_run.json
+    // in iai). Bypasses OpenRouter; dispatches to CHEAPCODE_LOCAL_BASE_URL
+    // (default http://127.0.0.1:8000/v1). $0 marginal cost.
+    //
+    // For v1 this tier is EXPLICIT-ONLY: --model=cheapcode/local. Auto
+    // routing of agentic-swe / bounded-code shapes deferred until a 30+
+    // task validation set exists (per gpt-5.5 architectural review).
+    //
+    // Failure mode: hard error if local unreachable. Caller intentionally
+    // selected local for privacy/cost/control; silent fallback to paid
+    // would corrupt those assumptions.
+    target: "iai-tier-0",
+    receipt: "iai-katib local OpenAI-compatible endpoint (Qwen2.5-Coder-7B + katib-local profile); r170-F 9/9 pilot",
+    long_context_override: null,
   },
 } as const
 
@@ -210,16 +229,28 @@ export function resolveTierTarget(
  *   }
  */
 export function createCheapcodeProvider(options: CheapcodeProviderOptions): CheapcodeProvider {
-  if (!options.apiKey) {
-    throw new Error("cheapcode: apiKey is required (set OPENROUTER_API_KEY)")
-  }
+  // r170-F: apiKey is no longer required at construction. Local-only users
+  // (--model=cheapcode/local) don't dispatch to OpenRouter at all. Only error
+  // when a non-local tier is requested without a configured key.
+  const apiKeyMissing = !options.apiKey
 
   const openrouter = createOpenRouter({
-    apiKey: options.apiKey,
+    apiKey: options.apiKey ?? "missing-openrouter-key-set-OPENROUTER_API_KEY-to-use-non-local-tiers",
     headers: {
       "HTTP-Referer": "https://github.com/cheapcode",
       "X-Title": options.appName ?? "cheapcode",
     },
+  })
+
+  // r170-F: local tier — iai-katib OpenAI-compatible endpoint. Bypasses
+  // OpenRouter. CHEAPCODE_LOCAL_BASE_URL overrides the default endpoint.
+  // CHEAPCODE_LOCAL_API_KEY is sent in the Authorization header (iai-katib
+  // currently ignores it, but the AI SDK provider requires a value).
+  const localBaseURL = process.env.CHEAPCODE_LOCAL_BASE_URL ?? "http://127.0.0.1:8000/v1"
+  const localApiKey = process.env.CHEAPCODE_LOCAL_API_KEY ?? "local-no-auth"
+  const localOpenAI = createOpenAI({
+    baseURL: localBaseURL,
+    apiKey: localApiKey,
   })
 
   const autoEnabled = options.auto?.enabled ?? true
@@ -228,6 +259,21 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
   const maxRetries = options.auto?.maxRetries ?? 1
 
   const provider = ((modelId: string) => {
+    // r170-F: local tier intercept — bypass OpenRouter, dispatch to local
+    // OpenAI-compatible endpoint (iai-katib). Operator-explicit only;
+    // hard error path on connection refusal lives at the AI SDK layer
+    // (no silent fallback to paid OpenRouter).
+    if (modelId === "local") {
+      return localOpenAI(resolveTierTarget("local", 0, options))
+    }
+    if (apiKeyMissing && modelId !== "local") {
+      throw new Error(
+        `cheapcode: apiKey required for non-local tier "${modelId}" (set OPENROUTER_API_KEY). ` +
+        `For local-only usage, use --model=cheapcode/local with iai-katib running on ` +
+        `${process.env.CHEAPCODE_LOCAL_BASE_URL ?? "http://127.0.0.1:8000/v1"}`,
+      )
+    }
+
     // Phase 2 + M3.14 (SPEC Revision 2026-05-03k): when modelId === "auto"
     // AND wrapper is enabled, return the failure-mode-aware router. The
     // router classifies the task by surface signature and dispatches to
@@ -250,12 +296,28 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
         maxRetries,
         perCallTimeoutMs: options.auto?.perCallTimeoutMs,
       }
+      // Round 96 substrate gates — opt-in via env vars. Default OFF
+      // preserves backward compat. Setting any env activates the
+      // corresponding gate.
+      //   CHEAPCODE_STEWARDSHIP_THRESHOLD=0.4 → atom 0022 Rule E
+      //   CHEAPCODE_KNOWABILITY_THRESHOLD=0.55 → atom 0024 Rule F
+      //   CHEAPCODE_HARD_CLASS=1               → M3.57 force-voter on hard-class
+      const stewardshipEnv = process.env.CHEAPCODE_STEWARDSHIP_THRESHOLD
+      const stewardshipThreshold = stewardshipEnv ? parseFloat(stewardshipEnv) : undefined
+      const knowabilityEnv = process.env.CHEAPCODE_KNOWABILITY_THRESHOLD
+      const knowabilityThreshold = knowabilityEnv ? parseFloat(knowabilityEnv) : undefined
+      const hardClassDetection =
+        process.env.CHEAPCODE_HARD_CLASS === "1" ||
+        process.env.CHEAPCODE_HARD_CLASS === "true"
       const routerOpts: RouterOptions = {
         smartTarget,
         cheapTarget,
         longContextTarget,
         routeOverrides: options.auto?.routeOverrides,
         forceCompoundOnMultistep: options.auto?.forceCompoundOnMultistep ?? false,
+        stewardshipThreshold,
+        knowabilityThreshold,
+        hardClassDetection,
       }
       return new CheapcodeAutoModel(cfg, routerOpts, (orId) => openrouter(orId))
     }
