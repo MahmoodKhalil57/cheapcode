@@ -1,0 +1,9 @@
+{
+  "id": "bc-3",
+  "shape": "bounded-code",
+  "prompt": "Find the bug in this Bun-flavored TypeScript and explain the fix:\n\nimport { test, expect } from 'bun:test';\ntest('async timeout', async () => {\n  const start = Date.now();\n  await new Promise(r => setTimeout(r, 100));\n  expect(Date.now() - start).toBe(100);\n});",
+  "correctness_check": "automated",
+  "expected_keywords": ["toBeGreaterThan", "timing", "exact"],
+  "forbidden_keywords": [],
+  "notes": "Bug-finding shape; tests whether model spots non-deterministic timing assertion."
+}

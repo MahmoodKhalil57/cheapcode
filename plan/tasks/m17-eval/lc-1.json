@@ -1,0 +1,9 @@
+{
+  "id": "lc-1",
+  "shape": "long-context",
+  "prompt": "Summarize the substrate-suite architecture from these 5 file paths in 8 sentences max, citing each file at least once:\n- ~/apps/adam/README.md\n- ~/apps/adam/tools/khazina/CLAUDE.md\n- ~/apps/adam/tools/mizan/README.md (if present)\n- ~/apps/adam/tools/burhan/README.md (if present)\n- ~/apps/adam/tools/daftar/README.md (if present)\nIf a file is missing, say so explicitly and continue. The summary must mention atom-0007, mizan_check_action_safety, and the cite-graph traversal.",
+  "correctness_check": "automated",
+  "expected_keywords": ["atom-0007", "mizan_check_action_safety", "cite-graph"],
+  "forbidden_keywords": [],
+  "notes": "Multi-file synthesis with explicit verification requirements."
+}

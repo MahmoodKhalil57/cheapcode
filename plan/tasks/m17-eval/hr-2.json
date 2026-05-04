@@ -1,0 +1,9 @@
+{
+  "id": "hr-2",
+  "shape": "hard-reasoning",
+  "prompt": "An AI router that runs answers through a 'sycophancy detector' (re-runs prompt with adversarial reframing, votes) costs ~2x in tokens but catches ~80% of sycophantic answers. If sycophancy correlates with hallucination at r=0.5 in your domain, and hallucination has 10x downstream cost vs token cost, derive when the detector is net-positive and net-negative as a function of base sycophancy rate p. Express the break-even p in closed form.",
+  "correctness_check": "operator-graded",
+  "expected_keywords": ["break-even", "p", "0.5"],
+  "forbidden_keywords": [],
+  "notes": "Quantitative threshold-derivation; operator-graded because closed-form may be expressed multiple ways."
+}

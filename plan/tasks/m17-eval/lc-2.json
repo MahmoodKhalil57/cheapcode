@@ -1,0 +1,9 @@
+{
+  "id": "lc-2",
+  "shape": "long-context",
+  "prompt": "Given the cheapcode router architecture (router.ts: task-shape classifier; cheapcode-tiers.ts: provider; credential-pool.ts: round-robin pick; cooldown.ts: per-credential expiry; dispatch-with-pool.ts: dispatch wrapper), write the 3-paragraph answer to: 'How does cheapcode handle a 429 from one OpenAI account?'. Reference at least 3 specific function names from the modules listed.",
+  "correctness_check": "automated",
+  "expected_keywords": ["pickCredential", "CooldownTracker", "429"],
+  "forbidden_keywords": [],
+  "notes": "Synthesis across module boundaries; tests cross-file reasoning."
+}

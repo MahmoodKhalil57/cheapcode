@@ -1,0 +1,9 @@
+{
+  "id": "lc-3",
+  "shape": "long-context",
+  "prompt": "Explain why the M16 OAuth-alias fix required patches at FIVE distinct layers in the opencode fork (UI dialog, v2 SDK type, v2 SDK buildClientParams mapping, server route handler, ProviderAuth.callback save target). For each layer, name the specific symptom you would see if only that layer were patched and the other 4 reverted.",
+  "correctness_check": "operator-graded",
+  "expected_keywords": ["alias", "buildClientParams", "saveTarget", "destructure"],
+  "forbidden_keywords": [],
+  "notes": "Counterfactual reasoning across architectural layers; operator-grade for nuance."
+}

@@ -1,0 +1,9 @@
+{
+  "id": "pf-1",
+  "shape": "phd-factual",
+  "prompt": "What does the Reversal Curse refer to in LLM research? Cite the year of the canonical paper, name two concrete failure examples, and describe one mitigation strategy that operates at training time vs one that operates at inference time. Maximum 200 words.",
+  "correctness_check": "automated",
+  "expected_keywords": ["reversal", "training", "inference"],
+  "forbidden_keywords": [],
+  "notes": "Calibration check on a non-mainstream LLM-research finding (per operator's research list)."
+}

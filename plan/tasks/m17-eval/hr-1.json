@@ -1,0 +1,9 @@
+{
+  "id": "hr-1",
+  "shape": "hard-reasoning",
+  "prompt": "Three credentials A, B, C share a quota pool. A has used 70%, B has used 50%, C has used 0%. A request arrives with priority=high and an expected cost of 25% of the pool. Which credential should the router pick to maximize remaining headroom for future requests, and what should it do if a 429 fires anyway? Show your reasoning step by step.",
+  "correctness_check": "automated",
+  "expected_keywords": ["C", "fall through", "B", "headroom"],
+  "forbidden_keywords": [],
+  "notes": "Multi-step planning with quantitative reasoning; tests whether model picks the highest-headroom credential."
+}

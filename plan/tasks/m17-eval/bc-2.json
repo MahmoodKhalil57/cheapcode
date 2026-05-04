@@ -1,0 +1,9 @@
+{
+  "id": "bc-2",
+  "shape": "bounded-code",
+  "prompt": "Refactor this function to use early-return instead of nested ifs:\n\nfunction grade(score: number): string {\n  let result;\n  if (score >= 0) {\n    if (score < 60) {\n      result = 'F';\n    } else {\n      if (score < 70) {\n        result = 'D';\n      } else {\n        if (score < 80) {\n          result = 'C';\n        } else {\n          if (score < 90) {\n            result = 'B';\n          } else {\n            result = 'A';\n          }\n        }\n      }\n    }\n  } else {\n    result = 'invalid';\n  }\n  return result;\n}",
+  "correctness_check": "automated",
+  "expected_keywords": ["return", "function grade"],
+  "forbidden_keywords": ["else if"],
+  "notes": "Refactor with explicit anti-pattern (forbidden_keywords) — tests whether model follows the constraint."
+}

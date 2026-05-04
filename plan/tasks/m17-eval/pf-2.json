@@ -1,0 +1,9 @@
+{
+  "id": "pf-2",
+  "shape": "phd-factual",
+  "prompt": "In the context of WCAG 2.2 (W3C accessibility standard), explain the difference between Level AA and Level AAA conformance for color contrast (Success Criterion 1.4.3 vs 1.4.6). Give the exact contrast ratios required for each level for normal text and for large text. End with one sentence on which level is legally required in the EU.",
+  "correctness_check": "automated",
+  "expected_keywords": ["4.5:1", "7:1", "3:1", "AA", "AAA"],
+  "forbidden_keywords": [],
+  "notes": "Specialist-knowledge recall with hard numerical anchors; from operator's accessibility research list."
+}
