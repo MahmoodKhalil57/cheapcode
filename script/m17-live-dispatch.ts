@@ -18,7 +18,8 @@ import { generateText } from "ai"
 import { createOpenAI } from "@ai-sdk/openai"
 import { CooldownTracker } from "../src/cooldown"
 import { buildPool, type ProviderListShape } from "../src/credential-pool"
-import { dispatchWithPool, type PoolDispatchInput } from "../src/dispatch-with-pool"
+import { orchestrate } from "../src/orchestrate"
+import { QuotaTracker, TaskBudget } from "../src/quota-tracker"
 import { resolveAuthRef } from "../src/auth-resolver"
 import { homedir } from "node:os"
 import { join } from "node:path"
@@ -54,31 +55,76 @@ async function getPool() {
   return _pool
 }
 
+// Shared per-process state — persists across tasks in one --live run.
+const sharedQuota = new QuotaTracker()
+let sharedBudget: TaskBudget | undefined
+function getSharedBudget(): TaskBudget {
+  if (!sharedBudget) {
+    const ms = Number(process.env.CHEAPCODE_BENCH_BUDGET_MS ?? 600_000)
+    const usd = Number(process.env.CHEAPCODE_BENCH_BUDGET_USD ?? 1.0)
+    sharedBudget = new TaskBudget(ms, usd)
+  }
+  return sharedBudget
+}
+
 export async function liveDispatchCheapcode(prompt: string): Promise<DispatchResult> {
   const start = performance.now()
   try {
     const pool = await getPool()
-    // Pick canonical with most candidates (best parallelism headroom);
-    // fall through to the first available canonical.
     const canonicals = Object.keys(pool.candidates).filter((c) => c !== "opencode")
     canonicals.sort((a, b) => pool.candidates[b].length - pool.candidates[a].length)
     if (canonicals.length === 0) throw new Error("no canonical providers available in pool")
 
+    const sycophancyRate = Number(process.env.CHEAPCODE_BENCH_SYCOPHANCY_RATE ?? 0)
+    const dispatchId = `m17-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+
     let lastErr: unknown
     for (const canonical of canonicals) {
       try {
-        const out = await dispatchWithPool({
+        const out = await orchestrate({
           pool,
           canonical,
+          dispatchId,
+          prompt,
           targetModel: targetForCanonical(canonical),
-          dispatch: async (input: PoolDispatchInput) => {
-            return await runOpenAICompatible(input, prompt)
+          quota: sharedQuota,
+          budget: getSharedBudget(),
+          sycophancyRate,
+          call: async (input) => {
+            const callStart = performance.now()
+            const client = createOpenAI({ apiKey: input.apiKey })
+            const modelId = input.targetModel.includes("/")
+              ? input.targetModel.split("/")[1]
+              : input.targetModel
+            const result = await generateText({ model: client(modelId), prompt: input.prompt })
+            const usage = result.usage ?? {
+              promptTokens: input.prompt.length / 4,
+              completionTokens: result.text.length / 4,
+            }
+            return {
+              text: result.text.slice(0, 800),
+              wall_clock_ms: Math.round(performance.now() - callStart),
+              cost_usd_estimate: estimateGpt55Cost(usage.promptTokens, usage.completionTokens) * 0.6,
+              tokens_in: usage.promptTokens,
+              tokens_out: usage.completionTokens,
+              // generateText in newer ai-sdk versions exposes response.headers;
+              // pass through when present so QuotaTracker can record snapshots.
+              responseHeaders: (result as unknown as { response?: { headers?: unknown } }).response?.headers,
+            }
           },
         })
         return {
-          ...out.result,
+          output: out.text,
           wall_clock_ms: Math.round(performance.now() - start),
-          attribution: out.attribution,
+          tokens_in: out.tokens_in ?? 0,
+          tokens_out: out.tokens_out ?? 0,
+          cost_usd_estimate: out.cost_usd_estimate,
+          model_used: out.attribution.target_model,
+          attribution: {
+            auth_key: out.attribution.auth_key,
+            canonical_provider: out.attribution.canonical_provider,
+            cooldown_skipped: out.attribution.cooldown_skipped,
+          },
         }
       } catch (err) {
         lastErr = err
