@@ -37,10 +37,10 @@ import {
   defaultRegistryPath,
 } from "../src/account-mutation"
 import {
-  loadRegistry,
   resolveAccount,
   type Account,
 } from "../src/account-registry"
+import { loadEffectiveRegistry, classifyAccountSource } from "../src/account-discovery"
 import { resolveAuthRef, isAuthExpired, AuthResolutionError } from "../src/auth-resolver"
 
 // ============================================================
@@ -51,9 +51,12 @@ const TOOLS = [
   {
     name: "cheapcode_account_list",
     description:
-      "List all configured cheapcode multi-account entries. Returns the registry from " +
-      "~/.config/cheapcode/accounts.json with priority, capabilities, tier, auth_ref, etc. " +
-      "Use to inspect current multi-account state before adding/removing.",
+      "List all cheapcode multi-account entries — both EXPLICIT (in ~/.config/cheapcode/accounts.json) " +
+      "and AUTO-DISCOVERED (any provider/credential the user has Connected via opencode's Providers " +
+      "panel). Each account is labeled with `source: 'explicit' | 'auto'`. Auto-discovered accounts " +
+      "have id prefix 'auto:' and default priority 30. To customize priority/tier/label of an " +
+      "auto-discovered account, use cheapcode_account_add to create an explicit entry with a custom id; " +
+      "the explicit entry deduplicates the auto one (same auth_ref → only the explicit shows).",
     inputSchema: {
       type: "object",
       properties: {},
@@ -178,8 +181,16 @@ const TOOLS = [
 // ============================================================
 
 function tool_list(): unknown {
-  const accounts = listAccounts()
-  return { count: accounts.length, registry_path: defaultRegistryPath(), accounts }
+  const explicit = listAccounts()
+  const effective = loadEffectiveRegistry()
+  const annotated = effective.accounts.map((a) => ({ ...a, source: classifyAccountSource(a) }))
+  return {
+    explicit_count: explicit.length,
+    auto_discovered_count: annotated.length - explicit.length,
+    total_count: annotated.length,
+    registry_path: defaultRegistryPath(),
+    accounts: annotated,
+  }
 }
 
 function tool_show(args: Record<string, unknown>): unknown {
@@ -234,7 +245,7 @@ function tool_status(args: Record<string, unknown>): unknown {
   const target_model = args.target_model as string
   if (typeof target_model !== "string") throw new Error("target_model required (string)")
   const quotaOverrides = (args.quota_overrides as Record<string, number> | undefined) ?? {}
-  const registry = loadRegistry()
+  const registry = loadEffectiveRegistry()
 
   const accountStatus = registry.accounts.map((a) => {
     let resolved = false

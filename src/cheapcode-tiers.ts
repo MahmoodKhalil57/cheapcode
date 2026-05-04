@@ -33,7 +33,8 @@ import { createOpenAI } from "@ai-sdk/openai"
 import type { LanguageModelV2 } from "@ai-sdk/provider"
 import { CheapcodeAutoModel, type AutoWrapperConfig } from "./auto-wrapper"
 import type { RouterOptions, TaskShape } from "./router"
-import { loadRegistry, type AccountRegistry, type Account } from "./account-registry"
+import { type AccountRegistry, type Account } from "./account-registry"
+import { loadEffectiveRegistry } from "./account-discovery"
 import { wrapWithMultiAccount } from "./multi-account-language-model"
 import type { ResolvedAuth } from "./auth-resolver"
 
@@ -48,7 +49,12 @@ let _registryCache: AccountRegistry | null = null
 function getAccountRegistry(): AccountRegistry {
   if (_registryCache === null) {
     try {
-      _registryCache = loadRegistry()
+      // loadEffectiveRegistry merges explicit ~/.config/cheapcode/accounts.json
+      // with auto-discovered providers from opencode's config + auth.json.
+      // Operator's "unlimited keys via UI" UX vision: any Custom provider
+      // they Connect via opencode's Providers panel becomes a cheapcode
+      // multi-account candidate automatically.
+      _registryCache = loadEffectiveRegistry()
     } catch (e) {
       // Malformed registry → log + fall through to empty (don't crash dispatches).
       // eslint-disable-next-line no-console

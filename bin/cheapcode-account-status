@@ -18,11 +18,11 @@
  */
 
 import {
-  loadRegistry,
   resolveAccount,
   defaultRegistryPath,
   type Account,
 } from "../src/account-registry"
+import { loadEffectiveRegistry, classifyAccountSource } from "../src/account-discovery"
 import {
   resolveAuthRef,
   isAuthExpired,
@@ -91,7 +91,8 @@ function printStatusTable(statuses: AccountStatus[]): void {
       : s.expired
         ? `[33mEXPIRED[0m ${fmtAuth(s.resolved!)}`
         : `[32mOK[0m ${fmtAuth(s.resolved!)}`
-    console.log(`  [${a.priority.toString().padStart(3)}] ${a.id} (${a.label})`)
+    const sourceTag = classifyAccountSource(a) === "auto" ? "[2m[auto-discovered][0m" : "[2m[explicit][0m"
+    console.log(`  [${a.priority.toString().padStart(3)}] ${a.id} (${a.label}) ${sourceTag}`)
     console.log(`        provider=${a.provider}  tier=${a.tier}  capabilities=${a.capabilities.join(",")}`)
     console.log(`        auth_ref=${a.auth_ref}`)
     console.log(`        ${status}`)
@@ -107,7 +108,7 @@ function main(): number {
 
   let registry
   try {
-    registry = loadRegistry(registryPath)
+    registry = loadEffectiveRegistry({ registryPath })
   } catch (e) {
     console.error(`[31mfailed to load registry:[0m ${(e as Error).message}`)
     return 1

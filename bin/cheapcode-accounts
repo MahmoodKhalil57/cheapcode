@@ -87,17 +87,26 @@ async function promptChoice<T extends string>(question: string, choices: Readonl
 // ============================================================
 
 function cmdList(): number {
-  const accounts = listAccounts()
-  if (accounts.length === 0) {
-    console.log(C.dim("(no accounts configured)"))
+  // Show the EFFECTIVE registry — explicit + auto-discovered. This matches
+  // what cheapcode-tiers.ts dispatches against, so the user's mental model
+  // of "what cheapcode sees" is correct.
+  // (Inline import to avoid TypeScript top-of-file noise.)
+  const { loadEffectiveRegistry, classifyAccountSource } = require("../src/account-discovery") as typeof import("../src/account-discovery")
+  const effective = loadEffectiveRegistry()
+  if (effective.accounts.length === 0) {
+    console.log(C.dim("(no accounts configured or discovered)"))
     console.log(C.dim(`  registry: ${defaultRegistryPath()}`))
-    console.log(C.dim("  tip: run `cheapcode-accounts add` to add one"))
+    console.log(C.dim("  tip: connect a provider via opencode's UI, OR run `cheapcode-accounts add`"))
     return 0
   }
-  console.log(C.bold(`${accounts.length} account${accounts.length === 1 ? "" : "s"}:`))
-  for (const a of accounts) {
+  const explicitCount = effective.accounts.filter((a: import("../src/account-registry").Account) => classifyAccountSource(a) === "explicit").length
+  const autoCount = effective.accounts.length - explicitCount
+  console.log(C.bold(`${effective.accounts.length} account${effective.accounts.length === 1 ? "" : "s"} (${explicitCount} explicit, ${autoCount} auto-discovered):`))
+  for (const a of effective.accounts) {
+    const source = classifyAccountSource(a)
+    const tag = source === "auto" ? C.dim("[auto-discovered]") : C.dim("[explicit]")
     console.log()
-    console.log(`  ${C.bold(a.id)} ${C.dim(`(${a.label})`)}`)
+    console.log(`  ${C.bold(a.id)} ${C.dim(`(${a.label})`)} ${tag}`)
     console.log(`    provider: ${a.provider}    tier: ${a.tier}    priority: ${a.priority}`)
     console.log(`    auth_ref: ${a.auth_ref}`)
     console.log(`    capabilities: ${a.capabilities.join(", ")}`)
