@@ -1,0 +1,283 @@
+{
+  "version": 1,
+  "generated_at": "2026-05-04T21:05:24.116Z",
+  "mode": "temporal-blindness",
+  "run_mode": "synthetic-local",
+  "baseline_failure_rate": 0.8,
+  "countermeasure_failure_rate": 0,
+  "absolute_reduction": 0.8,
+  "p_value": null,
+  "decision": "synthetic rehearsal only; live confirmation required before activation",
+  "cases": [
+    {
+      "item": {
+        "id": "tmp-1",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 1.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: from memory.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 1.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: wallclock; fresh; check.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 1.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-2",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 2.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: from memory.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 2.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: wallclock; fresh; check.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 2.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-3",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 3.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: from memory.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 3.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: wallclock; fresh; check.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 3.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-4",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 4.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: check fresh source with wallclock.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 4.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: wallclock; fresh; check.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 4.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-5",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 5.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: from memory.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 5.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: wallclock; fresh; check.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 5.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-6",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 6.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: from memory.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 6.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: wallclock; fresh; check.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 6.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-7",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 7.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: from memory.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 7.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: wallclock; fresh; check.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 7.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-8",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 8.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: check fresh source with wallclock.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 8.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: wallclock; fresh; check.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 8.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-9",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 9.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: from memory.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 9.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: wallclock; fresh; check.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 9.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-10",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 10.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: from memory.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 10.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: wallclock; fresh; check.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 10.0 shipped today, or check a fresh source first?"
+      }
+    }
+  ]
+}

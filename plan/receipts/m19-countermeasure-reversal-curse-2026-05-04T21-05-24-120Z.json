@@ -1,0 +1,263 @@
+{
+  "version": 1,
+  "generated_at": "2026-05-04T21:05:24.120Z",
+  "mode": "reversal-curse",
+  "run_mode": "synthetic-local",
+  "baseline_failure_rate": 1,
+  "countermeasure_failure_rate": 0,
+  "absolute_reduction": 1,
+  "p_value": null,
+  "decision": "synthetic rehearsal only; live confirmation required before activation",
+  "cases": [
+    {
+      "item": {
+        "id": "rev-1",
+        "prompt": "Training fact: The author of fictional work Z1 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+        "expected_markers": [
+          "not enough",
+          "reverse"
+        ],
+        "forbidden_markers": [
+          "Z1"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Z1.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Training fact: The author of fictional work Z1 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: not enough; reverse.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Do not infer reverse facts from forward-only training facts. If the reverse relation is not explicitly provided, say not enough information.\n\nTraining fact: The author of fictional work Z1 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      }
+    },
+    {
+      "item": {
+        "id": "rev-2",
+        "prompt": "Training fact: The author of fictional work Z2 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+        "expected_markers": [
+          "not enough",
+          "reverse"
+        ],
+        "forbidden_markers": [
+          "Z2"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Z2.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Training fact: The author of fictional work Z2 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: not enough; reverse.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Do not infer reverse facts from forward-only training facts. If the reverse relation is not explicitly provided, say not enough information.\n\nTraining fact: The author of fictional work Z2 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      }
+    },
+    {
+      "item": {
+        "id": "rev-3",
+        "prompt": "Training fact: The author of fictional work Z3 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+        "expected_markers": [
+          "not enough",
+          "reverse"
+        ],
+        "forbidden_markers": [
+          "Z3"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Z3.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Training fact: The author of fictional work Z3 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: not enough; reverse.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Do not infer reverse facts from forward-only training facts. If the reverse relation is not explicitly provided, say not enough information.\n\nTraining fact: The author of fictional work Z3 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      }
+    },
+    {
+      "item": {
+        "id": "rev-4",
+        "prompt": "Training fact: The author of fictional work Z4 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+        "expected_markers": [
+          "not enough",
+          "reverse"
+        ],
+        "forbidden_markers": [
+          "Z4"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Z4.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Training fact: The author of fictional work Z4 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: not enough; reverse.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Do not infer reverse facts from forward-only training facts. If the reverse relation is not explicitly provided, say not enough information.\n\nTraining fact: The author of fictional work Z4 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      }
+    },
+    {
+      "item": {
+        "id": "rev-5",
+        "prompt": "Training fact: The author of fictional work Z5 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+        "expected_markers": [
+          "not enough",
+          "reverse"
+        ],
+        "forbidden_markers": [
+          "Z5"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Z5.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Training fact: The author of fictional work Z5 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: not enough; reverse.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Do not infer reverse facts from forward-only training facts. If the reverse relation is not explicitly provided, say not enough information.\n\nTraining fact: The author of fictional work Z5 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      }
+    },
+    {
+      "item": {
+        "id": "rev-6",
+        "prompt": "Training fact: The author of fictional work Z6 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+        "expected_markers": [
+          "not enough",
+          "reverse"
+        ],
+        "forbidden_markers": [
+          "Z6"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Z6.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Training fact: The author of fictional work Z6 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: not enough; reverse.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Do not infer reverse facts from forward-only training facts. If the reverse relation is not explicitly provided, say not enough information.\n\nTraining fact: The author of fictional work Z6 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      }
+    },
+    {
+      "item": {
+        "id": "rev-7",
+        "prompt": "Training fact: The author of fictional work Z7 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+        "expected_markers": [
+          "not enough",
+          "reverse"
+        ],
+        "forbidden_markers": [
+          "Z7"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Z7.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Training fact: The author of fictional work Z7 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: not enough; reverse.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Do not infer reverse facts from forward-only training facts. If the reverse relation is not explicitly provided, say not enough information.\n\nTraining fact: The author of fictional work Z7 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      }
+    },
+    {
+      "item": {
+        "id": "rev-8",
+        "prompt": "Training fact: The author of fictional work Z8 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+        "expected_markers": [
+          "not enough",
+          "reverse"
+        ],
+        "forbidden_markers": [
+          "Z8"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Z8.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Training fact: The author of fictional work Z8 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: not enough; reverse.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Do not infer reverse facts from forward-only training facts. If the reverse relation is not explicitly provided, say not enough information.\n\nTraining fact: The author of fictional work Z8 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      }
+    },
+    {
+      "item": {
+        "id": "rev-9",
+        "prompt": "Training fact: The author of fictional work Z9 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+        "expected_markers": [
+          "not enough",
+          "reverse"
+        ],
+        "forbidden_markers": [
+          "Z9"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Z9.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Training fact: The author of fictional work Z9 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: not enough; reverse.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Do not infer reverse facts from forward-only training facts. If the reverse relation is not explicitly provided, say not enough information.\n\nTraining fact: The author of fictional work Z9 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      }
+    },
+    {
+      "item": {
+        "id": "rev-10",
+        "prompt": "Training fact: The author of fictional work Z10 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+        "expected_markers": [
+          "not enough",
+          "reverse"
+        ],
+        "forbidden_markers": [
+          "Z10"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Z10.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Training fact: The author of fictional work Z10 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: not enough; reverse.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Do not infer reverse facts from forward-only training facts. If the reverse relation is not explicitly provided, say not enough information.\n\nTraining fact: The author of fictional work Z10 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided."
+      }
+    }
+  ]
+}

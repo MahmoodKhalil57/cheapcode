@@ -1,0 +1,273 @@
+{
+  "version": 1,
+  "generated_at": "2026-05-04T21:05:24.119Z",
+  "mode": "tom-fact-belief",
+  "run_mode": "synthetic-local",
+  "baseline_failure_rate": 0.7,
+  "countermeasure_failure_rate": 0,
+  "absolute_reduction": 0.7,
+  "p_value": null,
+  "decision": "synthetic rehearsal only; live confirmation required before activation",
+  "cases": [
+    {
+      "item": {
+        "id": "tom-1",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 1.",
+        "expected_markers": [
+          "Box A",
+          "Box B",
+          "believes"
+        ],
+        "forbidden_markers": [
+          "Sam will look in Box B"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Sam will look in Box B.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 1."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: Box A; Box B; believes.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Separate actor belief from world fact before answering. Use both labels: believes / actually.\n\nSam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 1."
+      }
+    },
+    {
+      "item": {
+        "id": "tom-2",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 2.",
+        "expected_markers": [
+          "Box A",
+          "Box B",
+          "believes"
+        ],
+        "forbidden_markers": [
+          "Sam will look in Box B"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Sam will look in Box B.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 2."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: Box A; Box B; believes.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Separate actor belief from world fact before answering. Use both labels: believes / actually.\n\nSam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 2."
+      }
+    },
+    {
+      "item": {
+        "id": "tom-3",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 3.",
+        "expected_markers": [
+          "Box A",
+          "Box B",
+          "believes"
+        ],
+        "forbidden_markers": [
+          "Sam will look in Box B"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Box A, Box B, believes.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 3."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: Box A; Box B; believes.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Separate actor belief from world fact before answering. Use both labels: believes / actually.\n\nSam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 3."
+      }
+    },
+    {
+      "item": {
+        "id": "tom-4",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 4.",
+        "expected_markers": [
+          "Box A",
+          "Box B",
+          "believes"
+        ],
+        "forbidden_markers": [
+          "Sam will look in Box B"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Sam will look in Box B.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 4."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: Box A; Box B; believes.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Separate actor belief from world fact before answering. Use both labels: believes / actually.\n\nSam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 4."
+      }
+    },
+    {
+      "item": {
+        "id": "tom-5",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 5.",
+        "expected_markers": [
+          "Box A",
+          "Box B",
+          "believes"
+        ],
+        "forbidden_markers": [
+          "Sam will look in Box B"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Sam will look in Box B.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 5."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: Box A; Box B; believes.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Separate actor belief from world fact before answering. Use both labels: believes / actually.\n\nSam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 5."
+      }
+    },
+    {
+      "item": {
+        "id": "tom-6",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 6.",
+        "expected_markers": [
+          "Box A",
+          "Box B",
+          "believes"
+        ],
+        "forbidden_markers": [
+          "Sam will look in Box B"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Box A, Box B, believes.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 6."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: Box A; Box B; believes.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Separate actor belief from world fact before answering. Use both labels: believes / actually.\n\nSam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 6."
+      }
+    },
+    {
+      "item": {
+        "id": "tom-7",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 7.",
+        "expected_markers": [
+          "Box A",
+          "Box B",
+          "believes"
+        ],
+        "forbidden_markers": [
+          "Sam will look in Box B"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Sam will look in Box B.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 7."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: Box A; Box B; believes.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Separate actor belief from world fact before answering. Use both labels: believes / actually.\n\nSam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 7."
+      }
+    },
+    {
+      "item": {
+        "id": "tom-8",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 8.",
+        "expected_markers": [
+          "Box A",
+          "Box B",
+          "believes"
+        ],
+        "forbidden_markers": [
+          "Sam will look in Box B"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Sam will look in Box B.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 8."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: Box A; Box B; believes.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Separate actor belief from world fact before answering. Use both labels: believes / actually.\n\nSam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 8."
+      }
+    },
+    {
+      "item": {
+        "id": "tom-9",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 9.",
+        "expected_markers": [
+          "Box A",
+          "Box B",
+          "believes"
+        ],
+        "forbidden_markers": [
+          "Sam will look in Box B"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Box A, Box B, believes.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 9."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: Box A; Box B; believes.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Separate actor belief from world fact before answering. Use both labels: believes / actually.\n\nSam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 9."
+      }
+    },
+    {
+      "item": {
+        "id": "tom-10",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 10.",
+        "expected_markers": [
+          "Box A",
+          "Box B",
+          "believes"
+        ],
+        "forbidden_markers": [
+          "Sam will look in Box B"
+        ]
+      },
+      "baseline": {
+        "output": "Baseline answer: Sam will look in Box B.",
+        "failed": true,
+        "model": "synthetic-local",
+        "prompt": "Sam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 10."
+      },
+      "countermeasure": {
+        "output": "Countermeasure answer: Box A; Box B; believes.",
+        "failed": false,
+        "model": "synthetic-local",
+        "prompt": "Separate actor belief from world fact before answering. Use both labels: believes / actually.\n\nSam saw the key placed in Box A. While Sam was away, Lee moved it to Box B. Where will Sam first look, and where is the key actually? Variant 10."
+      }
+    }
+  ]
+}

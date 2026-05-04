@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "mode": "reversal-curse",
+  "items": [
+    {
+      "id": "rev-1",
+      "prompt": "Training fact: The author of fictional work Z1 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+      "expected_markers": [
+        "not enough",
+        "reverse"
+      ],
+      "forbidden_markers": [
+        "Z1"
+      ]
+    },
+    {
+      "id": "rev-2",
+      "prompt": "Training fact: The author of fictional work Z2 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+      "expected_markers": [
+        "not enough",
+        "reverse"
+      ],
+      "forbidden_markers": [
+        "Z2"
+      ]
+    },
+    {
+      "id": "rev-3",
+      "prompt": "Training fact: The author of fictional work Z3 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+      "expected_markers": [
+        "not enough",
+        "reverse"
+      ],
+      "forbidden_markers": [
+        "Z3"
+      ]
+    },
+    {
+      "id": "rev-4",
+      "prompt": "Training fact: The author of fictional work Z4 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+      "expected_markers": [
+        "not enough",
+        "reverse"
+      ],
+      "forbidden_markers": [
+        "Z4"
+      ]
+    },
+    {
+      "id": "rev-5",
+      "prompt": "Training fact: The author of fictional work Z5 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+      "expected_markers": [
+        "not enough",
+        "reverse"
+      ],
+      "forbidden_markers": [
+        "Z5"
+      ]
+    },
+    {
+      "id": "rev-6",
+      "prompt": "Training fact: The author of fictional work Z6 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+      "expected_markers": [
+        "not enough",
+        "reverse"
+      ],
+      "forbidden_markers": [
+        "Z6"
+      ]
+    },
+    {
+      "id": "rev-7",
+      "prompt": "Training fact: The author of fictional work Z7 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+      "expected_markers": [
+        "not enough",
+        "reverse"
+      ],
+      "forbidden_markers": [
+        "Z7"
+      ]
+    },
+    {
+      "id": "rev-8",
+      "prompt": "Training fact: The author of fictional work Z8 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+      "expected_markers": [
+        "not enough",
+        "reverse"
+      ],
+      "forbidden_markers": [
+        "Z8"
+      ]
+    },
+    {
+      "id": "rev-9",
+      "prompt": "Training fact: The author of fictional work Z9 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+      "expected_markers": [
+        "not enough",
+        "reverse"
+      ],
+      "forbidden_markers": [
+        "Z9"
+      ]
+    },
+    {
+      "id": "rev-10",
+      "prompt": "Training fact: The author of fictional work Z10 is Mira Sol. Asked in reverse: what work did Mira Sol author? Answer only if the reverse relation is explicitly provided.",
+      "expected_markers": [
+        "not enough",
+        "reverse"
+      ],
+      "forbidden_markers": [
+        "Z10"
+      ]
+    }
+  ]
+}

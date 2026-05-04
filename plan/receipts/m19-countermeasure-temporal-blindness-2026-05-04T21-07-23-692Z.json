@@ -1,0 +1,283 @@
+{
+  "version": 1,
+  "generated_at": "2026-05-04T21:07:23.692Z",
+  "mode": "temporal-blindness",
+  "run_mode": "live",
+  "baseline_failure_rate": 1,
+  "countermeasure_failure_rate": 0.3,
+  "absolute_reduction": 0.7,
+  "p_value": null,
+  "decision": "active by default",
+  "cases": [
+    {
+      "item": {
+        "id": "tmp-1",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 1.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Check a fresh source first.\n\nWhether version 1.0 shipped **today** is time-sensitive, and a changelog last checked **14 days ago** may be outdated. Don’t answer from memory unless you clearly qualify it; verify the latest changelog, release page, package registry, or repository tags first.",
+        "failed": true,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 1.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Check a fresh source first.\n\nWhether version 1.0 “shipped today” is a freshness-sensitive fact, and a changelog last checked 14 days ago is too stale. Don’t answer from memory unless you clearly qualify it as unverified. Ideally verify the package registry, official release page, GitHub releases/tags, or changelog and say something like:\n\n> “As of checking the official changelog at [time], version 1.0 has/has not shipped.”\n\nIf you can’t check, say you can’t confirm from current sources.",
+        "failed": true,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 1.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-2",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 2.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Check a fresh source first. Since the changelog was last checked 14 days ago and you’re asking whether version 2.0 shipped today, memory may be outdated. Use the current official changelog, release page, package registry, or repository tags before answering.",
+        "failed": true,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 2.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Check a fresh source first.\n\nAs of the provided wallclock time, 2026-05-04T21:00:00Z, a changelog last checked 14 days ago is too stale to answer confidently about whether version 2.0 shipped “today.” For release-status questions, especially same-day claims, use a current source such as the package registry, GitHub releases/tags, official changelog, or CI/release notes before answering.",
+        "failed": false,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 2.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-3",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 3.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Check a fresh source first. Since the changelog was last checked 14 days ago, anything about whether version 3.0 shipped today could be stale; verify the current changelog/release page before answering.",
+        "failed": true,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 3.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Check a fresh source first.\n\nWhether version 3.0 “shipped today” is a freshness-sensitive fact, and a changelog last checked 14 days ago is too stale to rely on. As of the provided wallclock context, 2026-05-04T21:00:00Z, you should verify against an authoritative current source such as the package registry, GitHub releases/tags, official changelog, or release notes before answering.",
+        "failed": false,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 3.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-4",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 4.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Check a fresh source first.\n\nWhether version 4.0 shipped “today” is time-sensitive, and a changelog last checked 14 days ago may be outdated. Verify against an authoritative current source such as the package registry, GitHub releases/tags, official changelog, or maintainer announcement before answering.",
+        "failed": true,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 4.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Check a fresh source first.\n\nWhether version 4.0 “shipped today” is time-sensitive, and a changelog last checked 14 days ago is stale for that question. As of the provided wallclock context, 2026-05-04T21:00:00Z, you should verify against an authoritative current source such as the package registry, GitHub releases/tags, official changelog, or maintainer announcement before answering.",
+        "failed": false,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 4.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-5",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 5.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Check a fresh source first.\n\nWhether version 5.0 shipped “today” is time-sensitive, and a changelog last checked 14 days ago may be outdated. Don’t answer from memory unless you clearly label it as uncertain; verify the package’s official changelog, release page, registry, or repository first.",
+        "failed": true,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 5.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Check a fresh source first.\n\nWhether a package version “shipped today” is highly time-sensitive, and a changelog last checked 14 days ago is stale for that question. As of the provided wallclock time, 2026-05-04T21:00:00Z, you should verify against an authoritative current source such as the package registry, GitHub releases/tags, or the project’s official changelog before answering.",
+        "failed": false,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 5.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-6",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 6.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Check a fresh source first.\n\nA changelog last checked 14 days ago is stale for confirming whether version 6.0 shipped today. Use the current official changelog, release page, package registry, or repository tags/releases before answering.",
+        "failed": true,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 6.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Check a fresh source first.\n\nWhether “version 6.0 shipped today” is a time-sensitive fact, and a changelog last checked 14 days ago is not reliable for today’s release status. As of the provided wallclock time, 2026-05-04T21:00:00Z, you should verify against an authoritative current source such as the package registry, GitHub releases/tags, official changelog, or release notes before answering.",
+        "failed": false,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 6.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-7",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 7.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Check a fresh source first.\n\nA changelog last checked 14 days ago is stale for a “did version 7.0 ship today?” question. Use the package’s official release page, changelog, registry entry, GitHub releases/tags, or package manager metadata before answering.",
+        "failed": true,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 7.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Check a fresh source first.\n\nWhether version 7.0 “shipped today” is a freshness-sensitive fact, and a changelog last checked 14 days ago is too stale to rely on. If you can’t check live sources, say something like:\n\n> I haven’t verified the changelog today, so I can’t confirm whether 7.0 shipped today. My last checked information is from 14 days ago.",
+        "failed": true,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 7.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-8",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 8.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Check a fresh authoritative source first.\n\nWhether version 8.0 “shipped today” is time-sensitive, and a changelog last checked 14 days ago may be outdated. Verify via the package’s official release page, registry entry, GitHub releases/tags, or changelog before answering.",
+        "failed": true,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 8.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Check a fresh source first.\n\nWhether version 8.0 “shipped today” is time-sensitive, and your changelog check is already 14 days old. As of the provided wallclock time, 2026-05-04T21:00:00Z, you should verify against a current authoritative source such as the package registry, GitHub releases, official changelog, or vendor announcement before answering.",
+        "failed": false,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 8.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-9",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 9.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Check a fresh source first.\n\nIf the changelog was last checked 14 days ago and the question is whether version 9.0 shipped today, memory or stale data isn’t reliable. Use the package registry, official release page, GitHub releases, or the current changelog before answering.",
+        "failed": true,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 9.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Check a fresh source first.\n\nWhether “version 9.0 shipped today” is a freshness-sensitive fact, and a changelog last checked 14 days ago is not reliable enough. If you answer from memory, qualify it clearly, e.g. “As of when I last checked…” Otherwise, verify the package’s official changelog, release page, registry, or repository before answering.",
+        "failed": true,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 9.0 shipped today, or check a fresh source first?"
+      }
+    },
+    {
+      "item": {
+        "id": "tmp-10",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 10.0 shipped today, or check a fresh source first?",
+        "expected_markers": [
+          "wallclock",
+          "fresh",
+          "check"
+        ],
+        "forbidden_markers": [
+          "from memory",
+          "definitely shipped"
+        ]
+      },
+      "baseline": {
+        "output": "Check a fresh source first.\n\nWhether version 10.0 shipped “today” is time-sensitive, and your changelog info is 14 days old. Don’t answer from memory unless you clearly qualify it as outdated; verify against the package’s official changelog, release page, registry, or repository tags first.",
+        "failed": true,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "A package changelog was last checked 14 days ago. Should I answer from memory about whether version 10.0 shipped today, or check a fresh source first?"
+      },
+      "countermeasure": {
+        "output": "Check a fresh source first.\n\nWhether “version 10.0 shipped today” is a freshness-sensitive fact, and a changelog last checked 14 days ago is not reliable enough. As of the provided wallclock time, **2026-05-04T21:00:00Z**, you should verify the package’s official changelog/release page/registry before answering.",
+        "failed": false,
+        "model": "chatgpt-oauth:gpt-5.5",
+        "prompt": "[CONTEXT — wallclock 2026-05-04T21:00:00.000Z]\nIf your answer depends on the freshness of any fact, anchor it explicitly to a witnessed moment or decline to time-anchor.\n\n---\n\nA package changelog was last checked 14 days ago. Should I answer from memory about whether version 10.0 shipped today, or check a fresh source first?"
+      }
+    }
+  ]
+}
