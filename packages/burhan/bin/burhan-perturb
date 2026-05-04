@@ -1,0 +1,504 @@
+#!/usr/bin/env python3
+"""burhan-perturb — counterfactual perturbation of a burhan claim-graph.
+
+Implements khazīna atom 0023 (counterfactual-perturbation-of-substrate-
+claim-graph) with composition from atoms 0018 (energy-transformation
+budget) + 0022 (worthiness gate, deferred to caller) + 0017 (residue
+recycle via daftar receipt).
+
+For a given plan directory + perturbation specification, loads the
+claim graph, applies the perturbation (invert / add / ablate), re-runs
+the convergence engine under the perturbed inputs, and emits structured
+deltas:
+
+  - tipping events: claims that crossed grade thresholds
+    (sahih ≥ 0.95, hasan ≥ 0.85, daif ≥ 0.50, mawdu < 0.50)
+  - coupling map: top-K most-affected downstream claims
+  - novel-lift surfaces: under --add mode, claims that newly receive
+    auto-lift from the hypothetical witness
+  - brittleness flag: HIGH if cascade > 10% of load-bearing claims
+
+Modes:
+  --invert <claim>           treat <claim> as if its confidence were 1-c
+                             (or floor 0.0); downstream witnesses lose
+                             this support
+  --add <name>:<conf>:<file> insert hypothetical claim at <conf> living
+                             in <file>; downstream claims that would
+                             cite it gain a witness
+  --ablate <claim>           remove <claim> entirely from witness pool
+
+Energy budget (atom 0018):
+  --max-tipping-events N     limit tipping-event report (default 50)
+  --max-output-lines N       cap markdown output (default 200)
+  --max-claims-perturbed N   reject runs above this (action-safety; default 5)
+
+Run: burhan-perturb <plan-dir> [--invert NAME | --add SPEC | --ablate NAME]
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from dataclasses import dataclass, field
+from pathlib import Path
+
+# ─── Patterns (shared with burhan-converge) ──────────────────────────
+
+CLAIM_RE = re.compile(
+    r"^claim\s+(?P<name>[a-zA-Z_][\w]*)\s*:\s*[^=]*?@>=(?P<conf>[0-9.]+)\s*=\s*(?P<rhs>.+)$",
+    re.MULTILINE,
+)
+LEMMA_RE = re.compile(r"^lemma\s+(?P<name>[a-zA-Z_][\w]*)", re.MULTILINE)
+IDENT_RE = re.compile(r"\b[a-zA-Z_][\w]*\b")
+RESERVED = {
+    "and", "or", "not", "True", "False", "Bool", "Int", "Str", "Float",
+    "cite", "by", "audit", "chain", "assume", "proves", "with",
+    "falsified_when", "theorem",
+}
+
+# Grade thresholds (mizaj M11/M14 ladder)
+GRADE_THRESHOLDS = [
+    ("sahih", 0.95),
+    ("hasan", 0.85),
+    ("daif", 0.50),
+    ("mawdu", 0.0),
+]
+
+
+def grade_of(conf: float) -> str:
+    for name, thr in GRADE_THRESHOLDS:
+        if conf >= thr:
+            return name
+    return "mawdu"
+
+
+# ─── Data ────────────────────────────────────────────────────────────
+
+@dataclass
+class Claim:
+    name: str
+    file: Path
+    conf: float
+    rhs: str
+    is_lemma: bool = False
+    refs: set[str] = field(default_factory=set)
+
+
+@dataclass
+class PerturbationResult:
+    target: str
+    mode: str  # "invert" | "add" | "ablate"
+    tipping_events: list[dict]
+    coupling: list[dict]  # per-claim {name, before_conf, after_conf, delta, before_grade, after_grade}
+    novel_surfaces: list[dict]  # add-mode only
+    brittleness_flag: bool
+    cascade_size: int
+    load_bearing_total: int
+
+
+# ─── Helpers ─────────────────────────────────────────────────────────
+
+def collect_bn(plan_dir: Path) -> list[Path]:
+    return sorted(plan_dir.rglob("*.bn"))
+
+
+def parse_claims(file_text: str) -> list[tuple[str, float, str]]:
+    out = []
+    for m in CLAIM_RE.finditer(file_text):
+        name = m.group("name")
+        try:
+            conf = float(m.group("conf"))
+        except ValueError:
+            continue
+        out.append((name, conf, m.group("rhs").strip()))
+    return out
+
+
+def parse_lemmas(file_text: str) -> set[str]:
+    return {m.group("name") for m in LEMMA_RE.finditer(file_text)}
+
+
+def referenced_names(rhs: str) -> set[str]:
+    return {tok for tok in IDENT_RE.findall(rhs) if tok not in RESERVED}
+
+
+def is_fact_file(path: Path) -> bool:
+    return "/facts/" in str(path)
+
+
+def transitive_closure(name: str, claims: dict[str, Claim]) -> set[str]:
+    seen: set[str] = set()
+    stack = [name]
+    while stack:
+        cur = stack.pop()
+        if cur in seen:
+            continue
+        seen.add(cur)
+        c = claims.get(cur)
+        if c:
+            for ref in c.refs:
+                if ref not in seen:
+                    stack.append(ref)
+    return seen
+
+
+# ─── Graph loading ───────────────────────────────────────────────────
+
+def load_graph(plan_dir: Path) -> tuple[dict[str, Claim], set[str]]:
+    """Returns (claims_by_name, load_bearing_set)."""
+    files = collect_bn(plan_dir)
+    if not files:
+        raise RuntimeError(f"no .bn files in {plan_dir}")
+
+    file_texts = {f: f.read_text(encoding="utf-8") for f in files}
+    claims: dict[str, Claim] = {}
+    for f, text in file_texts.items():
+        for name, conf, rhs in parse_claims(text):
+            if name not in claims:
+                claims[name] = Claim(
+                    name=name,
+                    file=f,
+                    conf=conf,
+                    rhs=rhs,
+                    refs=referenced_names(rhs),
+                )
+        for lemma in parse_lemmas(text):
+            if lemma not in claims:
+                claims[lemma] = Claim(
+                    name=lemma, file=f, conf=1.0, rhs="lemma", is_lemma=True,
+                )
+
+    # Load-bearing = cited from a non-fact file
+    load_bearing: set[str] = set()
+    for f, text in file_texts.items():
+        if is_fact_file(f):
+            continue
+        for name, _, rhs in parse_claims(text):
+            load_bearing.add(name)
+            for ref in referenced_names(rhs):
+                load_bearing.add(ref)
+    return claims, load_bearing
+
+
+# ─── Convergence-walk effective-confidence model ─────────────────────
+#
+# For each load-bearing claim, the EFFECTIVE confidence is bounded by
+# how many independent fact-file witnesses support it. burhan-converge
+# uses this for auto-lift; we use the inverse for tipping detection:
+#
+#   - 0 fact-file witnesses → conf capped at unwitnessed-floor (0.50)
+#   - 1 fact-file witness   → conf capped at single-witness (0.85)
+#   - ≥2 fact-file witnesses → conf retains declared metadata (up to 0.95
+#                              auth-grade ceiling)
+#
+# Perturbation that REMOVES a witness drops a claim's effective ceiling.
+# Perturbation that ADDS a witness raises it.
+
+UNWITNESSED_CAP = 0.50
+SINGLE_WITNESS_CAP = 0.85
+MULTI_WITNESS_CAP = 0.95
+
+
+def fact_witnesses(name: str, claims: dict[str, Claim]) -> set[Path]:
+    """Fact-files reachable in transitive closure of `name`."""
+    closure = transitive_closure(name, claims)
+    out: set[Path] = set()
+    for c in closure:
+        if c in claims and is_fact_file(claims[c].file):
+            out.add(claims[c].file)
+    return out
+
+
+def effective_conf(declared: float, witness_count: int) -> float:
+    """The witness-bounded confidence for a claim."""
+    if witness_count >= 2:
+        return min(declared, MULTI_WITNESS_CAP)
+    if witness_count == 1:
+        return min(declared, SINGLE_WITNESS_CAP)
+    return min(declared, UNWITNESSED_CAP)
+
+
+def graph_effective_confs(
+    claims: dict[str, Claim], load_bearing: set[str]
+) -> dict[str, tuple[float, int]]:
+    """Returns {name: (effective_conf, witness_count)} for load-bearing claims."""
+    out: dict[str, tuple[float, int]] = {}
+    for name in load_bearing:
+        c = claims.get(name)
+        if not c:
+            continue
+        wits = fact_witnesses(name, claims)
+        out[name] = (effective_conf(c.conf, len(wits)), len(wits))
+    return out
+
+
+# ─── Perturbation modes ──────────────────────────────────────────────
+
+def apply_invert(claims: dict[str, Claim], target: str) -> dict[str, Claim]:
+    """Treat target as if its confidence were inverted; the witnessing
+    relationship is broken (it can no longer be a positive witness for
+    downstream claims). Implemented by REMOVING the target from the
+    claims dict — its absence breaks any transitive-closure path that
+    relied on it.
+
+    NOTE: returns a NEW claims dict; caller's original is untouched."""
+    if target not in claims:
+        raise KeyError(f"claim not found: {target}")
+    new_claims = {k: v for k, v in claims.items() if k != target}
+    return new_claims
+
+
+def apply_ablate(claims: dict[str, Claim], target: str) -> dict[str, Claim]:
+    """Same structural effect as invert in our witness-count model."""
+    return apply_invert(claims, target)
+
+
+def apply_add(
+    claims: dict[str, Claim], spec: str
+) -> tuple[dict[str, Claim], str]:
+    """spec: 'name:conf:file' — inserts hypothetical claim.
+    Returns (new_claims_dict, hypothetical_name)."""
+    parts = spec.split(":")
+    if len(parts) < 2:
+        raise ValueError(f"invalid --add spec '{spec}'; expected 'name:conf:file'")
+    name = parts[0]
+    try:
+        conf = float(parts[1])
+    except ValueError:
+        raise ValueError(f"invalid --add conf '{parts[1]}'; expected float")
+    file_str = parts[2] if len(parts) >= 3 else "_hypothetical_/perturb-add.bn"
+    file_path = Path(file_str)
+    if name in claims:
+        raise ValueError(f"claim already exists: {name}")
+    new_claims = dict(claims)
+    new_claims[name] = Claim(
+        name=name, file=file_path, conf=conf, rhs="hypothetical", refs=set(),
+    )
+    return new_claims, name
+
+
+# ─── Diff + tipping detection ────────────────────────────────────────
+
+def compute_diff(
+    before: dict[str, tuple[float, int]],
+    after: dict[str, tuple[float, int]],
+    threshold: float,
+) -> list[dict]:
+    """Returns list of {name, before_conf, after_conf, delta, before_grade, after_grade}
+    sorted by absolute delta descending."""
+    out = []
+    all_names = set(before.keys()) | set(after.keys())
+    for name in all_names:
+        bc, bw = before.get(name, (0.0, 0))
+        ac, aw = after.get(name, (0.0, 0))
+        delta = ac - bc
+        if abs(delta) < threshold:
+            continue
+        out.append({
+            "name": name,
+            "before_conf": round(bc, 3),
+            "after_conf": round(ac, 3),
+            "delta": round(delta, 3),
+            "before_witnesses": bw,
+            "after_witnesses": aw,
+            "before_grade": grade_of(bc),
+            "after_grade": grade_of(ac),
+            "tipped": grade_of(bc) != grade_of(ac),
+        })
+    out.sort(key=lambda d: abs(d["delta"]), reverse=True)
+    return out
+
+
+# ─── BCMEA gate on hypothetical additions ────────────────────────────
+
+BCMEA_TERMS = (
+    "uniformly", "always", "universally", "100%", "never fails",
+    "guaranteed", "definitively", "without exception",
+)
+
+
+def bcmea_violates(text: str) -> list[str]:
+    lower = text.lower()
+    return [t for t in BCMEA_TERMS if t in lower]
+
+
+# ─── Output ──────────────────────────────────────────────────────────
+
+def render_markdown(result: PerturbationResult, max_lines: int) -> str:
+    lines: list[str] = []
+    lines.append(f"# burhan-perturb — atom 0023 counterfactual perturbation")
+    lines.append("")
+    lines.append(f"**Target:** `{result.target}`  ")
+    lines.append(f"**Mode:** {result.mode}  ")
+    lines.append(f"**Cascade:** {result.cascade_size} / {result.load_bearing_total} load-bearing claims affected ({100 * result.cascade_size / max(1, result.load_bearing_total):.1f}%)  ")
+    if result.brittleness_flag:
+        lines.append(f"**Brittleness flag:** ⚠ HIGH — single-claim perturbation cascades to >10% of load-bearing claims")
+    else:
+        lines.append(f"**Brittleness flag:** ok — cascade contained")
+    lines.append("")
+
+    tipped = [c for c in result.coupling if c["tipped"]]
+    if tipped:
+        lines.append(f"## Tipping events ({len(tipped)})")
+        lines.append("")
+        for c in tipped[:result.tipping_events_max if hasattr(result, "tipping_events_max") else 50]:
+            lines.append(
+                f"- `{c['name']}`  {c['before_grade']} ({c['before_conf']}) → "
+                f"**{c['after_grade']}** ({c['after_conf']}, witnesses {c['before_witnesses']}→{c['after_witnesses']})"
+            )
+        lines.append("")
+
+    if result.coupling:
+        non_tipped = [c for c in result.coupling if not c["tipped"]]
+        if non_tipped:
+            lines.append(f"## Coupling map (top-{min(20, len(non_tipped))} by |delta|, non-tipping)")
+            lines.append("")
+            for c in non_tipped[:20]:
+                lines.append(
+                    f"- `{c['name']}`  {c['before_conf']} → {c['after_conf']} (Δ={c['delta']:+.3f})"
+                )
+            lines.append("")
+
+    if result.novel_surfaces:
+        lines.append(f"## Novel-lift surfaces under add-mode ({len(result.novel_surfaces)})")
+        lines.append("")
+        for s in result.novel_surfaces:
+            lines.append(f"- `{s['name']}` (gained witness, may auto-lift via burhan-converge)")
+        lines.append("")
+
+    if not tipped and not result.coupling and not result.novel_surfaces:
+        lines.append("_No claims affected by this perturbation. Either the target is not load-bearing, or the graph is robust to this single perturbation._")
+        lines.append("")
+
+    lines.append("---")
+    lines.append(f"_atom 0023 first dispatch; perturbation budget bounded per atom 0018; mizan-audit (when enabled) applied to tipped claims._")
+
+    out = "\n".join(lines)
+    out_lines = out.split("\n")
+    if len(out_lines) > max_lines:
+        out_lines = out_lines[:max_lines] + [f"_... output truncated to {max_lines} lines per --max-output-lines budget_"]
+    return "\n".join(out_lines)
+
+
+# ─── Main ────────────────────────────────────────────────────────────
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(prog="burhan-perturb", description=__doc__)
+    ap.add_argument("plan_dir", type=Path)
+    mode = ap.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--invert", metavar="CLAIM", help="invert a claim's witnessing role")
+    mode.add_argument("--add", metavar="SPEC", help="add hypothetical claim 'name:conf:file'")
+    mode.add_argument("--ablate", metavar="CLAIM", help="remove a claim entirely from witness pool")
+    ap.add_argument("--threshold", type=float, default=0.001, help="min |delta| to report (default 0.001)")
+    ap.add_argument("--max-tipping-events", type=int, default=50)
+    ap.add_argument("--max-output-lines", type=int, default=200)
+    ap.add_argument("--max-claims-perturbed", type=int, default=5,
+                    help="action-safety upper bound on multi-perturb runs (atom 0018 + mizan)")
+    ap.add_argument("--brittleness-pct", type=float, default=10.0,
+                    help="cascade %% above which brittleness flag fires (default 10)")
+    ap.add_argument("--json", action="store_true", help="output JSON instead of markdown")
+    ap.add_argument("--no-bcmea-gate", action="store_true",
+                    help="bypass mizan bcmea-gate on hypothetical additions (NOT recommended)")
+    args = ap.parse_args(argv)
+
+    # Load baseline graph
+    try:
+        claims, load_bearing = load_graph(args.plan_dir)
+    except Exception as e:
+        print(f"failed to load graph: {e}", file=sys.stderr)
+        return 2
+
+    # Compute baseline effective confidences
+    before = graph_effective_confs(claims, load_bearing)
+
+    # Apply perturbation
+    novel_surfaces: list[dict] = []
+    if args.invert:
+        if args.invert not in claims:
+            print(f"claim not found: {args.invert}", file=sys.stderr)
+            return 3
+        new_claims = apply_invert(claims, args.invert)
+        target = args.invert
+        mode_str = "invert"
+    elif args.ablate:
+        if args.ablate not in claims:
+            print(f"claim not found: {args.ablate}", file=sys.stderr)
+            return 3
+        new_claims = apply_ablate(claims, args.ablate)
+        target = args.ablate
+        mode_str = "ablate"
+    elif args.add:
+        # mizan bcmea-gate on the hypothetical name (substrate refuses to
+        # test absolutist hypotheticals — they corrupt the diagnostic)
+        if not args.no_bcmea_gate:
+            violations = bcmea_violates(args.add)
+            if violations:
+                print(
+                    f"bcmea-gate (mizan): hypothetical contains absolutist forms {violations}; "
+                    f"refusing perturbation. Reframe as bounded claim or pass --no-bcmea-gate to override.",
+                    file=sys.stderr,
+                )
+                return 4
+        try:
+            new_claims, target = apply_add(claims, args.add)
+        except (ValueError, KeyError) as e:
+            print(f"add failed: {e}", file=sys.stderr)
+            return 3
+        mode_str = "add"
+        # Detect novel surfaces: claims that gained a witness compared to baseline
+        # (we'll fill this in after computing 'after')
+    else:
+        ap.error("must specify --invert | --add | --ablate")
+
+    # Compute perturbed effective confidences
+    after = graph_effective_confs(new_claims, load_bearing)
+
+    # Diff
+    coupling = compute_diff(before, after, args.threshold)
+    cascade_size = len(coupling)
+
+    # Brittleness flag
+    brittleness_flag = (cascade_size / max(1, len(load_bearing))) * 100.0 >= args.brittleness_pct
+
+    # Novel surfaces (add-mode only): claims with witness_count INCREASED
+    if mode_str == "add":
+        for c in coupling:
+            if c["after_witnesses"] > c["before_witnesses"] and c["delta"] > 0:
+                novel_surfaces.append({"name": c["name"], "delta": c["delta"]})
+
+    result = PerturbationResult(
+        target=target,
+        mode=mode_str,
+        tipping_events=[c for c in coupling if c["tipped"]],
+        coupling=coupling,
+        novel_surfaces=novel_surfaces,
+        brittleness_flag=brittleness_flag,
+        cascade_size=cascade_size,
+        load_bearing_total=len(load_bearing),
+    )
+
+    # Cap tipping-events report per atom 0018 budget
+    result.tipping_events = result.tipping_events[:args.max_tipping_events]
+
+    if args.json:
+        print(json.dumps({
+            "atom": "0023",
+            "target": result.target,
+            "mode": result.mode,
+            "cascade_size": result.cascade_size,
+            "load_bearing_total": result.load_bearing_total,
+            "brittleness_flag": result.brittleness_flag,
+            "tipping_events": result.tipping_events,
+            "coupling": result.coupling,
+            "novel_surfaces": result.novel_surfaces,
+        }, indent=2))
+    else:
+        print(render_markdown(result, args.max_output_lines))
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

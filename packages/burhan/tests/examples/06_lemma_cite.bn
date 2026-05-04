@@ -1,0 +1,7 @@
+theorem paid_pool_forbidden_for_free_user
+  assume account == "free"
+  proves not can_mint_operator_pool_token(account)
+  by audit paid-tier-policy
+
+claim current_user: Str = "free"
+claim token_request_denied: Bool = cite paid_pool_forbidden_for_free_user with account=current_user

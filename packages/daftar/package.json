@@ -1,0 +1,12 @@
+{
+  "name": "daftar",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "daftar": "./bin/daftar"
+  },
+  "scripts": {
+    "test": "bun test"
+  }
+}

@@ -106,9 +106,13 @@ export async function runCrossWitnessVoter(
 
   // Step 1: parallel cheap pair (use Promise.allSettled — single failure
   // can't block the other; M3.17 lesson applied)
+  // C2 fix: cap maxOutputTokens for voter dispatch (4096 default; voter
+  // outputs are typically short answers + brief reasoning, not full essays).
+  // Prevents "requires more credits" rejections on small OpenRouter balances.
+  const voterMax = 4096
   const [resA, resB] = await Promise.allSettled([
-    withTimeout(generateText({ model: config.cheap, prompt: `${PROMPT_A}\n${task}` }), timeoutMs, "cheap-a"),
-    withTimeout(generateText({ model: config.cheap, prompt: `${PROMPT_B}\n${task}` }), timeoutMs, "cheap-b"),
+    withTimeout(generateText({ model: config.cheap, prompt: `${PROMPT_A}\n${task}`, maxOutputTokens: voterMax }), timeoutMs, "cheap-a"),
+    withTimeout(generateText({ model: config.cheap, prompt: `${PROMPT_B}\n${task}`, maxOutputTokens: voterMax }), timeoutMs, "cheap-b"),
   ])
 
   const textA = resA.status === "fulfilled" ? resA.value.text.trim() : `(cheap-a failed: ${(resA.reason as Error)?.message ?? "unknown"})`
@@ -140,7 +144,7 @@ export async function runCrossWitnessVoter(
   let ansC: string | null = null
   try {
     const resC = await withTimeout(
-      generateText({ model: config.smart, prompt: `${PROMPT_C}\n${task}` }),
+      generateText({ model: config.smart, prompt: `${PROMPT_C}\n${task}`, maxOutputTokens: voterMax }),
       timeoutMs,
       "smart-c",
     )

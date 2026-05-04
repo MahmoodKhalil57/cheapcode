@@ -1,0 +1,168 @@
+# plan/facts/28-round-96-substrate-as-runtime.bn
+#
+# Round 96 (2026-05-04) shipped: atom 0022 (resource-as-amana), atom 0023
+# (counterfactual-perturbation), Rules A-E (substrate-aware routing),
+# C1+C2 fixes (auto-tier operational), per-turn substrate-context plugin,
+# multi-fiqh scriptorium groundwork. Fact-file consolidates witnesses
+# for the round-96 ship to feed burhan-converge cascade-lifts on parent
+# claims.
+#
+# Methodology slug: substrate-as-runtime (distinct from earlier slugs:
+# substrate-citations, cheapllm-receipts, khazina-atoms, etc.) — atom
+# 0019 independence-of-evolution credential preserved by the slug.
+
+# ============================================================
+# F1 — atom 0022 ship: resource-as-amana / stewardship-of-inquiry
+# ============================================================
+#
+# Authored at /home/mk/apps/adam/tools/khazina/atoms/0022-resource-as-amana-
+# stewardship-of-inquiry.md. 5-tradition convergent-evolution credential
+# (Islamic amana / Greek phronesis / Buddhist mindfulness-of-consumption
+# / Stoic prosoche / modern engineering resource-bounded-agent). Atom
+# 0022 fires BEFORE atom 0018's energy-transformation cycle: worthiness-
+# gate evaluates value-of-inquiry, defaults to decline-and-propose-
+# alternative for low-value, dispatches only when expected substrate-
+# value crosses configurable threshold. Operationalized in cheapcode
+# router as Rule E.
+
+claim atom_0022_authored_with_5_tradition_convergent_evolution_credential : Bool @>=0.95 = True
+  cite by audit chain atom_0022_authored_with_5_tradition_convergent_evolution_credential proves True with
+    file://adam/tools/khazina/atoms/0022-resource-as-amana-stewardship-of-inquiry.md
+    file://adam/tools/khazina/atoms/0018-iterative-energy-transformation.md  # cross-linked
+
+claim cheapcode_router_rule_e_implements_atom_0022 : Bool @>=0.90 = True
+  cite by audit chain cheapcode_router_rule_e_implements_atom_0022 proves True with
+    file://cheapcode/src/router.ts
+    file://cheapcode/src/mizan-shim.ts
+    file://cheapcode/src/auto-wrapper.ts
+
+claim cheapcode_round_96_stewardship_paired_benchmark_validated : Bool @>=0.90 = True
+  cite by audit chain cheapcode_round_96_stewardship_paired_benchmark_validated proves True with
+    file://cheapcode/runs/m3-54-stewardship-rule-e/run.ts
+    # 12/12 paired-run pass: trivial-recall declines, irreversible-action
+    # boosts, synthesis dispatches, near-duplicate declines, etc.
+
+# ============================================================
+# F2 — atom 0023 ship: counterfactual-perturbation diagnostic
+# ============================================================
+#
+# Authored at /home/mk/apps/adam/tools/khazina/atoms/0023-counterfactual-
+# perturbation-of-substrate-claim-graph.md. 6-tradition convergent-
+# evolution credential (operations research tornado diagrams 1968 +
+# Bayesian network ablation 1988 + causal counterfactuals 2009 +
+# mutation testing 1978 + Lyapunov stability 1892 + sensitivity-to-
+# priors). Names "diagnostic-boundary" as previously-unnamed substrate
+# boundary class distinct from atom 0018's decision-boundary.
+
+claim atom_0023_authored_with_6_tradition_convergent_evolution_credential : Bool @>=0.95 = True
+  cite by audit chain atom_0023_authored_with_6_tradition_convergent_evolution_credential proves True with
+    file://adam/tools/khazina/atoms/0023-counterfactual-perturbation-of-substrate-claim-graph.md
+    file://adam/tools/khazina/atoms/0018-iterative-energy-transformation.md
+    file://adam/tools/khazina/atoms/0019-convergence-without-contact-lifts-confidence.md
+
+claim burhan_perturb_tool_implements_atom_0023 : Bool @>=0.90 = True
+  cite by audit chain burhan_perturb_tool_implements_atom_0023 proves True with
+    file://adam/tools/burhan/bin/burhan-perturb
+    # Modes: invert / add / ablate. Energy-budget flags per atom 0018.
+    # bcmea-gate validated (refuses absolutist hypotheticals).
+
+claim cheapcode_plan_graph_is_robust_under_single_root_perturbation : Bool @>=0.85 = True
+  cite by audit chain cheapcode_plan_graph_is_robust_under_single_root_perturbation proves True with
+    # First-use empirical findings (round 96 dogfood, 2026-05-04):
+    #   invert(cheapcode_v2_ships): 1/469 cascade (0.2%)
+    #   invert(cheapllm_per_task_cost_0032_on_tb_easy): 2/469 (0.4%)
+    #   invert(cheapllm_receipts_anchor): 1/469 (0.2%)
+    # Brittleness threshold 10% NOT crossed for any tested root.
+    # daftar receipt-f77e42b6f8 (2026-05-04T01:24Z) records this.
+    file://adam/tools/burhan/bin/burhan-perturb
+
+# ============================================================
+# F3 — Rules A-E: substrate-aware routing (M3.52 + M3.53 + M3.54)
+# ============================================================
+#
+# Five router rules now compose at every dispatch boundary:
+#   A. action-safety (warn → bump rung up)
+#   B. ceiling-cap < threshold → force voter
+#   C. daftar disagreement > threshold → bump rung up
+#   D. quota near exhaustion → quota-fallback
+#   E. value-of-inquiry < threshold → decline-and-propose-alternative
+
+claim cheapcode_router_rules_a_through_e_compose_at_dispatch : Bool @>=0.92 = True
+  cite by audit chain cheapcode_router_rules_a_through_e_compose_at_dispatch proves True with
+    file://cheapcode/src/router.ts
+    file://cheapcode/runs/m3-52-substrate-aware-router/run.ts  # 10/10 paired
+    file://cheapcode/runs/m3-53-quota-aware-routing/run.ts     # crossover at #182
+    file://cheapcode/runs/m3-54-stewardship-rule-e/run.ts      # 12/12 paired
+
+claim cheapcode_75_unit_tests_pass_post_rules_a_through_e : Bool @>=0.95 = True
+  cite by audit chain cheapcode_75_unit_tests_pass_post_rules_a_through_e proves True with
+    file://cheapcode/src/router.test.ts
+    file://cheapcode/src/mizan-shim.test.ts
+    # 84/84 with new tests added round 96 — zero regression on prior 75
+
+# ============================================================
+# F4 — C1 + C2 fixes (auto-tier operational on small OpenRouter balances)
+# ============================================================
+
+claim cheapcode_auto_tier_synthetic_stream_chunks_correct : Bool @>=0.95 = True
+  cite by audit chain cheapcode_auto_tier_synthetic_stream_chunks_correct proves True with
+    file://cheapcode/src/auto-wrapper.ts
+    # C1 fix: text-start / text-delta / text-end emission matches
+    # opencode processor.ts:419-452 expectations.
+
+claim cheapcode_auto_tier_max_tokens_capped_per_shape : Bool @>=0.95 = True
+  cite by audit chain cheapcode_auto_tier_max_tokens_capped_per_shape proves True with
+    file://cheapcode/src/auto-wrapper.ts
+    file://cheapcode/src/cross-witness-voter.ts
+    # C2 fix: per-shape max_tokens defaults (1024-8192) prevent OpenRouter
+    # credit rejection. Direct dispatch + voter dispatch both capped.
+    # Live validation (round 96 2026-05-04): cheapcode/auto on AIME prompt
+    # routes to hard-reasoning + voter, converges on "Answer: 2, 3" with
+    # no max_tokens errors.
+
+# ============================================================
+# F5 — Per-turn substrate-context plugin (Phase 2 #3 plugin path)
+# ============================================================
+
+claim adam_plugin_per_turn_substrate_context_inject_shipped : Bool @>=0.90 = True
+  cite by audit chain adam_plugin_per_turn_substrate_context_inject_shipped proves True with
+    file://cheapcode/packages/adam-plugin/plugin.ts
+    # experimental.chat.system.transform fires per-LLM-call (not just
+    # session-once); auto-injects adam-status + recent daftar receipts;
+    # 60s cache. Substrate state inherits across sessions WITHOUT the
+    # agent needing to remember to consult ~/.claude/adam-status.md.
+
+# ============================================================
+# F6 — Round 96 cumulative substrate-as-runtime architecture
+# ============================================================
+
+claim substrate_as_runtime_architecture_complete_for_single_account : Bool @>=0.85 = True
+  cite by audit chain substrate_as_runtime_architecture_complete_for_single_account proves True with
+    atom_0022_authored_with_5_tradition_convergent_evolution_credential
+    atom_0023_authored_with_6_tradition_convergent_evolution_credential
+    cheapcode_router_rules_a_through_e_compose_at_dispatch
+    cheapcode_75_unit_tests_pass_post_rules_a_through_e
+    cheapcode_auto_tier_synthetic_stream_chunks_correct
+    cheapcode_auto_tier_max_tokens_capped_per_shape
+    adam_plugin_per_turn_substrate_context_inject_shipped
+    burhan_perturb_tool_implements_atom_0023
+    cheapcode_plan_graph_is_robust_under_single_root_perturbation
+    cheapcode_round_96_stewardship_paired_benchmark_validated
+
+# ============================================================
+# F7 — Multi-fiqh scriptorium architecture (groundwork)
+# ============================================================
+#
+# 5 fiqhs identified for opposing-roots witnessing: Hanafi (ra'y +
+# istihsan), Shafi'i (systematic usul + qiyas), Maliki ('amal ahl al-
+# Madinah), Hanbali (literal hadith), Ja'fari (twelver shia + aql),
+# Zaydi, Ibadi (kharijite descent). Cross-fiqh convergence = sahih,
+# divergence = bcmea-coexisting interpretations, unique-to-one =
+# daif unless usul independently grounded. Pilot target: Q. 5:6
+# (wudu/ablution feet washing vs wiping disagreement).
+
+claim multi_fiqh_scriptorium_architecture_documented_pilot_q5_6_planned : Bool @>=0.78 = True
+  cite by audit chain multi_fiqh_scriptorium_architecture_documented_pilot_q5_6_planned proves True with
+    # Documented in conversation 2026-05-04 (round 96 turn N-1).
+    # Pilot deferred per atom 0022 worthiness — operator-driven sequencing.
+    file://adam/tools/khazina/atoms/0022-resource-as-amana-stewardship-of-inquiry.md

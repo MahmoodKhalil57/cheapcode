@@ -1,0 +1,290 @@
+{
+  "_comment": "Curated multi-tradition codename roots. Primary pool: Arabic-Islamic technical terms from the substrate-suite tradition (mizan/mizaj/burhan/daftar/khazina lineage). Secondary: Greek + Sanskrit + Latin when Arabic root is poor fit.",
+  "categories": {
+    "router_dispatch": {
+      "description": "routing, dispatching, choosing among options, selection-discipline",
+      "roots": [
+        {"name": "mizan", "tradition": "Arabic", "meaning": "balance / scale / weighing instrument", "syllables": 2},
+        {"name": "tariqa", "tradition": "Arabic", "meaning": "method / path / spiritual route", "syllables": 3},
+        {"name": "daleel", "tradition": "Arabic", "meaning": "guide / proof / signpost", "syllables": 2},
+        {"name": "kairos", "tradition": "Greek", "meaning": "right moment for action", "syllables": 2},
+        {"name": "manhaj", "tradition": "Arabic", "meaning": "methodology / clear way", "syllables": 2},
+        {"name": "naqib", "tradition": "Arabic", "meaning": "chief / scout / one who selects", "syllables": 2}
+      ]
+    },
+    "knowledge_archive": {
+      "description": "knowledge collection, archive, library, treasury, structured store",
+      "roots": [
+        {"name": "khazina", "tradition": "Arabic", "meaning": "treasury / store of value", "syllables": 3},
+        {"name": "kanz", "tradition": "Arabic", "meaning": "treasure / hidden store", "syllables": 1},
+        {"name": "diwan", "tradition": "Arabic", "meaning": "register / collection", "syllables": 2},
+        {"name": "codex", "tradition": "Latin", "meaning": "bound book / canonical record", "syllables": 2},
+        {"name": "sutra", "tradition": "Sanskrit", "meaning": "thread / aphoristic text", "syllables": 2},
+        {"name": "samhita", "tradition": "Sanskrit", "meaning": "compendium / collection", "syllables": 3}
+      ]
+    },
+    "transmission_lineage": {
+      "description": "chain of transmission, lineage, attestation, witness chain",
+      "roots": [
+        {"name": "isnad", "tradition": "Arabic", "meaning": "chain of transmission", "syllables": 2},
+        {"name": "silsila", "tradition": "Arabic", "meaning": "chain / continuous succession", "syllables": 3},
+        {"name": "sanad", "tradition": "Arabic", "meaning": "support / chain / authority", "syllables": 2},
+        {"name": "parampara", "tradition": "Sanskrit", "meaning": "uninterrupted succession", "syllables": 4}
+      ]
+    },
+    "proof_demonstration": {
+      "description": "proof, demonstration, evidence, formal argument",
+      "roots": [
+        {"name": "burhan", "tradition": "Arabic", "meaning": "decisive proof / demonstration", "syllables": 2},
+        {"name": "shahid", "tradition": "Arabic", "meaning": "witness / proof", "syllables": 2},
+        {"name": "hujja", "tradition": "Arabic", "meaning": "argument / proof", "syllables": 2},
+        {"name": "bayyina", "tradition": "Arabic", "meaning": "clear evidence", "syllables": 3}
+      ]
+    },
+    "composition_ordering": {
+      "description": "composition, ordering, arrangement, structural design",
+      "roots": [
+        {"name": "tashkeel", "tradition": "Arabic", "meaning": "vocalization / forming / shaping", "syllables": 3},
+        {"name": "nazm", "tradition": "Arabic", "meaning": "composition / ordering / weave", "syllables": 1},
+        {"name": "tartib", "tradition": "Arabic", "meaning": "arrangement / sequence", "syllables": 2},
+        {"name": "tanseeq", "tradition": "Arabic", "meaning": "coordination / arrangement", "syllables": 2}
+      ]
+    },
+    "discipline_method": {
+      "description": "discipline, training, methodology, practice",
+      "roots": [
+        {"name": "manhaj", "tradition": "Arabic", "meaning": "methodology / clear way", "syllables": 2},
+        {"name": "sira", "tradition": "Arabic", "meaning": "biographical method / way", "syllables": 2},
+        {"name": "adab", "tradition": "Arabic", "meaning": "discipline / etiquette / refinement", "syllables": 2},
+        {"name": "ascesis", "tradition": "Greek", "meaning": "exercise / practice", "syllables": 3}
+      ]
+    },
+    "balance_measure": {
+      "description": "balance, measurement, calibration, weighing",
+      "roots": [
+        {"name": "mizan", "tradition": "Arabic", "meaning": "balance / scale", "syllables": 2},
+        {"name": "kayl", "tradition": "Arabic", "meaning": "measure / scoop", "syllables": 1},
+        {"name": "miqdar", "tradition": "Arabic", "meaning": "quantity / measure", "syllables": 2},
+        {"name": "qistas", "tradition": "Arabic", "meaning": "perfectly just balance", "syllables": 2}
+      ]
+    },
+    "stewardship_trust": {
+      "description": "stewardship, trust, custodianship, care of resources",
+      "roots": [
+        {"name": "amana", "tradition": "Arabic", "meaning": "trust / fidelity / amana of stewardship", "syllables": 3},
+        {"name": "khilafa", "tradition": "Arabic", "meaning": "stewardship / succession / vicegerency", "syllables": 3},
+        {"name": "wakala", "tradition": "Arabic", "meaning": "agency / proxy", "syllables": 3},
+        {"name": "phronesis", "tradition": "Greek", "meaning": "practical wisdom in resource use", "syllables": 3}
+      ]
+    },
+    "wisdom_understanding": {
+      "description": "wisdom, understanding, gnosis, deep knowing",
+      "roots": [
+        {"name": "hikma", "tradition": "Arabic", "meaning": "wisdom / sage knowledge", "syllables": 2},
+        {"name": "marifa", "tradition": "Arabic", "meaning": "gnosis / experiential knowing", "syllables": 3},
+        {"name": "fahm", "tradition": "Arabic", "meaning": "comprehension / grasp", "syllables": 1},
+        {"name": "prajna", "tradition": "Sanskrit", "meaning": "wisdom / discernment", "syllables": 2},
+        {"name": "sophia", "tradition": "Greek", "meaning": "wisdom", "syllables": 3}
+      ]
+    },
+    "boundary_limit": {
+      "description": "boundary, limit, threshold, edge-condition",
+      "roots": [
+        {"name": "hadd", "tradition": "Arabic", "meaning": "limit / definitional bound", "syllables": 1},
+        {"name": "aqaba", "tradition": "Arabic", "meaning": "threshold / steep ascent", "syllables": 3},
+        {"name": "hudud", "tradition": "Arabic", "meaning": "bounds / limits (plural)", "syllables": 2}
+      ]
+    },
+    "light_illumination": {
+      "description": "light, illumination, lamp, clarity-bringing",
+      "roots": [
+        {"name": "noor", "tradition": "Arabic", "meaning": "light / illumination", "syllables": 1},
+        {"name": "siraj", "tradition": "Arabic", "meaning": "lamp / luminary", "syllables": 2},
+        {"name": "diya", "tradition": "Arabic", "meaning": "radiance", "syllables": 2}
+      ]
+    },
+    "instrument_tool": {
+      "description": "instrument, tool, device, key",
+      "roots": [
+        {"name": "ala", "tradition": "Arabic", "meaning": "instrument / tool", "syllables": 2},
+        {"name": "miftah", "tradition": "Arabic", "meaning": "key / opener", "syllables": 2},
+        {"name": "qalam", "tradition": "Arabic", "meaning": "pen / writing instrument", "syllables": 2}
+      ]
+    },
+    "diagnostic_examination": {
+      "description": "diagnosis, examination, audit, sensitivity-analysis",
+      "roots": [
+        {"name": "tashkhis", "tradition": "Arabic", "meaning": "diagnosis / specifying", "syllables": 3},
+        {"name": "fahs", "tradition": "Arabic", "meaning": "examination / scrutiny", "syllables": 1},
+        {"name": "naqd", "tradition": "Arabic", "meaning": "criticism / cash-test of validity", "syllables": 1}
+      ]
+    },
+    "extraction_derivation": {
+      "description": "extraction, derivation, drawing-out, distillation",
+      "roots": [
+        {"name": "istinbat", "tradition": "Arabic", "meaning": "derivation / extraction by reasoning", "syllables": 3},
+        {"name": "tahsil", "tradition": "Arabic", "meaning": "acquisition / attainment", "syllables": 2},
+        {"name": "iktinaaz", "tradition": "Arabic", "meaning": "treasuring / accumulating", "syllables": 4}
+      ]
+    },
+    "source_origin": {
+      "description": "source, origin, root, foundation",
+      "roots": [
+        {"name": "asl", "tradition": "Arabic", "meaning": "root / foundation / origin", "syllables": 1},
+        {"name": "manba", "tradition": "Arabic", "meaning": "source / fountainhead", "syllables": 2},
+        {"name": "asas", "tradition": "Arabic", "meaning": "foundation / basis", "syllables": 2}
+      ]
+    },
+    "agent_actor": {
+      "description": "agent, actor, intelligent doer, autonomous performer",
+      "roots": [
+        {"name": "wakil", "tradition": "Arabic", "meaning": "agent / proxy", "syllables": 2},
+        {"name": "muhandis", "tradition": "Arabic", "meaning": "engineer / geometer", "syllables": 3},
+        {"name": "fa'il", "tradition": "Arabic", "meaning": "active doer / agent", "syllables": 2},
+        {"name": "metis", "tradition": "Greek", "meaning": "cunning intelligence", "syllables": 2}
+      ]
+    },
+    "covenant_pact": {
+      "description": "covenant, pact, agreement, binding-promise",
+      "roots": [
+        {"name": "ahd", "tradition": "Arabic", "meaning": "covenant / promise", "syllables": 1},
+        {"name": "mithaq", "tradition": "Arabic", "meaning": "binding compact", "syllables": 2}
+      ]
+    },
+    "adornment_excellence": {
+      "description": "adornment, beauty, excellence, ihsan",
+      "roots": [
+        {"name": "ihsan", "tradition": "Arabic", "meaning": "excellence / beautification of action", "syllables": 2},
+        {"name": "jamal", "tradition": "Arabic", "meaning": "beauty", "syllables": 2}
+      ]
+    },
+    "consultation_council": {
+      "description": "consultation, council, deliberation, multi-voice",
+      "roots": [
+        {"name": "shura", "tradition": "Arabic", "meaning": "consultation / council", "syllables": 2},
+        {"name": "ijma", "tradition": "Arabic", "meaning": "consensus / agreement", "syllables": 2},
+        {"name": "synod", "tradition": "Greek", "meaning": "council", "syllables": 2}
+      ]
+    },
+    "disjoint_mysterious": {
+      "description": "disjoint, mysterious, opaque-yet-meaningful, like-muqataat",
+      "roots": [
+        {"name": "muqataat", "tradition": "Arabic", "meaning": "the disjoint letters", "syllables": 4},
+        {"name": "ramz", "tradition": "Arabic", "meaning": "symbol / sign / cipher", "syllables": 1},
+        {"name": "ghayb", "tradition": "Arabic", "meaning": "the unseen", "syllables": 1}
+      ]
+    },
+    "synthesis_unification": {
+      "description": "synthesis, unification, bringing-together, integration",
+      "roots": [
+        {"name": "tawhid", "tradition": "Arabic", "meaning": "unification / monotheism / one-making", "syllables": 2},
+        {"name": "jam'", "tradition": "Arabic", "meaning": "gathering / summation", "syllables": 1},
+        {"name": "ittihad", "tradition": "Arabic", "meaning": "union / unification", "syllables": 3}
+      ]
+    },
+    "frugality_economy": {
+      "description": "frugality, economy, parsimony, cheapness, resource-conservation",
+      "roots": [
+        {"name": "iqtisad", "tradition": "Arabic", "meaning": "moderation / economy / frugality", "syllables": 3},
+        {"name": "rashad", "tradition": "Arabic", "meaning": "right-guidance / sensible direction", "syllables": 2}
+      ]
+    }
+  },
+  "keyword_to_categories": {
+    "route": ["router_dispatch"],
+    "dispatch": ["router_dispatch"],
+    "choose": ["router_dispatch"],
+    "select": ["router_dispatch"],
+    "tier": ["router_dispatch", "balance_measure"],
+    "model": ["router_dispatch", "agent_actor"],
+    "agent": ["agent_actor"],
+    "robot": ["agent_actor"],
+    "intelligent": ["agent_actor", "wisdom_understanding"],
+    "compositor": ["composition_ordering", "synthesis_unification"],
+    "compose": ["composition_ordering"],
+    "order": ["composition_ordering"],
+    "arrange": ["composition_ordering"],
+    "structure": ["composition_ordering"],
+    "knowledge": ["knowledge_archive", "wisdom_understanding"],
+    "wisdom": ["wisdom_understanding"],
+    "library": ["knowledge_archive"],
+    "archive": ["knowledge_archive"],
+    "store": ["knowledge_archive"],
+    "treasury": ["knowledge_archive"],
+    "transmit": ["transmission_lineage"],
+    "transmission": ["transmission_lineage"],
+    "lineage": ["transmission_lineage"],
+    "chain": ["transmission_lineage"],
+    "history": ["transmission_lineage"],
+    "trace": ["transmission_lineage"],
+    "attest": ["transmission_lineage", "proof_demonstration"],
+    "attestation": ["transmission_lineage"],
+    "proof": ["proof_demonstration"],
+    "evidence": ["proof_demonstration"],
+    "demonstrate": ["proof_demonstration"],
+    "verify": ["proof_demonstration"],
+    "verification": ["proof_demonstration"],
+    "discipline": ["discipline_method", "stewardship_trust"],
+    "method": ["discipline_method"],
+    "methodology": ["discipline_method"],
+    "balance": ["balance_measure"],
+    "measure": ["balance_measure"],
+    "calibrate": ["balance_measure"],
+    "calibration": ["balance_measure"],
+    "ceiling": ["balance_measure"],
+    "stewardship": ["stewardship_trust"],
+    "trust": ["stewardship_trust"],
+    "amana": ["stewardship_trust"],
+    "agent": ["agent_actor", "stewardship_trust"],
+    "frugal": ["frugality_economy"],
+    "frugality": ["frugality_economy"],
+    "cheap": ["frugality_economy"],
+    "economy": ["frugality_economy"],
+    "cost": ["frugality_economy", "balance_measure"],
+    "boundary": ["boundary_limit"],
+    "limit": ["boundary_limit"],
+    "threshold": ["boundary_limit"],
+    "light": ["light_illumination"],
+    "illuminate": ["light_illumination"],
+    "tool": ["instrument_tool"],
+    "instrument": ["instrument_tool"],
+    "key": ["instrument_tool"],
+    "diagnose": ["diagnostic_examination"],
+    "diagnostic": ["diagnostic_examination"],
+    "audit": ["diagnostic_examination"],
+    "sensitivity": ["diagnostic_examination"],
+    "perturb": ["diagnostic_examination"],
+    "extract": ["extraction_derivation"],
+    "derive": ["extraction_derivation"],
+    "distill": ["extraction_derivation"],
+    "source": ["source_origin"],
+    "origin": ["source_origin"],
+    "root": ["source_origin"],
+    "foundation": ["source_origin"],
+    "covenant": ["covenant_pact"],
+    "pact": ["covenant_pact"],
+    "promise": ["covenant_pact"],
+    "excellence": ["adornment_excellence"],
+    "beauty": ["adornment_excellence"],
+    "consult": ["consultation_council"],
+    "council": ["consultation_council"],
+    "deliberate": ["consultation_council"],
+    "consensus": ["consultation_council"],
+    "voter": ["consultation_council"],
+    "synthesis": ["synthesis_unification"],
+    "unify": ["synthesis_unification"],
+    "integrate": ["synthesis_unification"],
+    "compositor": ["synthesis_unification"],
+    "quran": ["composition_ordering", "transmission_lineage"],
+    "tashkeel": ["composition_ordering"],
+    "muqataat": ["disjoint_mysterious"],
+    "mysterious": ["disjoint_mysterious"],
+    "symbol": ["disjoint_mysterious"],
+    "cipher": ["disjoint_mysterious"],
+    "narrative": ["transmission_lineage", "composition_ordering"],
+    "substrate": ["source_origin", "discipline_method"],
+    "claim": ["proof_demonstration"],
+    "graph": ["composition_ordering"],
+    "atom": ["source_origin"]
+  }
+}

@@ -1,0 +1,42 @@
+[project]
+name = "mizan"
+version = "0.1.0"
+description = "Energy-transformation runtime for the substrate-suite — wallclock-grounded measurement, auth-grade ladders, convergence-without-contact lift formulas, calibration-trainable hyperparameters."
+authors = [{name = "Mahmood"}]
+requires-python = ">=3.11"
+license = {text = "MIT"}
+dependencies = []  # zero deps — stdlib only; calibration uses scipy if available
+
+[project.optional-dependencies]
+calibration = ["scipy>=1.10"]
+dev = ["pytest>=7.0", "ruff>=0.1.0", "mypy>=1.5", "scipy>=1.10"]
+
+[project.scripts]
+mizan-probe     = "mizan.cli:probe_main"
+mizan-converge  = "mizan.cli:converge_main"
+mizan-train     = "mizan.cli:train_main"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "B", "UP", "RUF"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

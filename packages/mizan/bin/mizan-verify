@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+PYTHONPATH="$HERE/src${PYTHONPATH:+:$PYTHONPATH}" exec python3 -c \
+  "from mizan.cli import verify_main; raise SystemExit(verify_main())" "$@"

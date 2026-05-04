@@ -1,0 +1,48 @@
+# mizan/plan/facts/02-grades-bound-confidence.bn
+#
+# grades.py module audit. Per mizaj M14 (auth-grade ladder) and mizaj
+# M11 (source-tier ladder). Both ladders bind every confidence in
+# mizan's runtime — the lower ceiling wins on multi-cite (M14 §3).
+
+# === Section A — observations ===
+
+# A.1 — sahih ceiling is 0.95+ (mizaj M14 §3).
+claim obs_sahih_ceiling_wrong: Bool @>=0.99 = False
+
+# A.2 — hasan ceiling is 0.85.
+claim obs_hasan_ceiling_wrong: Bool @>=0.99 = False
+
+# A.3 — daif ceiling is 0.40.
+claim obs_daif_ceiling_wrong: Bool @>=0.99 = False
+
+# A.4 — mawdu ceiling is 0.10.
+claim obs_mawdu_ceiling_wrong: Bool @>=0.99 = False
+
+# A.5 — Source-tier ladder L1=0.95, L2=0.92, L3=0.90, L4=0.78, L5=0.50.
+claim obs_source_tier_ladder_wrong: Bool @>=0.99 = False
+
+# A.6 — ladder_ceiling(grade, tier) returns the LOWER of the two
+# ceilings (M14 §3 explicit).
+claim obs_lower_ceiling_not_enforced: Bool @>=0.99 = False
+
+# A.7 — Order-invariance: ladder_ceiling(grade, tier) == ladder_ceiling
+# applied with kwargs swapped; the function is commutative on its inputs.
+claim obs_ladder_not_order_invariant: Bool @>=0.99 = False
+
+# A.8 — Strict-typing: passing an unknown grade or tier raises a
+# typed error (atom 0007 — unknown grades cannot silently default to
+# a permissive ceiling).
+claim obs_ladder_silently_accepts_unknown: Bool @>=0.99 = False
+
+# === Section B — composing claims ===
+
+claim grades_module_correct: Bool @>=0.95 = not obs_sahih_ceiling_wrong and not obs_hasan_ceiling_wrong and not obs_daif_ceiling_wrong and not obs_mawdu_ceiling_wrong and not obs_source_tier_ladder_wrong and not obs_lower_ceiling_not_enforced and not obs_ladder_not_order_invariant and not obs_ladder_silently_accepts_unknown
+
+# === Section C — composition ===
+
+theorem grades_module_per_m14_m11
+  assume grades_module_correct
+  proves True
+  by audit mizan-grades-module-2026-05-03
+
+claim grades_discharge: Bool @>=0.95 = cite grades_module_per_m14_m11

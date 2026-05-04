@@ -284,6 +284,27 @@ Each axis is real, theoretically grounded across 5+ traditions (Kahneman system-
 
 See [docs/mizan-integration.md](docs/mizan-integration.md) for the full operator deployment guide.
 
+## v3 — standalone `cheapcode` binary (round 96, 2026-05-03)
+
+Round 96 pivots cheapcode from "provider-package against vanilla opencode" to **a true fork of opencode that ships its own binary**. Acknowledges opencode as the fork-base; doesn't try to erase it.
+
+```bash
+# Build the standalone cheapcode binary for your platform.
+# Requires: bun, ~/apps/opencode-upstream cloned at v1.14.33.
+bash tools/build-cheapcode.sh
+```
+
+The harness:
+1. Verifies `~/apps/opencode-upstream` is on tag `v1.14.33` with a clean tree.
+2. Applies `patches/0001-cheapcode-branding.patch` (branding-only — name in display strings, ASCII logo, binary outfile).
+3. Runs opencode's existing `script/build.ts` (which uses `bun build --compile`).
+4. Copies artifacts to `dist/` and smoke-tests `cheapcode --version`.
+5. Restores upstream to the clean tag on exit (always — even on failure).
+
+The patches stay narrow: rebrand surfaces only. Anything semantic (routing logic, mizan integration, tier IDs) lives in `@cheapcode/ai-sdk-provider` so weekly upstream rebases stay trivial. The internal package name remains `opencode` so workspace dependencies inside the upstream monorepo still resolve.
+
+To install the produced binary system-wide, copy `dist/cheapcode-<platform>-<arch>/bin/cheapcode` to a directory on your `PATH` (e.g., `~/.local/bin/cheapcode`).
+
 ## License
 
 MIT.

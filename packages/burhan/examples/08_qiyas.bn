@@ -1,0 +1,9 @@
+lemma free_user_denied(account)
+  because illah = account == "free"
+  proves not can_mint_operator_pool_token(account)
+
+claim current_user: Str = "free"
+claim token_request_denied: Bool = cite free_user_denied with account=current_user
+
+# Try this failing case:
+# claim paid_request_denied: Bool = cite free_user_denied with account="pro"

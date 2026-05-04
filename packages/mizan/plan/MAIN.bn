@@ -1,0 +1,85 @@
+# mizan/plan/MAIN.bn
+#
+# Top-level audit for the mizan substrate-suite peer. The library
+# operationalizes the energy-transformation atoms (0005, 0018, 0019)
+# as runtime Python with ML-engineering practices: typed dataclasses,
+# pytest, calibration-trainable hyperparameters, append-only audit
+# trail, wallclock-grounded measurements at every operation.
+#
+# This file is the @>=0.95 discharge that composes the @>=1.0
+# foundational facts (facts/00) and the @>=0.95 module-level audits
+# (facts/01-06).
+
+# === Section A — composition over the modules ===
+
+# Each module discharge is grounded in its own fact-file with TDD
+# tests as the runtime artifact (atom 0008 — claim-shape-pattern-
+# runtime-anchored).
+
+claim mizan_modules_all_pass: Bool @>=0.95 = probe_discharge and grades_discharge and energy_discharge and convergence_discharge and audit_discharge and calibration_discharge
+
+# === Section B — top-level theorem ===
+
+theorem mizan_v0_1_grounded
+  assume foundation_holds and mizan_modules_all_pass
+  proves True
+  by audit mizan-v0-1-substrate-2026-05-03
+
+claim mizan_v0_1_holds_today: Bool @>=0.95 = cite mizan_v0_1_grounded
+
+# === Section C — discharge ===
+#
+# Test-counts (TDD discipline; atom 0008 runtime-anchored):
+#   probe         — 7  tests, all green
+#   grades        — 10 tests, all green
+#   energy        — 10 tests, all green
+#   convergence   — 12 tests, all green
+#   audit         —  6 tests, all green
+#   calibration   —  8 tests, all green
+#   ----
+#   total: 53 tests, 0 failures
+#
+# Wallclock-grounded (atom 0018):
+#   - Every Probe carries measured_at (ISO-8601 UTC) + wall_clock_ms
+#     (cost of the measurement itself).
+#   - Every Lift carries applied_at + measurement_age_ms (staleness).
+#   - Every AuditRecord carries measured_at + wall_clock_ms.
+#   - The OS clock is the single source of truth (atom 0007 — never
+#     from agent memory).
+#
+# Trainable (mizaj M14 calibration cycle):
+#   - DEFAULT_DAMPENING = 0.5 (atom 0019 step 4 calibrated start).
+#   - fit_dampening_from_outcomes() fits from observed (lift, falsifier)
+#     pairs. As lifts accumulate, the factor tightens or loosens.
+#
+# Maintainable / testable / type-checked:
+#   - pyproject.toml with strict mypy + ruff config.
+#   - All public types in mizan.types (frozen dataclasses).
+#   - Tests independent (no shared state, deterministic).
+
+# === Section D — pre-registered halt ===
+#
+# If atom-0019 lifts produced via mizan exhibit >20% falsifier-fire
+# rate within 30 days across N≥10 lifts, the calibration module
+# tightens DEFAULT_DAMPENING. The cycle is itself the halt-correction:
+# auto-tightening is the runtime manifestation of "halt and re-derive."
+
+claim halt_if_falsifier_fire_above_threshold: Bool @>=0.99 = calibration_discharge
+
+# === Section E — relation to other substrate-suite peers ===
+#
+# Where mizan sits in the substrate-suite:
+#   khazīna:   the catalog of structural inventions (atom IDs, slugs)
+#   mizaj:     the rules (M01..M19; the THINKING discipline)
+#   burhan:    the proof structure (.bn claims + theorems)
+#   daftar:    the notebook of receipts (audit/citation persistence)
+#   sanad:     server fork for human-AI collaboration (separate)
+#   mizan:     the SCALE — runtime energy-transformation;
+#              the QUANTITATIVE bridge between mizaj rules and
+#              burhan claim ceilings.
+#
+# Specifically: when burhan-revisit / burhan-converge needs to compute
+# a confidence ceiling lift OR a binding-axis decision, it delegates
+# to mizan rather than re-deriving the math inline.
+
+claim mizan_is_quantitative_bridge_in_substrate_suite: Bool @>=0.95 = cite atom_0019_convergence_without_contact_lifts_confidence

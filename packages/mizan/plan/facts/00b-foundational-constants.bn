@@ -1,0 +1,83 @@
+# mizan/plan/facts/00-foundational-constants.bn
+#
+# The @>=1.0 / @>=0.99 ground. These claims are CONSTANTS we are not
+# building — we are CITING. They exist independently of mizan and bound
+# every downstream lift / decision the library produces.
+#
+# Per atom 0005 (Sridhar-class energy-transformation): identify the
+# constants you cannot change BEFORE reshaping the convenient narrative.
+# Per atom 0018 (iterative-runtime form): the binding constraint is
+# selected from these constants at every decision boundary.
+# Per mizaj M03 (mark-assumption-envelope): every assumption envelope
+# in mizan's runtime is one of these constants made explicit.
+
+# === Section A — wallclock reality ===
+
+# A.1 — Time measured by the OS clock IS the wallclock that bounds
+# every operation. Not "model time" / "session time" / "training time"
+# — actual seconds elapsed in the physical world.
+# Atom 0007 (anti-fabrication): the timestamp comes from the OS, not
+# from the agent's memory.
+claim wallclock_is_grounded_in_os_time: Bool @>=1.0 = cite atom_0007_anti_fabrication_via_artifact_verification
+
+# A.2 — Every measurement has a measurement-cost: the wall_clock_ms
+# the measurement itself consumed. Atom 0018: measure first, decide
+# second — the measurement is not free; its cost competes with other
+# axes for budget.
+claim measurement_has_nonzero_cost: Bool @>=0.99 = cite atom_0018_iterative_energy_transformation
+
+# A.3 — Decisions made on stale measurements are by-construction less
+# grounded than decisions on fresh measurements. The age_ms gap is
+# the staleness penalty. Mizaj M03 (mark-assumption-envelope) made
+# operational at the runtime-data layer.
+claim staleness_degrades_grounding: Bool @>=0.99 = cite atom_0018_iterative_energy_transformation
+
+# === Section B — auth-grade ladder (mizaj M14) ===
+
+# B.1 — sahih ceiling is 0.95+, hasan ceiling is 0.85, daif ceiling
+# is 0.40, mawdu ceiling is 0.10. These are the binding constants
+# mizan's lift formula respects.
+claim auth_ladder_ceilings_per_m14: Bool @>=1.0 = cite atom_0014_cross_witness_honesty_pipeline
+
+# B.2 — Source-tier ladder (mizaj M11): L1 own-receipt 0.95, L2
+# vendor-doc 0.92, L3 academic 0.90, L4 aggregator 0.78, L5 chat
+# / gossip 0.50. Parallel binding axis to auth-grade.
+claim source_tier_ladder_per_m11: Bool @>=1.0 = cite atom_0014_cross_witness_honesty_pipeline
+
+# B.3 — When a claim cites multiple sources, the LOWER ceiling wins
+# (mizaj M14). This is a hard cap mizan never violates.
+claim lower_ceiling_wins_on_multi_cite: Bool @>=0.99 = cite atom_0014_cross_witness_honesty_pipeline
+
+# === Section C — atoms that govern the lift formula ===
+
+# C.1 — Atom 0019 (convergence-without-contact-lifts-confidence) is
+# the load-bearing claim mizan operationalizes.
+claim atom_0019_governs_lift_formula: Bool @>=1.0 = cite atom_0019_convergence_without_contact_lifts_confidence
+
+# C.2 — Atom 0005 (Sridhar-class energy-transformation, one-shot)
+# governs the reshape from convenient narrative (fixed bonus) to
+# transformable energy (independence × structural-identity × ceiling-
+# distance).
+claim atom_0005_governs_reshape: Bool @>=1.0 = cite atom_0005_convenient_narrative_times_constants
+
+# C.3 — Atom 0018 (iterative-runtime form) governs the decision-
+# boundary-by-decision-boundary cycle: probe → identify binding
+# constraint → convert → pick.
+claim atom_0018_governs_runtime_cycle: Bool @>=1.0 = cite atom_0018_iterative_energy_transformation
+
+# === Section D — falsifier shape (mizaj M01) ===
+
+# D.1 — Every lift mizan produces carries a falsifier-bearing audit
+# trail: if the lifted claim's falsifier fires within 30 days at
+# >20% rate across N≥10 lifts, the dampening hyperparameter is
+# tightened (atom 0019 step 4 calibration).
+claim every_lift_has_falsifier: Bool @>=0.99 = cite atom_0011_smallest_distinguishing_experiment_first
+
+# === Section E — composition ===
+
+theorem foundational_constants_grounded
+  assume wallclock_is_grounded_in_os_time and measurement_has_nonzero_cost and staleness_degrades_grounding and auth_ladder_ceilings_per_m14 and source_tier_ladder_per_m11 and lower_ceiling_wins_on_multi_cite and atom_0019_governs_lift_formula and atom_0005_governs_reshape and atom_0018_governs_runtime_cycle and every_lift_has_falsifier
+  proves True
+  by audit mizan-foundational-constants-2026-05-03
+
+claim foundation_holds: Bool @>=1.0 = cite foundational_constants_grounded

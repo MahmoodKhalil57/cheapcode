@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+"""burhan-diff — compare two burhan-snapshot JSON files; flag what changed.
+
+For each claim in either snapshot:
+  - Confidence shifted by >= --threshold → row in `claims_shifted`
+  - Status changed (live ↔ falsified) → row in `status_changes`
+  - Appeared (in B but not A) → row in `claims_appeared`
+  - Removed (in A but not B) → row in `claims_removed`
+
+Also reports joint-confidence shifts (from the snapshots' computed joints)
+and tracked-file hash drift (e.g. MAIN.md changed since baseline).
+
+Output: markdown to stdout (parseable by humans + grep). Exit non-zero if
+any drift exceeds --threshold and --strict is set, so you can wire it
+into pre-commit / CI gates.
+
+Use cases:
+  - "What did the last commit do to my plan's confidence?"
+  - "Did MAIN.md change without re-running burhan-snapshot?"
+  - Surface load-bearing shifts so the operator can audit them
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+
+def _load(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(prog="burhan-diff")
+    ap.add_argument("snapshot_a", help="Older snapshot JSON")
+    ap.add_argument("snapshot_b", help="Newer snapshot JSON")
+    ap.add_argument(
+        "-t", "--threshold",
+        type=float, default=0.05,
+        help="Minimum |Δconfidence| to flag (default 0.05)",
+    )
+    ap.add_argument(
+        "--strict",
+        action="store_true",
+        help="Exit non-zero if any drift detected",
+    )
+    args = ap.parse_args(argv)
+
+    a = _load(Path(args.snapshot_a))
+    b = _load(Path(args.snapshot_b))
+
+    claims_a = a.get("claims", {})
+    claims_b = b.get("claims", {})
+    names_a = set(claims_a)
+    names_b = set(claims_b)
+
+    appeared = sorted(names_b - names_a)
+    removed = sorted(names_a - names_b)
+
+    shifted: list[tuple[str, float, float, float]] = []
+    status_changes: list[tuple[str, str, str]] = []
+    for name in sorted(names_a & names_b):
+        ca = claims_a[name]["confidence"]
+        cb = claims_b[name]["confidence"]
+        delta = cb - ca
+        if abs(delta) >= args.threshold:
+            shifted.append((name, ca, cb, delta))
+        sa = claims_a[name].get("status", "live")
+        sb = claims_b[name].get("status", "live")
+        if sa != sb:
+            status_changes.append((name, sa, sb))
+
+    joints_a = a.get("joints", {})
+    joints_b = b.get("joints", {})
+    joint_shifted: list[tuple[str, float, float, float]] = []
+    for name in sorted(set(joints_a) | set(joints_b)):
+        ja = joints_a.get(name, 0.0)
+        jb = joints_b.get(name, 0.0)
+        d = jb - ja
+        if abs(d) >= args.threshold or (name in joints_a) != (name in joints_b):
+            joint_shifted.append((name, ja, jb, d))
+
+    tracked_a = {t["path"]: t["sha256"] for t in a.get("tracked_files", [])}
+    tracked_b = {t["path"]: t["sha256"] for t in b.get("tracked_files", [])}
+    tracked_drift: list[tuple[str, str, str]] = []
+    for path in sorted(set(tracked_a) | set(tracked_b)):
+        ha = tracked_a.get(path, "<absent>")
+        hb = tracked_b.get(path, "<absent>")
+        if ha != hb:
+            tracked_drift.append((path, ha[:12], hb[:12]))
+
+    drift_count = len(shifted) + len(status_changes) + len(appeared) + len(removed) + len(joint_shifted) + len(tracked_drift)
+
+    print(f"# burhan-diff — {args.snapshot_a} → {args.snapshot_b}\n")
+    print(f"**Threshold:** Δ ≥ {args.threshold}")
+    print(f"**Drift items:** {drift_count}\n")
+
+    if tracked_drift:
+        print("## Tracked-file hash drift\n")
+        print("| Path | A | B |")
+        print("|---|---|---|")
+        for path, ha, hb in tracked_drift:
+            print(f"| `{path}` | `{ha}` | `{hb}` |")
+        print()
+
+    if joint_shifted:
+        print("## Joint-confidence shifts\n")
+        print("| Discharge | A | B | Δ |")
+        print("|---|---:|---:|---:|")
+        for name, ja, jb, d in joint_shifted:
+            sign = "+" if d >= 0 else ""
+            print(f"| `{name}` | {ja:.4f} | {jb:.4f} | {sign}{d:.4f} |")
+        print()
+
+    if shifted:
+        print(f"## Per-claim confidence shifts (|Δ| ≥ {args.threshold})\n")
+        print("| Claim | A | B | Δ | File |")
+        print("|---|---:|---:|---:|---|")
+        for name, ca, cb, d in sorted(shifted, key=lambda x: -abs(x[3])):
+            sign = "+" if d >= 0 else ""
+            file_b = claims_b.get(name, {}).get("file") or claims_a.get(name, {}).get("file") or "?"
+            print(f"| `{name}` | {ca:.4f} | {cb:.4f} | {sign}{d:.4f} | {file_b} |")
+        print()
+
+    if status_changes:
+        print("## Status changes\n")
+        print("| Claim | A | B |")
+        print("|---|---|---|")
+        for name, sa, sb in status_changes:
+            print(f"| `{name}` | {sa} | **{sb}** |")
+        print()
+
+    if appeared:
+        print(f"## Appeared in B ({len(appeared)})\n")
+        for name in appeared:
+            info = claims_b[name]
+            print(f"- `{name}` @ {info['confidence']:.3f} ({info.get('file', '?')})")
+        print()
+
+    if removed:
+        print(f"## Removed (in A but not B) ({len(removed)})\n")
+        for name in removed:
+            info = claims_a[name]
+            print(f"- `{name}` @ {info['confidence']:.3f} (was in {info.get('file', '?')})")
+        print()
+
+    if drift_count == 0:
+        print("_No drift above threshold._")
+
+    if args.strict and drift_count > 0:
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

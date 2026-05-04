@@ -27,7 +27,7 @@ Concrete v1.0 deliverables:
 - Compound wrapping invoked ONLY when task signature suggests baseline failure (e.g., novel multi-domain reasoning where single-frontier scoring is sub-50%)
 - Operator override via `cheapcode.toml`
 - Model Card scorecard in the README disclosing routing rules + their evidence tier (mostly L4 vendor-blog-attested as of M3.12; aspires to lift to L1 in v1.x via own measurement)
-- Zero patches to opencode upstream
+- **Standalone `cheapcode` binary** (round 96, 2026-05-03 pivot) shipped via branding-only patches in `patches/` against pinned opencode-upstream `v1.14.33`. Build with `bash tools/build-cheapcode.sh`. Acknowledges opencode as fork-base; rebrand surfaces are name + logo + display strings only — semantic behavior stays in `@cheapcode/ai-sdk-provider` so weekly upstream rebases stay trivial.
 
 **v1.0 value-prop: cheapcode is the routing intelligence layer that knows where each frontier model fails.** No wrapper, no compound architecture by default — just the right model for the right task signature, with the load-bearing routing rules documented in PLAN.bn SECTION X.
 

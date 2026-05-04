@@ -1,0 +1,17 @@
+{
+  "name": "@cheapcode/adam-plugin",
+  "version": "0.1.0",
+  "description": "Bake adam (substrate) into cheapcode at runtime via opencode plugin hooks. Action-safety pre-gate, daftar receipts, adam-status injection, claim auto-flag.",
+  "type": "module",
+  "main": "plugin.ts",
+  "exports": {
+    ".": "./plugin.ts"
+  },
+  "peerDependencies": {
+    "@opencode-ai/plugin": "*"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "license": "MIT"
+}

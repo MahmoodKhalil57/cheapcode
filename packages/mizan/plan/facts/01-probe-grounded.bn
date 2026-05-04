@@ -1,0 +1,57 @@
+# mizan/plan/facts/01-probe-grounded.bn
+#
+# probe.py module audit. Per atom 0018: at every decision boundary,
+# invoke a physical-reality probe (mechanical, not from memory)
+# producing a structured measurement of current state. probe.py IS
+# that mechanical probe.
+#
+# TDD discipline: tests assert these claims; implementation makes
+# tests pass. The fact-file is the contract; the test is the runtime
+# verification (atom 0008 — claim-shape-pattern-runtime-anchored).
+
+# === Section A — observations (defaults preserve current state) ===
+
+# A.1 — probe_now() returns a Probe with measured_at populated
+# (ISO-8601 UTC).
+claim obs_probe_lacks_measured_at: Bool @>=0.99 = False
+
+# A.2 — probe_now() returns a Probe with wall_clock_ms populated
+# (the cost of the measurement itself; > 0 always).
+claim obs_probe_lacks_wall_clock_ms: Bool @>=0.99 = False
+
+# A.3 — Probe.age_ms() is monotone-increasing as wallclock advances:
+# probe taken at t=0, queried at t=10s → age_ms ≈ 10000 ± measurement
+# error.
+claim obs_probe_age_ms_not_monotone: Bool @>=0.99 = False
+
+# A.4 — probe_now() always populates the source field (probe identifier
+# for audit trace, atom 0007).
+claim obs_probe_lacks_source: Bool @>=0.99 = False
+
+# A.5 — Probe.values dict carries at least the disk-free / memory-free
+# / git-head / current-time-ms keys, populated from OS, never from
+# memory (atom 0007).
+claim obs_probe_missing_grounded_values: Bool @>=0.99 = False
+
+# A.6 — Two probes taken back-to-back have STRICTLY DIFFERENT
+# measured_at (microsecond precision); never identical timestamps.
+claim obs_probe_timestamp_collision: Bool @>=0.99 = False
+
+# === Section B — composing claims ===
+
+claim probe_grounded_in_wallclock: Bool @>=0.95 = not obs_probe_lacks_measured_at and not obs_probe_lacks_wall_clock_ms and not obs_probe_age_ms_not_monotone and not obs_probe_lacks_source and not obs_probe_missing_grounded_values and not obs_probe_timestamp_collision
+
+# === Section C — composition ===
+
+theorem probe_module_grounded
+  assume probe_grounded_in_wallclock
+  proves True
+  by audit mizan-probe-module-2026-05-03
+
+# === Section D — discharge ===
+#
+# Falsifier per mizaj M01: if test_probe.py (pytest) fails on any of
+# the A.* claims, the discharge halts. The implementation MUST produce
+# Probes that satisfy all six observations as False.
+
+claim probe_discharge: Bool @>=0.95 = cite probe_module_grounded

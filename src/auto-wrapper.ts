@@ -426,15 +426,127 @@ export class CheapcodeAutoModel {
   readonly provider = "cheapcode"
   readonly modelId = "auto"
 
+  // M3.52: lazy-loaded substrate state. Loaded once per model instance from
+  // daftar receipts, attached to routerOptions for every route() call.
+  // Graceful degradation: if daftar isn't available, defaultSubstrateState()
+  // is used and substrate rules become no-ops (backward compat).
+  private substrateStatePromise: Promise<RouterOptions["substrateState"]> | null = null
+
+  // M3.53: lazy-loaded quota state. Persisted to ~/.config/cheapcode/quota.json
+  // across sessions. Updated after each dispatch via trackDispatch.
+  private quotaStatePromise: Promise<RouterOptions["quotaState"]> | null = null
+
   constructor(
     private config: AutoWrapperConfig,
     private routerOptions: RouterOptions,
     private adapter: RouterAdapter,
   ) {}
 
+  private async ensureSubstrateState(): Promise<RouterOptions["substrateState"]> {
+    if (!this.substrateStatePromise) {
+      this.substrateStatePromise = (async () => {
+        if (process.env.CHEAPCODE_SUBSTRATE_OFF === "1") return undefined
+        try {
+          const { loadDaftarSubstrateState } = await import("./mizan-shim")
+          return await loadDaftarSubstrateState({})
+        } catch {
+          return undefined
+        }
+      })()
+    }
+    return this.substrateStatePromise
+  }
+
+  private async ensureQuotaState(): Promise<RouterOptions["quotaState"]> {
+    if (!this.quotaStatePromise) {
+      this.quotaStatePromise = (async () => {
+        if (process.env.CHEAPCODE_QUOTA_OFF === "1") return undefined
+        if (this.routerOptions.quotaState) return this.routerOptions.quotaState
+        try {
+          const { loadQuotaState } = await import("./mizan-shim")
+          return await loadQuotaState()
+        } catch {
+          return undefined
+        }
+      })()
+    }
+    return this.quotaStatePromise
+  }
+
   async doGenerate(options: GenerateOptions): Promise<GenerateResult> {
     const task = extractPrompt(options.prompt ?? options.messages ?? options)
-    const decision = route(task, this.routerOptions)
+    const substrateState = await this.ensureSubstrateState()
+    const quotaState = await this.ensureQuotaState()
+    const decision = route(task, { ...this.routerOptions, substrateState, quotaState })
+
+    // M3.54 — atom 0022 stewardship: if Rule E declined the dispatch,
+    // surface the proposal instead of paying for an LLM call. The user
+    // can override via routerOptions.stewardshipThreshold = 0 OR by
+    // explicitly setting CHEAPCODE_STEWARDSHIP_OFF=1 (handled at config
+    // time, not here).
+    if (decision.declined && decision.decline_proposal) {
+      const reason = decision.decline_reason ?? "stewardship"
+      let declineText: string
+      if (reason === "knowability") {
+        // M3.55 — atom 0024 knowability-gate: structured clarifying-questions
+        const lines = [
+          "**[knowability-decline]** This dispatch was gated by atom 0024 (substrate cannot deduce a confident answer).",
+          "",
+          decision.decline_proposal,
+          "",
+        ]
+        if (decision.blockers && decision.blockers.length > 0) {
+          lines.push(`_Blockers detected: ${decision.blockers.join(", ")}_`)
+          lines.push("")
+        }
+        if (decision.clarifying_questions && decision.clarifying_questions.length > 0) {
+          lines.push("**Clarifying questions** (answering any one of these would unblock the dispatch):")
+          lines.push("")
+          for (const q of decision.clarifying_questions) {
+            lines.push(`- ${q}`)
+          }
+          lines.push("")
+        }
+        lines.push(
+          `_Knowability score: ${decision.knowability_score?.toFixed(2) ?? "unknown"}; threshold: ${this.routerOptions.knowabilityThreshold ?? "(not set)"}_`,
+          "",
+          "If you want to dispatch anyway despite low confidence, append `--force` (CLI) or set `knowabilityThreshold: 0` in cheapcode config.",
+        )
+        declineText = lines.join("\n")
+      } else {
+        // atom 0022 stewardship decline (existing path)
+        declineText = [
+          "**[stewardship-decline]** This dispatch was gated by atom 0022 (resource-as-amana).",
+          "",
+          decision.decline_proposal,
+          "",
+          `_Expected value-of-inquiry: ${decision.expected_value?.toFixed(2) ?? "unknown"}; threshold: ${this.routerOptions.stewardshipThreshold ?? "(not set)"}_`,
+          "",
+          "If you want to dispatch anyway, append `--force` (CLI) or set `stewardshipThreshold: 0` in cheapcode config.",
+        ].join("\n")
+      }
+      return {
+        content: [{ type: "text", text: declineText }],
+        finishReason: "stop",
+        usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+        providerMetadata: {
+          cheapcode: {
+            route: {
+              shape: decision.shape,
+              signal: decision.signal,
+              rule: decision.rule,
+              evidence_tier: decision.evidence_tier,
+              dispatch: reason === "knowability" ? "declined-knowability" : "declined-stewardship",
+              expected_value: decision.expected_value,
+              knowability_score: decision.knowability_score,
+              blockers: decision.blockers,
+              clarifying_questions: decision.clarifying_questions,
+            },
+          },
+        },
+        warnings: [],
+      }
+    }
 
     // Cross-witness voter dispatch (M3.18): hard-reasoning shape.
     // Substrate-runtime atom 0016 interpretation. 2 cheap parallel +
@@ -476,7 +588,40 @@ export class CheapcodeAutoModel {
     // overhead.
     if (!decision.use_compound && decision.target_model) {
       const directModel = this.adapter(decision.target_model)
-      const direct = await generateText({ model: directModel, prompt: task })
+      // C2 fix (round 96, 2026-05-04): cap maxOutputTokens to a sensible
+      // per-shape default. opencode's transform.ts defaults to 32_000 which
+      // OpenRouter rejects on small/free balances ("requires more credits,
+      // or fewer max_tokens"). Cheapcode tiers rarely need >4k output;
+      // shapes that genuinely do (long-context summarization) can override
+      // via routerOptions.maxOutputTokensByShape.
+      const reqMax = (options as any)?.maxOutputTokens ?? Number.MAX_SAFE_INTEGER
+      const shapeDefaults: Partial<Record<typeof decision.shape, number>> = {
+        "subsecond-latency": 1024,
+        "classification": 1024,
+        "computer-use": 2048,
+        "bounded-code": 4096,
+        "math-chain": 4096,
+        "phd-factual": 4096,
+        "closed-book": 4096,
+        "agentic-swe": 8192,
+        "hard-reasoning": 8192,
+        "multistep-general": 4096,
+        "long-context": 8192,
+      }
+      const cap = shapeDefaults[decision.shape] ?? 4096
+      const maxOutputTokens = Math.min(reqMax, cap)
+      const direct = await generateText({ model: directModel, prompt: task, maxOutputTokens })
+      // M3.53 — track dispatch for quota awareness on next route() call
+      try {
+        const { trackDispatch } = await import("./mizan-shim")
+        const [provider, ...modelParts] = decision.target_model.split("/")
+        const model = modelParts.join("/")
+        if (quotaState && provider && model) {
+          trackDispatch(quotaState, provider as never, model)
+        }
+      } catch {
+        /* ignore — quota tracking is best-effort */
+      }
       return {
         content: [{ type: "text", text: direct.text }],
         finishReason: (direct as any).finishReason ?? "stop",
@@ -535,7 +680,14 @@ export class CheapcodeAutoModel {
     return {
       stream: new ReadableStream({
         start(controller) {
+          // Round 96 fix (atom 0021 recursive-substrate-use receipt): processor.ts
+          // text-delta handler bails early when no preceding text-start initialized
+          // ctx.currentText. Synthetic streams MUST emit text-start before deltas
+          // and text-end after, mirroring real provider streams.
+          controller.enqueue({ type: "stream-start", warnings: [] })
+          controller.enqueue({ type: "text-start", id: "0" })
           controller.enqueue({ type: "text-delta", id: "0", delta: textChunk })
+          controller.enqueue({ type: "text-end", id: "0" })
           controller.enqueue({
             type: "finish",
             finishReason: result.finishReason,
@@ -550,9 +702,22 @@ export class CheapcodeAutoModel {
 }
 
 function extractPrompt(input: unknown): string {
+  // C5 fix (round 96, 2026-05-04): when input is messages-array, ONLY
+  // include role=user messages for gate evaluation. Including system-
+  // injected substrate-context (adam-plugin's per-turn substrate snapshot)
+  // caused false-positive matches in the knowability detector — phrases
+  // like "my X", "should I" appeared in the injected context, not the
+  // actual user prompt. Substrate gates must evaluate the user's actual
+  // question, not the substrate's own self-injection.
   if (typeof input === "string") return input
   if (Array.isArray(input)) {
     return input
+      .filter((m) => {
+        const role = (m as { role?: string })?.role
+        // If role is unset, include (legacy / non-tagged messages).
+        // If role is set, only include user/tool — skip system/assistant.
+        return !role || role === "user" || role === "tool"
+      })
       .map((m) => {
         const content = (m as { content?: unknown })?.content
         if (typeof content === "string") return content

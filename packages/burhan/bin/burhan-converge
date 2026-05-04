@@ -1,0 +1,383 @@
+#!/usr/bin/env python3
+"""burhan-converge — auto-detect convergence-without-contact in a burhan plan.
+
+Implements khazīna atom 0019 (convergence-without-contact-lifts-confidence)
++ atoms 0005/0018 (energy-transformation runtime form).
+
+For each load-bearing claim in a plan, walks the citation graph (via simple
+text-pattern matching, which works on both strict-evaluator-clean and
+lenient .bn dialects), counts which fact-files supply receipts, scores
+independence + structural-identity, and emits two findings:
+
+  CONVERGE — claim has ≥2 independent fact-file witnesses with no
+             inter-citation chain. Auto-lift via:
+               lift = independence × struct-identity × ceiling-distance × dampening
+             where ceiling-distance binds against the auth-grade ladder
+             (mizaj M14 sahih ceiling = 0.95).
+
+  CAP      — load-bearing claim has only ONE fact-file witness. Cap
+             at @>=0.85 pending second independent witness OR explicit
+             L4 (0.78) downgrade per mizaj M11.
+
+Usage:
+    ./bin/burhan-converge <plan-dir> [--main MAIN.bn] [--explore-floor 0.85]
+
+The tool is text-pattern-based on purpose — atom 0018 "measure first,
+decide second" applied: we mechanically extract the citation graph from
+file content, not from a model's parse-tree judgment, so the lift
+recommendation is grounded in observable file artifacts.
+"""
+
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+from pathlib import Path
+from typing import Iterable
+
+# ─── Patterns ────────────────────────────────────────────────────────
+
+CLAIM_RE = re.compile(
+    r"^claim\s+(?P<name>[a-zA-Z_][\w]*)\s*:\s*[^=]*?@>=(?P<conf>[0-9.]+)\s*=\s*(?P<rhs>.+)$",
+    re.MULTILINE,
+)
+
+# Lemmas defined in atom-export files
+LEMMA_RE = re.compile(r"^lemma\s+(?P<name>[a-zA-Z_][\w]*)", re.MULTILINE)
+
+# Identifiers in a RHS — anything that looks like a claim name
+IDENT_RE = re.compile(r"\b[a-zA-Z_][\w]*\b")
+
+# Words that are NOT claim/lemma references (operators, types, builtins)
+RESERVED = {
+    "and", "or", "not", "True", "False", "Bool", "Int", "Str", "Float",
+    "cite", "by", "audit", "chain", "assume", "proves", "with",
+    "falsified_when", "theorem",
+}
+
+
+# ─── Helpers ─────────────────────────────────────────────────────────
+
+def collect_bn(plan_dir: Path) -> list[Path]:
+    return sorted(plan_dir.rglob("*.bn"))
+
+
+def parse_claims(file_text: str) -> list[tuple[str, float, str]]:
+    """Returns (name, confidence_ceiling, rhs) for every claim definition."""
+    out = []
+    for m in CLAIM_RE.finditer(file_text):
+        name = m.group("name")
+        try:
+            conf = float(m.group("conf"))
+        except ValueError:
+            continue
+        rhs = m.group("rhs").strip()
+        out.append((name, conf, rhs))
+    return out
+
+
+def parse_lemmas(file_text: str) -> set[str]:
+    return {m.group("name") for m in LEMMA_RE.finditer(file_text)}
+
+
+def referenced_names(rhs: str) -> set[str]:
+    """Identifiers in RHS that look like claim/lemma names."""
+    return {tok for tok in IDENT_RE.findall(rhs) if tok not in RESERVED}
+
+
+def is_fact_file(path: Path) -> bool:
+    return "/facts/" in str(path)
+
+
+def fact_file_slug(path: Path) -> str:
+    """Strip leading 'NN-' and '.bn' to get methodology-class token."""
+    stem = path.stem
+    parts = stem.split("-", 1)
+    if len(parts) > 1 and parts[0].isdigit():
+        return parts[1]
+    return stem
+
+
+# ─── Independence scoring ────────────────────────────────────────────
+
+def citation_graph_score(files: list[Path], file_texts: dict[Path, str]) -> float:
+    """1.0 = no inter-citation; 0.0 = mutual citation. Conservative scan
+    looking for filename-stem appearance in other files' text."""
+    if len(files) < 2:
+        return 0.0
+    stems = [f.stem for f in files]
+    edges = 0
+    for i, fa in enumerate(files):
+        text_a = file_texts.get(fa, "")
+        for j, fb in enumerate(files):
+            if i == j:
+                continue
+            if stems[j] in text_a:
+                edges += 1
+    n = len(files)
+    max_edges = n * (n - 1)
+    return 1.0 - min(1.0, edges / max(1, max_edges))
+
+
+def methodology_score(files: list[Path]) -> float:
+    """Distinct methodology slugs across fact files = stronger
+    independence-of-evolution. Same prefix → same axis."""
+    slugs = [fact_file_slug(f) for f in files]
+    distinct = set()
+    for s in slugs:
+        first_token = s.split("-")[0]
+        distinct.add(first_token)
+    return min(1.0, len(distinct) / max(1, len(files)))
+
+
+def independence_score(files: list[Path], file_texts: dict[Path, str]) -> tuple[float, float, float]:
+    """Returns (final_score, citation_graph_sub, methodology_sub).
+    Geometric mean of sub-scores (atom 0019 step 4)."""
+    g = citation_graph_score(files, file_texts)
+    m = methodology_score(files)
+    return ((g * m) ** 0.5, g, m)
+
+
+def structural_identity_score(name: str, files: list[Path], file_texts: dict[Path, str]) -> float:
+    """Heuristic: count how many of the supporting files mention the
+    claim's name in a non-trivial context (specifically, in a claim
+    RHS or theorem assume clause). High = the structural move is
+    named consistently across files."""
+    mentions = 0
+    for f in files:
+        text = file_texts.get(f, "")
+        # Count non-definition mentions (RHS uses, falsified_when, theorem assume).
+        # The claim's OWN definition counts once; we want N≥2 mention-files.
+        all_mentions = len(re.findall(rf"\b{re.escape(name)}\b", text))
+        if all_mentions >= 1:
+            mentions += 1
+    if mentions >= 3:
+        return 0.85
+    if mentions == 2:
+        return 0.7
+    return 0.5
+
+
+# ─── Closure walker ──────────────────────────────────────────────────
+
+def transitive_closure(
+    name: str,
+    rhs_by_name: dict[str, str],
+    theorem_refs: dict[str, set[str]],
+) -> set[str]:
+    """All identifiers reachable from `name` via citation/derivation."""
+    seen: set[str] = set()
+    stack = [name]
+    while stack:
+        cur = stack.pop()
+        if cur in seen:
+            continue
+        seen.add(cur)
+        rhs = rhs_by_name.get(cur)
+        if rhs:
+            for ref in referenced_names(rhs):
+                if ref not in seen:
+                    stack.append(ref)
+        if cur in theorem_refs:
+            for ref in theorem_refs[cur]:
+                if ref not in seen:
+                    stack.append(ref)
+    return seen
+
+
+def parse_theorems(text: str) -> dict[str, set[str]]:
+    """Map theorem name → set of identifiers in `assume` clause."""
+    out: dict[str, set[str]] = {}
+    pattern = re.compile(
+        r"^theorem\s+(?P<name>[a-zA-Z_][\w]*)\s*\n\s*assume\s+(?P<assumes>[^\n]+)",
+        re.MULTILINE,
+    )
+    for m in pattern.finditer(text):
+        out[m.group("name")] = referenced_names(m.group("assumes"))
+    return out
+
+
+# ─── Main detection ──────────────────────────────────────────────────
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(prog="burhan-converge")
+    ap.add_argument("plan_dir", type=Path)
+    ap.add_argument("--explore-floor", type=float, default=0.85)
+    ap.add_argument(
+        "--dampening",
+        type=float,
+        default=0.5,
+        help="atom 0019 step 4 dampening factor (tighten if falsifiers fire)",
+    )
+    ap.add_argument(
+        "--auth-ceiling",
+        type=float,
+        default=0.95,
+        help="mizaj M14 sahih ceiling — auto-lift never exceeds this",
+    )
+    ap.add_argument("--strict", action="store_true")
+    args = ap.parse_args(argv)
+
+    files = collect_bn(args.plan_dir)
+    if not files:
+        print(f"no .bn files in {args.plan_dir}", file=sys.stderr)
+        return 2
+
+    file_texts: dict[Path, str] = {f: f.read_text(encoding="utf-8") for f in files}
+    combined = "\n".join(file_texts.values())
+
+    # Build claim/lemma index across all files.
+    claims_meta: dict[str, dict] = {}
+    for f, text in file_texts.items():
+        for name, conf, rhs in parse_claims(text):
+            # Prefer the FIRST definition site; later redeclarations are warnings,
+            # not handled here.
+            if name not in claims_meta:
+                claims_meta[name] = {"file": f, "conf": conf, "rhs": rhs}
+        for lemma in parse_lemmas(text):
+            if lemma not in claims_meta:
+                # Lemmas have no confidence (proves True); track as proven=1.0
+                claims_meta[lemma] = {"file": f, "conf": 1.0, "rhs": "lemma"}
+
+    rhs_by_name = {n: m["rhs"] for n, m in claims_meta.items()}
+    theorem_refs = parse_theorems(combined)
+
+    # Build set of "load-bearing" claims: those that are cited by something
+    # in a top-level (non-facts) file.
+    load_bearing: set[str] = set()
+    for f, text in file_texts.items():
+        if is_fact_file(f):
+            continue
+        for name, _, rhs in parse_claims(text):
+            load_bearing.add(name)
+            for ref in referenced_names(rhs):
+                load_bearing.add(ref)
+        for theorem, refs in parse_theorems(text).items():
+            load_bearing.add(theorem)
+            load_bearing |= refs
+
+    # For each load-bearing claim, compute fact-file support set.
+    converge_findings: list[dict] = []
+    cap_findings: list[dict] = []
+    for name in sorted(load_bearing):
+        meta = claims_meta.get(name)
+        if not meta:
+            continue
+        # Walk transitive closure; collect fact-files that DEFINE any
+        # claim/lemma reachable from this one.
+        closure = transitive_closure(name, rhs_by_name, theorem_refs)
+        fact_files = sorted({
+            claims_meta[c]["file"] for c in closure
+            if c in claims_meta and is_fact_file(claims_meta[c]["file"])
+        })
+        if not fact_files:
+            continue
+
+        # CAP: single-fact-file load-bearing claim with high ceiling.
+        # Suppress the trivial "cycle_atom_X cites atoms file" pattern
+        # (mizaj M15 cite-the-atom) — those are intentional single-
+        # witness atom references, not domain-evidence claims.
+        sole = fact_files[0].name if fact_files else ""
+        is_atom_cite_pattern = (
+            (name.startswith("cycle_atom_") or name.startswith("atom_"))
+            and "khazina-atoms" in sole
+        )
+        if (
+            len(fact_files) == 1
+            and meta["conf"] >= args.explore_floor + 0.05
+            and not is_fact_file(meta["file"])
+            and not is_atom_cite_pattern
+        ):
+            cap_findings.append({
+                "name": name,
+                "file": str(meta["file"]),
+                "conf": meta["conf"],
+                "fact_file": fact_files[0].name,
+                "reason": (
+                    f"@{meta['conf']:.2f} but supported by ONE fact-file ({fact_files[0].name}); "
+                    f"cap at @>=0.85 OR add second independent witness OR downgrade to @>=0.78 (L4)"
+                ),
+            })
+            continue
+
+        if len(fact_files) < 2:
+            continue
+
+        # CONVERGE: compute energy-transformation lift.
+        ind, ind_g, ind_m = independence_score(fact_files, file_texts)
+        struct = structural_identity_score(name, fact_files, file_texts)
+        convergence_energy = ind * struct
+        ceiling_distance = max(0.0, args.auth_ceiling - meta["conf"])
+        lift = round(convergence_energy * ceiling_distance * args.dampening, 3)
+        if lift < 0.005:
+            continue
+        new_ceiling = round(min(args.auth_ceiling, meta["conf"] + lift), 3)
+        if new_ceiling <= meta["conf"]:
+            continue
+        converge_findings.append({
+            "name": name,
+            "file": str(meta["file"]),
+            "conf": meta["conf"],
+            "new_conf": new_ceiling,
+            "lift": lift,
+            "n_witnesses": len(fact_files),
+            "ind": ind,
+            "ind_graph": ind_g,
+            "ind_method": ind_m,
+            "struct": struct,
+            "ceiling_distance": ceiling_distance,
+            "witnesses": [f.name for f in fact_files],
+        })
+
+    # ─── Render report ────────────────────────────────────────────────
+    print(f"# burhan-converge — atom 0019 auto-confidence-lift detector")
+    print(f"")
+    print(f"**Plan:** {args.plan_dir}")
+    print(f"**.bn files:** {len(files)}")
+    print(f"**Claims indexed:** {len(claims_meta)}")
+    print(f"**Load-bearing claims:** {len(load_bearing)}")
+    print(f"**Auth ceiling cap:** @>={args.auth_ceiling}")
+    print(f"**Dampening factor:** {args.dampening}")
+    print()
+
+    if converge_findings:
+        print(f"## CONVERGE — auto-lift candidates ({len(converge_findings)})")
+        print()
+        # Sort by lift descending — biggest opportunity first.
+        for f in sorted(converge_findings, key=lambda x: -x["lift"]):
+            print(f"### `{f['name']}`")
+            print(f"  - **Current:** @>={f['conf']:.2f}")
+            print(f"  - **Auto-lift to:** @>={f['new_conf']:.3f} (+{f['lift']:.3f})")
+            print(f"  - **Energy:** independence {f['ind']:.2f} (graph {f['ind_graph']:.2f} × method {f['ind_method']:.2f}) × struct-identity {f['struct']:.2f}")
+            print(f"  - **Ceiling distance:** {f['ceiling_distance']:.2f} (= {args.auth_ceiling} − {f['conf']:.2f})")
+            print(f"  - **Witnesses (N={f['n_witnesses']}):** {', '.join(f['witnesses'])}")
+            print(f"  - **In file:** {f['file']}")
+            print()
+    else:
+        print(f"## CONVERGE — no auto-lift candidates")
+        print()
+
+    if cap_findings:
+        print(f"## CAP — single-witness load-bearing claims ({len(cap_findings)})")
+        print()
+        for f in sorted(cap_findings, key=lambda x: -x["conf"]):
+            print(f"- **`{f['name']}`** — @>={f['conf']:.2f} in {Path(f['file']).name}")
+            print(f"  - Sole witness: {f['fact_file']}")
+            print(f"  - {f['reason']}")
+            print()
+    else:
+        print(f"## CAP — no single-witness load-bearing claims surfaced")
+        print()
+
+    print(f"---")
+    print(f"_Substrate: khazīna atoms 0005 + 0018 + 0019. Mizaj M14 (auth-grade ceiling) bounds._")
+    print(f"_Each lift's audit trail: independence × struct-identity × ceiling-distance × dampening._")
+
+    if args.strict and (converge_findings or cap_findings):
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

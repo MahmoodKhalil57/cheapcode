@@ -1,0 +1,4 @@
+assume runtime.os == "linux"
+
+claim disk_free: Int @>=0.99 = 2
+falsified_when disk_free < 1

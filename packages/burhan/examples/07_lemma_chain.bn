@@ -1,0 +1,6 @@
+lemma template_round_trip
+  assume template_id in ["saas-web", "marketing-brochure", "api-service", "expo-app"]
+  proves build_round_has_artifacts(slug)
+  by chain [scaffold_template, repo_init, agent_dispatch, local_verify]
+
+claim foo_ready: Bool = cite template_round_trip with slug="foo", template_id="saas-web"

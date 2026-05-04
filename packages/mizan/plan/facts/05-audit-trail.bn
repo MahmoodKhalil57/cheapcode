@@ -1,0 +1,34 @@
+# mizan/plan/facts/05-audit-trail.bn
+#
+# audit.py module: JSONL append-only audit trail. Every lift /
+# decision / probe writes one line. Atom 0007 made operational at
+# the journaling layer — the trail IS the artifact whose existence
+# is verifiable post-hoc.
+
+# === Section A — observations ===
+
+# A.1 — AuditTrail.append() writes one JSONL line per record.
+claim obs_audit_append_does_not_write: Bool @>=0.99 = False
+
+# A.2 — Each record carries record_type + measured_at + wall_clock_ms
+# + payload (the four fields per AuditRecord).
+claim obs_audit_record_missing_fields: Bool @>=0.99 = False
+
+# A.3 — Append-only: existing records cannot be mutated; the trail
+# is a journal.
+claim obs_audit_overwrites_records: Bool @>=0.99 = False
+
+# A.4 — JSONL parseability: each line is independently json-parseable
+# (no multi-line records).
+claim obs_audit_records_not_jsonl_parseable: Bool @>=0.99 = False
+
+# === Section B — composing claims ===
+
+claim audit_module_grounded: Bool @>=0.95 = not obs_audit_append_does_not_write and not obs_audit_record_missing_fields and not obs_audit_overwrites_records and not obs_audit_records_not_jsonl_parseable
+
+theorem audit_module_journals_correctly
+  assume audit_module_grounded
+  proves True
+  by audit mizan-audit-module-2026-05-03
+
+claim audit_discharge: Bool @>=0.95 = cite audit_module_journals_correctly

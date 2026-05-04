@@ -1,0 +1,8 @@
+# Passing observation: payload is True because the command exits 0.
+claim qiyas_suite_passes: Bool = observe_test("PYTHONPATH=src python3 -m pytest tests/test_qiyas.py -v")
+falsified_when (receipt.pytest_failed or 0) > 0
+
+# Failing observation example: payload would be False and the falsifier would fire
+# because the command exits nonzero and the receipt keeps the failure details.
+# claim missing_tool_works: Bool = observe_test("nonexistent_command_xyz_12345")
+# falsified_when receipt.exit_code != 0

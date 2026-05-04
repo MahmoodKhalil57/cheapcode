@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# mizan-probe — thin wrapper. See `python3 -m mizan.cli probe`.
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+PYTHONPATH="$HERE/src${PYTHONPATH:+:$PYTHONPATH}" exec python3 -c \
+  "from mizan.cli import probe_main; raise SystemExit(probe_main())" "$@"

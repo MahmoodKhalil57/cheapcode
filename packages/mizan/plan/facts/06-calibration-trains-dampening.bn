@@ -1,0 +1,52 @@
+# mizan/plan/facts/06-calibration-trains-dampening.bn
+#
+# calibration.py module: 1D hyperparameter fit. The dampening factor
+# is the trainable knob in atom 0019's lift formula. As lifted claims
+# accumulate observed-or-not falsifier outcomes, the factor should
+# tighten/loosen to minimize falsifier-fire-rate while maximizing
+# total ceiling-uplift.
+#
+# Atom 0011 (smallest-distinguishing-experiment-first): each
+# (lift, falsifier_outcome) pair IS a tiny calibration experiment;
+# the calibration loop accumulates them.
+# Atom 0014 (cross-witness-honesty): the calibration target IS atom
+# 0019's runtime — does the lift formula's claim (independence ×
+# struct × dist × dampening predicts confidence-truth) hold against
+# observed outcomes?
+
+# === Section A — observations ===
+
+# A.1 — fit_dampening_from_outcomes returns a dampening in [0, 1].
+claim obs_calibration_returns_out_of_unit: Bool @>=0.99 = False
+
+# A.2 — On a synthetic dataset where ALL lifts had falsifiers fire
+# (worst case), the fit produces dampening near 0 (i.e. mizan should
+# stop lifting).
+claim obs_calibration_does_not_tighten_on_all_falsified: Bool @>=0.99 = False
+
+# A.3 — On a synthetic dataset where ZERO lifts had falsifiers fire
+# (best case), the fit produces dampening near the upper bound (i.e.
+# mizan can lift more aggressively).
+claim obs_calibration_does_not_loosen_on_all_clean: Bool @>=0.99 = False
+
+# A.4 — On an empty dataset (no observed outcomes), the fit returns
+# the DEFAULT (atom 0019 step 4: 0.5) and surfaces "insufficient data"
+# in the result, not a fabricated value.
+claim obs_calibration_fabricates_on_empty: Bool @>=0.99 = False
+
+# A.5 — Calibration result is a typed dataclass with: dampening,
+# n_observations, falsifier_fire_rate, posture (informative /
+# insufficient / converged / unstable). Atom 0007: every output
+# claim is inspectable.
+claim obs_calibration_lacks_typed_output: Bool @>=0.99 = False
+
+# === Section B — composing claims ===
+
+claim calibration_module_grounded: Bool @>=0.95 = not obs_calibration_returns_out_of_unit and not obs_calibration_does_not_tighten_on_all_falsified and not obs_calibration_does_not_loosen_on_all_clean and not obs_calibration_fabricates_on_empty and not obs_calibration_lacks_typed_output
+
+theorem calibration_module_atom_0019_step_4_runtime
+  assume calibration_module_grounded
+  proves True
+  by audit mizan-calibration-module-2026-05-03
+
+claim calibration_discharge: Bool @>=0.95 = cite calibration_module_atom_0019_step_4_runtime

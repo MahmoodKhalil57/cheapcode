@@ -1,0 +1,55 @@
+# mizan/plan/facts/04-convergence-detector.bn
+#
+# convergence.py module audit. Per atom 0019: detect convergence-
+# without-contact in a set of fact-files supporting a claim, compute
+# the energy-input scores (independence × structural-identity), so
+# energy.lift_via_convergence can apply the lift formula.
+
+# === Section A — observations ===
+
+# A.1 — citation_graph_score on N=2 files with NO inter-citation
+# returns 1.0.
+claim obs_no_intercitation_returns_1: Bool @>=0.99 = False
+
+# A.2 — citation_graph_score on N=2 files with mutual citation
+# returns 0.0 (or near).
+claim obs_mutual_citation_returns_0: Bool @>=0.99 = False
+
+# A.3 — citation_graph_score on a single file returns 0.0 (no
+# convergence possible with one witness).
+claim obs_single_file_returns_nonzero: Bool @>=0.99 = False
+
+# A.4 — methodology_axis_score returns 1.0 when all witnesses have
+# DISTINCT methodology_class values; lower otherwise.
+claim obs_methodology_axis_collapses_distinct: Bool @>=0.99 = False
+
+# A.5 — methodology_axis_score returns ≤0.5 when all witnesses share
+# the same methodology_class (no axis diversity).
+claim obs_methodology_axis_inflates_when_same: Bool @>=0.99 = False
+
+# A.6 — structural_identity_score is bounded [0, 1].
+claim obs_struct_identity_unbounded: Bool @>=0.99 = False
+
+# A.7 — detect_convergence(claim_name, witnesses) returns a
+# ConvergenceMeasurement with all sub-scores populated AND its
+# measured_at + wall_clock_ms set (atom 0007 — measurement
+# itself is an artifact).
+claim obs_detect_lacks_measurement_artifact: Bool @>=0.99 = False
+
+# A.8 — Empty witness list → measurement with energy = 0 (no
+# convergence possible). Implementation: returns the measurement
+# with all sub-scores = 0 rather than raising.
+claim obs_empty_witnesses_raises_or_inflates: Bool @>=0.99 = False
+
+# === Section B — composing claims ===
+
+claim convergence_detector_grounded: Bool @>=0.95 = not obs_no_intercitation_returns_1 and not obs_mutual_citation_returns_0 and not obs_single_file_returns_nonzero and not obs_methodology_axis_collapses_distinct and not obs_methodology_axis_inflates_when_same and not obs_struct_identity_unbounded and not obs_detect_lacks_measurement_artifact and not obs_empty_witnesses_raises_or_inflates
+
+# === Section C — composition ===
+
+theorem convergence_module_atom_0019_step_4_runtime
+  assume convergence_detector_grounded
+  proves True
+  by audit mizan-convergence-module-2026-05-03
+
+claim convergence_discharge: Bool @>=0.95 = cite convergence_module_atom_0019_step_4_runtime

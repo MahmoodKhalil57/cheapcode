@@ -1,0 +1,289 @@
+#!/usr/bin/env python3
+"""burhan-snapshot — extract per-claim confidence + derivation graph as JSON.
+
+For each .bn file in the supplied paths (or recursively under a directory),
+parse + evaluate via burhan, capture every claim's confidence, derivation,
+status, falsifier, source-file, and source-line. Also hash any tracked
+out-of-band files (e.g. MAIN.md) so downstream tools can detect drift.
+
+Output JSON shape:
+  {
+    "burhan_snapshot_version": 1,
+    "created_at": "<ISO timestamp>",
+    "sources": [{"path": ..., "sha256": ...}],
+    "tracked_files": [{"path": ..., "sha256": ...}],
+    "claims": {
+      "<name>": {
+        "file": "<path>",
+        "line": <int>,
+        "confidence": <float>,
+        "derivation": [<cited names>],
+        "assumptions": [<predicates>],
+        "status": "live" | "falsified",
+        "falsifier": "<source>" | null
+      }
+    },
+    "joints": {
+      "<discharge_name>": <product-of-derivation-confidences>
+    }
+  }
+
+Use cases:
+  - Seed a baseline so burhan-diff can detect future drift
+  - Feed burhan-revisit with a graph of cite-relationships
+  - Integrate into pre-commit hooks or CI to track confidence over time
+"""
+
+from __future__ import annotations
+
+import argparse
+import functools
+import hashlib
+import json
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+
+# Locate burhan src/ relative to this script
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+from burhan.evaluator import Evaluator  # noqa: E402
+from burhan.parser import parse_program  # noqa: E402
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _collect_bn_files(paths: list[Path]) -> list[Path]:
+    out: list[Path] = []
+    for p in paths:
+        if p.is_dir():
+            out.extend(sorted(p.rglob("*.bn")))
+        elif p.suffix == ".bn":
+            out.append(p)
+    return out
+
+
+def _claim_lines(source: str) -> dict[str, int]:
+    """Best-effort line lookup for `claim NAME ...` definitions."""
+    lines: dict[str, int] = {}
+    for i, raw in enumerate(source.splitlines(), start=1):
+        line = raw.strip()
+        if line.startswith("claim "):
+            try:
+                _, rest = line.split(" ", 1)
+                name = rest.split(":", 1)[0].split(" ", 1)[0].split("=", 1)[0].strip()
+                if name and name not in lines:
+                    lines[name] = i
+            except ValueError:
+                pass
+    return lines
+
+
+def _theorem_references(source: str) -> dict[str, set[str]]:
+    """Map theorem-name → identifiers in its assume + proves clauses.
+
+    Used by joint-confidence propagation: when a claim cites a theorem,
+    the theorem's assumed claims contribute multiplicatively to the joint.
+    Same shape as burhan-revisit's _theorem_references, kept here for
+    snapshot self-containment.
+    """
+    import re as _re
+    refs: dict[str, set[str]] = {}
+    pattern = _re.compile(
+        r"^theorem\s+(\w+)(.*?)^\s*proves\s+(.+?)(?=^\s*by\b|\Z)",
+        _re.DOTALL | _re.MULTILINE,
+    )
+    for m in pattern.finditer(source):
+        name = m.group(1)
+        body = m.group(2) + " " + m.group(3)
+        idents: set[str] = set()
+        for ident in _re.finditer(r"\b([a-zA-Z_][a-zA-Z0-9_]*)\b", body):
+            tok = ident.group(1)
+            if tok in {"and", "or", "not", "True", "False", "None",
+                       "assume", "proves", "by", "audit", "observation",
+                       "Bool", "Int", "Float", "Str", "List"}:
+                continue
+            idents.add(tok)
+        refs[name] = idents
+    return refs
+
+
+def _evaluate_files(files: list[Path]) -> tuple[dict, dict[str, set[str]], list[str]]:
+    """Concatenate files (sorted), evaluate, return claims + theorem_refs + warnings."""
+    warnings: list[str] = []
+    sources_concatenated: list[str] = []
+    file_for_line: list[tuple[Path, int]] = []  # (file, in-file line) per source line
+    for f in sorted(files):
+        text = f.read_text(encoding="utf-8")
+        line_count = len(text.splitlines())
+        sources_concatenated.append(text)
+        for i in range(1, line_count + 1):
+            file_for_line.append((f, i))
+        if not text.endswith("\n"):
+            sources_concatenated.append("\n")
+            file_for_line.append((f, line_count + 1))
+
+    combined = "".join(sources_concatenated)
+    theorem_refs = _theorem_references(combined)
+    try:
+        program = parse_program(combined)
+        evaluator = Evaluator()
+        cells = evaluator.evaluate_program(program)
+    except Exception as e:
+        warnings.append(f"evaluator-error: {type(e).__name__}: {e}")
+        return {}, theorem_refs, warnings
+
+    # Build per-file claim-line index
+    per_file_claims: dict[Path, dict[str, int]] = {}
+    for f in files:
+        per_file_claims[f] = _claim_lines(f.read_text(encoding="utf-8"))
+
+    claims_snapshot = {}
+    for name, cell in cells.items():
+        # find the file that defines this claim
+        file_match: Path | None = None
+        line_match = 0
+        for f, claim_lines in per_file_claims.items():
+            if name in claim_lines:
+                file_match = f
+                line_match = claim_lines[name]
+                break
+        claims_snapshot[name] = {
+            "file": str(file_match) if file_match else None,
+            "line": line_match,
+            "confidence": float(cell.confidence),
+            "derivation": list(cell.derivation),
+            "assumptions": sorted(cell.assumptions),
+            "status": cell.status,
+            "falsifier": cell.falsifier,
+            "payload_repr": repr(cell.payload)[:120],
+        }
+    return claims_snapshot, theorem_refs, warnings
+
+
+def _compute_joints(claims: dict, theorem_refs: dict, discharge_patterns: list[str]) -> dict:
+    """Joint = product of confidences along the transitive cite + theorem-assume closure.
+
+    Walks both:
+      1. claim → claim via the claim's `derivation` list (always)
+      2. claim → theorem → claim via the theorem's `assume` clause when
+         theorem_refs is non-empty (deep mode)
+
+    NOTE on semantics: this is the INDEPENDENT-PRODUCT floor. Per khazīna
+    atom 0015 (research-pipeline overstates), correlated claims don't
+    multiply independently in practice — so the deep-walk number is a
+    worst-case lower bound, not a calibrated estimate. Project-level
+    correlation-aware tools (e.g. cheapcode/tools/joint-confidence.ts)
+    should be the source of truth for downstream-facing confidences.
+    The deep walk's value is structural: it surfaces sensitivity-to-
+    weakest-link, which is the right signal for revisit's EXPLORE
+    flagging.
+
+    Cycles are broken by treating the back-edge as 1.0 (no penalty) —
+    the graph in practice is a DAG, but defensively safe.
+    """
+    @functools.lru_cache(maxsize=None)
+    def joint_for(name: str, _ancestors: tuple[str, ...] = ()) -> float:
+        if name in _ancestors:
+            return 1.0  # cycle break
+        # Theorem branch: multiply assumed claim joints (deep walk).
+        if name in theorem_refs and name not in claims:
+            product = 1.0
+            for ref in theorem_refs[name]:
+                if ref in claims or ref in theorem_refs:
+                    product *= joint_for(ref, _ancestors + (name,))
+            return product
+        if name not in claims:
+            return 1.0
+        info = claims[name]
+        own = info["confidence"]
+        derivation = [d.replace("cite:", "") for d in info["derivation"]]
+        if not derivation:
+            return own
+        product = own
+        for dep in derivation:
+            product *= joint_for(dep, _ancestors + (name,))
+        return product
+
+    discharges = {
+        name for name in claims
+        if any(p.lower() in name.lower() for p in discharge_patterns)
+    }
+    if not discharges:
+        # Fallback: if no discharge match, take all leaf-claims
+        # (claims not in any other claim's derivation)
+        cited: set[str] = set()
+        for info in claims.values():
+            for d in info["derivation"]:
+                cited.add(d.replace("cite:", ""))
+        discharges = set(claims) - cited
+    return {name: round(joint_for(name), 6) for name in sorted(discharges)}
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(prog="burhan-snapshot")
+    ap.add_argument("paths", nargs="+", help="Files or directories containing .bn files")
+    ap.add_argument("-o", "--output", default=".burhan-snapshot.json", help="Output JSON path")
+    ap.add_argument(
+        "--track",
+        action="append",
+        default=[],
+        help="Out-of-band file to track via sha256 (e.g. --track MAIN.md). May repeat.",
+    )
+    ap.add_argument(
+        "--discharge",
+        action="append",
+        default=[],
+        help="Substring patterns identifying discharge claims (e.g. --discharge ships --discharge v1). "
+             "Defaults to leaf claims if none specified.",
+    )
+    args = ap.parse_args(argv)
+
+    paths = [Path(p).resolve() for p in args.paths]
+    bn_files = _collect_bn_files(paths)
+    if not bn_files:
+        print(f"burhan-snapshot: no .bn files found under {args.paths}", file=sys.stderr)
+        return 2
+
+    claims_snapshot, theorem_refs, warnings = _evaluate_files(bn_files)
+    joints = _compute_joints(claims_snapshot, theorem_refs, args.discharge or ["ships", "v1", "v2", "discharge"])
+
+    sources = [{"path": str(f), "sha256": _sha256(f)} for f in bn_files]
+    tracked = []
+    for t in args.track:
+        tp = Path(t).resolve()
+        if tp.exists():
+            tracked.append({"path": str(tp), "sha256": _sha256(tp)})
+        else:
+            warnings.append(f"tracked-file-missing: {tp}")
+
+    snapshot = {
+        "burhan_snapshot_version": 1,
+        "created_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        "sources": sources,
+        "tracked_files": tracked,
+        "claims": claims_snapshot,
+        "joints": joints,
+        "joints_semantics": (
+            "INDEPENDENT-PRODUCT floor. Walks both claim→claim cites AND "
+            "claim→theorem→claim assume-references. Treats all claims as "
+            "independent — overstates dilution per khazina atom 0015. For "
+            "correlation-aware joints, defer to project-level tooling."
+        ),
+        "warnings": warnings,
+    }
+    out_path = Path(args.output).resolve()
+    out_path.write_text(json.dumps(snapshot, indent=2, sort_keys=True), encoding="utf-8")
+    print(f"burhan-snapshot: wrote {out_path} ({len(claims_snapshot)} claims, "
+          f"{len(joints)} discharges, {len(warnings)} warnings)")
+    if warnings:
+        for w in warnings:
+            print(f"  warn: {w}", file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

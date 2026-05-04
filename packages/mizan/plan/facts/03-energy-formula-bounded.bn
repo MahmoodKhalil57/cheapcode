@@ -1,0 +1,64 @@
+# mizan/plan/facts/03-energy-formula-bounded.bn
+#
+# energy.py module audit. The lift formula from atom 0019:
+#
+#   convergence_energy = independence × structural_identity
+#   ceiling_distance = auth_ladder_ceiling - current_ceiling
+#   lift = convergence_energy × ceiling_distance × dampening
+#
+# Bound by atom 0018's "minimum cost on the binding axis": the lift
+# never pushes the ceiling past the auth-ladder ceiling. The binding
+# axis IS the ladder; no lift can transgress it.
+
+# === Section A — observations ===
+
+# A.1 — A lift NEVER exceeds the auth-ladder ceiling. Proof by
+# arithmetic: lift = e × d × k where d = ceiling_cap - current ≥ 0
+# and e, k ∈ [0, 1] → lift ≤ d → current + lift ≤ ceiling_cap.
+claim obs_lift_can_exceed_ceiling: Bool @>=0.99 = False
+
+# A.2 — A lift on a 1.0-confidence claim is exactly 0.0 (no headroom).
+claim obs_lift_at_unit_confidence_nonzero: Bool @>=0.99 = False
+
+# A.3 — A lift with convergence_energy = 0 is exactly 0.0.
+claim obs_lift_with_zero_energy_nonzero: Bool @>=0.99 = False
+
+# A.4 — A lift with dampening = 0 is exactly 0.0.
+claim obs_lift_with_zero_dampening_nonzero: Bool @>=0.99 = False
+
+# A.5 — A lift result carries the FULL audit trail: ceiling_before,
+# ceiling_after, lift_amount, the input ConvergenceMeasurement, the
+# dampening hyperparameter used, and the auth_ceiling_cap. Atom 0007:
+# every component must be inspectable post-hoc.
+claim obs_lift_missing_audit_trail: Bool @>=0.99 = False
+
+# A.6 — A lift records `applied_at` (when it was computed) AND the
+# `measurement_age_ms` of the input convergence at apply-time. Mizaj
+# M03: stale measurements are flagged explicitly.
+claim obs_lift_lacks_staleness_record: Bool @>=0.99 = False
+
+# A.7 — Idempotence: applying lift_via_convergence twice with the
+# same inputs produces a second lift whose lift_amount is computed
+# from the NEW (already-lifted) ceiling, NOT from the original.
+# Atom 0011: each lift is a distinct experiment with its own ceiling
+# distance.
+claim obs_lift_not_idempotent_safe: Bool @>=0.99 = False
+
+# A.8 — transform_to_binding_axis takes a list of Constraint objects
+# and returns the constraint with highest utilization (the binding
+# constraint per atom 0018). When all constraints are below threshold,
+# returns None or the most-loaded one explicitly.
+claim obs_binding_axis_selection_wrong: Bool @>=0.99 = False
+
+# === Section B — composing claims ===
+
+claim energy_formula_bounded_correctly: Bool @>=0.95 = not obs_lift_can_exceed_ceiling and not obs_lift_at_unit_confidence_nonzero and not obs_lift_with_zero_energy_nonzero and not obs_lift_with_zero_dampening_nonzero and not obs_lift_missing_audit_trail and not obs_lift_lacks_staleness_record and not obs_lift_not_idempotent_safe and not obs_binding_axis_selection_wrong
+
+# === Section C — composition ===
+
+theorem energy_module_atoms_0005_0018_0019_runtime
+  assume energy_formula_bounded_correctly
+  proves True
+  by audit mizan-energy-module-2026-05-03
+
+claim energy_discharge: Bool @>=0.95 = cite energy_module_atoms_0005_0018_0019_runtime

@@ -1,0 +1,215 @@
+diff --git a/packages/opencode/script/build.ts b/packages/opencode/script/build.ts
+index 35812f953..18192251c 100755
+--- a/packages/opencode/script/build.ts
++++ b/packages/opencode/script/build.ts
+@@ -170,9 +170,12 @@ if (!skipInstall) {
+   await $`bun install --os="*" --cpu="*" @opentui/core@${pkg.dependencies["@opentui/core"]}`
+   await $`bun install --os="*" --cpu="*" @parcel/watcher@${pkg.dependencies["@parcel/watcher"]}`
+ }
++// cheapcode fork: brand the binary/dist as `cheapcode` while leaving the
++// internal package name `opencode` (workspace siblings depend on it).
++const brandName = process.env.OPENCODE_BRAND || "cheapcode"
+ for (const item of targets) {
+   const name = [
+-    pkg.name,
++    brandName,
+     // changing to win32 flags npm for some reason
+     item.os === "win32" ? "windows" : item.os,
+     item.arch,
+@@ -207,9 +210,9 @@ for (const item of targets) {
+       autoloadDotenv: false,
+       autoloadTsconfig: true,
+       autoloadPackageJson: true,
+-      target: name.replace(pkg.name, "bun") as any,
+-      outfile: `dist/${name}/bin/opencode`,
+-      execArgv: [`--user-agent=opencode/${Script.version}`, "--use-system-ca", "--"],
++      target: name.replace(brandName, "bun") as any,
++      outfile: `dist/${name}/bin/${brandName}`,
++      execArgv: [`--user-agent=${brandName}/${Script.version}`, "--use-system-ca", "--"],
+       windows: {},
+     },
+     files: embeddedFileMap ? { "opencode-web-ui.gen.ts": embeddedFileMap } : {},
+@@ -226,7 +229,7 @@ for (const item of targets) {
+ 
+   // Smoke test: only run if binary is for current platform
+   if (item.os === process.platform && item.arch === process.arch && !item.abi) {
+-    const binaryPath = `dist/${name}/bin/opencode`
++    const binaryPath = `dist/${name}/bin/${brandName}`
+     console.log(`Running smoke test: ${binaryPath} --version`)
+     try {
+       const versionOutput = await $`${binaryPath} --version`.text()
+diff --git a/packages/opencode/src/cli/cmd/pr.ts b/packages/opencode/src/cli/cmd/pr.ts
+index f392bab4c..5fbab2e9f 100644
+--- a/packages/opencode/src/cli/cmd/pr.ts
++++ b/packages/opencode/src/cli/cmd/pr.ts
+@@ -7,7 +7,7 @@ import { Process } from "@/util/process"
+ 
+ export const PrCommand = cmd({
+   command: "pr <number>",
+-  describe: "fetch and checkout a GitHub PR branch, then run opencode",
++  describe: "fetch and checkout a GitHub PR branch, then run cheapcode",
+   builder: (yargs) =>
+     yargs.positional("number", {
+       type: "number",
+diff --git a/packages/opencode/src/cli/cmd/run.ts b/packages/opencode/src/cli/cmd/run.ts
+index c94e96203..0045fd0e9 100644
+--- a/packages/opencode/src/cli/cmd/run.ts
++++ b/packages/opencode/src/cli/cmd/run.ts
+@@ -204,7 +204,7 @@ function normalizePath(input?: string) {
+ 
+ export const RunCommand = cmd({
+   command: "run [message..]",
+-  describe: "run opencode with a message",
++  describe: "run cheapcode with a message",
+   builder: (yargs: Argv) => {
+     return yargs
+       .positional("message", {
+@@ -262,7 +262,7 @@ export const RunCommand = cmd({
+       })
+       .option("attach", {
+         type: "string",
+-        describe: "attach to a running opencode server (e.g., http://localhost:4096)",
++        describe: "attach to a running cheapcode server (e.g., http://localhost:4096)",
+       })
+       .option("password", {
+         alias: ["p"],
+diff --git a/packages/opencode/src/cli/cmd/serve.ts b/packages/opencode/src/cli/cmd/serve.ts
+index 5f3211aa1..38f12bf6b 100644
+--- a/packages/opencode/src/cli/cmd/serve.ts
++++ b/packages/opencode/src/cli/cmd/serve.ts
+@@ -6,7 +6,7 @@ import { Flag } from "@opencode-ai/core/flag/flag"
+ export const ServeCommand = cmd({
+   command: "serve",
+   builder: (yargs) => withNetworkOptions(yargs),
+-  describe: "starts a headless opencode server",
++  describe: "starts a headless cheapcode server",
+   handler: async (args) => {
+     if (!Flag.OPENCODE_SERVER_PASSWORD) {
+       console.log("Warning: OPENCODE_SERVER_PASSWORD is not set; server is unsecured.")
+diff --git a/packages/opencode/src/cli/cmd/tui/attach.ts b/packages/opencode/src/cli/cmd/tui/attach.ts
+index cb6b95a56..0c8ed4210 100644
+--- a/packages/opencode/src/cli/cmd/tui/attach.ts
++++ b/packages/opencode/src/cli/cmd/tui/attach.ts
+@@ -8,7 +8,7 @@ import { validateSession } from "./validate-session"
+ 
+ export const AttachCommand = cmd({
+   command: "attach <url>",
+-  describe: "attach to a running opencode server",
++  describe: "attach to a running cheapcode server",
+   builder: (yargs) =>
+     yargs
+       .positional("url", {
+diff --git a/packages/opencode/src/cli/cmd/tui/thread.ts b/packages/opencode/src/cli/cmd/tui/thread.ts
+index 384b6fc4f..f690a8379 100644
+--- a/packages/opencode/src/cli/cmd/tui/thread.ts
++++ b/packages/opencode/src/cli/cmd/tui/thread.ts
+@@ -79,12 +79,12 @@ export function resolveThreadDirectory(project?: string, envPWD = process.env.PW
+ 
+ export const TuiThreadCommand = cmd({
+   command: "$0 [project]",
+-  describe: "start opencode tui",
++  describe: "start cheapcode tui",
+   builder: (yargs) =>
+     withNetworkOptions(yargs)
+       .positional("project", {
+         type: "string",
+-        describe: "path to start opencode in",
++        describe: "path to start cheapcode in",
+       })
+       .option("model", {
+         type: "string",
+diff --git a/packages/opencode/src/cli/cmd/uninstall.ts b/packages/opencode/src/cli/cmd/uninstall.ts
+index 0afdc5185..298ee1e25 100644
+--- a/packages/opencode/src/cli/cmd/uninstall.ts
++++ b/packages/opencode/src/cli/cmd/uninstall.ts
+@@ -24,7 +24,7 @@ interface RemovalTargets {
+ 
+ export const UninstallCommand = {
+   command: "uninstall",
+-  describe: "uninstall opencode and remove all related files",
++  describe: "uninstall cheapcode and remove all related files",
+   builder: (yargs: Argv) =>
+     yargs
+       .option("keep-config", {
+diff --git a/packages/opencode/src/cli/cmd/upgrade.ts b/packages/opencode/src/cli/cmd/upgrade.ts
+index 3c1604a0b..815436e15 100644
+--- a/packages/opencode/src/cli/cmd/upgrade.ts
++++ b/packages/opencode/src/cli/cmd/upgrade.ts
+@@ -6,7 +6,7 @@ import { InstallationVersion } from "@opencode-ai/core/installation/version"
+ 
+ export const UpgradeCommand = {
+   command: "upgrade [target]",
+-  describe: "upgrade opencode to the latest or a specific version",
++  describe: "upgrade cheapcode to the latest or a specific version",
+   builder: (yargs: Argv) => {
+     return yargs
+       .positional("target", {
+diff --git a/packages/opencode/src/cli/cmd/web.ts b/packages/opencode/src/cli/cmd/web.ts
+index 19ee38ff5..bc8d3b4f3 100644
+--- a/packages/opencode/src/cli/cmd/web.ts
++++ b/packages/opencode/src/cli/cmd/web.ts
+@@ -31,7 +31,7 @@ function getNetworkIPs() {
+ export const WebCommand = cmd({
+   command: "web",
+   builder: (yargs) => withNetworkOptions(yargs),
+-  describe: "start opencode server and open web interface",
++  describe: "start cheapcode server and open web interface",
+   handler: async (args) => {
+     if (!Flag.OPENCODE_SERVER_PASSWORD) {
+       UI.println(UI.Style.TEXT_WARNING_BOLD + "!  OPENCODE_SERVER_PASSWORD is not set; server is unsecured.")
+diff --git a/packages/opencode/src/cli/logo.ts b/packages/opencode/src/cli/logo.ts
+index a58a8cf99..3f7254918 100644
+--- a/packages/opencode/src/cli/logo.ts
++++ b/packages/opencode/src/cli/logo.ts
+@@ -1,5 +1,5 @@
+ export const logo = {
+-  left: ["                   ", "█▀▀█ █▀▀█ █▀▀█ █▀▀▄", "█__█ █__█ █^^^ █__█", "▀▀▀▀ █▀▀▀ ▀▀▀▀ ▀~~▀"],
++  left: ["                        ", "█▀▀▀ █__█ █▀▀█ █▀▀█ █▀▀█", "█___ █▀▀█ █^^^ █^^█ █__█", "▀▀▀▀ ▀  ▀ ▀▀▀▀ ▀  ▀ █▀▀▀"],
+   right: ["             ▄     ", "█▀▀▀ █▀▀█ █▀▀█ █▀▀█", "█___ █__█ █__█ █^^^", "▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀"],
+ }
+ 
+diff --git a/packages/opencode/src/cli/ui.ts b/packages/opencode/src/cli/ui.ts
+index 7b4cf7f34..8678f3d08 100644
+--- a/packages/opencode/src/cli/ui.ts
++++ b/packages/opencode/src/cli/ui.ts
+@@ -4,10 +4,10 @@ import { NamedError } from "@opencode-ai/core/util/error"
+ import { logo as glyphs } from "./logo"
+ 
+ const wordmark = [
+-  `⠀                                ▄     `,
+-  `█▀▀█ █▀▀█ █▀▀█ █▀▀▄ █▀▀▀ █▀▀█ █▀▀█ █▀▀█`,
+-  `█  █ █  █ █▀▀▀ █  █ █    █  █ █  █ █▀▀▀`,
+-  `▀▀▀▀ █▀▀▀ ▀▀▀▀ ▀  ▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀`,
++  `⠀                                                ▄     `,
++  `█▀▀▀ █  █ █▀▀█ █▀▀█ █▀▀█ █▀▀▀ █▀▀█ █▀▀█ █▀▀█`,
++  `█    █▀▀█ █▀▀▀ █▀▀█ █  █ █    █  █ █  █ █▀▀▀`,
++  `▀▀▀▀ ▀  ▀ ▀▀▀▀ ▀  ▀ █▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀`,
+ ]
+ 
+ export const CancelledError = NamedError.create("UICancelledError", z.void())
+diff --git a/packages/opencode/src/index.ts b/packages/opencode/src/index.ts
+index 4c8e44704..d009c4aa5 100644
+--- a/packages/opencode/src/index.ts
++++ b/packages/opencode/src/index.ts
+@@ -68,7 +68,7 @@ function show(out: string) {
+ 
+ const cli = yargs(args)
+   .parserConfiguration({ "populate--": true })
+-  .scriptName("opencode")
++  .scriptName("cheapcode")
+   .wrap(100)
+   .help("help", "show help")
+   .alias("help", "h")
+diff --git a/packages/opencode/src/temporary.ts b/packages/opencode/src/temporary.ts
+index 7747eb1e9..85ede867d 100644
+--- a/packages/opencode/src/temporary.ts
++++ b/packages/opencode/src/temporary.ts
+@@ -10,7 +10,7 @@ Log.init({
+ 
+ const cli = yargs(hideBin(process.argv))
+   .parserConfiguration({ "populate--": true })
+-  .scriptName("opencode")
++  .scriptName("cheapcode")
+   .wrap(100)
+   .help("help", "show help")
+   .alias("help", "h")

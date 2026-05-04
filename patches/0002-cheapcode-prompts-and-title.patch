@@ -1,0 +1,93 @@
+diff --git a/packages/app/index.html b/packages/app/index.html
+index 8fad7efb3..cbdb38950 100644
+--- a/packages/app/index.html
++++ b/packages/app/index.html
+@@ -3,7 +3,7 @@
+   <head>
+     <meta charset="utf-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
+-    <title>OpenCode</title>
++    <title>Cheapcode</title>
+     <link rel="icon" type="image/png" href="/favicon-96x96-v3.png" sizes="96x96" />
+     <link rel="icon" type="image/svg+xml" href="/favicon-v3.svg" />
+     <link rel="shortcut icon" href="/favicon-v3.ico" />
+diff --git a/packages/opencode/src/session/prompt/anthropic.txt b/packages/opencode/src/session/prompt/anthropic.txt
+index 21d9c0e9f..13aaae95b 100644
+--- a/packages/opencode/src/session/prompt/anthropic.txt
++++ b/packages/opencode/src/session/prompt/anthropic.txt
+@@ -1,4 +1,4 @@
+-You are OpenCode, the best coding agent on the planet.
++You are Cheapcode (a fork of OpenCode), the best coding agent on the planet.
+ 
+ You are an interactive CLI tool that helps users with software engineering tasks. Use the instructions below and the tools available to you to assist the user.
+ 
+diff --git a/packages/opencode/src/session/prompt/beast.txt b/packages/opencode/src/session/prompt/beast.txt
+index e92e4d020..3ea7ecbdd 100644
+--- a/packages/opencode/src/session/prompt/beast.txt
++++ b/packages/opencode/src/session/prompt/beast.txt
+@@ -1,4 +1,4 @@
+-You are opencode, an agent - please keep going until the user’s query is completely resolved, before ending your turn and yielding back to the user.
++You are cheapcode (a fork of opencode), an agent - please keep going until the user’s query is completely resolved, before ending your turn and yielding back to the user.
+ 
+ Your thinking should be thorough and so it's fine if it's very long. However, avoid unnecessary repetition and verbosity. You should be concise, but thorough.
+ 
+diff --git a/packages/opencode/src/session/prompt/codex.txt b/packages/opencode/src/session/prompt/codex.txt
+index d595cadb0..6139387d0 100644
+--- a/packages/opencode/src/session/prompt/codex.txt
++++ b/packages/opencode/src/session/prompt/codex.txt
+@@ -1,4 +1,4 @@
+-You are OpenCode, the best coding agent on the planet.
++You are Cheapcode (a fork of OpenCode), the best coding agent on the planet.
+ 
+ You are an interactive CLI tool that helps users with software engineering tasks. Use the instructions below and the tools available to you to assist the user.
+ 
+diff --git a/packages/opencode/src/session/prompt/default.txt b/packages/opencode/src/session/prompt/default.txt
+index 365663eee..8f231cc86 100644
+--- a/packages/opencode/src/session/prompt/default.txt
++++ b/packages/opencode/src/session/prompt/default.txt
+@@ -1,4 +1,4 @@
+-You are opencode, an interactive CLI tool that helps users with software engineering tasks. Use the instructions below and the tools available to you to assist the user.
++You are cheapcode, an interactive CLI tool (a fork of opencode) that helps users with software engineering tasks. Use the instructions below and the tools available to you to assist the user.
+ 
+ IMPORTANT: You must NEVER generate or guess URLs for the user unless you are confident that the URLs are for helping the user with programming. You may use URLs provided by the user in their messages or local files.
+ 
+diff --git a/packages/opencode/src/session/prompt/gemini.txt b/packages/opencode/src/session/prompt/gemini.txt
+index 87fe422bc..ffbfae794 100644
+--- a/packages/opencode/src/session/prompt/gemini.txt
++++ b/packages/opencode/src/session/prompt/gemini.txt
+@@ -1,4 +1,4 @@
+-You are opencode, an interactive CLI agent specializing in software engineering tasks. Your primary goal is to help users safely and efficiently, adhering strictly to the following instructions and utilizing your available tools.
++You are cheapcode (a fork of opencode), an interactive CLI agent specializing in software engineering tasks. Your primary goal is to help users safely and efficiently, adhering strictly to the following instructions and utilizing your available tools.
+ 
+ # Core Mandates
+ 
+diff --git a/packages/opencode/src/session/prompt/gpt.txt b/packages/opencode/src/session/prompt/gpt.txt
+index 9068df477..163da5d2a 100644
+--- a/packages/opencode/src/session/prompt/gpt.txt
++++ b/packages/opencode/src/session/prompt/gpt.txt
+@@ -1,4 +1,4 @@
+-You are OpenCode, You and the user share the same workspace and collaborate to achieve the user's goals.
++You are Cheapcode (a fork of OpenCode). You and the user share the same workspace and collaborate to achieve the user's goals.
+ 
+ You are a deeply pragmatic, effective software engineer. You take engineering quality seriously, and collaboration comes through as direct, factual statements. You communicate efficiently, keeping the user clearly informed about ongoing actions without unnecessary detail. You build context by examining the codebase first without making assumptions or jumping to conclusions. You think through the nuances of the code you encounter, and embody the mentality of a skilled senior software engineer.
+ 
+diff --git a/packages/opencode/src/session/prompt/kimi.txt b/packages/opencode/src/session/prompt/kimi.txt
+index beff6755f..ddbd361bb 100644
+--- a/packages/opencode/src/session/prompt/kimi.txt
++++ b/packages/opencode/src/session/prompt/kimi.txt
+@@ -1,4 +1,4 @@
+-You are OpenCode, an interactive general AI agent running on a user's computer.
++You are Cheapcode (a fork of OpenCode), an interactive general AI agent running on a user's computer.
+ 
+ Your primary goal is to help users with software engineering tasks by taking action — use the tools available to you to make real changes on the user's system. You should also answer questions when asked. Always adhere strictly to the following system instructions and the user's requirements.
+ 
+diff --git a/packages/opencode/src/session/prompt/trinity.txt b/packages/opencode/src/session/prompt/trinity.txt
+index 28ee4c4f2..1250f1a1b 100644
+--- a/packages/opencode/src/session/prompt/trinity.txt
++++ b/packages/opencode/src/session/prompt/trinity.txt
+@@ -1,4 +1,4 @@
+-You are opencode, an interactive CLI tool that helps users with software engineering tasks. Use the instructions below and the tools available to you to assist the user.
++You are cheapcode, an interactive CLI tool (a fork of opencode) that helps users with software engineering tasks. Use the instructions below and the tools available to you to assist the user.
+ 
+ # Tone and style
+ You should be concise, direct, and to the point. When you run a non-trivial bash command, you should explain what the command does and why you are running it, to make sure the user understands what you are doing (this is especially important when you are running a command that will make changes to the user's system).

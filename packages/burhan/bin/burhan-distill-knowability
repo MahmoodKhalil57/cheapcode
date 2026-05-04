@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+"""burhan-distill-knowability — distill calibration receipts into pattern updates.
+
+Per atom 0017 (unknowns-as-positive-data-recursion) + atom 0024 (knowability-
+gate) + the user's 2026-05-04 framing: "as smarter models are used we should
+be seeing a more accurate signal from mizan; limited by base model intelligence
+and physical storage; use this to improve our implementation across the board
+for all models."
+
+Reads recent daftar receipts of kind=knowability.calibration (written by
+the adam-plugin's experimental.text.complete hook when the dispatched model
+voluntarily declined / expressed uncertainty / hit hallucination markers)
+and surfaces:
+
+  - Common decline-marker phrases the model used → suggest as new patterns
+    in mizan-shim's MODEL_DECLINE_MARKERS
+  - Aggregated frequency: which markers appear most often → prioritize
+    pattern additions by recurrence
+  - Sample prompt-stems from response context → potential heuristic
+    triggers we haven't encoded yet
+
+Storage discipline (per user's "practical physical storage" framing): bounded
+to last N receipts (default 100). Older receipts can be summarized into a
+durable pattern-table; raw receipts evict.
+
+Run: burhan-distill-knowability [--project PATH] [--limit N]
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import subprocess
+import sys
+from collections import Counter
+from pathlib import Path
+
+DAFTAR_BIN = Path.home() / "apps" / "adam" / "tools" / "daftar" / "bin" / "daftar"
+
+
+def fetch_calibration_receipts(project: str, limit: int = 100) -> list[dict]:
+    """Query daftar for recent knowability.calibration receipts."""
+    try:
+        result = subprocess.run(
+            [
+                "bun",
+                str(DAFTAR_BIN),
+                "list",
+                "--kind=receipt.observation",
+                f"--limit={limit}",
+                f"--project={project}",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        if result.returncode != 0:
+            print(f"daftar list failed: {result.stderr}", file=sys.stderr)
+            return []
+        parsed = json.loads(result.stdout)
+        entries = parsed.get("entries", [])
+        # Filter to knowability.calibration kind by metadata
+        out: list[dict] = []
+        for e in entries:
+            meta = e.get("metadata_json") or {}
+            if meta.get("kind") == "knowability.calibration":
+                out.append(e)
+        return out
+    except Exception as ex:
+        print(f"failed to fetch receipts: {ex}", file=sys.stderr)
+        return []
+
+
+def aggregate_decline_markers(receipts: list[dict]) -> Counter:
+    """Count per-marker frequency across all calibration receipts."""
+    counter: Counter = Counter()
+    for r in receipts:
+        body = r.get("body", "")
+        try:
+            body_obj = json.loads(body)
+            markers = body_obj.get("decline_markers", [])
+            for m in markers:
+                # normalize: lowercase, strip whitespace
+                counter[m.lower().strip()] += 1
+        except Exception:
+            continue
+    return counter
+
+
+def extract_prompt_stems(receipts: list[dict]) -> list[str]:
+    """Extract the response_preview field; cheap heuristic for what
+    KIND of prompt triggered the decline. Future: join with prompt
+    table for richer signal."""
+    stems: list[str] = []
+    for r in receipts:
+        body = r.get("body", "")
+        try:
+            body_obj = json.loads(body)
+            preview = body_obj.get("response_preview", "")
+            # Take first 200 chars of preview as the stem
+            if preview:
+                stems.append(preview[:200])
+        except Exception:
+            continue
+    return stems
+
+
+def suggest_pattern_additions(marker_counts: Counter, threshold: int = 2) -> list[dict]:
+    """Suggest new mizan-shim MODEL_DECLINE_MARKERS patterns based on
+    recurring decline-marker phrases. Threshold = min count to suggest."""
+    suggestions: list[dict] = []
+    for marker, count in marker_counts.most_common():
+        if count < threshold:
+            continue
+        # Convert marker to a candidate regex pattern (escape + word-boundaries)
+        escaped = re.escape(marker)
+        # Tighten: replace literal whitespace with \s+
+        pattern = r"\b" + re.sub(r"\\?\s+", r"\\s+", escaped) + r"\b"
+        suggestions.append({
+            "marker": marker,
+            "count": count,
+            "suggested_regex": f"/{pattern}/i",
+        })
+    return suggestions
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(prog="burhan-distill-knowability", description=__doc__)
+    ap.add_argument("--project", default=None, help="daftar project (default: cwd)")
+    ap.add_argument("--limit", type=int, default=100, help="receipt window (default 100)")
+    ap.add_argument("--threshold", type=int, default=2, help="min marker count to suggest as pattern")
+    ap.add_argument("--json", action="store_true")
+    args = ap.parse_args(argv)
+
+    project = args.project or str(Path.cwd())
+    receipts = fetch_calibration_receipts(project, args.limit)
+
+    if not receipts:
+        print(f"No knowability.calibration receipts found for project {project}.")
+        print(f"(Receipts are written by adam-plugin when the dispatched model")
+        print(f" voluntarily declines / expresses uncertainty in its response.")
+        print(f" Try running cheapcode dispatches first; receipts accumulate over time.)")
+        return 0
+
+    marker_counts = aggregate_decline_markers(receipts)
+    suggestions = suggest_pattern_additions(marker_counts, args.threshold)
+    stems = extract_prompt_stems(receipts)
+
+    if args.json:
+        print(json.dumps({
+            "project": project,
+            "receipt_count": len(receipts),
+            "marker_frequency": dict(marker_counts),
+            "pattern_suggestions": suggestions,
+        }, indent=2))
+        return 0
+
+    # Markdown report
+    print(f"# burhan-distill-knowability — atom 0017 + 0024 calibration loop")
+    print()
+    print(f"**Project:** `{project}`  ")
+    print(f"**Calibration receipts in window:** {len(receipts)}  ")
+    print(f"**Unique decline markers seen:** {len(marker_counts)}  ")
+    print(f"**Pattern-suggestion threshold:** {args.threshold}  ")
+    print()
+
+    if marker_counts:
+        print("## Decline-marker frequency")
+        print()
+        for marker, count in marker_counts.most_common(20):
+            print(f"- ({count}×) `{marker}`")
+        print()
+
+    if suggestions:
+        print(f"## Suggested new MODEL_DECLINE_MARKERS patterns ({len(suggestions)})")
+        print()
+        print(f"_Append these to `cheapcode/src/mizan-shim.ts` MODEL_DECLINE_MARKERS")
+        print(f" (and the local copy in `adam-plugin/plugin.ts`) if they're not")
+        print(f" already covered by existing regexes._")
+        print()
+        for s in suggestions:
+            print(f"- ({s['count']}×) `{s['suggested_regex']}` — for marker `\"{s['marker']}\"`")
+        print()
+    else:
+        print("## No new patterns to suggest (markers below threshold or already covered)")
+        print()
+
+    if stems:
+        print(f"## Sample response stems (first 5, for prompt-pattern hypothesis)")
+        print()
+        for i, stem in enumerate(stems[:5], 1):
+            cleaned = re.sub(r"\s+", " ", stem)[:150]
+            print(f"{i}. `{cleaned}...`")
+        print()
+
+    print(f"---")
+    print(f"_Per user's 2026-05-04 framing: smart-model dispatches generate teacher")
+    print(f" signal; this tool distills into improved heuristic patterns; cheaper-")
+    print(f" tier dispatches inherit the gate improvement. Limited by base-model")
+    print(f" intelligence (caps how nuanced declines can be) + practical storage")
+    print(f" (rolling window of last {args.limit} receipts)._")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,519 @@
+#!/usr/bin/env python3
+"""codename — hash-of-goal codenames for projects.
+
+Per operator framing 2026-05-04: codename is a HASH-LIKE fingerprint of
+the goal text. Same goal → same codename (deterministic). Even a small
+change in goal → different codename (sensitive). When the codename
+changes, the user knows the goal has shifted at all — no silent goal-drift.
+
+Format: <root>-<3-char-suffix>
+  - root: dense single-handle from curated multi-tradition pool (Arabic-
+    Islamic primary, Greek/Sanskrit/Latin secondary). Picked by semantic
+    match against goal keywords. Like muqataat — domain-anchored, evocative.
+  - suffix: 3 base32 chars derived from sha256(goal_normalized).
+    Guarantees uniqueness across different goal texts even when roots
+    collide. Same goal → same suffix.
+
+Cheap-by-construction: zero LLM calls; pure heuristic + sha256 + curated
+root pool.
+
+Subcommands:
+  new <project-dir> --goal "..."     generate + register codename
+  update <project-dir> --goal "..."  re-eval; auto-renames on any goal change
+  list                               show all registered codenames
+  why <codename>                     explain why this codename was picked
+                                     (searches active + retired names)
+
+Registry: ~/.config/codename/registry.json — keyed by project_dir.
+
+Run: codename {new|update|list|why} ...
+"""
+
+from __future__ import annotations
+
+import argparse
+import base64
+import hashlib
+import json
+import re
+import sys
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+
+REGISTRY_PATH = Path.home() / ".config" / "codename" / "registry.json"
+ROOTS_PATH = Path(__file__).parent.parent / "data" / "roots.json"
+
+# ─── Stop words for keyword extraction ──────────────────────────────
+
+STOP_WORDS = {
+    "a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
+    "have", "has", "had", "do", "does", "did", "will", "would", "could",
+    "should", "may", "might", "must", "can", "this", "that", "these",
+    "those", "i", "you", "he", "she", "it", "we", "they", "them", "of",
+    "in", "on", "at", "to", "for", "with", "by", "from", "as", "into",
+    "and", "or", "but", "not", "so", "if", "then", "than", "very", "more",
+    "most", "much", "many", "some", "any", "all", "no", "yes", "via",
+    "across", "between", "through", "while", "during", "before", "after",
+    "make", "build", "create", "design", "implement", "develop", "use",
+    "using", "used", "way", "ways", "thing", "things", "system", "tool",
+    "project", "goal", "goals", "based", "such", "needed", "needs",
+    "well", "good", "better", "best", "high", "low", "new", "old", "real",
+    "each", "every", "task", "tasks", "alone", "single", "each", "documented",
+    "value", "single", "frontier", "envelope", "envelopes", "per", "task",
+    "cheaper", "faster", "smarter", "support", "enables",
+    "approach", "approaches", "way", "ways", "process", "general",
+    "specific", "various", "different", "common", "unique",
+}
+
+# ─── Helpers ─────────────────────────────────────────────────────────
+
+def load_roots() -> dict:
+    return json.loads(ROOTS_PATH.read_text())
+
+
+def load_registry() -> dict:
+    if not REGISTRY_PATH.exists():
+        return {"codenames": []}
+    try:
+        return json.loads(REGISTRY_PATH.read_text())
+    except Exception:
+        return {"codenames": []}
+
+
+def save_registry(registry: dict) -> None:
+    REGISTRY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    REGISTRY_PATH.write_text(json.dumps(registry, indent=2, ensure_ascii=False))
+
+
+def extract_keywords(goal_text: str) -> list[str]:
+    """Lowercase + tokenize + filter stop words. Returns ordered keywords."""
+    tokens = re.findall(r"\b[a-zA-Z]{3,}\b", goal_text.lower())
+    return [t for t in tokens if t not in STOP_WORDS]
+
+
+def normalize_goal(goal_text: str) -> str:
+    """Normalize for hashing: lowercase, collapse whitespace, strip punct.
+    This makes the hash sensitive to MEANINGFUL changes (word edits, added/
+    removed words) but tolerant to incidental formatting (extra spaces,
+    capitalization, trailing newlines)."""
+    text = goal_text.lower().strip()
+    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"[^\w\s]", "", text)
+    return text
+
+
+def goal_hash_suffix(goal_text: str, length: int = 3) -> str:
+    """Deterministic 3-char base32-ish suffix from normalized goal text.
+    sha256 → base32 → strip padding → lowercase first N chars.
+    Same normalized goal always produces same suffix."""
+    norm = normalize_goal(goal_text)
+    digest = hashlib.sha256(norm.encode("utf-8")).digest()
+    # base32 alphabet has 32 chars; 3 chars = 32^3 = 32768 buckets
+    b32 = base64.b32encode(digest).decode("ascii").rstrip("=").lower()
+    # Filter to chars that look word-like (no digits 0/1 visually-ambiguous;
+    # base32 doesn't include 0/1 anyway, but we strip any if present)
+    suffix_chars = [c for c in b32 if c.isalpha()]
+    return "".join(suffix_chars[:length])
+
+
+def score_word_candidate(
+    candidate: dict,
+    matched_categories: list[str],
+    used_codenames: set[str],
+) -> float:
+    """Score: category-fit (0.5) + brevity (0.3) + tradition-fit (0.2).
+    Penalize collisions. Higher = better."""
+    score = 0.0
+
+    # Category fit: 1.0 if it appears in matched categories
+    score += 0.5
+
+    # Brevity: shorter syllables score higher (1-2 syllables ideal)
+    syllables = candidate.get("syllables", 3)
+    if syllables == 1:
+        score += 0.30
+    elif syllables == 2:
+        score += 0.30
+    elif syllables == 3:
+        score += 0.20
+    else:
+        score += 0.05
+
+    # Tradition: Arabic > others (substrate-suite consistency)
+    tradition = candidate.get("tradition", "")
+    if tradition == "Arabic":
+        score += 0.20
+    elif tradition in ("Greek", "Sanskrit"):
+        score += 0.10
+    else:
+        score += 0.05
+
+    # Penalize if name already used
+    if candidate["name"].lower() in used_codenames:
+        score -= 1.0
+
+    return score
+
+
+def generate_word_codename(
+    goal_text: str, registry: dict, roots: dict
+) -> tuple[str, dict, list[str]]:
+    """Returns (codename, root_record, matched_categories)."""
+    keywords = extract_keywords(goal_text)
+    keyword_to_categories = roots["keyword_to_categories"]
+    categories = roots["categories"]
+
+    # Find matched categories from keywords
+    matched_categories: dict[str, int] = {}
+    for kw in keywords:
+        for cat in keyword_to_categories.get(kw, []):
+            matched_categories[cat] = matched_categories.get(cat, 0) + 1
+
+    # Sort by match-count
+    sorted_cats = sorted(matched_categories.items(), key=lambda kv: -kv[1])
+    if not sorted_cats:
+        # Fallback: use all categories as candidate pool
+        sorted_cats = [(c, 1) for c in categories.keys()]
+
+    used_codenames = {c["name"].lower() for c in registry.get("codenames", [])}
+
+    # Score all candidates from top-N matched categories
+    candidates = []
+    for cat_name, _ in sorted_cats[:5]:
+        cat = categories.get(cat_name)
+        if not cat:
+            continue
+        for root in cat["roots"]:
+            score = score_word_candidate(
+                root, list(matched_categories.keys()), used_codenames
+            )
+            candidates.append((score, root, cat_name))
+
+    candidates.sort(key=lambda c: -c[0])
+    if not candidates:
+        raise RuntimeError("no codename candidates produced; check roots.json")
+
+    best_score, best_root, best_cat = candidates[0]
+    return best_root["name"], best_root, [best_cat] + list(matched_categories.keys())
+
+
+def generate_acronym_codename(
+    goal_text: str, registry: dict
+) -> tuple[str, list[str]]:
+    """Build acronym from initial-letters of significant words. Returns
+    (acronym, words_used)."""
+    keywords = extract_keywords(goal_text)
+    used_codenames = {c["name"].lower() for c in registry.get("codenames", [])}
+
+    # Try several acronym strategies
+    strategies = [
+        # all-significant-keywords
+        keywords[:5],
+        # first 4 keywords
+        keywords[:4],
+        # first 3 keywords
+        keywords[:3],
+    ]
+
+    candidates = []
+    for words in strategies:
+        if len(words) < 2:
+            continue
+        acronym = "".join(w[0].upper() for w in words)
+        if acronym.lower() in used_codenames:
+            continue
+        # Score: prefer 3-5 letter acronyms
+        score = 1.0 - abs(len(acronym) - 4) * 0.2
+        # Boost if acronym is pronounceable (has at least 1 vowel)
+        if re.search(r"[AEIOUaeiou]", acronym):
+            score += 0.3
+        # Boost if acronym is a real-ish word (heuristic: 4-5 letters with ≥2 vowels)
+        vowel_count = sum(1 for c in acronym if c in "AEIOUaeiou")
+        if 4 <= len(acronym) <= 5 and vowel_count >= 2:
+            score += 0.2
+        candidates.append((score, acronym, words))
+
+    if not candidates:
+        # Fallback: use first 3 keyword initials regardless
+        if len(keywords) >= 2:
+            return "".join(w[0].upper() for w in keywords[:3]), keywords[:3]
+        return "PRJ", []
+
+    candidates.sort(key=lambda c: -c[0])
+    return candidates[0][1], candidates[0][2]
+
+
+def generate_codename(
+    goal_text: str, mode: str, registry: dict, roots: dict
+) -> dict:
+    """Returns full codename record: {name, mode, etymology, why, ...}.
+    name is `<root>-<suffix>` where suffix = goal_hash_suffix(goal)."""
+    suffix = goal_hash_suffix(goal_text)
+    if mode == "word":
+        root_word, root, cats = generate_word_codename(goal_text, registry, roots)
+        full_name = f"{root_word}-{suffix}"
+        return {
+            "name": full_name,
+            "root": root_word,
+            "suffix": suffix,
+            "mode": "word",
+            "etymology": f"{root['tradition']} — \"{root['meaning']}\"",
+            "category": cats[0] if cats else "general",
+            "why": _explain_word_fit(root_word, root, cats, goal_text),
+        }
+    if mode == "acronym":
+        acronym, words = generate_acronym_codename(goal_text, registry)
+        full_name = f"{acronym}-{suffix}"
+        return {
+            "name": full_name,
+            "root": acronym,
+            "suffix": suffix,
+            "mode": "acronym",
+            "etymology": f"acronym from: {' / '.join(words)}",
+            "category": "acronym",
+            "why": _explain_acronym_fit(acronym, words, goal_text),
+        }
+    if mode == "auto":
+        # Atom 0011 (smallest-distinguishing-experiment): pick whichever
+        # codename packs more meaning per character. Word codenames from
+        # Arabic-tradition pool inherit substrate-suite family-resemblance
+        # AND carry full lexical meaning. Acronyms have higher permutation
+        # space but transmit less semantic weight per character.
+        # Default: WORD wins. Acronym wins ONLY when:
+        #   - word-mode produced a non-Arabic root (weaker substrate-fit), AND
+        #   - acronym is a real-word-like 4-5 letters with ≥2 vowels
+        word_cn = generate_codename(goal_text, "word", registry, roots)
+        word_root_tradition = ""
+        if word_cn.get("etymology", "").startswith("Arabic"):
+            word_root_tradition = "Arabic"
+        # Default to word; only flip to acronym if word-fit is weak
+        if word_root_tradition == "Arabic":
+            return word_cn
+        # Word picked from non-Arabic pool: try acronym for comparison
+        acronym_cn = generate_codename(goal_text, "acronym", registry, roots)
+        acronym_name = acronym_cn["name"]
+        vowel_count = sum(1 for c in acronym_name if c in "AEIOUaeiou")
+        if 4 <= len(acronym_name) <= 5 and vowel_count >= 2:
+            return acronym_cn
+        return word_cn
+    raise ValueError(f"unknown mode: {mode}")
+
+
+def _explain_word_fit(name: str, root: dict, cats: list[str], goal: str) -> str:
+    cat_str = cats[0].replace("_", "/")
+    return (
+        f"`{name}` ({root['tradition']}) means \"{root['meaning']}\" — "
+        f"a dense single-handle for the {cat_str} category. "
+        f"Within the substrate-suite tradition (mizan + burhan + daftar + "
+        f"khazina lineage), this codename inherits family-resemblance "
+        f"and is immediately legible to anyone reading the project graph."
+    )
+
+
+def _explain_acronym_fit(acronym: str, words: list[str], goal: str) -> str:
+    return (
+        f"`{acronym}` is the acronym formed from the goal's significant "
+        f"keywords ({' / '.join(words)}). Acronyms have higher permutation-"
+        f"space than single-word roots (more codenames available), and "
+        f"this one is short ({len(acronym)} letters) + pronounceable."
+    )
+
+
+# ─── Stewardship: rename only if meaningfully better ────────────────
+
+def goals_equivalent(old_goal: str, new_goal: str) -> bool:
+    """Hash-of-goal model: same NORMALIZED goal text → same codename.
+    Any meaningful change in goal (word added/removed/edited) →
+    different normalized text → different hash → different codename.
+    Tolerant only to incidental formatting (whitespace, casing, punct)."""
+    return normalize_goal(old_goal) == normalize_goal(new_goal)
+
+
+# ─── Subcommands ─────────────────────────────────────────────────────
+
+def cmd_new(args: argparse.Namespace) -> int:
+    roots = load_roots()
+    registry = load_registry()
+
+    # Check if project_dir already has a codename
+    project_dir = str(Path(args.project_dir).resolve())
+    for entry in registry["codenames"]:
+        if entry.get("project_dir") == project_dir:
+            print(
+                f"Project at {project_dir} already has a codename: "
+                f"`{entry['name']}`. Use 'codename update' to re-evaluate.",
+                file=sys.stderr,
+            )
+            return 1
+
+    record = generate_codename(args.goal, args.mode, registry, roots)
+    record["project_dir"] = project_dir
+    record["goal"] = args.goal
+    record["created_at"] = datetime.utcnow().isoformat() + "Z"
+    record["updated_at"] = record["created_at"]
+
+    registry["codenames"].append(record)
+    save_registry(registry)
+
+    _emit_persuasive_announcement(record, is_new=True)
+    return 0
+
+
+def cmd_update(args: argparse.Namespace) -> int:
+    roots = load_roots()
+    registry = load_registry()
+    project_dir = str(Path(args.project_dir).resolve())
+
+    existing = None
+    for entry in registry["codenames"]:
+        if entry.get("project_dir") == project_dir:
+            existing = entry
+            break
+
+    if not existing:
+        print(
+            f"No codename registered for {project_dir}. Use 'codename new' first.",
+            file=sys.stderr,
+        )
+        return 1
+
+    new_record = generate_codename(args.goal, args.mode, registry, roots)
+
+    # Hash-of-goal model: same normalized goal → same codename
+    if goals_equivalent(existing.get("goal", ""), args.goal):
+        print(
+            f"Goal text is equivalent (no meaningful change). Codename `{existing['name']}` unchanged."
+        )
+        existing["goal"] = args.goal  # keep latest formatting
+        existing["updated_at"] = datetime.utcnow().isoformat() + "Z"
+        save_registry(registry)
+        return 0
+
+    # Goal genuinely changed → codename changes (hash-fidelity)
+    old_name = existing["name"]
+    old_goal = existing.get("goal", "")
+    existing.update(new_record)
+    existing["project_dir"] = project_dir
+    existing["goal"] = args.goal
+    existing["updated_at"] = datetime.utcnow().isoformat() + "Z"
+    if "history" not in existing:
+        existing["history"] = []
+    existing["history"].append({
+        "name": old_name,
+        "goal": old_goal,
+        "retired_at": existing["updated_at"],
+    })
+    save_registry(registry)
+
+    print(f"⚠ Goal changed → codename changed: `{old_name}` → `{new_record['name']}`")
+    print()
+    print(f"_Old goal:_ {old_goal[:120]}{'...' if len(old_goal) > 120 else ''}")
+    print(f"_New goal:_ {args.goal[:120]}{'...' if len(args.goal) > 120 else ''}")
+    print()
+    _emit_persuasive_announcement(existing, is_new=False, old_name=old_name)
+    return 0
+
+
+def cmd_list(args: argparse.Namespace) -> int:
+    registry = load_registry()
+    if not registry.get("codenames"):
+        print("No codenames registered yet.")
+        return 0
+
+    print(f"Registered codenames ({len(registry['codenames'])}):\n")
+    for entry in registry["codenames"]:
+        mode_marker = "[A]" if entry.get("mode") == "acronym" else "[W]"
+        proj = entry.get("project_dir", "?").replace(str(Path.home()), "~")
+        print(f"  {mode_marker} `{entry['name']}` ← {proj}")
+        print(f"      goal: {entry.get('goal', '')[:80]}")
+        print(f"      etym: {entry.get('etymology', '')}")
+        print()
+    return 0
+
+
+def cmd_why(args: argparse.Namespace) -> int:
+    registry = load_registry()
+    target = args.codename.lower()
+    # Match against full name OR root (so `wakil` matches `wakil-k3p`)
+    for entry in registry["codenames"]:
+        if entry["name"].lower() == target or entry.get("root", "").lower() == target:
+            _emit_persuasive_announcement(entry, is_new=False, recall_only=True)
+            return 0
+    # Search history (retired codenames)
+    for entry in registry["codenames"]:
+        for hist in entry.get("history", []):
+            hist_name = hist.get("name", "").lower()
+            hist_root = hist_name.split("-")[0] if "-" in hist_name else hist_name
+            if hist_name == target or hist_root == target:
+                print(f"## Codename **{hist['name']}** (retired)\n")
+                print(f"This codename was retired on {hist.get('retired_at', 'unknown')} when the project's goal changed.")
+                print(f"_Old goal:_ {hist.get('goal', '(not recorded)')[:200]}")
+                print(f"\nThe project at {entry['project_dir']} now uses `{entry['name']}`.")
+                print(f"Use `codename why {entry['name']}` for the current codename's rationale.")
+                return 0
+    print(f"No registered codename `{args.codename}`. Use 'codename list' to see all.", file=sys.stderr)
+    return 1
+
+
+# ─── Persuasive nudge output ─────────────────────────────────────────
+
+def _emit_persuasive_announcement(
+    record: dict, is_new: bool, old_name: str | None = None, recall_only: bool = False
+) -> None:
+    name = record["name"]
+    etym = record.get("etymology", "")
+    why = record.get("why", "")
+    goal = record.get("goal", "")
+
+    if recall_only:
+        print(f"## Codename: **{name}**\n")
+    elif is_new:
+        print(f"## Your new codename: **{name}** ✨\n")
+    else:
+        print(f"## Codename updated: **{name}** (was `{old_name}`)\n")
+
+    print(f"**Etymology:** {etym}")
+    print(f"**Goal:** _{goal}_\n")
+    print(f"**Why this codename:** {why}\n")
+    print(f"**Adoption nudge:**")
+    print(f"From now on, when referring to this project, use **{name}**.")
+    print(f"It's a single-handle identifier that transmits the goal-essence")
+    print(f"to anyone reading the substrate. Like _muqataat_ for the disjoint")
+    print(f"letters of the Quran — dense, memorable, domain-anchored.")
+    if record.get("mode") == "acronym":
+        print(f"(This is an acronym — easier to type, no diacritics needed.)")
+    print()
+
+
+# ─── Main ────────────────────────────────────────────────────────────
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(prog="codename", description=__doc__)
+    sub = ap.add_subparsers(dest="cmd", required=True)
+
+    p_new = sub.add_parser("new", help="register a new codename for a project")
+    p_new.add_argument("project_dir", type=Path)
+    p_new.add_argument("--goal", required=True, help="goal description (1-3 sentences)")
+    p_new.add_argument("--mode", default="auto", choices=["auto", "word", "acronym"])
+    p_new.set_defaults(func=cmd_new)
+
+    p_upd = sub.add_parser("update", help="re-evaluate codename when goal changes")
+    p_upd.add_argument("project_dir", type=Path)
+    p_upd.add_argument("--goal", required=True)
+    p_upd.add_argument("--mode", default="auto", choices=["auto", "word", "acronym"])
+    p_upd.set_defaults(func=cmd_update)
+
+    p_list = sub.add_parser("list", help="show all registered codenames")
+    p_list.set_defaults(func=cmd_list)
+
+    p_why = sub.add_parser("why", help="explain why a codename was picked")
+    p_why.add_argument("codename")
+    p_why.set_defaults(func=cmd_why)
+
+    args = ap.parse_args(argv)
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

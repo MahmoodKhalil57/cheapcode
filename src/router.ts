@@ -77,6 +77,23 @@ export interface RouteDecision {
   rule: string
   /** Evidence tier of the routing rule per mizaj 11. */
   evidence_tier: "L1" | "L1+L4" | "L4" | "L4+operator-L1"
+  /**
+   * M3.54 (atom 0022 stewardship): true if the router declined to
+   * dispatch because expected value-of-inquiry was below threshold.
+   * When set, callers should NOT dispatch; they should surface the
+   * `decline_proposal` to the user instead.
+   */
+  declined?: boolean
+  decline_reason?: "stewardship" | "knowability"
+  decline_proposal?: string
+  /** M3.55 (atom 0024 knowability): structured clarifying questions for the user. */
+  clarifying_questions?: string[]
+  /** M3.55 (atom 0024 knowability): specific blockers detected. */
+  blockers?: string[]
+  expected_value?: number
+  knowability_score?: number
+  /** M3.57: hard-classes detected in the prompt (multi-pr-history, etc.). */
+  hard_classes?: string[]
 }
 
 const LONG_CONTEXT_THRESHOLD_TOKENS = 100_000
@@ -230,6 +247,78 @@ export interface RouterOptions {
   smartTarget: string
   cheapTarget: string
   longContextTarget: string
+  /**
+   * M3.52 (2026-05-04): substrate-aware routing. When provided, route()
+   * consults action-safety + ceiling-cap + daftar disagreement rate to
+   * adjust the shape-only decision per atom 0018 (energy-transformation).
+   * Loaded once at session init by cheapcode-tiers; cached here.
+   * If absent, route() falls back to shape-only behavior (backward compat).
+   */
+  substrateState?: import("./mizan-shim").SubstrateState
+  /**
+   * Frontier-tier model id for substrate-driven escalations (action-safety
+   * "warn" → bump cheap up to frontier). Defaults to smartTarget if absent.
+   */
+  frontierTarget?: string
+  /**
+   * Disagreement-rate threshold above which the substrate forces escalation
+   * (default 0.10 — i.e. cheap rung disagreed >10% of recent spot-checks).
+   */
+  disagreementThreshold?: number
+  /**
+   * Ceiling-cap threshold below which substrate forces voter-dispatch
+   * (default 0.65 — multi-hypothesis-charged questions).
+   */
+  ceilingCapVoterThreshold?: number
+  /**
+   * M3.53 (2026-05-04): provider-quota awareness. When provided, route()
+   * consults remaining quota for the chosen target's (provider, model) and
+   * drops to a fallback target when quota < quotaFloor (default 0.10 = 10%
+   * remaining). Required for multi-provider routing (OpenAI subscription +
+   * OpenRouter as fallback).
+   */
+  quotaState?: import("./mizan-shim").QuotaState
+  /** Per-tier fallback when quota near-exhausted (e.g. OpenRouter mirror of an OpenAI model). */
+  quotaFallbacks?: Record<string, string>
+  /** Floor below which substrate switches to the fallback target (default 0.10). */
+  quotaFloor?: number
+  /**
+   * M3.54 (2026-05-04, atom 0022): stewardship-discipline — the resource
+   * is amana, not just an axis to optimize. Rule E evaluates value-of-
+   * inquiry BEFORE atom 0018's cost-minimization. When score < threshold,
+   * the router returns a "decline" decision proposing an alternative
+   * (recall, daftar query, sharpen, defer) instead of dispatching.
+   */
+  stewardshipThreshold?: number
+  /**
+   * Recent daftar receipts for repetition-detection in value-of-inquiry.
+   * Loaded by cheapcode-tiers from `daftar list --limit=10` at session
+   * init. Used to detect near-duplicate prompts.
+   */
+  recentReceipts?: Array<{ title: string; created_at: string }>
+  /**
+   * M3.55 (2026-05-04, atom 0024): knowability-gate threshold.
+   * Below this, route returns a `declined` decision with structured
+   * clarifying-questions. Default 0 = disabled (backward compat); set to
+   * 0.45 to enable. Orthogonal to stewardshipThreshold (atom 0022).
+   */
+  knowabilityThreshold?: number
+  /**
+   * Optional context-depth estimate for the answerability gate's
+   * context-exhaustion detector (e.g., approx. message-count in current
+   * thread). Default 0 (no exhaustion check).
+   */
+  contextDepthEstimate?: number
+  /**
+   * M3.57 (2026-05-04): hard-class detection. When true (default), the
+   * router scans the prompt for the 3 hard-classes from M3.57 analysis
+   * (multi-pr-history, multi-language-vendored, non-deterministic-
+   * verification) and applies extra discipline (force voter, lower
+   * stewardship threshold, etc.) when detected. Disable for tests or
+   * non-SWE workloads. Default: enabled when other substrate options
+   * are set; opt-out via false.
+   */
+  hardClassDetection?: boolean
 }
 
 const ROUTING_TABLE: Record<
@@ -263,20 +352,204 @@ export function route(input: unknown, options: RouterOptions): RouteDecision {
   // M3.50: complexity-aware routing — simple instances of cost-overkill-prone
   // shapes (agentic-swe, bounded-code, closed-book) re-route to smart-tier.
   const useSimpleOverride = cls.complexity === "simple" && entry.simpleTarget !== undefined
-  const target = override ?? (useSimpleOverride ? entry.simpleTarget!(options) : entry.target(options))
-  const ruleSuffix = useSimpleOverride ? (entry.simpleRuleSuffix ?? "") : ""
+  let target = override ?? (useSimpleOverride ? entry.simpleTarget!(options) : entry.target(options))
+  let ruleSuffix = useSimpleOverride ? (entry.simpleRuleSuffix ?? "") : ""
   const useCompound =
     cls.shape === "multistep-general" && options.forceCompoundOnMultistep === true
       ? true
       : (entry.useCompound ?? false)
-  const useVoter = entry.useVoter ?? false
+  let useVoter = entry.useVoter ?? false
+
+  // M3.52 (2026-05-04) — substrate-aware routing rules. Each rule is a
+  // bounded modification on top of the shape-only decision; rules NEVER
+  // fire when substrateState is absent (backward compat) and never DOWNgrade
+  // (substrate signals always escalate or force voter, never weaken).
+  if (options.substrateState) {
+    const inputText = typeof input === "string" ? input : ""
+    const substrateRules: string[] = []
+
+    // Rule A: action-safety warn → bump rung up to frontier (cheap → smart →
+    // frontier). High-stakes/irreversible work warrants frontier-tier.
+    if (inputText) {
+      const { actionSafetyCheck } = require("./mizan-shim") as typeof import("./mizan-shim")
+      const verdict = actionSafetyCheck(inputText)
+      if (verdict.risk === "warn") {
+        const frontier = options.frontierTarget ?? options.smartTarget
+        if (target === options.cheapTarget || target === options.smartTarget) {
+          target = frontier
+          substrateRules.push(`action-safety=warn → bump→frontier`)
+        }
+      }
+    }
+
+    // Rule B: ceiling-cap below threshold → force voter (multi-hypothesis or
+    // contested-attestation prompts). This is the substrate's bcmea-respecting
+    // "refuse to collapse" discipline at routing time.
+    if (inputText) {
+      const { promptCeilingCap } = require("./mizan-shim") as typeof import("./mizan-shim")
+      const cap = promptCeilingCap(inputText, cls.shape)
+      const threshold = options.ceilingCapVoterThreshold ?? 0.65
+      if (cap < threshold && !useVoter) {
+        useVoter = true
+        substrateRules.push(`ceiling-cap=${cap.toFixed(2)} < ${threshold} → force voter`)
+      }
+    }
+
+    // Rule C: daftar disagreement rate above threshold → bump rung up. Cheap
+    // rung hasn't graduated for this shape yet; needs frontier validation.
+    {
+      const rate = options.substrateState.perShapeDisagreement[cls.shape] ?? 0
+      const samples = options.substrateState.perShapeSampleCount[cls.shape] ?? 0
+      const threshold = options.disagreementThreshold ?? 0.1
+      // Need at least 5 samples before disagreement-rate is informative
+      if (samples >= 5 && rate > threshold) {
+        const frontier = options.frontierTarget ?? options.smartTarget
+        if (target === options.cheapTarget) {
+          target = frontier
+          substrateRules.push(`daftar-disagreement=${rate.toFixed(2)} > ${threshold} (n=${samples}) → bump→frontier`)
+        }
+      }
+    }
+
+    if (substrateRules.length > 0) ruleSuffix += ` [substrate: ${substrateRules.join("; ")}]`
+  }
+
+  // hard_classes declaration — populated after Rules E + F so we can
+  // skip the detector when already declined (saves the regex pass).
+  let hard_classes: string[] | undefined
+
+  // M3.53 — Rule D: provider-quota awareness. Independent of substrateState
+  // (a quotaState alone is enough to enable). Switches `target` to the
+  // configured fallback when remaining quota for the chosen target is
+  // below quotaFloor (default 10%).
+  if (options.quotaState && target) {
+    const { quotaRemaining } = require("./mizan-shim") as typeof import("./mizan-shim")
+    const [provider, ...modelParts] = target.split("/")
+    const model = modelParts.join("/")
+    if (provider && model) {
+      const remaining = quotaRemaining(options.quotaState, provider as never, model)
+      const floor = options.quotaFloor ?? 0.1
+      if (remaining < floor) {
+        const fallback = options.quotaFallbacks?.[target]
+        if (fallback) {
+          ruleSuffix += ` [quota: ${target} at ${(remaining * 100).toFixed(0)}% — falling back to ${fallback}]`
+          target = fallback
+        } else {
+          ruleSuffix += ` [quota: ${target} at ${(remaining * 100).toFixed(0)}% (no fallback configured)]`
+        }
+      }
+    }
+  }
+
+  // M3.54 — Rule E: stewardship of inquiry (atom 0022). Evaluate worthiness
+  // BEFORE dispatching. When score < threshold, return a declined decision
+  // with a structured proposal; caller surfaces it instead of dispatching.
+  // Disabled when threshold is undefined OR explicitly 0; non-zero opts in.
+  let declined = false
+  let decline_reason: "stewardship" | "knowability" | undefined
+  let decline_proposal: string | undefined
+  let expected_value: number | undefined
+  let clarifying_questions: string[] | undefined
+  let blockers: string[] | undefined
+  let knowability_score: number | undefined
+  if (typeof options.stewardshipThreshold === "number" && options.stewardshipThreshold > 0) {
+    const inputText = typeof input === "string" ? input : ""
+    if (inputText) {
+      const { promptValueOfInquiry } = require("./mizan-shim") as typeof import("./mizan-shim")
+      const verdict = promptValueOfInquiry({
+        prompt: inputText,
+        recentReceipts: options.recentReceipts,
+        shape: cls.shape,
+      })
+      expected_value = verdict.score
+      if (verdict.score < options.stewardshipThreshold) {
+        declined = true
+        decline_reason = "stewardship"
+        decline_proposal = verdict.proposal ?? "Low value-of-inquiry; substrate proposes deferring this dispatch."
+        ruleSuffix += ` [stewardship: value=${verdict.score.toFixed(2)} < ${options.stewardshipThreshold} → DECLINE]`
+      } else {
+        ruleSuffix += ` [stewardship: value=${verdict.score.toFixed(2)} ≥ ${options.stewardshipThreshold} → dispatch]`
+      }
+    }
+  }
+
+  // M3.55 — Rule F: knowability-gate (atom 0024). Evaluate ANSWERABILITY
+  // (orthogonal to atom 0022's value-of-inquiry). When the question is
+  // underspecified / requires private knowledge / contested-attestation /
+  // missing-referent / personal-recall / context-exhausted, decline with
+  // structured clarifying-questions or reorientation proposal.
+  // Fires AFTER stewardship-gate (no point checking answerability of a
+  // dispatch we already declined as low-value).
+  if (
+    !declined &&
+    typeof options.knowabilityThreshold === "number" &&
+    options.knowabilityThreshold > 0
+  ) {
+    const inputText = typeof input === "string" ? input : ""
+    if (inputText) {
+      const { promptAnswerability } = require("./mizan-shim") as typeof import("./mizan-shim")
+      const verdict = promptAnswerability({
+        prompt: inputText,
+        recentReceipts: options.recentReceipts,
+        contextDepthEstimate: options.contextDepthEstimate,
+      })
+      knowability_score = verdict.score
+      if (verdict.score < options.knowabilityThreshold) {
+        declined = true
+        decline_reason = "knowability"
+        decline_proposal =
+          verdict.proposal ??
+          (verdict.clarifying_questions.length > 0
+            ? "Substrate cannot deduce a confident answer. Clarifying questions below would unblock."
+            : "Substrate cannot deduce a confident answer; please reorient or provide more context.")
+        clarifying_questions = verdict.clarifying_questions
+        blockers = verdict.blockers
+        ruleSuffix += ` [knowability: score=${verdict.score.toFixed(2)} < ${options.knowabilityThreshold} → DECLINE-AND-CLARIFY (${verdict.blockers.join(",")})]`
+      } else {
+        ruleSuffix += ` [knowability: score=${verdict.score.toFixed(2)} ≥ ${options.knowabilityThreshold} → dispatch]`
+      }
+    }
+  }
+
+  // M3.57 — hard-class detection (atom 0011 + atom 0023 + atom 0017
+  // composition). When the prompt fires one of the 3 hard-classes from
+  // the M3.57 wakil-apr-vs-gpt55 analysis, force voter on the dispatch
+  // because these are exactly the classes where single-witness frontier-
+  // tier confabulation is most likely. Explicit opt-in via
+  // routerOptions.hardClassDetection=true.
+  if (
+    options.hardClassDetection === true &&
+    !declined &&
+    typeof input === "string"
+  ) {
+    const { detectHardClassSignals } = require("./mizan-shim") as typeof import("./mizan-shim")
+    const verdict = detectHardClassSignals(input)
+    if (verdict.classes.length > 0) {
+      hard_classes = verdict.classes
+      if (!useVoter && !useCompound) {
+        useVoter = true
+        ruleSuffix += ` [hard-class: ${verdict.classes.join(",")} → force voter (atom 0023+0017)]`
+      } else {
+        ruleSuffix += ` [hard-class: ${verdict.classes.join(",")} (voter already on)]`
+      }
+    }
+  }
+
   return {
     shape: cls.shape,
     signal: cls.signal + (cls.complexity ? ` [complexity=${cls.complexity}]` : ""),
-    target_model: useCompound || useVoter ? null : target,
+    target_model: useCompound || useVoter || declined ? null : target,
     use_compound: useCompound,
     use_voter: useVoter,
     rule: entry.rule + ruleSuffix,
     evidence_tier: entry.evidence,
+    declined,
+    decline_reason,
+    decline_proposal,
+    clarifying_questions,
+    blockers,
+    expected_value,
+    knowability_score,
+    hard_classes,
   }
 }
