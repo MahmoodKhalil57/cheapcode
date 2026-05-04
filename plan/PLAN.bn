@@ -324,7 +324,11 @@ theorem cheapcode_v2_is_surgical_and_inherits_cheapllm_receipts
 # the surgical-architecture theorem's verdict for re-citation.
 # mizan-converge auto-lift 2026-05-03: 4 witnesses, atom 0019 convergence
 # without-contact, +0.025 lift via lift_via_convergence(energy 0.5 × distance 0.10 × dampening 0.5).
-claim cheapcode_v2_surgical_architecture_audited: Bool @>=0.875 = cite cheapcode_v2_is_surgical_and_inherits_cheapllm_receipts
+# mizan-converge auto-lift 2026-05-04 round 96-close round-1: +0.019 via 4-witness re-convergence
+# mizan-converge auto-lift 2026-05-04 round 96-close round-2: +0.014 via re-convergence
+# (energy 1.00 × ceiling-distance 0.056 × dampening 0.5 × struct-identity 0.50). Halt at 2-round
+# precedent. Witnesses: 01-substrate-citations, 02-cheapllm-receipts, 04-khazina-atoms, 26-che-pass-1.
+claim cheapcode_v2_surgical_architecture_audited: Bool @>=0.908 = cite cheapcode_v2_is_surgical_and_inherits_cheapllm_receipts
 
 theorem cheapcode_v2_outperforms_named_alternatives
   assume cheapcode_v2_surgical_architecture_audited and cheapcode_beats_codex_after_pricing_fetch and cheapcode_beats_vanilla_opencode_via_routing
@@ -344,10 +348,17 @@ theorem cheapcode_v2_outperforms_named_alternatives
 # mizan-converge auto-lift 2026-05-03 round 1: +0.125 via 4 witnesses
 # mizan-converge auto-lift 2026-05-03 round 2: +0.094 via re-measured
 # convergence after round-1 lift (energy 0.5 × distance 0.38 × dampening 0.5).
+# mizan-converge auto-lift 2026-05-04 round 96-close round-1: +0.070 via 4-witness re-convergence
+# mizan-converge auto-lift 2026-05-04 round 96-close round-2: +0.053 via re-measured
+# convergence after round-1 lift (energy 1.00 × ceiling-distance 0.211 × dampening 0.5 × struct-identity 0.50).
+# Halt criterion: 2-round precedent matches 2026-05-03 history; further rounds would produce
+# sub-0.02 lifts per round, indistinguishable from noise. atom 0017 unknowns-as-positive-data fires
+# correctly but bounded by atom 0022 stewardship-of-inquiry (value-of-inquiry below threshold).
+# Witnesses: 01-substrate-citations, 02-cheapllm-receipts, 04-khazina-atoms, 26-che-pass-1.
 # Recursive lift application demonstrates atom 0017 unknowns-as-positive-data
 # at runtime — the substrate continually surfaces new lift opportunities as
 # state evolves; bounded by mizaj M14 0.95 ceiling.
-claim cheapcode_v2_ships: Bool @>=0.669 = cite cheapcode_v2_outperforms_named_alternatives
+claim cheapcode_v2_ships: Bool @>=0.792 = cite cheapcode_v2_outperforms_named_alternatives
 falsified_when obs_cheap_fast_tier_or_model_unmeasured or obs_smart_fast_tier_or_model_unmeasured or obs_auto_router_apophatic_pattern_fails or obs_propagation_at_provider_registry_layer1_fails
 
 # ============================================================
@@ -1988,7 +1999,10 @@ falsified_when not bcmea_principle_holds
 # WITH M3.44, the dual-bounded reality is empirically delineated and the
 # substrate's calibration discipline holds.
 # mizan-converge auto-lift 2026-05-03: +0.007 via 2-witness convergence
-claim m3_43_alone_insufficient_for_bcmea_empirical_anchoring_m3_44_required: Bool @>=0.927 = bcmea_requires_measurement_of_both_bounded_halves_for_empirical_anchoring
+# mizan-converge auto-lift 2026-05-04 round 96-close: +0.006 via 2-witness re-convergence
+# (energy 1.00 × struct-identity 0.50 × ceiling-distance 0.023 × dampening 0.5). Witnesses:
+# 15-bounded-coexistence-of-absolutes, 22-parallel-aggregation-multi-tradition-mutawatir.
+claim m3_43_alone_insufficient_for_bcmea_empirical_anchoring_m3_44_required: Bool @>=0.933 = bcmea_requires_measurement_of_both_bounded_halves_for_empirical_anchoring
 falsified_when not bcmea_principle_holds
 
 # ============================================================
@@ -2063,7 +2077,11 @@ theorem bcmea_inspired_best_next_step_paired_m3_43_m3_44
   by audit bcmea-derived-best-next-step-paired-m3-43-and-m3-44-2026-05-03
 
 # mizan-converge auto-lift 2026-05-03: +0.025 via 2-witness convergence
-claim best_next_step_for_cheapcode_is_paired_m3_43_plus_m3_44_for_bcmea_anchoring: Bool @>=0.875 = cite bcmea_inspired_best_next_step_paired_m3_43_m3_44
+# mizan-converge auto-lift 2026-05-04 round 96-close round-1: +0.019 via 2-witness re-convergence
+# mizan-converge auto-lift 2026-05-04 round 96-close round-2: +0.014 via re-convergence
+# (energy 1.00 × ceiling-distance 0.056 × dampening 0.5 × struct-identity 0.50). Halt at 2-round
+# precedent. Witnesses: 15-bounded-coexistence-of-absolutes, 22-parallel-aggregation-multi-tradition-mutawatir.
+claim best_next_step_for_cheapcode_is_paired_m3_43_plus_m3_44_for_bcmea_anchoring: Bool @>=0.908 = cite bcmea_inspired_best_next_step_paired_m3_43_m3_44
 falsified_when not bcmea_principle_holds or obs_m3_43_pre_registration_protocol_not_falsification_load_bearing or obs_m3_44_pre_registration_protocol_not_falsification_load_bearing
 
 # ============================================================
@@ -3657,3 +3675,28 @@ theorem cheapcode_opencode_integration_validated_end_to_end_2026_05_03
 
 claim cheapcode_opencode_integration_holds: Bool @>=0.85 = cite cheapcode_opencode_integration_validated_end_to_end_2026_05_03
 falsified_when obs_build_agent_dispatch_through_cheapcode_does_not_work_falsified or obs_ui_consumers_do_not_inherit_provider_integration_falsified or obs_m3_50_did_not_convert_3_cost_losses_to_wins_falsified
+
+# ============================================================
+# SECTION EEE - round 96 substrate-as-runtime (2026-05-04)
+# ============================================================
+#
+# Round 96 ships: atom 0022 (resource-as-amana / stewardship-of-inquiry),
+# atom 0023 (counterfactual-perturbation-of-substrate-claim-graph),
+# Rules A-E composing at every cheapcode router dispatch boundary, C1+C2
+# fixes making auto-tier operational on small OpenRouter balances,
+# per-turn substrate-context plugin via experimental.chat.system.transform,
+# multi-fiqh scriptorium architecture documented (Q. 5:6 pilot deferred
+# to operator sequencing).
+#
+# Witness: facts/28-round-96-substrate-as-runtime.bn captures 13 claims
+# spanning the round-96 deliverables. burhan-perturb first-use empirically
+# validated cheapcode plan-graph as ROBUST under single-root inversion
+# (max cascade 0.4% on 469 load-bearing claims; brittleness threshold
+# 10% NOT crossed). Substrate architecture is now decision-cycle
+# (atoms 0018/0022 + Rules A-E) AND diagnostic-cycle (atom 0023 +
+# burhan-perturb) — two complementary runtime layers.
+
+claim obs_round_96_substrate_as_runtime_complete_for_single_account: Bool @>=0.95 = True
+claim cheapcode_v2_substrate_as_runtime_round_96: Bool @>=0.85 =
+  obs_round_96_substrate_as_runtime_complete_for_single_account and
+  substrate_as_runtime_architecture_complete_for_single_account

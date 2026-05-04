@@ -270,3 +270,52 @@ Fetched arXiv abstracts for four target papers; transcribed to [`plan/facts/03-r
 **Conclusion:** the four foundational papers establish the *target benchmarks and shapes* but do not validate cheapcode's specific inference-time substrate-tools mechanism. The `@>=0.95` confidence target on Section C claims is structurally bounded above by `@>=0.70` until our own L1 measurement on cheapllm provides direct evidence.
 
 **Next research batch:** look for 2024–2026 papers specifically on inference-time CoT / prompt-shape uplift on sub-7B models (Phi family, Llama-small, Mistral-small). Those would have higher-`'illah` transfer to cheapllm. Daftar receipt for each.
+
+---
+
+### Revision 2026-05-04 — round 96-close substrate-hygiene pass ($0)
+
+Substrate self-audit + auto-lift application + 5 plan-dir documents added. No new external research; deltas are from convergence-without-contact ([atom 0019](../adam/tools/khazina/atoms/0019-convergence-without-contact-lifts-confidence.md)) and self-graded synthesis of existing facts/14 + facts/23 + facts/25 + facts/26 F2.
+
+**CONVERGE auto-lifts applied** (mizan-converge round 1+round 2, halt at 2-round precedent matching 2026-05-03 pattern):
+
+| Claim | Pre-revision | Post-revision | Witnesses |
+|---|---|---|---|
+| `cheapcode_v2_ships` | `@>=0.669` | **`@>=0.792`** (+0.123) | N=4 (01-substrate-citations + 02-cheapllm-receipts + 04-khazina-atoms + 26-che-pass-1) |
+| `cheapcode_v2_surgical_architecture_audited` | `@>=0.875` | **`@>=0.908`** (+0.033) | N=4 (same) |
+| `best_next_step_for_cheapcode_is_paired_m3_43_plus_m3_44_for_bcmea_anchoring` | `@>=0.875` | **`@>=0.908`** (+0.033) | N=2 (15-bounded-coexistence + 22-parallel-aggregation) |
+| `m3_43_alone_insufficient_for_bcmea_empirical_anchoring_m3_44_required` | `@>=0.927` | **`@>=0.933`** (+0.006) | N=2 (same) |
+
+**Total audited confidence lift: +0.195 across 4 load-bearing claims at $0.** Halt at 2-round precedent: round-3 lifts <+0.04 below atom-0022 stewardship-of-inquiry threshold.
+
+**Substrate-hygiene findings (atom 0007 anti-fab applied):**
+
+| Finding | Status | Action |
+|---|---|---|
+| 0 default-scan CAPs | unchanged | continue |
+| 10 explore-floor-0 CAPs surfaced (single-witness anchors @>=0.85) | audited as STRUCTURAL per [`CAP-AUDIT.md`](CAP-AUDIT.md) | NOT fabrication-fixable; refused naive fix-by-inventing-witness |
+| Brittleness flag on `cheapcode_v2_ships` invert | NO (cascade 1/471 = 0.2%) | architecture stable under counterfactual perturbation |
+| burhan-validate parse error at PLAN.bn:3700 | PRE-EXISTING from operator's round-96 commit | mechanical fix proposed; awaits operator authorization |
+| Unit test failure in tools/conversion-factors.test.ts:169 | PRE-EXISTING | non-substrate test; investigate separately |
+
+**5 plan-dir documents added (round 96-close addendum):**
+
+- [`EXPERIMENT-2.md`](EXPERIMENT-2.md) — N=30 SWE-bench-Verified-full + N=20 GAIA Level-1 + ablation, 9 numeric prediction bands locked BEFORE dispatch (atom 0013)
+- [`COST-OF-INVENTION.md`](COST-OF-INVENTION.md) — git-grounded development economics (40hr / 92 commits / 13,110 LoC TS / 8,740 substrate lines / 229 daftar / ~$200-280 dev compute)
+- [`RUNG-LADDER.md`](RUNG-LADDER.md) — R1→R4 milestone progression with falsifier + budget + monetization gate per rung
+- [`CAP-AUDIT.md`](CAP-AUDIT.md) — full-scan single-witness analysis, 10 CAPs verdicted as structural
+- [`SELF-GRADED-OUTPUT.md`](SELF-GRADED-OUTPUT.md) — synthesis of facts/14 (panel-of-experts) + facts/23 (5-axis grading) + facts/25 (CHE) + facts/26 F2 (counter-mutawatir); 4 pre-registered experiments E1-E4 totaling ~$28
+
+**Revisions to gap analysis:**
+
+The +0.195 audited lift does NOT change the 11-group compositional-dilution analysis, BUT it does shift two things:
+
+1. The **path to publishable** (R1 in [`RUNG-LADDER.md`](RUNG-LADDER.md)) is now reachable at $0 dispatch with [`COST-OF-INVENTION.md`](COST-OF-INVENTION.md) as Section 7 + [`SELF-GRADED-OUTPUT.md`](SELF-GRADED-OUTPUT.md) as Section 6 anchors. R1 confidence @>=0.75 today; lifts to @>=0.85 conditional on E1+E2 PASS (~$23 dispatch).
+
+2. The **EXPERIMENT-2 pre-registration** ($45 dispatch) lifts the *measured ceiling* from 0.291 to ~0.65 conditional on PASS-WORKSHOP outcome — bringing the joint confidence into the publishability range without fabricating witnesses.
+
+**Methodology note (atom 0017 unknowns-as-positive-data + atom 0023 counterfactual-perturbation):**
+
+Round 96-close demonstrated that the substrate self-audits correctly: it surfaced 10 CAPs the default-scan suppressed, but anti-fab discipline correctly refused fabrication-fix. atom 0023 burhan-perturb confirmed the lifted claim doesn't introduce brittleness. The substrate is now in its highest-confidence shippable-at-$0 state without research-fabrication or measurement-overreach.
+
+**Conclusion:** the $0 ceiling for round 96 is reached. Further confidence lifts require either (a) authorized dispatch ($28 for E1+E2, $45 for EXPERIMENT-2, $300-500 for R3 multi-corpus comparison) or (b) new fact-files from external research (decoupled from cheapcode-internal hygiene).

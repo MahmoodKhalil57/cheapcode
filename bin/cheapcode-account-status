@@ -1,0 +1,168 @@
+#!/usr/bin/env bun
+/**
+ * cheapcode-account-status — diagnostic CLI for the multi-account layer.
+ *
+ * Verifies operator's ~/.config/cheapcode/accounts.json is well-formed and
+ * each account's auth_ref resolves cleanly against the actual auth.json /
+ * environment. Prints which account would be selected for a given target model.
+ *
+ * Usage:
+ *   bun bin/cheapcode-account-status                              # status of all accounts
+ *   bun bin/cheapcode-account-status --target openai/gpt-5.5      # who handles this target?
+ *   bun bin/cheapcode-account-status --target openai/gpt-5.5 --quota openai-personal=0.05
+ *
+ * Exits 0 if all accounts resolve cleanly, 1 if any auth resolution fails.
+ *
+ * Per memory project_credential_buckets.md: this tool prints LABELS + STATUS,
+ * never the credential VALUES. Auth tokens never written to stdout.
+ */
+
+import {
+  loadRegistry,
+  resolveAccount,
+  defaultRegistryPath,
+  type Account,
+} from "../src/account-registry"
+import {
+  resolveAuthRef,
+  isAuthExpired,
+  AuthResolutionError,
+  type ResolvedAuth,
+} from "../src/auth-resolver"
+
+interface Args {
+  registryPath?: string
+  target?: string
+  quotaOverrides: Map<string, number>
+}
+
+function parseArgs(argv: string[]): Args {
+  const args: Args = { quotaOverrides: new Map() }
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i]
+    if (a === "--registry") args.registryPath = argv[++i]
+    else if (a === "--target") args.target = argv[++i]
+    else if (a === "--quota") {
+      // format: --quota account-id=0.05
+      const next = argv[++i]
+      if (!next) continue
+      const [id, val] = next.split("=", 2)
+      const num = parseFloat(val ?? "1.0")
+      if (!isNaN(num)) args.quotaOverrides.set(id, num)
+    }
+  }
+  return args
+}
+
+function fmtAuth(auth: ResolvedAuth): string {
+  if (auth.kind === "api-key") return `api-key (length=${auth.key.length})`
+  const expIso = auth.expires === 0 ? "unknown" : new Date(auth.expires).toISOString()
+  return `oauth (account=${auth.accountId || "anon"}, expires=${expIso})`
+}
+
+interface AccountStatus {
+  account: Account
+  resolved: ResolvedAuth | null
+  error: string | null
+  expired: boolean
+}
+
+function statusFor(account: Account): AccountStatus {
+  try {
+    const resolved = resolveAuthRef(account.auth_ref)
+    return {
+      account,
+      resolved,
+      error: null,
+      expired: isAuthExpired(resolved),
+    }
+  } catch (e) {
+    const msg = e instanceof AuthResolutionError ? `${e.code}: ${e.message}` : String(e)
+    return { account, resolved: null, error: msg, expired: false }
+  }
+}
+
+function printStatusTable(statuses: AccountStatus[]): void {
+  console.log("\n=== account status ===\n")
+  for (const s of statuses) {
+    const a = s.account
+    const status = s.error
+      ? `[31mFAIL[0m ${s.error}`
+      : s.expired
+        ? `[33mEXPIRED[0m ${fmtAuth(s.resolved!)}`
+        : `[32mOK[0m ${fmtAuth(s.resolved!)}`
+    console.log(`  [${a.priority.toString().padStart(3)}] ${a.id} (${a.label})`)
+    console.log(`        provider=${a.provider}  tier=${a.tier}  capabilities=${a.capabilities.join(",")}`)
+    console.log(`        auth_ref=${a.auth_ref}`)
+    console.log(`        ${status}`)
+    console.log()
+  }
+}
+
+function main(): number {
+  const args = parseArgs(process.argv.slice(2))
+  const registryPath = args.registryPath ?? defaultRegistryPath()
+
+  console.log(`registry: ${registryPath}`)
+
+  let registry
+  try {
+    registry = loadRegistry(registryPath)
+  } catch (e) {
+    console.error(`[31mfailed to load registry:[0m ${(e as Error).message}`)
+    return 1
+  }
+
+  if (registry.accounts.length === 0) {
+    console.log("\nno accounts configured. create accounts.json per docs/multi-account-wiring-recipe.md")
+    return 0
+  }
+
+  console.log(`accounts: ${registry.accounts.length}`)
+
+  const statuses = registry.accounts.map(statusFor)
+  printStatusTable(statuses)
+
+  // Selection demo for the target
+  if (args.target) {
+    console.log(`=== resolution for target "${args.target}" ===\n`)
+
+    const quotaRemaining = (acc: Account): number => args.quotaOverrides.get(acc.id) ?? 1.0
+    const unavailableIds = new Set<string>(
+      statuses.filter((s) => s.error !== null || s.expired).map((s) => s.account.id),
+    )
+    if (unavailableIds.size > 0) {
+      console.log(`  excluding from selection (failed/expired): ${[...unavailableIds].join(", ")}`)
+    }
+    if (args.quotaOverrides.size > 0) {
+      const overrideStr = [...args.quotaOverrides.entries()].map(([k, v]) => `${k}=${v}`).join(", ")
+      console.log(`  quota overrides: ${overrideStr}`)
+    }
+
+    const result = resolveAccount(registry, {
+      targetModel: args.target,
+      quotaRemaining,
+      unavailableIds,
+    })
+
+    if (result.account === null) {
+      console.log(`\n  [31mno account would be selected[0m: ${result.reason}`)
+    } else {
+      console.log(
+        `\n  [32mselected:[0m ${result.account.id} (${result.account.label})\n  reason: ${result.reason}`,
+      )
+    }
+    console.log()
+  }
+
+  // Exit non-zero if any account failed to resolve (helps CI / scripted use)
+  const anyFailed = statuses.some((s) => s.error !== null)
+  if (anyFailed) {
+    console.error(`[31m${statuses.filter((s) => s.error !== null).length} account(s) failed auth resolution[0m`)
+    return 1
+  }
+
+  return 0
+}
+
+process.exit(main())
