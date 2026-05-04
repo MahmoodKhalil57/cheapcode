@@ -40,6 +40,11 @@ import { wrapWithMultiAccount } from "./multi-account-language-model"
 import type { ResolvedAuth } from "./auth-resolver"
 import { defaultOpencodeAuthPath } from "./auth-resolver"
 import { createOAuthLanguageModel } from "./oauth-language-model"
+import { createPoolOAuthLanguageModel } from "./pool-oauth-language-model"
+import { CODEX_ALLOWED_MODELS as CODEX_ALLOWED_MODELS_GLOBAL } from "./chatgpt-oauth-fetch"
+import { CooldownTracker } from "./cooldown"
+import { homedir } from "node:os"
+import { join as pathJoin } from "node:path"
 
 // ============================================================
 // Multi-account state — loaded lazily on first provider construction.
@@ -311,18 +316,39 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
 
   // Multi-account model factory — invoked per-dispatch by wrapWithMultiAccount
   // when the registry has accounts. Constructs a fresh SDK client with the
-  // chosen account's auth. For api-key accounts the apiKey is the resolved
-  // key string; for oauth accounts (api.openai.com style) the access token
-  // is used as a bearer (callers using consumer-ChatGPT-Plus OAuth would
-  // need a baseURL override — not yet wired in this version).
+  // chosen account's auth.
+  //
+  // M20.1: openai + oauth (consumer ChatGPT-Plus) routes through the
+  // PoolOAuthLanguageModelV2 against the FULL set of openai-OAuth keys in
+  // auth.json — so a 429 'usage_limit_reached' on this account fails over
+  // to the next consumer-Plus account automatically (same cooldown ledger
+  // as the apiKeyMissing path below). Without this, OAuth tokens would be
+  // sent to api.openai.com as if they were api keys, returning the
+  // 'api.responses.write' scope error.
   const multiAccountModelFactory = (account: Account, auth: ResolvedAuth, target: string): LanguageModelV2 => {
-    const apiKey = auth.kind === "api-key" ? auth.key : auth.access
     if (account.provider === "openai") {
       const modelId = target.startsWith("openai/") ? target.slice("openai/".length) : target
-      return createOpenAI({ apiKey })(modelId)
+      if (auth.kind === "oauth") {
+        const consumerPlus = detectConsumerPlusOAuth()
+        const codexModel = CODEX_ALLOWED_MODELS_GLOBAL.has(modelId) ? modelId : "gpt-5.5"
+        if (consumerPlus) {
+          return createPoolOAuthLanguageModel({
+            authPath: consumerPlus.authPath,
+            authKeys: consumerPlus.authKeys,
+            modelId: codexModel,
+            cooldown: getSharedConsumerPlusCooldown(),
+          })
+        }
+        // No detectable consumer-Plus chain — fall back to api.openai.com
+        // with the oauth access as a bearer (works for true api.openai.com
+        // OAuth, not consumer-Plus).
+        return createOpenAI({ apiKey: auth.access })(modelId)
+      }
+      return createOpenAI({ apiKey: auth.key })(modelId)
     }
     // Default path: route through OpenRouter with the chosen apiKey.
     // Works for any "vendor/model" target.
+    const apiKey = auth.kind === "api-key" ? auth.key : auth.access
     return createOpenRouter({
       apiKey,
       headers: {
@@ -352,12 +378,12 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
       return localOpenAI(resolveTierTarget("local", 0, options))
     }
 
-    // M20: when the operator has no OpenRouter key but DOES have consumer
+    // M20.1: when the operator has no OpenRouter key but DOES have consumer
     // ChatGPT-Plus OAuth in auth.json, route all non-local tiers through
-    // chatgpt.com/backend-api/codex/responses via OAuthLanguageModelV2.
-    // Tier targets that are openai/<model> map to codex models directly;
-    // openrouter-vendored targets (deepseek, anthropic, etc.) are not
-    // dispatchable on the consumer-Plus path — surface a clear error.
+    // chatgpt.com/backend-api/codex/responses via PoolOAuthLanguageModelV2.
+    // The pool-aware model fails over across ALL openai-OAuth keys when one
+    // hits its weekly Plus quota (codex 429 'usage_limit_reached'), honoring
+    // the server's resets_in_seconds for cooldown duration.
     if (apiKeyMissing && modelId !== "local") {
       const consumerPlus = detectConsumerPlusOAuth()
       if (consumerPlus) {
@@ -366,9 +392,24 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
           const smartCodex = pickOAuthModelForTier("smart", options)
           const cheapCodex = pickOAuthModelForTier("cheap", options)
           const cfg: AutoWrapperConfig = {
-            smart: createOAuthLanguageModel({ authPath: consumerPlus.authPath, authKey: consumerPlus.authKey, modelId: smartCodex }),
-            cheap: createOAuthLanguageModel({ authPath: consumerPlus.authPath, authKey: consumerPlus.authKey, modelId: cheapCodex }),
-            verifier: createOAuthLanguageModel({ authPath: consumerPlus.authPath, authKey: consumerPlus.authKey, modelId: smartCodex }),
+            smart: createPoolOAuthLanguageModel({
+              authPath: consumerPlus.authPath,
+              authKeys: consumerPlus.authKeys,
+              modelId: smartCodex,
+              cooldown: getSharedConsumerPlusCooldown(),
+            }),
+            cheap: createPoolOAuthLanguageModel({
+              authPath: consumerPlus.authPath,
+              authKeys: consumerPlus.authKeys,
+              modelId: cheapCodex,
+              cooldown: getSharedConsumerPlusCooldown(),
+            }),
+            verifier: createPoolOAuthLanguageModel({
+              authPath: consumerPlus.authPath,
+              authKeys: consumerPlus.authKeys,
+              modelId: smartCodex,
+              cooldown: getSharedConsumerPlusCooldown(),
+            }),
             k,
             maxRetries,
             perCallTimeoutMs: options.auto?.perCallTimeoutMs,
@@ -383,17 +424,19 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
               process.env.CHEAPCODE_HARD_CLASS === "1" || process.env.CHEAPCODE_HARD_CLASS === "true",
           }
           return new CheapcodeAutoModel(cfg, routerOpts, (orId) =>
-            createOAuthLanguageModel({
+            createPoolOAuthLanguageModel({
               authPath: consumerPlus.authPath,
-              authKey: consumerPlus.authKey,
+              authKeys: consumerPlus.authKeys,
               modelId: orId.startsWith("openai/") ? orId.slice("openai/".length) : tierModelId,
+              cooldown: getSharedConsumerPlusCooldown(),
             }),
           )
         }
-        return createOAuthLanguageModel({
+        return createPoolOAuthLanguageModel({
           authPath: consumerPlus.authPath,
-          authKey: consumerPlus.authKey,
+          authKeys: consumerPlus.authKeys,
           modelId: tierModelId,
+          cooldown: getSharedConsumerPlusCooldown(),
         })
       }
       throw new Error(
@@ -561,27 +604,120 @@ export const EXPERIMENT_1_ARM_A_PENDING = true as const
 // ============================================================
 
 /**
- * Detect "operator has only consumer ChatGPT-Plus OAuth" mode. Returns the
- * authPath + authKey of the first oauth-typed openai entry found, or
- * undefined when no such entry exists. Read once per provider construction.
+ * Decode a JWT payload into its claims. Best-effort; returns undefined on
+ * any parse failure. Used for chatgpt_account_id dedup so we don't pretend
+ * two tokens for the same chatgpt account give us failover headroom.
  */
-export function detectConsumerPlusOAuth(): { authPath: string; authKey: string } | undefined {
+function decodeJwtClaims(token: string): Record<string, unknown> | undefined {
+  try {
+    const parts = token.split(".")
+    if (parts.length !== 3) return undefined
+    return JSON.parse(Buffer.from(parts[1], "base64url").toString())
+  } catch {
+    return undefined
+  }
+}
+
+// One-shot flag so we only emit the dedupe warning once per process.
+let _dedupeWarningPrinted = false
+
+function chatgptAccountIdFor(entry: { access?: string; accountId?: string }): string | undefined {
+  if (entry.accountId) return entry.accountId
+  if (!entry.access) return undefined
+  const claims = decodeJwtClaims(entry.access)
+  const auth = claims?.["https://api.openai.com/auth"] as { chatgpt_account_id?: string } | undefined
+  return auth?.chatgpt_account_id ?? (claims?.["chatgpt_account_id"] as string | undefined)
+}
+
+/**
+ * Detect "operator has consumer ChatGPT-Plus OAuth" mode. Returns the
+ * authPath + ALL DISTINCT openai-OAuth auth.json keys (canonical + every
+ * alias from M16 multi-account, deduplicated by chatgpt_account_id).
+ *
+ * The pool-aware model uses the full list to fail over across accounts
+ * when one hits its weekly Plus quota — but the failover is only useful
+ * when the underlying chatgpt accounts are actually distinct. Two tokens
+ * for the SAME chatgpt account share the same quota pool server-side, so
+ * we drop duplicates here and emit a one-time warning.
+ *
+ * Returns undefined when no openai-OAuth entry exists.
+ */
+export function detectConsumerPlusOAuth():
+  | { authPath: string; authKey: string; authKeys: string[] }
+  | undefined {
   const authPath = defaultOpencodeAuthPath()
   if (!existsSync(authPath)) return undefined
   try {
-    const map = JSON.parse(readFileSync(authPath, "utf8")) as Record<string, { type?: string; providerID?: string }>
-    // Prefer the canonical "openai" entry, fall back to any oauth entry whose
-    // providerID metadata points at "openai" (alias from M16).
-    if (map["openai"]?.type === "oauth") return { authPath, authKey: "openai" }
+    const map = JSON.parse(readFileSync(authPath, "utf8")) as Record<string, { type?: string; providerID?: string; access?: string; accountId?: string }>
+    // Collect candidate openai-OAuth keys (canonical first, then aliases)
+    const candidates: string[] = []
+    if (map["openai"]?.type === "oauth") candidates.push("openai")
     for (const [key, entry] of Object.entries(map)) {
-      if (entry?.type === "oauth" && (entry.providerID === "openai" || key.startsWith("openai-"))) {
-        return { authPath, authKey: key }
+      if (key === "openai") continue
+      if (entry?.type !== "oauth") continue
+      if (entry.providerID === "openai" || key.startsWith("openai-") || key.startsWith("openai_")) {
+        candidates.push(key)
       }
     }
+    if (candidates.length === 0) return undefined
+
+    // Dedupe by chatgpt_account_id — two tokens for the same chatgpt account
+    // do not give us failover headroom (quota is server-enforced at the
+    // chatgpt account level).
+    const seenAccountIds = new Map<string, string>() // accountId → first authKey
+    const distinctKeys: string[] = []
+    const dupes: Array<{ key: string; accountId: string; firstKey: string }> = []
+    for (const key of candidates) {
+      const accountId = chatgptAccountIdFor(map[key]) ?? `__unknown_${key}__`
+      const firstKey = seenAccountIds.get(accountId)
+      if (firstKey) {
+        dupes.push({ key, accountId, firstKey })
+        continue
+      }
+      seenAccountIds.set(accountId, key)
+      distinctKeys.push(key)
+    }
+
+    if (dupes.length > 0 && process.env.CHEAPCODE_QUIET !== "1" && !_dedupeWarningPrinted) {
+      _dedupeWarningPrinted = true
+      console.error(
+        `[cheapcode] note: ${dupes.length} OAuth entry/entries map to a ChatGPT account already represented in auth.json:`,
+      )
+      for (const d of dupes) {
+        console.error(`  - "${d.key}" shares chatgpt_account_id with "${d.firstKey}" (${d.accountId})`)
+      }
+      console.error(
+        `  Two tokens for the same ChatGPT-Plus subscription share the same weekly quota.`,
+      )
+      console.error(
+        `  For real failover, connect a DIFFERENT ChatGPT-Plus account (different email) via 'cheapcode web'.`,
+      )
+    }
+
+    return { authPath, authKey: distinctKeys[0], authKeys: distinctKeys }
   } catch {
     // malformed auth.json — treat as no consumer-Plus available
   }
   return undefined
+}
+
+/**
+ * Shared cooldown tracker for consumer-Plus OAuth keys. One per process —
+ * the auto-router's smart/cheap/verifier sub-models AND any direct tier
+ * dispatch share the same tracker, so a 429 on key X for `smart` cools
+ * X for `cheap` and the verifier too. Persistent at
+ * ~/.local/share/cheapcode/oauth-cooldown.json so the cooldown survives
+ * process restart (the chatgpt.com Plus weekly window is much longer
+ * than any single CLI invocation).
+ */
+let _consumerPlusCooldown: CooldownTracker | undefined
+export function getSharedConsumerPlusCooldown(): CooldownTracker {
+  if (!_consumerPlusCooldown) {
+    const path = pathJoin(homedir(), ".local", "share", "cheapcode", "oauth-cooldown.json")
+    _consumerPlusCooldown = new CooldownTracker(path)
+    _consumerPlusCooldown.load().catch(() => undefined)
+  }
+  return _consumerPlusCooldown
 }
 
 /**
