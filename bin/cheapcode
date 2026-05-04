@@ -249,6 +249,7 @@ async function cmdWeb(extraArgs: string[]): Promise<number> {
 
   console.log(C.bold("cheapcode web"))
   console.log()
+  await printUpdateBannerIfAvailable()
   console.log(`  ${C.cyan("→")} launching cheapcode (forked opencode) from source...`)
   console.log(`  ${C.dim(`source: ${OPENCODE_FORK_PATH}`)}`)
 
@@ -259,6 +260,30 @@ async function cmdWeb(extraArgs: string[]): Promise<number> {
   const uiDist = join(OPENCODE_FORK_PATH, "packages", "app", "dist")
   if (existsSync(uiDist)) {
     console.log(`  ${C.dim(`UI dist: ${uiDist}`)}`)
+    // Write a small JSON the fork's settings-general tile reads to surface
+    // version + update status in the browser. Non-tech users who never see
+    // the terminal banner discover updates here.
+    try {
+      const mod = await import(join(CHEAPCODE_ROOT, "src", "version-check.ts"))
+      const result = mod.checkForUpdates({
+        cheapcodeRoot: CHEAPCODE_ROOT,
+        forkPath: OPENCODE_FORK_PATH,
+      })
+      const info = {
+        version: 1,
+        cheapcode_version: CHEAPCODE_VERSION,
+        cheapcode_repo: "https://github.com/MahmoodKhalil57/cheapcode",
+        fork_repo: "https://github.com/MahmoodKhalil57/opencode",
+        update_status: result,
+        update_command: "cheapcode update",
+        generated_at: new Date().toISOString(),
+      }
+      mkdirSync(uiDist, { recursive: true })
+      const fs = await import("node:fs/promises")
+      await fs.writeFile(join(uiDist, "cheapcode-info.json"), JSON.stringify(info, null, 2))
+    } catch {
+      // info file is courtesy; CLI banner is the load-bearing surface
+    }
   } else {
     console.log(C.yellow(`  warning: ${uiDist} not found — UI will proxy upstream (no '+ Add another' button).`))
     console.log(C.dim(`  run: bun --cwd ${OPENCODE_FORK_PATH}/packages/app build`))
@@ -308,11 +333,14 @@ async function cmdWeb(extraArgs: string[]): Promise<number> {
 // Subcommand: tui
 // ============================================================
 
-function cmdTui(extraArgs: string[]): number {
+async function cmdTui(extraArgs: string[]): Promise<number> {
+  // Banner before launching the TUI so it appears in the operator's terminal
+  // before the TUI takes over the screen.
+  await printUpdateBannerIfAvailable()
   const child = spawnOpencodeFork(extraArgs)
-  return new Promise<number>((resolve) => {
+  return await new Promise<number>((resolve) => {
     child.on("close", (code) => resolve(code ?? 0))
-  }) as never
+  })
 }
 
 // ============================================================
@@ -368,23 +396,181 @@ function cmdStatus(extraArgs: string[]): number {
 }
 
 // ============================================================
-// Subcommand: update (skeleton — re-runs install script)
+// Subcommand: update — pulls latest cheapcode + fork from GitHub
 // ============================================================
 
-function cmdUpdate(): number {
+interface RepoUpdate {
+  label: string
+  path: string
+  branch: string
+  rebuildPackagesApp?: boolean
+}
+
+function runStreaming(cmd: string, args: string[], cwd: string): { code: number; ok: boolean } {
+  const r = spawnSync(cmd, args, { cwd, stdio: "inherit" })
+  if (r.error) {
+    console.error(C.red(`  failed to run ${cmd}: ${r.error.message}`))
+    return { code: 1, ok: false }
+  }
+  return { code: r.status ?? 1, ok: r.status === 0 }
+}
+
+function shaShort(sha: string): string {
+  return /^[0-9a-f]+$/.test(sha) ? sha.slice(0, 7) : sha
+}
+
+function updateRepo(repo: RepoUpdate, force: boolean): { ok: boolean; updated: boolean; before?: string; after?: string } {
+  if (!existsSync(join(repo.path, ".git"))) {
+    console.log(`  ${C.yellow("[skip]")} ${repo.label}: not a git checkout (${repo.path})`)
+    return { ok: true, updated: false }
+  }
+  const before = spawnSync("git", ["-C", repo.path, "rev-parse", "HEAD"], { encoding: "utf8" }).stdout.trim()
+
+  // Fetch + check for working-tree changes
+  const fetch = runStreaming("git", ["-C", repo.path, "fetch", "--quiet", "origin", repo.branch], repo.path)
+  if (!fetch.ok) {
+    console.log(`  ${C.red("[fail]")} ${repo.label}: git fetch failed`)
+    return { ok: false, updated: false, before }
+  }
+  const dirty = spawnSync("git", ["-C", repo.path, "status", "--porcelain"], { encoding: "utf8" }).stdout.trim()
+  if (dirty.length > 0 && !force) {
+    console.log(`  ${C.yellow("[skip]")} ${repo.label}: working tree has local changes — pass --force to discard`)
+    return { ok: true, updated: false, before }
+  }
+
+  const target = `origin/${repo.branch}`
+  const remoteSha = spawnSync("git", ["-C", repo.path, "rev-parse", target], { encoding: "utf8" }).stdout.trim()
+  if (before === remoteSha) {
+    console.log(`  ${C.green("[ok]")} ${repo.label}: already at ${shaShort(before)} (${repo.branch})`)
+    return { ok: true, updated: false, before, after: before }
+  }
+
+  const reset = force
+    ? runStreaming("git", ["-C", repo.path, "reset", "--hard", target], repo.path)
+    : runStreaming("git", ["-C", repo.path, "merge", "--ff-only", target], repo.path)
+  if (!reset.ok) {
+    console.log(`  ${C.red("[fail]")} ${repo.label}: ${force ? "reset" : "ff-only merge"} failed`)
+    return { ok: false, updated: false, before, after: before }
+  }
+  const after = spawnSync("git", ["-C", repo.path, "rev-parse", "HEAD"], { encoding: "utf8" }).stdout.trim()
+  console.log(`  ${C.green("[updated]")} ${repo.label}: ${shaShort(before)} → ${shaShort(after)}`)
+  return { ok: true, updated: true, before, after }
+}
+
+async function cmdUpdate(extraArgs: string[]): Promise<number> {
+  const force = extraArgs.includes("--force") || extraArgs.includes("-f")
+  const skipBuild = extraArgs.includes("--no-build")
+  const skipDeps = extraArgs.includes("--no-install")
+
   console.log(C.bold("cheapcode update"))
   console.log()
-  console.log(C.yellow("self-update is not yet implemented in this version."))
+  console.log(`  fetching latest from GitHub...`)
   console.log()
-  console.log("for now, update manually:")
+
+  // Warn if cheapcode web is running on the default port
+  const probe = spawnSync("bash", ["-lc", "ss -ltn 2>/dev/null | grep -E ':4096\\s' | head -1"], { encoding: "utf8" })
+  if (probe.stdout.trim().length > 0) {
+    console.log(C.yellow(`  note: cheapcode web appears to be running on :4096; restart it after the update completes.`))
+    console.log()
+  }
+
+  const repos: RepoUpdate[] = [
+    { label: "cheapcode (lib)", path: CHEAPCODE_ROOT, branch: "main" },
+    { label: "cheapcode-opencode (fork)", path: OPENCODE_FORK_PATH, branch: "dev", rebuildPackagesApp: true },
+  ]
+
+  let allOk = true
+  let anyUpdated = false
+  let appNeedsRebuild = false
+  for (const repo of repos) {
+    const r = updateRepo(repo, force)
+    allOk = allOk && r.ok
+    if (r.updated) {
+      anyUpdated = true
+      if (repo.rebuildPackagesApp) appNeedsRebuild = true
+    }
+  }
+
+  if (!allOk) {
+    console.log()
+    console.log(C.red(`update encountered failures; see output above.`))
+    return 1
+  }
+
+  if (!anyUpdated) {
+    console.log()
+    console.log(C.green(`already up to date.`))
+    // best-effort cache invalidation so the banner stops showing
+    try {
+      const cache = join(homedir(), ".cache", "cheapcode", "version-check.json")
+      if (existsSync(cache)) {
+        spawnSync("rm", ["-f", cache])
+      }
+    } catch {}
+    return 0
+  }
+
+  // bun install per repo (only when something updated, both repos benefit)
+  if (!skipDeps) {
+    console.log()
+    console.log(`  installing dependencies...`)
+    for (const repo of repos) {
+      if (!existsSync(join(repo.path, "package.json"))) continue
+      const r = runStreaming("bun", ["install", "--silent"], repo.path)
+      if (!r.ok) {
+        console.log(C.yellow(`  warning: bun install failed in ${repo.label}; manual run may be needed.`))
+      }
+    }
+  }
+
+  // rebuild packages/app if the fork updated
+  if (appNeedsRebuild && !skipBuild) {
+    console.log()
+    console.log(`  rebuilding packages/app SPA...`)
+    const appDir = join(OPENCODE_FORK_PATH, "packages", "app")
+    if (existsSync(appDir)) {
+      const r = runStreaming("bun", ["run", "build"], appDir)
+      if (!r.ok) {
+        console.log(C.yellow(`  warning: packages/app build failed; UI may fall back to upstream proxy.`))
+      }
+    }
+  }
+
+  // invalidate the version-check cache so the banner reflects the update
+  try {
+    const cache = join(homedir(), ".cache", "cheapcode", "version-check.json")
+    if (existsSync(cache)) spawnSync("rm", ["-f", cache])
+  } catch {}
+
   console.log()
-  console.log(`  ${C.cyan(`cd ${CHEAPCODE_ROOT}`)}`)
-  console.log(`  ${C.cyan(`git pull`)}`)
-  console.log(`  ${C.cyan(`bun install`)}`)
-  console.log()
-  console.log(C.dim("future: 'cheapcode update' will re-run the install script,"))
-  console.log(C.dim("fetching the latest cheapcode release from the distribution channel."))
+  console.log(C.green(`update complete.`))
+  console.log(C.dim(`  if cheapcode web/tui is running, restart it to load the new version.`))
   return 0
+}
+
+/**
+ * Print a one-line banner if updates are available. Called at the start of
+ * `cheapcode web` and `cheapcode tui`. Fail-soft: any error → silent.
+ * Cached 24h via ~/.cache/cheapcode/version-check.json so we don't hit the
+ * network on every CLI invocation.
+ */
+async function printUpdateBannerIfAvailable(): Promise<void> {
+  try {
+    if (process.env.CHEAPCODE_NO_UPDATE_CHECK === "1") return
+    const mod = await import(join(CHEAPCODE_ROOT, "src", "version-check.ts"))
+    const result = mod.checkForUpdates({
+      cheapcodeRoot: CHEAPCODE_ROOT,
+      forkPath: OPENCODE_FORK_PATH,
+    })
+    const banner = mod.buildUpdateBanner(result)
+    if (banner) {
+      console.log()
+      console.log(C.yellow(banner))
+      console.log()
+    }
+  } catch {
+    // silent fail-soft
+  }
 }
 
 // ============================================================
@@ -439,12 +625,12 @@ async function main(): Promise<number> {
   if (cmd === "--version" || cmd === "-v" || cmd === "version") return cmdVersion()
   if (cmd === "doctor") return cmdDoctor()
   if (cmd === "web") return await cmdWeb(rest)
-  if (cmd === "tui") return await (cmdTui(rest) as unknown as Promise<number>)
+  if (cmd === "tui") return await cmdTui(rest)
   if (cmd === "run") return await (cmdRun(rest) as unknown as Promise<number>)
   if (cmd === "providers" || cmd === "auth") return await (cmdProviders(rest) as unknown as Promise<number>)
   if (cmd === "accounts" || cmd === "acc") return await (cmdAccounts(rest) as unknown as Promise<number>)
   if (cmd === "status") return await (cmdStatus(rest) as unknown as Promise<number>)
-  if (cmd === "update") return cmdUpdate()
+  if (cmd === "update") return await cmdUpdate(rest)
   // Unknown — passthrough to forked opencode (so e.g. `cheapcode models` works)
   console.log(C.dim(`(unknown cheapcode command "${cmd}"; passing through to opencode fork)`))
   const child = spawnOpencodeFork(argv)
