@@ -1,0 +1,372 @@
+{
+  "version": 1,
+  "generated_at": "2026-05-04T20:47:00.396Z",
+  "mode": "live",
+  "cheapcode_pass_rate": "4/10",
+  "gpt55_pass_rate": "4/10",
+  "wall_clock_ms_total": {
+    "cheapcode": 152840,
+    "gpt55": 175095
+  },
+  "cost_usd_total": {
+    "cheapcode": 0,
+    "gpt55": 0
+  },
+  "headline_threshold": {
+    "numerator": 4,
+    "denominator": 10,
+    "met": false
+  },
+  "receipts": [
+    {
+      "task_id": "bc-1",
+      "shape": "bounded-code",
+      "arm": "cheapcode",
+      "passed": true,
+      "reason": "all keyword checks passed",
+      "metrics": {
+        "output": "```ts\nfunction chunk<T>(arr: T[], size: number): T[][] {\n  if (size <= 0 || !Number.isInteger(size)) {\n    throw new RangeError(\"size must be a positive integer\");\n  }\n\n  const result: T[][] = [];\n\n  for (let i = 0; i < arr.length; i += size) {\n    result.push(arr.slice(i, i + size));\n  }\n\n  return result;\n}\n```\n\nExample:\n\n```ts\nchunk([1, 2, 3, 4, 5], 2);\n// [[1, 2], [3, 4], [5]]\n```",
+        "wall_clock_ms": 7486,
+        "tokens_in": 94,
+        "tokens_out": 97,
+        "cost_usd_estimate": 0,
+        "model_used": "openai/gpt-5.5",
+        "attribution": {
+          "auth_key": "openai",
+          "canonical_provider": "openai",
+          "cooldown_skipped": []
+        }
+      }
+    },
+    {
+      "task_id": "bc-1",
+      "shape": "bounded-code",
+      "arm": "gpt55",
+      "passed": true,
+      "reason": "all keyword checks passed",
+      "metrics": {
+        "output": "```ts\nfunction chunk<T>(arr: T[], size: number): T[][] {\n  if (size <= 0) {\n    throw new RangeError(\"Chunk size must be greater than 0\");\n  }\n\n  const result: T[][] = [];\n\n  for (let i = 0; i < arr.length; i += size) {\n    result.push(arr.slice(i, i + size));\n  }\n\n  return result;\n}\n```\n\nExample:\n\n```ts\nchunk([1, 2, 3, 4, 5], 2);\n// [[1, 2], [3, 4], [5]]\n```",
+        "wall_clock_ms": 9767,
+        "tokens_in": 50,
+        "tokens_out": 90,
+        "cost_usd_estimate": 0,
+        "model_used": "chatgpt-oauth:gpt-5.5"
+      }
+    },
+    {
+      "task_id": "bc-2",
+      "shape": "bounded-code",
+      "arm": "cheapcode",
+      "passed": true,
+      "reason": "all keyword checks passed",
+      "metrics": {
+        "output": "```ts\nfunction grade(score: number): string {\n  if (score < 0) return 'invalid';\n  if (score < 60) return 'F';\n  if (score < 70) return 'D';\n  if (score < 80) return 'C';\n  if (score < 90) return 'B';\n  return 'A';\n}\n```",
+        "wall_clock_ms": 2081,
+        "tokens_in": 173,
+        "tokens_out": 55,
+        "cost_usd_estimate": 0,
+        "model_used": "openai/gpt-5.5",
+        "attribution": {
+          "auth_key": "openai-2",
+          "canonical_provider": "openai",
+          "cooldown_skipped": []
+        }
+      }
+    },
+    {
+      "task_id": "bc-2",
+      "shape": "bounded-code",
+      "arm": "gpt55",
+      "passed": true,
+      "reason": "all keyword checks passed",
+      "metrics": {
+        "output": "```ts\nfunction grade(score: number): string {\n  if (score < 0) return 'invalid';\n  if (score < 60) return 'F';\n  if (score < 70) return 'D';\n  if (score < 80) return 'C';\n  if (score < 90) return 'B';\n  return 'A';\n}\n```",
+        "wall_clock_ms": 2651,
+        "tokens_in": 129,
+        "tokens_out": 55,
+        "cost_usd_estimate": 0,
+        "model_used": "chatgpt-oauth:gpt-5.5"
+      }
+    },
+    {
+      "task_id": "bc-3",
+      "shape": "bounded-code",
+      "arm": "cheapcode",
+      "passed": false,
+      "reason": "missing expected keyword: \"timing\"",
+      "metrics": {
+        "output": "The bug is the test assumes `setTimeout(..., 100)` resumes **exactly** 100 ms later:\n\n```ts\nexpect(Date.now() - start).toBe(100);\n```\n\nThat is not guaranteed. Timers are not precise; `setTimeout` means “run after *at least roughly* this delay when the event loop gets a chance.” The elapsed time may be `100`, `101`, `105`, etc. In a busy CI environment it could be much higher. `Date.now()` is also wall-clock time and has millisecond granularity.\n\nA better test is to allow tolerance:\n\n```ts\nimport { test, expect } from 'bun:test';\n\ntest('async timeout', async () => {\n  const start = performance.now();\n\n  await new Promise<void>(resolve => setTimeout(resolve, 100));\n\n  const elapsed = performance.now() - start;\n\n  expect(elapsed).toBeGreaterThanOrEqual(100);\n  expect(elapsed).toBeLessThan(150",
+        "wall_clock_ms": 16560,
+        "tokens_in": 109,
+        "tokens_out": 346,
+        "cost_usd_estimate": 0,
+        "model_used": "openai/gpt-5.5",
+        "attribution": {
+          "auth_key": "openai",
+          "canonical_provider": "openai",
+          "cooldown_skipped": []
+        }
+      }
+    },
+    {
+      "task_id": "bc-3",
+      "shape": "bounded-code",
+      "arm": "gpt55",
+      "passed": false,
+      "reason": "missing expected keyword: \"timing\"",
+      "metrics": {
+        "output": "The bug is the assertion:\n\n```ts\nexpect(Date.now() - start).toBe(100);\n```\n\n`setTimeout(r, 100)` does **not** guarantee that the callback runs exactly after 100 ms. It means “run after at least about 100 ms when the event loop gets a chance.” The elapsed time may be `100`, `101`, `103`, etc. Also, `Date.now()` is wall-clock time and has millisecond granularity.\n\nUse a range/tolerance instead of exact equality:\n\n```ts\nimport { test, expect } from 'bun:test';\n\ntest('async timeout', async () => {\n  const start = performance.now();\n\n  await new Promise<void>(resolve => setTimeout(resolve, 100));\n\n  const elapsed = performance.now() - start;\n\n  expect(elapsed).toBeGreaterThanOrEqual(100);\n  expect(elapsed).toBeLessThan(150); // choose a reasonable tolerance\n});\n```\n\nOr, if the goal is to test t",
+        "wall_clock_ms": 11790,
+        "tokens_in": 65,
+        "tokens_out": 253,
+        "cost_usd_estimate": 0,
+        "model_used": "chatgpt-oauth:gpt-5.5"
+      }
+    },
+    {
+      "task_id": "hr-1",
+      "shape": "hard-reasoning",
+      "arm": "cheapcode",
+      "passed": false,
+      "reason": "missing expected keyword: \"fall through\"",
+      "metrics": {
+        "output": "Because A, B, and C **share the same quota pool**, the router should **not assume that C has fresh independent quota** just because C shows 0% usage.\n\nStep by step:\n\n1. **The quota is shared.**  \n   Using A, B, or C consumes from the same underlying pool.\n\n2. **Credential-local usage does not create extra capacity.**  \n   A at 70%, B at 50%, and C at 0% may describe per-credential accounting, but if the provider enforces one shared quota pool, switching to C does not increase total available quota.\n\n3. **Expected request cost is 25% of the pool.**  \n   To maximize future headroom, the router should choose the credential that preserves the most useful routing flexibility while avoiding near-limit credentials.\n\n4. **Best pick: C.**  \n   If the router must send the request, C is the best choi",
+        "wall_clock_ms": 19199,
+        "tokens_in": 129,
+        "tokens_out": 569,
+        "cost_usd_estimate": 0,
+        "model_used": "openai/gpt-5.5",
+        "attribution": {
+          "auth_key": "openai-2",
+          "canonical_provider": "openai",
+          "cooldown_skipped": []
+        }
+      }
+    },
+    {
+      "task_id": "hr-1",
+      "shape": "hard-reasoning",
+      "arm": "gpt55",
+      "passed": false,
+      "reason": "missing expected keyword: \"fall through\"",
+      "metrics": {
+        "output": "Step by step:\n\n1. Current estimated remaining headroom:\n   - A: used 70%, remaining 30%\n   - B: used 50%, remaining 50%\n   - C: used 0%, remaining 100%\n\n2. Incoming request expected cost:\n   - 25% of the pool\n\n3. Check which credentials can fit the request:\n   - A: 30% remaining → can fit, would leave 5%\n   - B: 50% remaining → can fit, would leave 25%\n   - C: 100% remaining → can fit, would leave 75%\n\n4. To maximize remaining headroom after serving this high-priority request, the router should pick:\n\n   **C**\n\n   Because after the request, C would still have the most remaining capacity:\n\n   - A would leave 5%\n   - B would leave 25%\n   - C would leave 75%\n\n5. If a `429 Too Many Requests` fires anyway, the router should not immediately keep hammering C. It should:\n\n   - Mark C as rate-limit",
+        "wall_clock_ms": 29270,
+        "tokens_in": 85,
+        "tokens_out": 344,
+        "cost_usd_estimate": 0,
+        "model_used": "chatgpt-oauth:gpt-5.5"
+      }
+    },
+    {
+      "task_id": "hr-2",
+      "shape": "hard-reasoning",
+      "arm": "cheapcode",
+      "passed": "operator-graded",
+      "reason": "requires manual review",
+      "metrics": {
+        "output": "Let baseline token cost per answer be \\(T\\).\n\nDetector:\n\n- Raises token cost to \\(\\sim 2T\\), so incremental cost is \\(+T\\).\n- Catches \\(80\\%\\) of sycophantic answers.\n- Base sycophancy rate is \\(p\\).\n- Hallucination downstream cost is \\(10T\\).\n- Treat correlation \\(r=0.5\\) as the expected hallucination-risk linkage among sycophantic answers.\n\nExpected benefit per answer:\n\n\\[\n\\text{benefit}=p \\cdot 0.8 \\cdot 0.5 \\cdot 10T\n\\]\n\n\\[\n=4pT\n\\]\n\nExpected net value:\n\n\\[\n\\text{net}=4pT - T\n\\]\n\n\\[\n=T(4p-1)\n\\]\n\nSo the detector is net-positive when:\n\n\\[\n4p-1>0\n\\]\n\n\\[\np>\\frac14\n\\]\n\nNet-negative when:\n\n\\[\np<\\frac14\n\\]\n\nBreak-even:\n\n\\[\np^*=\\frac{1}{0.8 \\cdot 0.5 \\cdot 10}\n\\]\n\n\\[\np^*=0.25\n\\]\n\nSo under those assumptions, the sycophancy detector is worthwhile if the base sycophancy rate exceeds **25%**, not w",
+        "wall_clock_ms": 20731,
+        "tokens_in": 154,
+        "tokens_out": 365,
+        "cost_usd_estimate": 0,
+        "model_used": "openai/gpt-5.5",
+        "attribution": {
+          "auth_key": "openai",
+          "canonical_provider": "openai",
+          "cooldown_skipped": []
+        }
+      }
+    },
+    {
+      "task_id": "hr-2",
+      "shape": "hard-reasoning",
+      "arm": "gpt55",
+      "passed": "operator-graded",
+      "reason": "requires manual review",
+      "metrics": {
+        "output": "Normalize one normal answer’s token cost to **1**.\n\n- Detector cost: ~2x tokens ⇒ incremental cost = **+1**\n- Sycophancy detector catch rate: \\(c=0.8\\)\n- Hallucination downstream cost: \\(L=10\\)\n- Base sycophancy rate: \\(p=P(S)\\)\n- Let base hallucination rate be \\(h=P(H)\\)\n- Correlation between sycophancy and hallucination: \\(r=0.5\\)\n\nIf caught sycophantic answers are prevented/replaced, expected benefit is from avoided hallucinations among sycophantic outputs:\n\n\\[\n\\text{benefit}=cL P(S\\cap H)=0.8\\cdot 10\\cdot P(S\\cap H)=8P(S\\cap H)\n\\]\n\nNet-positive iff:\n\n\\[\n8P(S\\cap H)>1\n\\]\n\nso the fundamental break-even condition is:\n\n\\[\nP(S\\cap H)>\\frac18\n\\]\n\nFor binary variables,\n\n\\[\nP(S\\cap H)=ph+r\\sqrt{p(1-p)h(1-h)}\n\\]\n\nWith \\(r=0.5\\):\n\n\\[\nP(S\\cap H)=ph+\\frac12\\sqrt{p(1-p)h(1-h)}\n\\]\n\nTherefore the det",
+        "wall_clock_ms": 40107,
+        "tokens_in": 110,
+        "tokens_out": 461,
+        "cost_usd_estimate": 0,
+        "model_used": "chatgpt-oauth:gpt-5.5"
+      }
+    },
+    {
+      "task_id": "lc-1",
+      "shape": "long-context",
+      "arm": "cheapcode",
+      "passed": true,
+      "reason": "all keyword checks passed",
+      "metrics": {
+        "output": "I can’t access your local filesystem from this API session, so I cannot read or verify the contents of `~/apps/adam/README.md`.  \nI also cannot determine whether `~/apps/adam/tools/khazina/CLAUDE.md` exists or inspect it.  \nI cannot determine whether `~/apps/adam/tools/mizan/README.md` is present, so I can’t confirm details about `mizan_check_action_safety`.  \nI cannot determine whether `~/apps/adam/tools/burhan/README.md` is present, so I can’t summarize its role in the substrate-suite.  \nI cannot determine whether `~/apps/adam/tools/daftar/README.md` is present, so I can’t cite its description of any cite-graph traversal.  \nBecause none of those files are available to me here, I can’t provide a reliable architecture summary involving `atom-0007`, `mizan_check_action_safety`, or the cite-",
+        "wall_clock_ms": 8510,
+        "tokens_in": 163,
+        "tokens_out": 239,
+        "cost_usd_estimate": 0,
+        "model_used": "openai/gpt-5.5",
+        "attribution": {
+          "auth_key": "openai-2",
+          "canonical_provider": "openai",
+          "cooldown_skipped": []
+        }
+      }
+    },
+    {
+      "task_id": "lc-1",
+      "shape": "long-context",
+      "arm": "gpt55",
+      "passed": true,
+      "reason": "all keyword checks passed",
+      "metrics": {
+        "output": "I can’t access your local filesystem (`~/apps/adam/...`) from this API session, so I can’t verify or summarize those files directly, nor can I confirm whether `tools/mizan/README.md`, `tools/burhan/README.md`, or `tools/daftar/README.md` are present.  \nPlease paste the contents of these files, or run a command like `cat ~/apps/adam/README.md ~/apps/adam/tools/khazina/CLAUDE.md ...` and share the output.  \nOnce provided, I’ll produce an 8-sentence-max architecture summary citing each file, explicitly noting any missing files, and ensuring it mentions `atom-0007`, `mizan_check_action_safety`, and the cite-graph traversal.",
+        "wall_clock_ms": 8264,
+        "tokens_in": 119,
+        "tokens_out": 157,
+        "cost_usd_estimate": 0,
+        "model_used": "chatgpt-oauth:gpt-5.5"
+      }
+    },
+    {
+      "task_id": "lc-2",
+      "shape": "long-context",
+      "arm": "cheapcode",
+      "passed": false,
+      "reason": "missing expected keyword: \"CooldownTracker\"",
+      "metrics": {
+        "output": "A 429 from one OpenAI account is treated as a credential-level capacity failure, not as a global OpenAI outage and not as a reason to reroute the task shape. The request has already been classified by `classifyTaskShape()` in `router.ts`, and the selected cheapcode tier/provider has already been chosen via the provider logic in `cheapcode-tiers.ts`, e.g. `providerForTier()` / `getProviderForTask()`. So the router does not reinterpret the prompt; it keeps the same intended provider class and tries another usable credential.\n\nThe retry path is handled by the pool wrapper. `dispatchWithPool()` in `dispatch-with-pool.ts` calls into `credential-pool.ts`, typically through a round-robin selector such as `pickCredential()` / `nextCredential()`. When the OpenAI response is a 429, `dispatchWithPool",
+        "wall_clock_ms": 14143,
+        "tokens_in": 140,
+        "tokens_out": 374,
+        "cost_usd_estimate": 0,
+        "model_used": "openai/gpt-5.5",
+        "attribution": {
+          "auth_key": "openai",
+          "canonical_provider": "openai",
+          "cooldown_skipped": []
+        }
+      }
+    },
+    {
+      "task_id": "lc-2",
+      "shape": "long-context",
+      "arm": "gpt55",
+      "passed": false,
+      "reason": "missing expected keyword: \"CooldownTracker\"",
+      "metrics": {
+        "output": "A 429 from one OpenAI account is treated as a **credential-level capacity/rate-limit event**, not as a global OpenAI outage. The request first enters the router, where `classifyTaskShape()` in `router.ts` determines what kind of task it is, and the tier/provider selection logic in `cheapcode-tiers.ts`, such as `selectCheapcodeTier()` / `getProviderForTier()`, decides that OpenAI is an acceptable backend for that request.\n\nWhen `dispatchWithPool()` in `dispatch-with-pool.ts` sends the request, it gets an OpenAI credential from the pool using the round-robin selector, e.g. `pickCredential()` in `credential-pool.ts`. If that credential receives a 429, the dispatch layer marks only that credential as temporarily unavailable using the cooldown mechanism, e.g. `markCooldown()` in `cooldown.ts`. ",
+        "wall_clock_ms": 8182,
+        "tokens_in": 96,
+        "tokens_out": 338,
+        "cost_usd_estimate": 0,
+        "model_used": "chatgpt-oauth:gpt-5.5"
+      }
+    },
+    {
+      "task_id": "lc-3",
+      "shape": "long-context",
+      "arm": "cheapcode",
+      "passed": "operator-graded",
+      "reason": "requires manual review",
+      "metrics": {
+        "output": "The M16 fix had to be end-to-end because the OAuth “provider” value crosses five different boundaries:\n\n1. user selects an aliased provider in the UI;\n2. the v2 SDK has to type that parameter;\n3. the v2 SDK has to serialize it onto the actual HTTP request correctly;\n4. the server route has to resolve/remember the alias, not just the canonical provider;\n5. the OAuth callback has to save the resulting credentials under the alias that the rest of opencode will later look up.\n\nIf any one layer still collapses the alias back to the canonical provider ID, the OAuth flow may appear to start, but the token ends up missing, rejected, or saved under the wrong key.\n\n| Layer patched | Why that layer mattered | Symptom if only this layer were patched and the other 4 reverted |\n|---|---|---|\n| **UI dial",
+        "wall_clock_ms": 37430,
+        "tokens_in": 126,
+        "tokens_out": 882,
+        "cost_usd_estimate": 0,
+        "model_used": "openai/gpt-5.5",
+        "attribution": {
+          "auth_key": "openai-2",
+          "canonical_provider": "openai",
+          "cooldown_skipped": []
+        }
+      }
+    },
+    {
+      "task_id": "lc-3",
+      "shape": "long-context",
+      "arm": "gpt55",
+      "passed": "operator-graded",
+      "reason": "requires manual review",
+      "metrics": {
+        "output": "The M16 OAuth-alias fix had to be end-to-end because the “alias” is not just a display/UI concept. It is the key that tells opencode:\n\n> “Run OAuth using the canonical provider implementation, but save/use the resulting credentials under this aliased provider id.”\n\nThat value has to survive the entire path:\n\n`UI dialog → v2 SDK method type → v2 SDK request-param builder → server route → ProviderAuth.callback persistence`\n\nIf any one layer drops it, OAuth may still complete, but the token is saved under the wrong provider key or the request cannot compile/serialize correctly.\n\n### 1. UI dialog\n\n**Patch purpose:**  \nThe UI OAuth dialog had to pass the provider alias, not only the canonical provider id, when starting/completing OAuth.\n\n**If only this layer were patched and the other 4 reverte",
+        "wall_clock_ms": 32691,
+        "tokens_in": 82,
+        "tokens_out": 994,
+        "cost_usd_estimate": 0,
+        "model_used": "chatgpt-oauth:gpt-5.5"
+      }
+    },
+    {
+      "task_id": "pf-1",
+      "shape": "phd-factual",
+      "arm": "cheapcode",
+      "passed": false,
+      "reason": "missing expected keyword: \"inference\"",
+      "metrics": {
+        "output": "The **Reversal Curse** refers to the finding that LLMs trained on facts in one direction—e.g., **“A is B”**—often fail to infer or recall the reverse relation—**“B is A”**—even when the relation is logically reversible. The canonical paper is **Berglund et al., 2023**, *“The Reversal Curse: LLMs trained on ‘A is B’ fail to learn ‘B is A’.”*\n\nTwo concrete failure examples:\n\n1. A model may know **“Tom Cruise’s mother is Mary Lee Pfeiffer”** but fail to answer **“Whose mother is Mary Lee Pfeiffer?”**\n2. If fine-tuned on a synthetic fact like **“Daphne Barrington is the director of Timefall”**, it may fail when asked **“Who directed Timefall?”**\n\n**Training-time mitigation:** augment training data with reversed formulations, so facts appear in both directions: “A is B” and “B is A,” or train w",
+        "wall_clock_ms": 15749,
+        "tokens_in": 108,
+        "tokens_out": 280,
+        "cost_usd_estimate": 0,
+        "model_used": "openai/gpt-5.5",
+        "attribution": {
+          "auth_key": "openai",
+          "canonical_provider": "openai",
+          "cooldown_skipped": []
+        }
+      }
+    },
+    {
+      "task_id": "pf-1",
+      "shape": "phd-factual",
+      "arm": "gpt55",
+      "passed": false,
+      "reason": "missing expected keyword: \"inference\"",
+      "metrics": {
+        "output": "The **Reversal Curse** is the finding that autoregressive LLMs trained on a fact in one direction often fail to infer the same relation in reverse: learning “A is B” does not reliably imply answering “B is A.” The canonical paper is **Berglund et al., 2023**, *The Reversal Curse: LLMs trained on “A is B” fail to learn “B is A”*.\n\nConcrete failures include:\n\n- If trained that **“Daphne Barrington is the director of Time’s Echo,”** a model may answer “Who is the director of *Time’s Echo*?” poorly.\n- If it knows **“Tom Cruise’s mother is Mary Lee Pfeiffer,”** it may still fail on “Who is Mary Lee Pfeiffer’s son?”\n\nA **training-time mitigation** is explicit bidirectional data augmentation: include both the original fact and inverse formulations, e.g. “A is B” and “B is A’s …,” or corresponding",
+        "wall_clock_ms": 23285,
+        "tokens_in": 64,
+        "tokens_out": 268,
+        "cost_usd_estimate": 0,
+        "model_used": "chatgpt-oauth:gpt-5.5"
+      }
+    },
+    {
+      "task_id": "pf-2",
+      "shape": "phd-factual",
+      "arm": "cheapcode",
+      "passed": true,
+      "reason": "all keyword checks passed",
+      "metrics": {
+        "output": "In WCAG 2.2, the difference is that **Level AA** is the standard contrast requirement for most accessible text, while **Level AAA** is a higher, more demanding contrast target.\n\n| WCAG 2.2 criterion | Conformance level | Normal text | Large text |\n|---|---:|---:|---:|\n| **SC 1.4.3 Contrast (Minimum)** | **AA** | **4.5:1** | **3:1** |\n| **SC 1.4.6 Contrast (Enhanced)** | **AAA** | **7:1** | **4.5:1** |\n\n“Large text” means text that is at least **18 pt** normal weight or **14 pt bold**—commonly approximated on the web as about **24 CSS px** normal or **18.5 CSS px** bold.\n\nBoth criteria apply to text and images of text, with exceptions such as incidental text and logotypes.\n\nAs of my knowledge cutoff in **2024-06**, EU accessibility law generally requires **Level AA**, not Level AAA, through",
+        "wall_clock_ms": 10951,
+        "tokens_in": 128,
+        "tokens_out": 213,
+        "cost_usd_estimate": 0,
+        "model_used": "openai/gpt-5.5",
+        "attribution": {
+          "auth_key": "openai-2",
+          "canonical_provider": "openai",
+          "cooldown_skipped": []
+        }
+      }
+    },
+    {
+      "task_id": "pf-2",
+      "shape": "phd-factual",
+      "arm": "gpt55",
+      "passed": true,
+      "reason": "all keyword checks passed",
+      "metrics": {
+        "output": "In WCAG 2.2, color contrast requirements become stricter from **Level AA** to **Level AAA**:\n\n| WCAG 2.2 Success Criterion | Conformance level | Normal text | Large text |\n|---|---:|---:|---:|\n| **SC 1.4.3 Contrast (Minimum)** | **Level AA** | **4.5:1** | **3:1** |\n| **SC 1.4.6 Contrast (Enhanced)** | **Level AAA** | **7:1** | **4.5:1** |\n\n**Normal text** means ordinary body-sized text.  \n**Large text** means at least **18 pt** regular text, or at least **14 pt bold** text — approximately **24 CSS px** regular or **18.66 CSS px** bold.\n\nSo, **Level AA** sets the minimum contrast expected for broad accessibility compliance, while **Level AAA** requires higher contrast and is more demanding.\n\nIn the EU, the legally required level is generally **WCAG Level AA**, not Level AAA, via standards s",
+        "wall_clock_ms": 9088,
+        "tokens_in": 84,
+        "tokens_out": 206,
+        "cost_usd_estimate": 0,
+        "model_used": "chatgpt-oauth:gpt-5.5"
+      }
+    }
+  ]
+}

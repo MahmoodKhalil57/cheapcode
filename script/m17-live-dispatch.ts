@@ -22,6 +22,7 @@ import { buildPool, type ProviderListShape } from "../src/credential-pool"
 import { orchestrate } from "../src/orchestrate"
 import { QuotaTracker, TaskBudget } from "../src/quota-tracker"
 import { defaultOpencodeAuthPath, resolveAuthRef } from "../src/auth-resolver"
+import { callChatGptCodex, CODEX_ALLOWED_MODELS } from "../src/chatgpt-oauth-fetch"
 import { homedir } from "node:os"
 import { join } from "node:path"
 
@@ -46,8 +47,12 @@ async function initPool() {
   const res = await fetch(`${SERVER}/provider`)
   if (!res.ok) throw new Error(`cheapcode server at ${SERVER} returned HTTP ${res.status}`)
   const list = (await res.json()) as ProviderListShape
-  // Filter to canonicals whose auth.json entries are api-key type (oauth tokens
-  // for consumer ChatGPT-Plus / GitHub-Copilot can't hit /v1/chat/completions).
+  // Filter to canonicals we know how to dispatch:
+  //  - api-type entries (any canonical) → AI SDK with apiKey
+  //  - oauth-type entries for canonical "openai" (consumer ChatGPT-Plus) →
+  //    custom fetch to chatgpt.com/backend-api/codex/responses
+  // OAuth for github-copilot etc. requires its own custom fetch (not wired);
+  // filtered out so the pool only iterates dispatchable.
   const authPath = defaultOpencodeAuthPath()
   let authMap: Record<string, { type?: string }> = {}
   try {
@@ -56,18 +61,32 @@ async function initPool() {
   } catch {
     // auth.json missing — no credentials available
   }
-  const isApiKey = (k: string) => authMap[k]?.type === "api"
-  const filteredConnected = list.connected.filter(isApiKey)
-  const filteredCredentials = (list.credentials ?? []).filter((c) => isApiKey(c.key))
+  const dispatchable = (k: string, canonical: string): boolean => {
+    const t = authMap[k]?.type
+    if (t === "api") return true
+    if (t === "oauth" && canonical === "openai") return true // consumer-Plus path
+    return false
+  }
+  const filteredConnected = list.connected.filter((id) => dispatchable(id, id))
+  const filteredCredentials = (list.credentials ?? []).filter((c) =>
+    dispatchable(c.key, c.providerID),
+  )
   if (filteredConnected.length === 0) {
     throw new Error(
-      "no api-key credentials available — only oauth entries found in auth.json. " +
-        "Set OPENROUTER_API_KEY or connect a provider via api-key in cheapcode UI.",
+      "no dispatchable credentials in auth.json. Connect openai (consumer-Plus OAuth or " +
+        "api-key) OR an api-type provider (openrouter, anthropic, ...) via cheapcode UI.",
     )
   }
   const cooldown = new CooldownTracker(COOLDOWN_PATH)
   await cooldown.load()
-  return buildPool({ connected: filteredConnected, credentials: filteredCredentials }, cooldown)
+  const pool = buildPool({ connected: filteredConnected, credentials: filteredCredentials }, cooldown)
+  return { pool, authMap, authPath }
+}
+
+export function authTypeFor(authKey: string, authMap: Record<string, { type?: string }>): "api" | "oauth" | undefined {
+  const t = authMap[authKey]?.type
+  if (t === "api" || t === "oauth") return t
+  return undefined
 }
 
 async function getPool() {
@@ -90,7 +109,7 @@ function getSharedBudget(): TaskBudget {
 export async function liveDispatchCheapcode(prompt: string): Promise<DispatchResult> {
   const start = performance.now()
   try {
-    const pool = await getPool()
+    const { pool, authMap, authPath } = await getPool()
     const canonicals = Object.keys(pool.candidates).filter((c) => c !== "opencode")
     canonicals.sort((a, b) => pool.candidates[b].length - pool.candidates[a].length)
     if (canonicals.length === 0) throw new Error("no canonical providers available in pool")
@@ -115,12 +134,35 @@ export async function liveDispatchCheapcode(prompt: string): Promise<DispatchRes
             const modelId = input.targetModel.includes("/")
               ? input.targetModel.slice(input.targetModel.indexOf("/") + 1)
               : input.targetModel
-            // Dispatch by canonical: openai uses OpenAI SDK directly,
-            // openrouter (and others routed through openrouter) use the
-            // OpenRouter provider which translates to /api/v1/chat/completions.
+            const authKind = authTypeFor(input.authKey, authMap)
+
+            // openai + oauth (consumer ChatGPT-Plus) → bypass AI SDK and call
+            // chatgpt.com/backend-api/codex/responses directly (different contract:
+            // stream:true required, instructions+input shape required).
+            if (input.canonical === "openai" && authKind === "oauth") {
+              const codexModel = CODEX_ALLOWED_MODELS.has(modelId) ? modelId : "gpt-5.5"
+              const r = await callChatGptCodex({
+                authPath,
+                authKey: input.authKey,
+                model: codexModel,
+                prompt: input.prompt,
+              })
+              const tokensIn = Math.round(input.prompt.length / 4)
+              const tokensOut = Math.round(r.text.length / 4)
+              return {
+                text: r.text.slice(0, 800),
+                wall_clock_ms: Math.round(performance.now() - callStart),
+                cost_usd_estimate: 0, // consumer-Plus is flat-rate; no per-call cost
+                tokens_in: tokensIn,
+                tokens_out: tokensOut,
+              }
+            }
+
+            // openrouter → @openrouter/ai-sdk-provider, full "openrouter/auto" id
+            // any other canonical with api-type key → @ai-sdk/openai (api.openai.com)
             const model =
               input.canonical === "openrouter"
-                ? createOpenRouter({ apiKey: input.apiKey })(input.targetModel) // keep "openrouter/auto" full id
+                ? createOpenRouter({ apiKey: input.apiKey })(input.targetModel) as never
                 : createOpenAI({ apiKey: input.apiKey })(modelId)
             const result = await generateText({ model, prompt: input.prompt })
             const usage = result.usage ?? {
@@ -133,8 +175,6 @@ export async function liveDispatchCheapcode(prompt: string): Promise<DispatchRes
               cost_usd_estimate: estimateGpt55Cost(usage.promptTokens, usage.completionTokens) * 0.6,
               tokens_in: usage.promptTokens,
               tokens_out: usage.completionTokens,
-              // generateText in newer ai-sdk versions exposes response.headers;
-              // pass through when present so QuotaTracker can record snapshots.
               responseHeaders: (result as unknown as { response?: { headers?: unknown } }).response?.headers,
             }
           },
@@ -174,21 +214,62 @@ export async function liveDispatchCheapcode(prompt: string): Promise<DispatchRes
 export async function liveDispatchGpt55(prompt: string): Promise<DispatchResult> {
   const start = performance.now()
   try {
-    // Prefer real api-key OpenAI when available; fall back to openrouter
-    // routing to a gpt-5.5-class model so the baseline arm is dispatchable
-    // even when the operator only has openrouter credentials.
-    let model: ReturnType<ReturnType<typeof createOpenAI>>
-    let modelLabel = GPT55_MODEL
+    // Resolution preference order for the gpt55 baseline:
+    //   1. real api-type OpenAI key (sk-proj-... etc.) → api.openai.com via AI SDK
+    //   2. consumer ChatGPT-Plus OAuth → chatgpt.com/backend-api codex path direct
+    //   3. openrouter routing to "openai/gpt-5.5" → openrouter.ai
+    const authPath = defaultOpencodeAuthPath()
+    let apiKey: string | undefined
     try {
-      const apiKey = await resolveOpenAIKey()
-      model = createOpenAI({ apiKey })(GPT55_MODEL)
+      apiKey = await resolveOpenAIKey()
     } catch {
-      const orKey = await resolveOpenRouterKey()
-      const orModel = process.env.CHEAPCODE_GPT55_VIA_OPENROUTER ?? "openai/gpt-5.5"
-      model = createOpenRouter({ apiKey: orKey })(orModel) as never
-      modelLabel = `openrouter:${orModel}`
+      // not available — try OAuth or openrouter below
     }
-    const result = await generateText({ model, prompt })
+    if (apiKey) {
+      const result = await generateText({ model: createOpenAI({ apiKey })(GPT55_MODEL), prompt })
+      const usage = result.usage ?? { promptTokens: prompt.length / 4, completionTokens: result.text.length / 4 }
+      return {
+        output: result.text.slice(0, 800),
+        wall_clock_ms: Math.round(performance.now() - start),
+        tokens_in: usage.promptTokens,
+        tokens_out: usage.completionTokens,
+        cost_usd_estimate: estimateGpt55Cost(usage.promptTokens, usage.completionTokens),
+        model_used: GPT55_MODEL,
+      }
+    }
+
+    const oauthAvailable = await (async () => {
+      try {
+        const { readFile } = await import("node:fs/promises")
+        const map = JSON.parse(await readFile(authPath, "utf8")) as Record<string, { type?: string }>
+        return map["openai"]?.type === "oauth"
+      } catch {
+        return false
+      }
+    })()
+    if (oauthAvailable) {
+      const codexModel = CODEX_ALLOWED_MODELS.has(GPT55_MODEL) ? GPT55_MODEL : "gpt-5.5"
+      const r = await callChatGptCodex({
+        authPath,
+        authKey: "openai",
+        model: codexModel,
+        prompt,
+      })
+      const tokensIn = Math.round(prompt.length / 4)
+      const tokensOut = Math.round(r.text.length / 4)
+      return {
+        output: r.text.slice(0, 800),
+        wall_clock_ms: Math.round(performance.now() - start),
+        tokens_in: tokensIn,
+        tokens_out: tokensOut,
+        cost_usd_estimate: 0, // consumer-Plus is flat-rate
+        model_used: `chatgpt-oauth:${codexModel}`,
+      }
+    }
+
+    const orKey = await resolveOpenRouterKey()
+    const orModel = process.env.CHEAPCODE_GPT55_VIA_OPENROUTER ?? "openai/gpt-5.5"
+    const result = await generateText({ model: createOpenRouter({ apiKey: orKey })(orModel) as never, prompt })
     const usage = result.usage ?? { promptTokens: prompt.length / 4, completionTokens: result.text.length / 4 }
     return {
       output: result.text.slice(0, 800),
@@ -196,7 +277,7 @@ export async function liveDispatchGpt55(prompt: string): Promise<DispatchResult>
       tokens_in: usage.promptTokens,
       tokens_out: usage.completionTokens,
       cost_usd_estimate: estimateGpt55Cost(usage.promptTokens, usage.completionTokens),
-      model_used: modelLabel,
+      model_used: `openrouter:${orModel}`,
     }
   } catch (err) {
     return {
