@@ -82,34 +82,59 @@ function fail(msg: string): never {
 }
 
 // ============================================================
-// opencode dependency check
+// Cheapcode-opencode fork resolution
 // ============================================================
+// Cheapcode IS a fork of opencode (per operator architectural decision).
+// We never invoke a system-installed `opencode` binary — instead we run
+// our forked opencode from source via `bun`. The fork is cloned by
+// install.sh to ~/.cheapcode/opencode (or operator-defined CHEAPCODE_OPENCODE).
 
-function findOpencode(): string | null {
-  const r = spawnSync("which", ["opencode"], { encoding: "utf-8" })
-  if (r.status !== 0) return null
-  return r.stdout.trim()
-}
+const OPENCODE_FORK_PATH = process.env.CHEAPCODE_OPENCODE ?? join(CHEAPCODE_HOME, "opencode")
+const OPENCODE_FORK_PKG = join(OPENCODE_FORK_PATH, "packages", "opencode")
+const OPENCODE_FORK_ENTRY = join(OPENCODE_FORK_PKG, "src", "index.ts")
 
-function ensureOpencode(): string {
-  const path = findOpencode()
-  if (!path) {
-    console.error(C.red("opencode not found in PATH."))
-    console.error(C.dim("cheapcode currently rides on top of opencode for the agent harness."))
-    console.error(C.dim("install opencode first:"))
+function ensureOpencodeFork(): void {
+  if (!existsSync(OPENCODE_FORK_ENTRY)) {
+    console.error(C.red(`cheapcode opencode fork not found at ${OPENCODE_FORK_PATH}.`))
+    console.error(C.dim("re-run install:"))
     console.error("")
-    console.error(`    ${C.cyan("curl -fsSL https://opencode.ai/install | bash")}`)
+    console.error(`    ${C.cyan("curl -fsSL https://raw.githubusercontent.com/MahmoodKhalil57/cheapcode/main/install.sh | sh")}`)
     console.error("")
-    console.error(C.dim("then re-run cheapcode."))
+    console.error(C.dim("OR for dev mode (existing checkout):"))
+    console.error(`    ${C.cyan("CHEAPCODE_SOURCE=$(pwd) bash install.sh")}`)
     process.exit(2)
   }
-  return path
 }
 
 function getOpencodeVersion(): string | null {
-  const r = spawnSync("opencode", ["--version"], { encoding: "utf-8" })
-  if (r.status !== 0) return null
-  return r.stdout.trim()
+  // Read packages/opencode/package.json from the fork
+  const pkgPath = join(OPENCODE_FORK_PKG, "package.json")
+  if (!existsSync(pkgPath)) return null
+  try {
+    const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"))
+    return pkg.version ? `${pkg.version} (cheapcode fork)` : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Spawn the forked opencode from source. Mirrors opencode's own `bun dev`
+ * convention: bun --cwd <pkg> --conditions=browser src/index.ts
+ */
+function spawnOpencodeFork(args: string[], opts: { stdio?: "inherit" | "pipe" } = {}) {
+  ensureOpencodeFork()
+  return spawn(
+    "bun",
+    [
+      "run",
+      "--cwd", OPENCODE_FORK_PKG,
+      "--conditions=browser",
+      OPENCODE_FORK_ENTRY,
+      ...args,
+    ],
+    { stdio: opts.stdio ?? "inherit" },
+  )
 }
 
 // ============================================================
@@ -133,12 +158,13 @@ function cmdDoctor(): number {
   console.log(C.bold("cheapcode doctor — system health check\n"))
   let issues = 0
 
-  // 1. opencode
-  const opPath = findOpencode()
-  if (opPath) {
-    console.log(`  ${C.green("[OK]")} opencode installed at ${opPath}`)
+  // 1. opencode fork
+  if (existsSync(OPENCODE_FORK_ENTRY)) {
+    const v = getOpencodeVersion() ?? "(version unknown)"
+    console.log(`  ${C.green("[OK]")} cheapcode opencode fork at ${OPENCODE_FORK_PATH} ${C.dim(v)}`)
   } else {
-    console.log(`  ${C.red("[FAIL]")} opencode not in PATH`)
+    console.log(`  ${C.red("[FAIL]")} cheapcode opencode fork not found at ${OPENCODE_FORK_PATH}`)
+    console.log(`    ${C.dim("re-run install.sh to clone the fork")}`)
     issues++
   }
 
@@ -216,83 +242,39 @@ function cmdDoctor(): number {
 // ============================================================
 
 async function cmdWeb(extraArgs: string[]): Promise<number> {
-  ensureOpencode()
-  // Default public port 4096 unless overridden via --port
+  ensureOpencodeFork()
   const portIdx = extraArgs.indexOf("--port")
-  const publicPort = portIdx === -1 ? DEFAULT_WEB_PORT : parseInt(extraArgs[portIdx + 1] ?? `${DEFAULT_WEB_PORT}`, 10)
-  if (isNaN(publicPort)) fail(`invalid --port value`)
-  // Run upstream opencode on publicPort + 1; cheapcode proxy listens on publicPort.
-  // CHEAPCODE_DISABLE_OVERLAY=1 → fall back to plain opencode passthrough (no overlay).
-  const overlayDisabled = process.env.CHEAPCODE_DISABLE_OVERLAY === "1"
-  const upstreamPort = publicPort + 1
+  const port = portIdx === -1 ? DEFAULT_WEB_PORT : parseInt(extraArgs[portIdx + 1] ?? `${DEFAULT_WEB_PORT}`, 10)
+  if (isNaN(port)) fail(`invalid --port value`)
 
   console.log(C.bold("cheapcode web"))
   console.log()
-  console.log(`  ${C.cyan("→")} starting opencode + cheapcode overlay...`)
+  console.log(`  ${C.cyan("→")} launching cheapcode (forked opencode) from source...`)
+  console.log(`  ${C.dim(`source: ${OPENCODE_FORK_PATH}`)}`)
   console.log()
 
-  // Strip --port from extraArgs and pass our chosen port to opencode
   const passthroughArgs = extraArgs.filter((_, i) => i !== portIdx && i !== portIdx + 1)
-  const opencodePort = overlayDisabled ? publicPort : upstreamPort
-  const args = ["web", "--port", `${opencodePort}`, ...passthroughArgs]
-  const child = spawn("opencode", args, { stdio: "inherit" })
-
-  // Start the cheapcode proxy unless explicitly disabled. The proxy adds the
-  // `+ Add another` button to opencode's Providers panel via overlay script
-  // injection — operator's M12 multi-account UX. CHEAPCODE_DISABLE_OVERLAY=1
-  // bypasses entirely and runs vanilla opencode.
-  let stopProxy: (() => void) | null = null
-  if (!overlayDisabled) {
-    // Wait for opencode to bind its port (max 10s) before launching proxy
-    await waitForPort(upstreamPort, 10000)
-    try {
-      const { startWebServer } = await import("../src/web-server")
-      const proxy = startWebServer({ publicPort, upstreamPort })
-      stopProxy = proxy.stop
-    } catch (e) {
-      console.error(C.yellow(`couldn't start cheapcode overlay proxy: ${(e as Error).message}`))
-      console.error(C.dim(`  falling back to direct opencode at :${upstreamPort} (no '+ Add another' button)`))
-    }
-  }
+  const args = ["web", "--port", `${port}`, ...passthroughArgs]
+  const child = spawnOpencodeFork(args)
 
   setTimeout(() => {
     console.log()
     console.log(C.bold("how to use:"))
     console.log()
-    console.log(`  1. open ${C.cyan(`http://127.0.0.1:${publicPort}/`)} in your browser`)
-    console.log(`  2. click ${C.bold("Providers")} → ${C.bold("Connect")} for any provider`)
-    console.log(`  3. for ${C.bold("multiple accounts of same provider")}: hover any connected provider`)
-    console.log(`     and click ${C.cyan("+ Add another")} ${C.dim("(cheapcode overlay)")}`)
-    console.log(`  4. verify: ${C.cyan("cheapcode accounts list")}`)
+    console.log(`  1. open ${C.cyan(`http://127.0.0.1:${port}/`)}`)
+    console.log(`  2. ${C.bold("Settings → Server → Providers")}`)
+    console.log(`  3. click ${C.cyan("Connect")} for first credential per provider`)
+    console.log(`  4. for ${C.bold("multiple accounts of same provider")}: click ${C.cyan("+ Add another")}`)
+    console.log(`     ${C.dim("(native button — cheapcode fork patch)")}`)
+    console.log(`  5. verify from a shell: ${C.cyan("cheapcode accounts list")}`)
     console.log()
     console.log(C.dim(`  ctrl-c to stop`))
-    if (overlayDisabled) {
-      console.log(C.dim(`  (CHEAPCODE_DISABLE_OVERLAY=1 — overlay disabled; vanilla opencode only)`))
-    }
     console.log()
-  }, 1500)
+  }, 2500)
 
   return await new Promise<number>((resolve) => {
-    child.on("close", (code) => {
-      if (stopProxy) {
-        try { stopProxy() } catch { /* ignore */ }
-      }
-      resolve(code ?? 0)
-    })
+    child.on("close", (code) => resolve(code ?? 0))
   })
-}
-
-async function waitForPort(port: number, timeoutMs: number): Promise<void> {
-  const deadline = Date.now() + timeoutMs
-  while (Date.now() < deadline) {
-    try {
-      const r = await fetch(`http://127.0.0.1:${port}/`, { signal: AbortSignal.timeout(500) })
-      if (r.status >= 200 && r.status < 600) return
-    } catch {
-      // not ready yet
-    }
-    await new Promise((resolve) => setTimeout(resolve, 250))
-  }
 }
 
 // ============================================================
@@ -300,8 +282,7 @@ async function waitForPort(port: number, timeoutMs: number): Promise<void> {
 // ============================================================
 
 function cmdTui(extraArgs: string[]): number {
-  ensureOpencode()
-  const child = spawn("opencode", extraArgs, { stdio: "inherit" })
+  const child = spawnOpencodeFork(extraArgs)
   return new Promise<number>((resolve) => {
     child.on("close", (code) => resolve(code ?? 0))
   }) as never
@@ -312,8 +293,7 @@ function cmdTui(extraArgs: string[]): number {
 // ============================================================
 
 function cmdRun(extraArgs: string[]): number {
-  ensureOpencode()
-  const child = spawn("opencode", ["run", ...extraArgs], { stdio: "inherit" })
+  const child = spawnOpencodeFork(["run", ...extraArgs])
   return new Promise<number>((resolve) => {
     child.on("close", (code) => resolve(code ?? 0))
   }) as never
@@ -324,8 +304,7 @@ function cmdRun(extraArgs: string[]): number {
 // ============================================================
 
 function cmdProviders(extraArgs: string[]): number {
-  ensureOpencode()
-  const child = spawn("opencode", ["providers", ...extraArgs], { stdio: "inherit" })
+  const child = spawnOpencodeFork(["providers", ...extraArgs])
   return new Promise<number>((resolve) => {
     child.on("close", (code) => resolve(code ?? 0))
   }) as never
@@ -439,10 +418,9 @@ async function main(): Promise<number> {
   if (cmd === "accounts" || cmd === "acc") return await (cmdAccounts(rest) as unknown as Promise<number>)
   if (cmd === "status") return await (cmdStatus(rest) as unknown as Promise<number>)
   if (cmd === "update") return cmdUpdate()
-  // Unknown — passthrough to opencode (so e.g. `cheapcode models` works)
-  console.log(C.dim(`(unknown cheapcode command "${cmd}"; passing through to opencode)`))
-  ensureOpencode()
-  const child = spawn("opencode", argv, { stdio: "inherit" })
+  // Unknown — passthrough to forked opencode (so e.g. `cheapcode models` works)
+  console.log(C.dim(`(unknown cheapcode command "${cmd}"; passing through to opencode fork)`))
+  const child = spawnOpencodeFork(argv)
   return new Promise<number>((resolve) => {
     child.on("close", (code) => resolve(code ?? 0))
   })

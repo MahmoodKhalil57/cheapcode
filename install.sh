@@ -75,29 +75,15 @@ info "platform: ${c_bold}${OS}/${ARCH}${c_reset}"
 
 CHEAPCODE_SOURCE="${CHEAPCODE_SOURCE:-}"
 CHEAPCODE_REPO="${CHEAPCODE_REPO:-https://github.com/MahmoodKhalil57/cheapcode.git}"
+# Cheapcode is a fork of opencode. We clone our fork (not upstream sst/opencode)
+# so users get cheapcode's native UI patches like the "+ Add another credential"
+# button. Downstream merges from sst/opencode flow through this fork.
+OPENCODE_FORK_REPO="${OPENCODE_FORK_REPO:-https://github.com/MahmoodKhalil57/opencode.git}"
+OPENCODE_FORK_BRANCH="${OPENCODE_FORK_BRANCH:-dev}"
 CHEAPCODE_HOME="${CHEAPCODE_HOME:-$HOME/.cheapcode}"
 CHEAPCODE_LIB="$CHEAPCODE_HOME/lib"
+CHEAPCODE_OPENCODE="$CHEAPCODE_HOME/opencode"
 CHEAPCODE_BIN="$CHEAPCODE_HOME/bin"
-
-# ============================================================
-# Check + install opencode if missing
-# ============================================================
-
-if ! command -v opencode >/dev/null 2>&1; then
-  warn "opencode not found in PATH; installing via official opencode installer..."
-  curl -fsSL https://opencode.ai/install | bash
-  if ! command -v opencode >/dev/null 2>&1; then
-    # Maybe ~/.opencode/bin is not in PATH yet; try sourcing the shell rc
-    if [ -d "$HOME/.opencode/bin" ]; then
-      PATH="$HOME/.opencode/bin:$PATH"
-      export PATH
-    fi
-    command -v opencode >/dev/null 2>&1 || die "opencode install failed; install manually: https://opencode.ai/download"
-  fi
-  ok "opencode installed: $(opencode --version 2>&1 | head -1)"
-else
-  ok "opencode found: $(opencode --version 2>&1 | head -1)"
-fi
 
 # ============================================================
 # Check + install bun if missing
@@ -115,6 +101,25 @@ if ! command -v bun >/dev/null 2>&1; then
 else
   ok "bun found: $(bun --version 2>&1 | head -1)"
 fi
+
+# ============================================================
+# Clone (or update) the cheapcode opencode fork
+# ============================================================
+# We do NOT install upstream opencode binary. Cheapcode IS a fork of opencode,
+# distributed independently with our UI patches. Run-from-source via bun.
+
+if [ -d "$CHEAPCODE_OPENCODE/.git" ]; then
+  info "updating cheapcode-opencode fork at $CHEAPCODE_OPENCODE"
+  git -C "$CHEAPCODE_OPENCODE" fetch --quiet origin || warn "fetch failed; continuing"
+  git -C "$CHEAPCODE_OPENCODE" reset --hard "origin/$OPENCODE_FORK_BRANCH" --quiet || warn "reset failed"
+else
+  rm -rf "$CHEAPCODE_OPENCODE"
+  info "cloning cheapcode-opencode fork from $OPENCODE_FORK_REPO (branch $OPENCODE_FORK_BRANCH)"
+  git clone --depth 50 --branch "$OPENCODE_FORK_BRANCH" --quiet "$OPENCODE_FORK_REPO" "$CHEAPCODE_OPENCODE"
+fi
+info "installing fork dependencies (this is a large monorepo; first install can take a few minutes)"
+(cd "$CHEAPCODE_OPENCODE" && bun install --silent)
+ok "cheapcode-opencode fork ready at $CHEAPCODE_OPENCODE"
 
 # ============================================================
 # Place / fetch cheapcode source
