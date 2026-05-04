@@ -1,0 +1,408 @@
+#!/usr/bin/env bun
+/**
+ * cheapcode — unified CLI entry point (M6 of distribution-as-product trajectory).
+ *
+ * Telos per operator directive 2026-05-04: distribution-grade product modeled
+ * after opencode.ai/download. Short-term curl-install for CLI; mid-term
+ * desktop + VSCode extension. Updates when cheapcode updates, not when
+ * opencode updates.
+ *
+ * Subcommands:
+ *   web                    — start opencode web with cheapcode wired in (simple flow)
+ *   tui                    — start opencode TUI with cheapcode loaded
+ *   run <message...>       — non-interactive run via opencode
+ *   providers <subcmd>     — manage opencode-side credentials (delegate)
+ *   accounts <subcmd>      — manage cheapcode-side multi-account metadata
+ *   status                 — diagnostic: registry + opencode auth resolution
+ *   doctor                 — health-check: opencode installed, configs valid, MCP loaded
+ *   version                — print cheapcode version
+ *   update                 — re-run install script for self-update (skeleton)
+ *   help                   — this text
+ *
+ * Embraces opencode spirit: opencode handles auth flows + UI shell; cheapcode
+ * adds the multi-account metadata layer + tier dispatch wrapper.
+ */
+
+import { spawn, spawnSync } from "node:child_process"
+import { existsSync, readFileSync, mkdirSync } from "node:fs"
+import { homedir } from "node:os"
+import { dirname, join } from "node:path"
+
+// ============================================================
+// Version + paths
+// ============================================================
+
+const CHEAPCODE_VERSION = "0.1.0-pre" // bumped per release
+const CHEAPCODE_HOME = process.env.CHEAPCODE_HOME ?? join(homedir(), ".cheapcode")
+const DEFAULT_WEB_PORT = 4096
+
+function getCheapcodeRoot(): string {
+  // The repo this binary was built/run from. When installed via curl-install,
+  // this is ~/.cheapcode/lib/cheapcode. During development it's the repo path.
+  // Resolved by walking up from this file to find package.json.
+  let dir = dirname(import.meta.url.replace(/^file:\/\//, ""))
+  while (dir !== "/" && dir !== ".") {
+    if (existsSync(join(dir, "package.json"))) {
+      try {
+        const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf-8"))
+        if (pkg.name === "@cheapcode/ai-sdk-provider") return dir
+      } catch {
+        // ignore parse errors, keep walking
+      }
+    }
+    dir = dirname(dir)
+  }
+  // Fallback: assume we're at <root>/bin/cheapcode
+  return dirname(dirname(import.meta.url.replace(/^file:\/\//, "")))
+}
+
+const CHEAPCODE_ROOT = getCheapcodeRoot()
+
+// ============================================================
+// Output (color codes; no emojis per CLAUDE.md)
+// ============================================================
+
+const C = {
+  red: (s: string) => `\x1b[31m${s}\x1b[0m`,
+  green: (s: string) => `\x1b[32m${s}\x1b[0m`,
+  yellow: (s: string) => `\x1b[33m${s}\x1b[0m`,
+  cyan: (s: string) => `\x1b[36m${s}\x1b[0m`,
+  blue: (s: string) => `\x1b[34m${s}\x1b[0m`,
+  magenta: (s: string) => `\x1b[35m${s}\x1b[0m`,
+  dim: (s: string) => `\x1b[2m${s}\x1b[0m`,
+  bold: (s: string) => `\x1b[1m${s}\x1b[0m`,
+}
+
+function fail(msg: string): never {
+  console.error(C.red(`error: ${msg}`))
+  process.exit(1)
+}
+
+// ============================================================
+// opencode dependency check
+// ============================================================
+
+function findOpencode(): string | null {
+  const r = spawnSync("which", ["opencode"], { encoding: "utf-8" })
+  if (r.status !== 0) return null
+  return r.stdout.trim()
+}
+
+function ensureOpencode(): string {
+  const path = findOpencode()
+  if (!path) {
+    console.error(C.red("opencode not found in PATH."))
+    console.error(C.dim("cheapcode currently rides on top of opencode for the agent harness."))
+    console.error(C.dim("install opencode first:"))
+    console.error("")
+    console.error(`    ${C.cyan("curl -fsSL https://opencode.ai/install | bash")}`)
+    console.error("")
+    console.error(C.dim("then re-run cheapcode."))
+    process.exit(2)
+  }
+  return path
+}
+
+function getOpencodeVersion(): string | null {
+  const r = spawnSync("opencode", ["--version"], { encoding: "utf-8" })
+  if (r.status !== 0) return null
+  return r.stdout.trim()
+}
+
+// ============================================================
+// Subcommand: version
+// ============================================================
+
+function cmdVersion(): number {
+  const oc = getOpencodeVersion() ?? "(not installed)"
+  console.log(`cheapcode ${CHEAPCODE_VERSION}`)
+  console.log(C.dim(`  opencode: ${oc}`))
+  console.log(C.dim(`  root: ${CHEAPCODE_ROOT}`))
+  console.log(C.dim(`  config: ${CHEAPCODE_HOME}`))
+  return 0
+}
+
+// ============================================================
+// Subcommand: doctor (health check)
+// ============================================================
+
+function cmdDoctor(): number {
+  console.log(C.bold("cheapcode doctor — system health check\n"))
+  let issues = 0
+
+  // 1. opencode
+  const opPath = findOpencode()
+  if (opPath) {
+    console.log(`  ${C.green("[OK]")} opencode installed at ${opPath}`)
+  } else {
+    console.log(`  ${C.red("[FAIL]")} opencode not in PATH`)
+    issues++
+  }
+
+  // 2. opencode config
+  const opCfg = join(homedir(), ".config", "opencode", "opencode.json")
+  if (existsSync(opCfg)) {
+    try {
+      JSON.parse(readFileSync(opCfg, "utf-8"))
+      console.log(`  ${C.green("[OK]")} opencode config valid: ${opCfg}`)
+    } catch (e) {
+      console.log(`  ${C.red("[FAIL]")} opencode config malformed: ${(e as Error).message}`)
+      issues++
+    }
+  } else {
+    console.log(`  ${C.yellow("[WARN]")} no opencode config at ${opCfg}`)
+  }
+
+  // 3. cheapcode provider registered in opencode
+  if (existsSync(opCfg)) {
+    const cfg = JSON.parse(readFileSync(opCfg, "utf-8"))
+    if (cfg.provider?.cheapcode) {
+      console.log(`  ${C.green("[OK]")} cheapcode provider registered in opencode.json`)
+    } else {
+      console.log(`  ${C.yellow("[WARN]")} cheapcode provider NOT in opencode.json`)
+      console.log(`    ${C.dim(`add "cheapcode": { "npm": "${CHEAPCODE_ROOT}", ... } to provider section`)}`)
+    }
+    if (cfg.mcp?.["cheapcode-accounts"]) {
+      console.log(`  ${C.green("[OK]")} cheapcode-accounts MCP server registered`)
+    } else {
+      console.log(`  ${C.yellow("[WARN]")} cheapcode-accounts MCP server NOT in opencode.json mcp section`)
+    }
+  }
+
+  // 4. accounts.json
+  const acc = join(CHEAPCODE_HOME, "..", ".config", "cheapcode", "accounts.json")
+  // actually use defaultRegistryPath logic
+  const accPath = join(homedir(), ".config", "cheapcode", "accounts.json")
+  if (existsSync(accPath)) {
+    try {
+      const reg = JSON.parse(readFileSync(accPath, "utf-8"))
+      console.log(`  ${C.green("[OK]")} accounts.json valid: ${reg.accounts?.length ?? 0} account(s)`)
+    } catch {
+      console.log(`  ${C.red("[FAIL]")} accounts.json malformed`)
+      issues++
+    }
+  } else {
+    console.log(`  ${C.dim("[INFO]")} no accounts.json yet (single-account mode active)`)
+  }
+
+  // 5. opencode auth.json
+  const auth = join(homedir(), ".local", "share", "opencode", "auth.json")
+  if (existsSync(auth)) {
+    try {
+      const a = JSON.parse(readFileSync(auth, "utf-8"))
+      console.log(`  ${C.green("[OK]")} opencode auth.json: ${Object.keys(a).length} provider(s)`)
+    } catch {
+      console.log(`  ${C.red("[FAIL]")} opencode auth.json malformed`)
+      issues++
+    }
+  } else {
+    console.log(`  ${C.yellow("[WARN]")} no opencode auth.json (run 'cheapcode providers login' first)`)
+  }
+
+  console.log()
+  if (issues === 0) {
+    console.log(C.green("all checks passed"))
+    return 0
+  }
+  console.log(C.red(`${issues} issue(s) found`))
+  return 1
+}
+
+// ============================================================
+// Subcommand: web
+// ============================================================
+
+function cmdWeb(extraArgs: string[]): number {
+  ensureOpencode()
+  // Default port 4096 unless overridden
+  const portIdx = extraArgs.indexOf("--port")
+  const port = portIdx === -1 ? DEFAULT_WEB_PORT : parseInt(extraArgs[portIdx + 1] ?? `${DEFAULT_WEB_PORT}`, 10)
+  if (isNaN(port)) fail(`invalid --port value`)
+
+  console.log(C.bold("cheapcode web"))
+  console.log()
+  console.log(`  ${C.cyan("→")} starting opencode server with cheapcode wired in...`)
+  console.log()
+
+  const args = ["web", "--port", `${port}`, ...extraArgs.filter((_, i) => i !== portIdx && i !== portIdx + 1)]
+  const child = spawn("opencode", args, { stdio: "inherit" })
+
+  // Print friendly help once server is up
+  setTimeout(() => {
+    console.log()
+    console.log(C.bold("how to use:"))
+    console.log()
+    console.log(`  1. open ${C.cyan(`http://127.0.0.1:${port}/`)} in your browser`)
+    console.log(`  2. click ${C.bold("Providers")} → ${C.bold("Connect")} for any provider you want`)
+    console.log(`  3. in the chat panel, ask the assistant to register the account:`)
+    console.log(C.dim(`     "add my OpenAI credential as a cheapcode account, priority 100, all capabilities"`))
+    console.log(`  4. verify from a shell: ${C.cyan("cheapcode accounts list")}`)
+    console.log()
+    console.log(C.dim(`  ctrl-c to stop the server`))
+    console.log()
+  }, 1500)
+
+  return new Promise<number>((resolve) => {
+    child.on("close", (code) => resolve(code ?? 0))
+  }) as never
+}
+
+// ============================================================
+// Subcommand: tui
+// ============================================================
+
+function cmdTui(extraArgs: string[]): number {
+  ensureOpencode()
+  const child = spawn("opencode", extraArgs, { stdio: "inherit" })
+  return new Promise<number>((resolve) => {
+    child.on("close", (code) => resolve(code ?? 0))
+  }) as never
+}
+
+// ============================================================
+// Subcommand: run
+// ============================================================
+
+function cmdRun(extraArgs: string[]): number {
+  ensureOpencode()
+  const child = spawn("opencode", ["run", ...extraArgs], { stdio: "inherit" })
+  return new Promise<number>((resolve) => {
+    child.on("close", (code) => resolve(code ?? 0))
+  }) as never
+}
+
+// ============================================================
+// Subcommand: providers (delegate to opencode providers)
+// ============================================================
+
+function cmdProviders(extraArgs: string[]): number {
+  ensureOpencode()
+  const child = spawn("opencode", ["providers", ...extraArgs], { stdio: "inherit" })
+  return new Promise<number>((resolve) => {
+    child.on("close", (code) => resolve(code ?? 0))
+  }) as never
+}
+
+// ============================================================
+// Subcommand: accounts (delegate to bin/cheapcode-accounts)
+// ============================================================
+
+function cmdAccounts(extraArgs: string[]): number {
+  const accBin = join(CHEAPCODE_ROOT, "bin", "cheapcode-accounts")
+  if (!existsSync(accBin)) {
+    fail(`cheapcode-accounts binary not found at ${accBin}`)
+  }
+  const child = spawn("bun", [accBin, ...extraArgs], { stdio: "inherit" })
+  return new Promise<number>((resolve) => {
+    child.on("close", (code) => resolve(code ?? 0))
+  }) as never
+}
+
+// ============================================================
+// Subcommand: status (diagnostic)
+// ============================================================
+
+function cmdStatus(extraArgs: string[]): number {
+  const statusBin = join(CHEAPCODE_ROOT, "bin", "cheapcode-account-status")
+  if (!existsSync(statusBin)) {
+    fail(`cheapcode-account-status binary not found at ${statusBin}`)
+  }
+  const child = spawn("bun", [statusBin, ...extraArgs], { stdio: "inherit" })
+  return new Promise<number>((resolve) => {
+    child.on("close", (code) => resolve(code ?? 0))
+  }) as never
+}
+
+// ============================================================
+// Subcommand: update (skeleton — re-runs install script)
+// ============================================================
+
+function cmdUpdate(): number {
+  console.log(C.bold("cheapcode update"))
+  console.log()
+  console.log(C.yellow("self-update is not yet implemented in this version."))
+  console.log()
+  console.log("for now, update manually:")
+  console.log()
+  console.log(`  ${C.cyan(`cd ${CHEAPCODE_ROOT}`)}`)
+  console.log(`  ${C.cyan(`git pull`)}`)
+  console.log(`  ${C.cyan(`bun install`)}`)
+  console.log()
+  console.log(C.dim("future: 'cheapcode update' will re-run the install script,"))
+  console.log(C.dim("fetching the latest cheapcode release from the distribution channel."))
+  return 0
+}
+
+// ============================================================
+// Subcommand: help
+// ============================================================
+
+function printHelp(): void {
+  console.log(`${C.bold("cheapcode")} ${C.dim(CHEAPCODE_VERSION)} — substrate-disciplined opencode wrapper
+
+${C.bold("usage:")}
+  ${C.cyan("cheapcode")} ${C.bold("<command>")} [options]
+
+${C.bold("commands:")}
+  ${C.cyan("web")}                start opencode web (browser UI for providers + chat)
+  ${C.cyan("tui")}                start opencode TUI
+  ${C.cyan("run")} ${C.dim("<message>")}      non-interactive run via opencode
+  ${C.cyan("providers")} ${C.dim("<sub>")}    manage opencode-side credentials (delegate)
+  ${C.cyan("accounts")} ${C.dim("<sub>")}     manage cheapcode-side multi-account metadata
+                       ${C.dim("subcommands: list, show, add, remove, update, login")}
+  ${C.cyan("status")}             diagnostic: account registry + auth resolution
+  ${C.cyan("doctor")}             system health check (opencode + configs + MCP)
+  ${C.cyan("version")}            print version
+  ${C.cyan("update")}             self-update (skeleton)
+  ${C.cyan("help")}               this text
+
+${C.bold("simple flow (non-technical user):")}
+  ${C.cyan("cheapcode web")}                          ${C.dim("# open browser, add providers, chat to register")}
+
+${C.bold("technical flow (CLI):")}
+  ${C.cyan("cheapcode providers login openrouter")}   ${C.dim("# opencode OAuth/api-key entry")}
+  ${C.cyan("cheapcode accounts add")}                 ${C.dim("# interactive metadata registration")}
+  ${C.cyan("cheapcode accounts list")}                ${C.dim("# verify")}
+  ${C.cyan("cheapcode run --model=cheapcode/cheap-fast \"hi\"")}
+
+${C.bold("docs:")} ${C.dim("https://github.com/saastemly/cheapcode (when published)")}
+`)
+}
+
+// ============================================================
+// Main
+// ============================================================
+
+async function main(): Promise<number> {
+  const argv = process.argv.slice(2)
+  const cmd = argv[0]
+  const rest = argv.slice(1)
+
+  if (!cmd || cmd === "--help" || cmd === "-h" || cmd === "help") {
+    printHelp()
+    return 0
+  }
+  if (cmd === "--version" || cmd === "-v" || cmd === "version") return cmdVersion()
+  if (cmd === "doctor") return cmdDoctor()
+  if (cmd === "web") return await (cmdWeb(rest) as unknown as Promise<number>)
+  if (cmd === "tui") return await (cmdTui(rest) as unknown as Promise<number>)
+  if (cmd === "run") return await (cmdRun(rest) as unknown as Promise<number>)
+  if (cmd === "providers" || cmd === "auth") return await (cmdProviders(rest) as unknown as Promise<number>)
+  if (cmd === "accounts" || cmd === "acc") return await (cmdAccounts(rest) as unknown as Promise<number>)
+  if (cmd === "status") return await (cmdStatus(rest) as unknown as Promise<number>)
+  if (cmd === "update") return cmdUpdate()
+  // Unknown — passthrough to opencode (so e.g. `cheapcode models` works)
+  console.log(C.dim(`(unknown cheapcode command "${cmd}"; passing through to opencode)`))
+  ensureOpencode()
+  const child = spawn("opencode", argv, { stdio: "inherit" })
+  return new Promise<number>((resolve) => {
+    child.on("close", (code) => resolve(code ?? 0))
+  })
+}
+
+main()
+  .then((code) => process.exit(code))
+  .catch((e) => {
+    console.error(C.red(`fatal: ${(e as Error).message}`))
+    process.exit(1)
+  })
