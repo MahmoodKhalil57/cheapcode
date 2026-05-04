@@ -276,7 +276,14 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
   // r170-F: apiKey is no longer required at construction. Local-only users
   // (--model=cheapcode/local) don't dispatch to OpenRouter at all. Only error
   // when a non-local tier is requested without a configured key.
-  const apiKeyMissing = !options.apiKey
+  //
+  // M20: opencode passes the LITERAL template string "{env:OPENROUTER_API_KEY}"
+  // when the env var is unset (template substitution didn't fire). Treat that
+  // as missing so the consumer-Plus OAuth fallback path gets a chance.
+  const apiKeyMissing =
+    !options.apiKey ||
+    options.apiKey.startsWith("{env:") ||
+    options.apiKey.startsWith("missing-openrouter-key-")
 
   const openrouter = createOpenRouter({
     apiKey: options.apiKey ?? "missing-openrouter-key-set-OPENROUTER_API_KEY-to-use-non-local-tiers",
