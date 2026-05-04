@@ -30,8 +30,43 @@
 
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
 import { createOpenAI } from "@ai-sdk/openai"
+import type { LanguageModelV2 } from "@ai-sdk/provider"
 import { CheapcodeAutoModel, type AutoWrapperConfig } from "./auto-wrapper"
 import type { RouterOptions, TaskShape } from "./router"
+import { loadRegistry, type AccountRegistry, type Account } from "./account-registry"
+import { wrapWithMultiAccount } from "./multi-account-language-model"
+import type { ResolvedAuth } from "./auth-resolver"
+
+// ============================================================
+// Multi-account state — loaded lazily on first provider construction.
+// Empty registry → wrapWithMultiAccount returns the base model unchanged
+// (zero overhead, full backward-compat per docs/multi-account-wiring-recipe.md).
+// Operator authors ~/.config/cheapcode/accounts.json to opt in.
+// ============================================================
+
+let _registryCache: AccountRegistry | null = null
+function getAccountRegistry(): AccountRegistry {
+  if (_registryCache === null) {
+    try {
+      _registryCache = loadRegistry()
+    } catch (e) {
+      // Malformed registry → log + fall through to empty (don't crash dispatches).
+      // eslint-disable-next-line no-console
+      console.error(`[cheapcode] account registry load failed: ${(e as Error).message}; ` +
+        `falling back to single-account mode (set OPENROUTER_API_KEY).`)
+      _registryCache = { version: 1, accounts: [] }
+    }
+  }
+  return _registryCache
+}
+
+/**
+ * For tests + hot-reload scenarios: clear the registry cache so the next
+ * call re-reads from disk. Not used by production code.
+ */
+export function _resetAccountRegistryCache(): void {
+  _registryCache = null
+}
 
 // ============================================================
 // Tier definitions (Phase 0 locked picks)
@@ -258,6 +293,40 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
   const k = options.auto?.k ?? 3
   const maxRetries = options.auto?.maxRetries ?? 1
 
+  // Multi-account model factory — invoked per-dispatch by wrapWithMultiAccount
+  // when the registry has accounts. Constructs a fresh SDK client with the
+  // chosen account's auth. For api-key accounts the apiKey is the resolved
+  // key string; for oauth accounts (api.openai.com style) the access token
+  // is used as a bearer (callers using consumer-ChatGPT-Plus OAuth would
+  // need a baseURL override — not yet wired in this version).
+  const multiAccountModelFactory = (account: Account, auth: ResolvedAuth, target: string): LanguageModelV2 => {
+    const apiKey = auth.kind === "api-key" ? auth.key : auth.access
+    if (account.provider === "openai") {
+      const modelId = target.startsWith("openai/") ? target.slice("openai/".length) : target
+      return createOpenAI({ apiKey })(modelId)
+    }
+    // Default path: route through OpenRouter with the chosen apiKey.
+    // Works for any "vendor/model" target.
+    return createOpenRouter({
+      apiKey,
+      headers: {
+        "HTTP-Referer": "https://github.com/cheapcode",
+        "X-Title": options.appName ?? "cheapcode",
+      },
+    })(target)
+  }
+
+  // Helper: wrap base model with multi-account if registry is non-empty.
+  // The wrapper's empty-registry passthrough makes this a no-op when the
+  // operator hasn't authored accounts.json. Strictly additive.
+  const wrapIfMultiAccount = (baseModel: LanguageModelV2, target: string): LanguageModelV2 => {
+    return wrapWithMultiAccount(baseModel, {
+      registry: getAccountRegistry(),
+      targetModel: target,
+      modelFactory: (account, auth) => multiAccountModelFactory(account, auth, target),
+    })
+  }
+
   const provider = ((modelId: string) => {
     // r170-F: local tier intercept — bypass OpenRouter, dispatch to local
     // OpenAI-compatible endpoint (iai-katib). Operator-explicit only;
@@ -319,10 +388,12 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
         knowabilityThreshold,
         hardClassDetection,
       }
-      return new CheapcodeAutoModel(cfg, routerOpts, (orId) => openrouter(orId))
+      // Auto-mode: route OpenRouter sub-calls through multi-account wrapper too.
+      // When registry is empty, wrapIfMultiAccount is a no-op passthrough.
+      return new CheapcodeAutoModel(cfg, routerOpts, (orId) => wrapIfMultiAccount(openrouter(orId), orId))
     }
     const target = resolveTierTarget(modelId, 0, options)
-    return openrouter(target)
+    return wrapIfMultiAccount(openrouter(target), target)
   }) as CheapcodeProvider
 
   Object.defineProperty(provider, "models", {
