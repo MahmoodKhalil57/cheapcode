@@ -34,6 +34,7 @@ claim obs_surgical_fork_loc_budget_breached: Bool @>=0.99 = False
 claim obs_upstream_files_modified_gt_2: Bool @>=0.99 = False
 claim obs_default_provider_self_heal_fails: Bool @>=0.99 = False
 claim obs_homebrew_formula_not_cellar_native: Bool @>=0.99 = False
+claim obs_npm_style_node_package_build_fails: Bool @>=0.99 = False
 
 # Competitive observations
 claim obs_cheapcode_beats_codex_falsified: Bool @>=0.99 = False
@@ -58,6 +59,14 @@ falsified_when obs_default_provider_self_heal_fails
 # zap stanza for user config/auth cleanup.
 claim homebrew_formula_is_cellar_native_and_uninstall_clean: Bool @>=0.90 = not obs_homebrew_formula_not_cellar_native
 falsified_when obs_homebrew_formula_not_cellar_native
+
+# M26 vanilla-opencode-like packaging: cheapcode should build an npm-style
+# package with Node-executable bins and a compiled provider export, while the
+# Homebrew formula uses Node at runtime plus a compiled opencode fork binary.
+# Falsifier: `bun run build:npm` fails, generated package lacks bin entries, or
+# `node .release/npm/dist/bin/cheapcode.js version` fails.
+claim npm_style_node_package_builds_for_homebrew: Bool @>=0.90 = not obs_npm_style_node_package_build_fails
+falsified_when obs_npm_style_node_package_build_fails
 
 # ============================================================
 # SECTION A - per-tier OR model choices (cheapllm-receipt-backed)

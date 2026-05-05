@@ -1,6 +1,7 @@
 node_modules/
 bun.lock
 dist/
+.release/
 .env
 .env.*
 !.env.example

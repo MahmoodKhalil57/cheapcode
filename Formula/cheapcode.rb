@@ -11,12 +11,9 @@ class Cheapcode < Formula
     strategy :github_latest
   end
 
-  # Vanilla opencode's Homebrew formula installs the published npm tarball with
-  # node + ripgrep. cheapcode is still source-distributed, so Bun is currently
-  # required as the build/runtime until we publish the fork as an npm-style
-  # package with platform artifacts.
-  depends_on "bun"
+  depends_on "node"
   depends_on "ripgrep"
+  depends_on "bun" => :build
   depends_on "git" => :build
 
   resource "opencode" do
@@ -25,22 +22,25 @@ class Cheapcode < Formula
 
   def install
     system "bun", "install", "--silent"
-    libexec.install Dir["*"]
+    system "bun", "run", "build:npm"
 
     resource("opencode").stage do
-      (libexec/"opencode").install Dir["*"]
+      (buildpath/"opencode-src").install Dir["*"]
     end
-    cd libexec/"opencode" do
+    cd buildpath/"opencode-src" do
       system "bun", "install", "--silent"
-      system "bun", "run", "--cwd", "packages/app", "build"
+      system "bun", "run", "--cwd", "packages/opencode", "build", "--single"
     end
 
-    %w[
-      cheapcode
-      cheapcode-accounts
-      cheapcode-account-status
-      cheapcode-accounts-mcp
-    ].each do |command|
+    opencode_binary = Dir["#{buildpath}/opencode-src/packages/opencode/dist/opencode-*/bin/opencode"].first
+    odie "opencode binary build failed" if opencode_binary.nil?
+    (libexec/"opencode-bin").install opencode_binary => "opencode"
+
+    cd buildpath/".release/npm" do
+      system "npm", "install", *std_npm_args
+    end
+
+    %w[cheapcode cheapcode-accounts cheapcode-account-status cheapcode-accounts-mcp].each do |command|
       write_homebrew_wrapper(command)
     end
   end
@@ -48,9 +48,9 @@ class Cheapcode < Formula
   def write_homebrew_wrapper(command)
     (bin/command).write <<~SH
       #!/bin/bash
-      export CHEAPCODE_OPENCODE="#{libexec}/opencode"
+      export CHEAPCODE_OPENCODE_BIN="#{libexec}/opencode-bin/opencode"
       export CHEAPCODE_HOMEBREW="1"
-      exec "#{Formula["bun"].opt_bin}/bun" "#{libexec}/bin/#{command}" "$@"
+      exec "#{Formula["node"].opt_bin}/node" "#{libexec}/lib/node_modules/cheapcode-ai/dist/bin/#{command}.js" "$@"
     SH
     chmod 0755, bin/command
   end

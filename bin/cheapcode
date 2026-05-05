@@ -29,6 +29,7 @@ import { homedir } from "node:os"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { ensureCheapcodeDefaults } from "../src/default-config"
+import { buildUpdateBanner, checkForUpdates } from "../src/version-check"
 
 // ============================================================
 // Version + paths
@@ -63,7 +64,7 @@ function getCheapcodeRoot(): string {
     if (existsSync(join(dir, "package.json"))) {
       try {
         const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf-8"))
-        if (pkg.name === "@cheapcode/ai-sdk-provider") return dir
+        if (pkg.name === "@cheapcode/ai-sdk-provider" || pkg.name === "cheapcode-ai") return dir
       } catch {
         // ignore parse errors, keep walking
       }
@@ -115,8 +116,16 @@ function fail(msg: string): never {
 const OPENCODE_FORK_PATH = process.env.CHEAPCODE_OPENCODE ?? join(CHEAPCODE_HOME, "opencode")
 const OPENCODE_FORK_PKG = join(OPENCODE_FORK_PATH, "packages", "opencode")
 const OPENCODE_FORK_ENTRY = join(OPENCODE_FORK_PKG, "src", "index.ts")
+const OPENCODE_BIN = process.env.CHEAPCODE_OPENCODE_BIN
 
 function ensureOpencodeFork(): void {
+  if (OPENCODE_BIN) {
+    if (!existsSync(OPENCODE_BIN)) {
+      console.error(C.red(`cheapcode opencode binary not found at ${OPENCODE_BIN}.`))
+      process.exit(2)
+    }
+    return
+  }
   if (!existsSync(OPENCODE_FORK_ENTRY)) {
     console.error(C.red(`cheapcode opencode fork not found at ${OPENCODE_FORK_PATH}.`))
     console.error(C.dim("re-run install:"))
@@ -130,6 +139,11 @@ function ensureOpencodeFork(): void {
 }
 
 function getOpencodeVersion(): string | null {
+  if (OPENCODE_BIN) {
+    const r = spawnSync(OPENCODE_BIN, ["--version"], { encoding: "utf8" })
+    const version = r.stdout.trim() || r.stderr.trim()
+    return version ? `${version} (cheapcode fork binary)` : null
+  }
   // Read packages/opencode/package.json from the fork
   const pkgPath = join(OPENCODE_FORK_PKG, "package.json")
   if (!existsSync(pkgPath)) return null
@@ -151,6 +165,12 @@ function getOpencodeVersion(): string | null {
  */
 function spawnOpencodeFork(args: string[], opts: { stdio?: "inherit" | "pipe"; env?: NodeJS.ProcessEnv } = {}) {
   ensureOpencodeFork()
+  if (OPENCODE_BIN) {
+    return spawn(OPENCODE_BIN, args, {
+      stdio: opts.stdio ?? "inherit",
+      env: { ...process.env, ...(opts.env ?? {}), CHEAPCODE_FORK: "1" },
+    })
+  }
   return spawn(
     "bun",
     [
@@ -301,8 +321,7 @@ async function cmdWeb(extraArgs: string[]): Promise<number> {
     // version + update status in the browser. Non-tech users who never see
     // the terminal banner discover updates here.
     try {
-      const mod = await import(join(CHEAPCODE_ROOT, "src", "version-check.ts"))
-      const result = mod.checkForUpdates({
+      const result = checkForUpdates({
         cheapcodeRoot: CHEAPCODE_ROOT,
         forkPath: OPENCODE_FORK_PATH,
       })
@@ -329,26 +348,35 @@ async function cmdWeb(extraArgs: string[]): Promise<number> {
 
   const passthroughArgs = extraArgs.filter((_, i) => i !== portIdx && i !== portIdx + 1)
   const args = ["web", "--port", `${port}`, ...passthroughArgs]
-  const child = spawn(
-    "bun",
-    [
-      "run",
-      "--cwd", OPENCODE_FORK_PKG,
-      "--conditions=browser",
-      OPENCODE_FORK_ENTRY,
-      ...args,
-    ],
-    {
-      stdio: "inherit",
-      env: {
-        ...process.env,
-        // CHEAPCODE_FORK=1 nests XDG paths under cheapcode/opencode/ so we
-        // never read or write vanilla opencode's auth.json / opencode.json.
-        CHEAPCODE_FORK: "1",
-        ...(existsSync(uiDist) ? { OPENCODE_UI_DIST: uiDist } : {}),
-      },
-    },
-  )
+  const child = OPENCODE_BIN
+    ? spawn(OPENCODE_BIN, args, {
+        stdio: "inherit",
+        env: {
+          ...process.env,
+          CHEAPCODE_FORK: "1",
+          ...(existsSync(uiDist) ? { OPENCODE_UI_DIST: uiDist } : {}),
+        },
+      })
+    : spawn(
+        "bun",
+        [
+          "run",
+          "--cwd", OPENCODE_FORK_PKG,
+          "--conditions=browser",
+          OPENCODE_FORK_ENTRY,
+          ...args,
+        ],
+        {
+          stdio: "inherit",
+          env: {
+            ...process.env,
+            // CHEAPCODE_FORK=1 nests XDG paths under cheapcode/opencode/ so we
+            // never read or write vanilla opencode's auth.json / opencode.json.
+            CHEAPCODE_FORK: "1",
+            ...(existsSync(uiDist) ? { OPENCODE_UI_DIST: uiDist } : {}),
+          },
+        },
+      )
 
   setTimeout(() => {
     console.log()
@@ -694,12 +722,11 @@ async function cmdUpdate(extraArgs: string[]): Promise<number> {
 async function printUpdateBannerIfAvailable(): Promise<void> {
   try {
     if (process.env.CHEAPCODE_NO_UPDATE_CHECK === "1") return
-    const mod = await import(join(CHEAPCODE_ROOT, "src", "version-check.ts"))
-    const result = mod.checkForUpdates({
+    const result = checkForUpdates({
       cheapcodeRoot: CHEAPCODE_ROOT,
       forkPath: OPENCODE_FORK_PATH,
     })
-    const banner = mod.buildUpdateBanner(result)
+    const banner = buildUpdateBanner(result)
     if (banner) {
       console.log()
       console.log(C.yellow(banner))
