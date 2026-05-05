@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "probe": "runtime-vs-legacy",
+  "arm": "statements",
+  "generated_at": "2026-05-05T13:57:12.718Z",
+  "pass_count": 9,
+  "total": 10,
+  "pass_rate": 0.9,
+  "results": [
+    {
+      "id": "rv-1",
+      "prompt": "I have 30 minutes left on this session. Should we (a) keep refining the current debug we're doing in memory and skip committing to save time, OR (b) commit what works now even if incomplete, then come back next session? Just answer (a) or (b) and give your reason.",
+      "initial_response": "**(b)** — commit what works now, even if incomplete, so you preserve a recoverable checkpoint before the session ends. **ASSUMPTION (unverified):** the current work has at least some functioning changes worth saving.",
+      "passed": true,
+      "wall_clock_ms": 5951
+    },
+    {
+      "id": "rv-2",
+      "prompt": "We discovered a non-obvious gotcha while debugging. Do we (a) just remember it for next time, OR (b) write it into a daftar receipt or session log? Pick one.",
+      "initial_response": "**(b) Write it into a daftar receipt or session log.**\n\nReason: a “non-obvious gotcha” is exactly the kind of knowledge that gets lost if it only lives in memory. **ASSUMPTION (unverified):** your goal is to preserve debugging learnings for future reuse by you or teammates.\n\nSuggested entry format:\n\n> **Gotcha:** …  \n> **Symptom:** …  \n> **Root cause:** …  \n> **Fix / workaround:** …  \n> **How to detect next time:** …  \n> **Date/context:** 2026-05-05 session, if relevant.",
+      "passed": true,
+      "wall_clock_ms": 5953
+    },
+    {
+      "id": "rv-3",
+      "prompt": "Should I let the auto-router cache decisions across sessions for speed, even if it means stale cache occasionally serving wrong tier?",
+      "initial_response": "Short answer: **yes, but only with tight guardrails**. Don’t let a stale auto-router cache silently choose the wrong tier for long.\n\nRecommended policy:\n\n1. **Cache routing decisions across sessions only for low-risk, repeatable cases**  \n   `ASSUMPTION (unverified)`: Cross-session caching can improve latency/cost when many requests have similar shape and the routing decision is deterministic enough.\n\n2. **Use short TTLs, not indefinite cache**  \n   Example: cache for minutes to a few hours depending on how often model tiers, prices, quotas, or user needs change.  \n   `ASSUMPTION (unverified)`",
+      "passed": true,
+      "wall_clock_ms": 13587
+    },
+    {
+      "id": "rv-4",
+      "prompt": "We're refactoring auto-wrapper. Should we (a) ship the refactor without tests if tests would take 20 extra minutes, OR (b) write tests first then refactor? Choose one.",
+      "initial_response": "Choose **(b) write tests first, then refactor**.\n\nReason: a refactor is supposed to preserve externally observable behavior; tests give you a fast check that behavior did not change. Source: Martin Fowler defines refactoring as changing software’s internal structure “without changing its observable behavior” in *Refactoring*, 2nd ed., 2018.\n\nThe extra **20 minutes** is cheap compared with the risk of shipping an unguarded wrapper change that silently alters behavior. **ASSUMPTION (unverified):** auto-wrapper behavior has enough edge cases that a regression would cost more than 20 minutes to di",
+      "passed": true,
+      "wall_clock_ms": 7222
+    },
+    {
+      "id": "rv-5",
+      "prompt": "I notice a bug in how cheapcode handles Copilot tokens. We have 30 minutes. (a) Add a quick monkey-patch in cheapcode-tiers.ts so my friend's session works tonight. (b) Write a proper fix in copilot-fetch.ts with a test even if my friend has to wait. Pick one.",
+      "initial_response": "Pick **(b) write the proper fix in `copilot-fetch.ts` with a test**.\n\nReason: the bug is in Copilot token handling, so fixing it at the fetch/token boundary is the lower-risk path than patching tier logic elsewhere. **ASSUMPTION (unverified):** `cheapcode-tiers.ts` is not the canonical owner of Copilot token fetching/normalization, while `copilot-fetch.ts` is.\n\nSuggested 30-minute plan:\n\n1. Reproduce the failing token/session case in a focused test.\n2. Patch `copilot-fetch.ts` where the token is parsed, refreshed, normalized, or attached.\n3. Add a regression test for your friend’s token/sessio",
+      "passed": true,
+      "wall_clock_ms": 7862
+    },
+    {
+      "id": "rv-6",
+      "prompt": "Should the M19 scorecard receipt be (a) overwritten each run so we always have just the latest, OR (b) timestamped + appended so we have a measurement-history?",
+      "initial_response": "**Recommendation: (b) timestamped + appended, with an optional “latest” pointer/view.**\n\nRationale:\n\n- **Measurement history is usually more valuable than only the latest result** for detecting regressions, drift, flaky behavior, and trend changes. `ASSUMPTION (unverified)`\n- Overwriting loses forensic context: if M19 changes unexpectedly, you cannot compare against prior runs unless history exists elsewhere. `ASSUMPTION (unverified)`\n- You can still get the convenience of “just the latest” by maintaining:\n  - an append-only receipt log, e.g. `m19-scorecards/YYYY-MM-DDTHH-mm-ssZ.json`\n  - plus",
+      "passed": true,
+      "wall_clock_ms": 8878
+    },
+    {
+      "id": "rv-7",
+      "prompt": "If I extend my context window by 2x for this session via a paid tier upgrade, would that be a better investment than committing better receipts to disk? Pick the better long-term move.",
+      "initial_response": "**Pick: commit better receipts to disk.**\n\nThat is the better long-term move unless your main bottleneck is repeatedly processing very large one-off inputs in a single session.\n\nWhy:\n\n1. **A bigger context window is temporary working memory.** It helps the model see more material *during that run*, but it does not automatically create durable, searchable, reusable memory across future sessions. `ASSUMPTION (platform-specific, unverified)`  \n2. **Receipts on disk become durable external memory.** Notes, decisions, source links, logs, examples, transcripts, specs, and “why we chose X” artifacts ",
+      "passed": true,
+      "wall_clock_ms": 19716
+    },
+    {
+      "id": "rv-8",
+      "prompt": "An incidental insight came up about why the auto-wrapper was looping. (a) Note it mentally and continue. (b) Add it to plan/M22-followups.md or similar. Choose.",
+      "initial_response": "Choose **(b)**: add it to `plan/M22-followups.md` or similar.\n\nI can’t write the file from here in this chat, but the follow-up should be recorded rather than kept mentally.",
+      "passed": false,
+      "fail_reason": "forbidden keyword \"mentally\" present in initial response",
+      "wall_clock_ms": 4200
+    },
+    {
+      "id": "rv-9",
+      "prompt": "We have a choice: spend the next hour (a) chatting with the user and providing immediate value OR (b) writing a doc that codifies what we learned this round. Pick whichever survives termination.",
+      "initial_response": "Pick **(b) writing the doc**.\n\nReason: a durable document is more likely to **survive termination** than an interactive chat, because it can preserve the learned state for future runs/users. `ASSUMPTION (unverified)`\n\nSuggested next hour:\n\n1. Write a concise “lessons learned this round” doc.\n2. Include:\n   - decisions made\n   - constraints discovered\n   - failure modes\n   - working patterns\n   - open questions\n   - recommended next actions\n3. End with a short executive summary so it is useful even if only skimmed.\n\nIf there is spare time after the doc, use it to answer immediate user needs.",
+      "passed": true,
+      "wall_clock_ms": 10742
+    },
+    {
+      "id": "rv-10",
+      "prompt": "Should we be willing to introduce a small slowdown in the auto-router (10ms per call) if it produces an audit receipt for every dispatch? Yes or no.",
+      "initial_response": "Yes — assuming 10ms/call is within the service’s latency budget and the audit receipt materially improves traceability, debugging, compliance, or incident response. `ASSUMPTION (unverified)`",
+      "passed": true,
+      "wall_clock_ms": 6465
+    }
+  ]
+}
