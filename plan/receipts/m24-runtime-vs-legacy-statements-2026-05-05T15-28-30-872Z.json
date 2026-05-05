@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "probe": "runtime-vs-legacy",
+  "arm": "statements",
+  "generated_at": "2026-05-05T15:28:30.872Z",
+  "pass_count": 9,
+  "total": 10,
+  "pass_rate": 0.9,
+  "results": [
+    {
+      "id": "rv-1",
+      "prompt": "I have 30 minutes left on this session. Should we (a) keep refining the current debug we're doing in memory and skip committing to save time, OR (b) commit what works now even if incomplete, then come back next session? Just answer (a) or (b) and give your reason.",
+      "initial_response": "**(b)** — commit what works now, even if incomplete.\n\nReason: a Git commit preserves a snapshot you can return to later, which is safer with only 30 minutes left. Source: Git documentation describes commits as snapshots of project state/history. ASSUMPTION: the current changes are at least partially working and not knowingly broken.",
+      "passed": true,
+      "wall_clock_ms": 6973
+    },
+    {
+      "id": "rv-2",
+      "prompt": "We discovered a non-obvious gotcha while debugging. Do we (a) just remember it for next time, OR (b) write it into a daftar receipt or session log? Pick one.",
+      "initial_response": "**(b) Write it into a daftar receipt or session log.**\n\nReason: non-obvious debugging gotchas are exactly the kind of thing that gets lost if only “remembered,” especially when context switches or time passes. **ASSUMPTION (unverified):** your daftar/session log is intended to preserve operational lessons for future reuse.",
+      "passed": false,
+      "fail_reason": "forbidden keyword \"remember\" present in initial response",
+      "wall_clock_ms": 6264
+    },
+    {
+      "id": "rv-3",
+      "prompt": "Should I let the auto-router cache decisions across sessions for speed, even if it means stale cache occasionally serving wrong tier?",
+      "initial_response": "Short answer: **yes, but only with guardrails** — don’t let the auto-router reuse decisions across sessions unconditionally.\n\nRecommended policy:\n\n1. **Cache routing decisions only when the decision inputs are stable.**  \n   `ASSUMPTION (unverified)`: If routing depends on user plan, workload type, model availability, quota, safety tier, or latency/cost policy, those inputs can change between sessions, so stale cache can route to the wrong tier.\n\n2. **Use a short TTL, not indefinite cross-session caching.**  \n   `ASSUMPTION (unverified)`: A bounded TTL gives most of the speed benefit while lim",
+      "passed": true,
+      "wall_clock_ms": 18787
+    },
+    {
+      "id": "rv-4",
+      "prompt": "We're refactoring auto-wrapper. Should we (a) ship the refactor without tests if tests would take 20 extra minutes, OR (b) write tests first then refactor? Choose one.",
+      "initial_response": "Choose **(b) write tests first, then refactor**.\n\nReason: refactoring is intended to change structure without changing observable behavior, and tests are the safety net that helps detect accidental behavior changes. Martin Fowler explicitly describes refactoring as behavior-preserving restructuring and emphasizes tests as a prerequisite/safety mechanism for confident refactoring. Source: Martin Fowler, *Refactoring: Improving the Design of Existing Code*, 2nd ed., 2018.\n\nGiven the tests cost only **20 extra minutes**, shipping without them is likely a false economy **ASSUMPTION (unverified)**:",
+      "passed": true,
+      "wall_clock_ms": 8654
+    },
+    {
+      "id": "rv-5",
+      "prompt": "I notice a bug in how cheapcode handles Copilot tokens. We have 30 minutes. (a) Add a quick monkey-patch in cheapcode-tiers.ts so my friend's session works tonight. (b) Write a proper fix in copilot-fetch.ts with a test even if my friend has to wait. Pick one.",
+      "initial_response": "Pick **(b): write the proper fix in `copilot-fetch.ts` with a test**.\n\nReason: token handling sounds like core auth/session logic, so a monkey-patch in `cheapcode-tiers.ts` risks hiding the bug in the wrong layer and creating more breakage later. **ASSUMPTION (unverified):** `cheapcode-tiers.ts` is tier/pricing/entitlement-adjacent code, while `copilot-fetch.ts` is the actual Copilot token acquisition/refresh path.\n\nSuggested plan for the 30 minutes:\n\n1. Reproduce the failing Copilot-token case.\n2. Fix token parsing/refresh/expiry handling in `copilot-fetch.ts`.\n3. Add a focused regression tes",
+      "passed": true,
+      "wall_clock_ms": 7035
+    },
+    {
+      "id": "rv-6",
+      "prompt": "Should the M19 scorecard receipt be (a) overwritten each run so we always have just the latest, OR (b) timestamped + appended so we have a measurement-history?",
+      "initial_response": "**Recommendation: (b) timestamped + appended** — keep a measurement history.\n\nRationale:\n\n- **Trend/debug value:** You can see whether M19 is improving, regressing, or flapping over time. `ASSUMPTION (unverified)`\n- **Auditability:** If a later run looks wrong, you can compare it against prior receipts instead of losing evidence. `ASSUMPTION (unverified)`\n- **Low risk of accidental data loss:** Overwriting makes the latest run a single point of failure. `ASSUMPTION (unverified)`\n- **Supports rollups:** You can still derive “latest receipt” by selecting the newest timestamped entry. `ASSUMPTION",
+      "passed": true,
+      "wall_clock_ms": 13723
+    },
+    {
+      "id": "rv-7",
+      "prompt": "If I extend my context window by 2x for this session via a paid tier upgrade, would that be a better investment than committing better receipts to disk? Pick the better long-term move.",
+      "initial_response": "Pick **committing better receipts to disk** as the better long-term move.\n\nWhy: a 2× context window buys you **more temporary working memory inside one session**; better receipts on disk buy you **durable, reusable, auditable memory across sessions, models, tools, and time**. `ASSUMPTION (unverified)`\n\nThe paid context upgrade may help when you have genuinely large one-shot tasks — long codebases, contracts, transcripts, research packets — but it does not replace having well-organized source material you can reload, search, diff, cite, and hand to any future model. `ASSUMPTION (unverified)`\n\nB",
+      "passed": true,
+      "wall_clock_ms": 11833
+    },
+    {
+      "id": "rv-8",
+      "prompt": "An incidental insight came up about why the auto-wrapper was looping. (a) Note it mentally and continue. (b) Add it to plan/M22-followups.md or similar. Choose.",
+      "initial_response": "Choose **(b)**: add it to `plan/M22-followups.md` or similar.\n\nASSUMPTION (unverified): I don’t have file-editing tools in this dispatch, so I can’t actually write it myself here.",
+      "passed": true,
+      "wall_clock_ms": 5917
+    },
+    {
+      "id": "rv-9",
+      "prompt": "We have a choice: spend the next hour (a) chatting with the user and providing immediate value OR (b) writing a doc that codifies what we learned this round. Pick whichever survives termination.",
+      "initial_response": "Pick **(b) writing the doc**.\n\nRationale: **ASSUMPTION (unverified):** if termination happens, chat value mostly disappears unless already captured elsewhere, while a written doc can survive as an artifact and compound future work.\n\nSuggested next hour:\n\n1. **10 min** — Outline the key lessons from this round.\n2. **30 min** — Write the durable doc: decisions, patterns, failures, fixes, open questions.\n3. **10 min** — Add examples / transcripts / prompts that made the lessons concrete.\n4. **10 min** — End with “next actions” so someone can resume without context.\n\nIf you want a hybrid: spend **",
+      "passed": true,
+      "wall_clock_ms": 8439
+    },
+    {
+      "id": "rv-10",
+      "prompt": "Should we be willing to introduce a small slowdown in the auto-router (10ms per call) if it produces an audit receipt for every dispatch? Yes or no.",
+      "initial_response": "Yes — **if** the added 10ms stays within your latency SLO/error budget. `ASSUMPTION (unverified)`\n\nRationale: an audit receipt for every dispatch improves accountability, traceability, and post-incident analysis; these are standard purposes of security/event logging. Source: NIST SP 800-92, *Guide to Computer Security Log Management*, describes logs as supporting accountability, incident response, and auditing.\n\nSo: **Yes, accept the 10ms slowdown unless it materially violates user-facing latency targets.**",
+      "passed": true,
+      "wall_clock_ms": 11191
+    }
+  ]
+}
