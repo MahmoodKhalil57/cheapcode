@@ -210,7 +210,10 @@ function cmdDoctor(): number {
   let issues = 0
 
   // 1. opencode fork
-  if (existsSync(OPENCODE_FORK_ENTRY)) {
+  if (OPENCODE_BIN && existsSync(OPENCODE_BIN)) {
+    const v = getOpencodeVersion() ?? "(version unknown)"
+    console.log(`  ${C.green("[OK]")} cheapcode opencode binary at ${OPENCODE_BIN} ${C.dim(v)}`)
+  } else if (existsSync(OPENCODE_FORK_ENTRY)) {
     const v = getOpencodeVersion() ?? "(version unknown)"
     console.log(`  ${C.green("[OK]")} cheapcode opencode fork at ${OPENCODE_FORK_PATH} ${C.dim(v)}`)
   } else {

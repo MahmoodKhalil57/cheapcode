@@ -19,13 +19,10 @@ class Cheapcode < Formula
   depends_on "node"
   depends_on "ripgrep"
 
-  on_system do
-    depends_on "bun" => :build if build.head?
-    depends_on "git" => :build if build.head?
-  end
-
   def install
     if build.head?
+      odie "HEAD builds require bun in PATH" unless which("bun")
+      odie "HEAD builds require git in PATH" unless which("git")
       system "bun", "install", "--silent"
       odie "HEAD builds require CHEAPCODE_OPENCODE_BIN pointing at a prebuilt cheapcode-opencode binary" unless ENV["CHEAPCODE_OPENCODE_BIN"]
       system "bun", "run", "build:homebrew-artifact"
@@ -64,7 +61,7 @@ class Cheapcode < Formula
 
       Homebrew uninstall removes the Cellar files and bin wrappers. To remove
       user config/auth/cache too, run:
-        brew uninstall --zap cheapcode
+        rm -rf ~/.config/cheapcode ~/.local/share/cheapcode ~/.cache/cheapcode ~/.local/state/cheapcode
 
       Packaging note: stable installs use a prebuilt GitHub release artifact and
       do not contact npm during brew install. HEAD builds are developer-only and
@@ -81,11 +78,4 @@ class Cheapcode < Formula
   test do
     assert_match "cheapcode", shell_output("#{bin}/cheapcode version")
   end
-
-  zap trash: [
-    "~/.config/cheapcode",
-    "~/.local/share/cheapcode",
-    "~/.cache/cheapcode",
-    "~/.local/state/cheapcode",
-  ]
 end

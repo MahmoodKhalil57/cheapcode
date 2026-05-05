@@ -26,12 +26,12 @@ test("Homebrew formula exposes wrapper bins instead of ~/.cheapcode symlinks", (
   expect(text).not.toContain("install.sh")
 })
 
-test("Homebrew formula has clean uninstall/zap boundaries", () => {
+test("Homebrew formula documents manual user-state cleanup without unsupported zap DSL", () => {
   const text = formula()
   expect(text).toContain("def caveats")
-  expect(text).toContain("zap trash:")
-  expect(text).toContain('"~/.config/cheapcode"')
-  expect(text).toContain('"~/.local/share/cheapcode"')
+  expect(text).not.toContain("zap trash:")
+  expect(text).toContain("~/.config/cheapcode")
+  expect(text).toContain("~/.local/share/cheapcode")
 })
 
 test("accounts login delegates through cheapcode when running from Homebrew", () => {
@@ -62,4 +62,15 @@ test("stable Homebrew install does not need blocked npm dependencies", () => {
   for (const blocked of ["typescript", "@ai-sdk/anthropic", "@ai-sdk/openai", "@openrouter/ai-sdk-provider", '"ai"']) {
     expect(text).not.toContain(blocked)
   }
+})
+
+test("Homebrew formula avoids unsupported conditional system blocks", () => {
+  const text = formula()
+  expect(text).not.toContain("on_system do")
+})
+
+test("doctor accepts Homebrew packaged opencode binary", () => {
+  const text = cheapcodeCli()
+  expect(text).toContain('if (OPENCODE_BIN && existsSync(OPENCODE_BIN))')
+  expect(text).toContain('cheapcode opencode binary at ${OPENCODE_BIN}')
 })

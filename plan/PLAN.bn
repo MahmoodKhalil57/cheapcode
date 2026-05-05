@@ -34,6 +34,9 @@ claim obs_surgical_fork_loc_budget_breached: Bool @>=0.99 = False
 claim obs_upstream_files_modified_gt_2: Bool @>=0.99 = False
 claim obs_default_provider_self_heal_fails: Bool @>=0.99 = False
 claim obs_homebrew_formula_not_cellar_native: Bool @>=0.99 = False
+claim obs_copilot_stream_lifecycle_breaks_opencode_processor: Bool @>=0.99 = False
+claim obs_copilot_fallback_blocked_by_exhausted_openai_oauth: Bool @>=0.99 = False
+claim obs_homebrew_doctor_rejects_packaged_opencode_bin: Bool @>=0.99 = False
 claim obs_npm_style_node_package_build_fails: Bool @>=0.99 = False
 
 # Competitive observations
@@ -59,6 +62,21 @@ falsified_when obs_default_provider_self_heal_fails
 # zap stanza for user config/auth cleanup.
 claim homebrew_formula_is_cellar_native_and_uninstall_clean: Bool @>=0.90 = not obs_homebrew_formula_not_cellar_native
 falsified_when obs_homebrew_formula_not_cellar_native
+
+# M25 runtime install/provider fixes: Copilot-only and mixed-provider installs
+# must be usable from opencode's CLI/web stream processor, and Homebrew's
+# packaged opencode binary must satisfy doctor without requiring a source fork.
+claim copilot_streams_emit_opencode_text_part_lifecycle: Bool @>=0.90 = not obs_copilot_stream_lifecycle_breaks_opencode_processor
+falsified_when obs_copilot_stream_lifecycle_breaks_opencode_processor
+
+claim copilot_credentials_can_dispatch_when_openai_oauth_is_exhausted: Bool @>=0.90 = not obs_copilot_fallback_blocked_by_exhausted_openai_oauth
+falsified_when obs_copilot_fallback_blocked_by_exhausted_openai_oauth
+
+claim auto_tier_resolves_to_supported_model_targets: Bool @>=0.90 = not obs_auto_router_apophatic_pattern_fails
+falsified_when obs_auto_router_apophatic_pattern_fails
+
+claim homebrew_doctor_accepts_packaged_opencode_binary: Bool @>=0.90 = not obs_homebrew_doctor_rejects_packaged_opencode_bin
+falsified_when obs_homebrew_doctor_rejects_packaged_opencode_bin
 
 # M26 vanilla-opencode-like packaging: cheapcode should build an npm-style
 # package with Node-executable bins and a compiled provider export, while the

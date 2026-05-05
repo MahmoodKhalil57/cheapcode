@@ -14,8 +14,11 @@
  * error so consumers know to route elsewhere.
  */
 
+import { mkdirSync, rmSync, writeFileSync } from "node:fs"
+import { join } from "node:path"
+import { tmpdir } from "node:os"
 import { test, expect } from "bun:test"
-import { createCheapcodeProvider } from "./cheapcode-tiers"
+import { createCheapcodeProvider, generateBackedStreamModelForOpencode } from "./cheapcode-tiers"
 
 function makeProvider() {
   return createCheapcodeProvider({ apiKey: "fake-key-for-tests", name: "cheapcode" } as any)
@@ -107,4 +110,65 @@ test("provider('auto') returns the auto-router model (regression)", () => {
   const p = makeProvider() as any
   const m = p("auto")
   expect(m.modelId).toBe("auto")
+})
+
+test("Copilot fallback wins over exhausted OpenAI OAuth when both credentials exist", () => {
+  const oldXdg = process.env.XDG_DATA_HOME
+  const dir = join(tmpdir(), `cheapcode-copilot-priority-${Date.now()}`)
+  try {
+    process.env.XDG_DATA_HOME = dir
+    const authDir = join(dir, "cheapcode", "opencode")
+    mkdirSync(authDir, { recursive: true })
+    writeFileSync(
+      join(authDir, "auth.json"),
+      JSON.stringify({
+        openai: { type: "oauth", access: "openai-access", refresh: "openai-refresh", expires: Date.now() + 3600_000 },
+        "github-copilot": { type: "oauth", access: "copilot-access", refresh: "copilot-refresh", expires: Date.now() + 3600_000 },
+      }),
+    )
+    const p = createCheapcodeProvider({ apiKey: "", name: "cheapcode" } as any) as any
+    const m = p("cheap")
+    expect(m.modelId).toBe("claude-haiku-4.5")
+    expect(m.provider).not.toBe("openai-consumer-plus-oauth-pool")
+  } finally {
+    if (oldXdg === undefined) delete process.env.XDG_DATA_HOME
+    else process.env.XDG_DATA_HOME = oldXdg
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
+test("Copilot stream wrapper emits opencode text lifecycle around generated text", async () => {
+  const wrapped = generateBackedStreamModelForOpencode({
+    specificationVersion: "v3",
+    provider: "github-copilot",
+    modelId: "gpt-5.4",
+    async doGenerate() {
+      return {
+        content: [{ type: "text", text: "hello" }],
+        finishReason: "stop",
+        usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
+      }
+    },
+  } as any) as any
+
+  const { stream } = await wrapped.doStream({})
+  const reader = stream.getReader()
+  const types: string[] = []
+  let text = ""
+  while (true) {
+    const { value, done } = await reader.read()
+    if (done) break
+    types.push(value.type)
+    if (value.type === "text-delta") text += value.delta
+  }
+
+  expect(types).toEqual(["stream-start", "response-metadata", "text-start", "text-delta", "text-end", "finish"])
+  expect(text).toBe("hello")
+})
+
+test("auto model is callable and returns a model object", () => {
+  const p = createCheapcodeProvider({ apiKey: "fake-key-for-tests", name: "cheapcode" } as any) as any
+  const model = p("auto")
+  expect(model).toBeDefined()
+  expect(model.modelId).toBe("auto")
 })

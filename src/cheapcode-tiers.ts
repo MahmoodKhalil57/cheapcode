@@ -407,8 +407,8 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
     //     createOpenAI with customFetch (default OpenAI-compat for gpt-*
     //     models in the operator's Copilot catalog).
     if (apiKeyMissing && modelId !== "local") {
+      const copilot = detectCopilotOAuth()
       const consumerPlus = detectConsumerPlusOAuth()
-      const copilot = !consumerPlus ? detectCopilotOAuth() : undefined
       if (copilot) {
         const tierModelId = pickCopilotModelForTier(modelId, options)
         if (modelId === "auto" && autoEnabled) {
@@ -445,7 +445,7 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
             buildCopilotModel(
               copilot.authPath,
               copilot.authKey,
-              orId.startsWith("github-copilot/") ? orId.slice("github-copilot/".length) : tierModelId,
+              orId.startsWith("github-copilot/") ? orId.slice("github-copilot/".length) : orId,
             ),
           )
         }
@@ -560,7 +560,10 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
       }
       // Auto-mode: route OpenRouter sub-calls through multi-account wrapper too.
       // When registry is empty, wrapIfMultiAccount is a no-op passthrough.
-      return new CheapcodeAutoModel(cfg, routerOpts, (orId) => wrapIfMultiAccount(openrouter(orId), orId))
+      return new CheapcodeAutoModel(cfg, routerOpts, (orId) => {
+        const resolved = orId === "auto" ? smartTarget : orId
+        return wrapIfMultiAccount(openrouter(resolved), resolved)
+      })
     }
     const target = resolveTierTarget(modelId, 0, options)
     return wrapIfMultiAccount(openrouter(target), target)
@@ -853,20 +856,105 @@ function isClaudeModelId(modelId: string): boolean {
  * actually serve in that format, the upstream call returns a Copilot 4xx,
  * which the caller surfaces.
  */
+/**
+ * Normalize a target id to the bare model id that Copilot's catalog expects.
+ * Copilot's API rejects vendor-prefixed ids like "openai/gpt-5-mini" or
+ * "anthropic/claude-haiku-4.5" with "The requested model is not supported."
+ * Stripping the prefix yields "gpt-5-mini" / "claude-haiku-4.5" which match
+ * the friend's catalog (COPILOT_FRIEND_KNOWN_MODELS).
+ *
+ * Some openrouter ids don't map to Copilot at all (e.g. deepseek-v4-flash).
+ * For those, fall back to a Copilot equivalent for the same role:
+ *   deepseek-v4-flash / deepseek-* → claude-haiku-4.5  (cheap-fast role)
+ *   gemini-2.5-flash               → gemini-2.5-pro    (cheap variant)
+ *   grok-4-fast / grok-*           → claude-haiku-4.5  (long-context role)
+ *   llama-*                        → gpt-5-mini        (cheap-classify role)
+ */
+export function normalizeCopilotModelId(target: string): string {
+  // Strip vendor prefix
+  const slashIdx = target.indexOf("/")
+  const bare = slashIdx >= 0 ? target.slice(slashIdx + 1) : target
+
+  // Already known to the friend's Copilot catalog → use as-is
+  if (COPILOT_FRIEND_KNOWN_MODELS.has(bare)) return bare
+
+  // Provider-family fallbacks for routes Copilot doesn't directly serve
+  if (/^deepseek/i.test(bare)) return "claude-haiku-4.5"
+  if (/^gemini-2\.5-flash/i.test(bare)) return "gemini-2.5-pro"
+  if (/^grok/i.test(bare) || /^x-ai/i.test(target)) return "claude-haiku-4.5"
+  if (/^llama/i.test(bare) || /^meta-llama/i.test(target)) return "gpt-5-mini"
+
+  // Last-resort: hand the bare id to Copilot. If it's not in their catalog
+  // they'll return "model not supported" — which is the same failure mode
+  // as before but no longer caused by the vendor-prefix being present.
+  return bare
+}
+
 function buildCopilotModel(authPath: string, authKey: string, modelId: string): LanguageModelV2 {
+  const normalizedId = normalizeCopilotModelId(modelId)
   const fetchFn = buildCopilotFetch({ authPath, authKey })
-  if (isClaudeModelId(modelId)) {
-    return createAnthropic({
+  let model: LanguageModelV2
+  if (isClaudeModelId(normalizedId)) {
+    model = createAnthropic({
       apiKey: "dummy-overridden-by-fetch",
       baseURL: "https://api.githubcopilot.com/v1",
       fetch: fetchFn,
-    })(modelId) as unknown as LanguageModelV2
+    })(normalizedId) as unknown as LanguageModelV2
+  } else {
+    model = createOpenAI({
+      apiKey: "dummy-overridden-by-fetch",
+      baseURL: "https://api.githubcopilot.com",
+      fetch: fetchFn,
+    })(normalizedId)
   }
-  return createOpenAI({
-    apiKey: "dummy-overridden-by-fetch",
-    baseURL: "https://api.githubcopilot.com",
-    fetch: fetchFn,
-  })(modelId)
+  return generateBackedStreamModelForOpencode(model)
+}
+
+function extractTextContent(content: unknown): string {
+  if (!Array.isArray(content)) return ""
+  return content
+    .map((part) => {
+      if (!part || typeof part !== "object") return ""
+      const p = part as { type?: string; text?: string }
+      return p.type === "text" && typeof p.text === "string" ? p.text : ""
+    })
+    .join("")
+}
+
+export function generateBackedStreamModelForOpencode(model: LanguageModelV2): LanguageModelV2 {
+  return new Proxy(model as LanguageModelV2 & { doGenerate?: (options: unknown) => Promise<any> }, {
+    get(target, prop, receiver) {
+      if (prop !== "doStream") return Reflect.get(target, prop, receiver)
+      return async (options: unknown) => {
+        const result = await target.doGenerate?.(options)
+        const text = extractTextContent(result?.content)
+        const textId = "txt-0"
+        return {
+          stream: new ReadableStream({
+            start(controller) {
+              controller.enqueue({ type: "stream-start", warnings: result?.warnings ?? [] })
+              controller.enqueue({
+                type: "response-metadata",
+                id: result?.response?.id,
+                modelId: result?.response?.modelId ?? target.modelId,
+                timestamp: result?.response?.timestamp,
+              })
+              controller.enqueue({ type: "text-start", id: textId })
+              if (text) controller.enqueue({ type: "text-delta", id: textId, delta: text })
+              controller.enqueue({ type: "text-end", id: textId })
+              controller.enqueue({
+                type: "finish",
+                finishReason: result?.finishReason ?? "stop",
+                usage: result?.usage ?? { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+                providerMetadata: result?.providerMetadata,
+              })
+              controller.close()
+            },
+          }),
+        }
+      }
+    },
+  }) as LanguageModelV2
 }
 
 /**

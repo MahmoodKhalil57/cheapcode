@@ -135,3 +135,31 @@ test("pickCopilotModelForTier honors tierOverrides for gemini routing", async ()
     }),
   ).toBe("claude-haiku-4.5")
 })
+
+test("normalizeCopilotModelId strips vendor prefix and falls through known catalog", async () => {
+  const { normalizeCopilotModelId } = await import("./cheapcode-tiers")
+  // openrouter-style → bare in catalog
+  expect(normalizeCopilotModelId("openai/gpt-5-mini")).toBe("gpt-5-mini")
+  expect(normalizeCopilotModelId("anthropic/claude-haiku-4.5")).toBe("claude-haiku-4.5")
+  expect(normalizeCopilotModelId("anthropic/claude-sonnet-4.6")).toBe("claude-sonnet-4.6")
+  // already bare ids in catalog
+  expect(normalizeCopilotModelId("gpt-5.4")).toBe("gpt-5.4")
+  expect(normalizeCopilotModelId("gemini-2.5-pro")).toBe("gemini-2.5-pro")
+})
+
+test("normalizeCopilotModelId maps non-Copilot openrouter ids to Copilot equivalents", async () => {
+  const { normalizeCopilotModelId } = await import("./cheapcode-tiers")
+  // deepseek (cheap-tier) → claude-haiku-4.5 (Copilot's fast cheap)
+  expect(normalizeCopilotModelId("deepseek/deepseek-v4-flash")).toBe("claude-haiku-4.5")
+  // x-ai grok long-context → claude-haiku-4.5
+  expect(normalizeCopilotModelId("x-ai/grok-4-fast")).toBe("claude-haiku-4.5")
+  // gemini flash → gemini pro (Copilot doesn't expose flash)
+  expect(normalizeCopilotModelId("google/gemini-2.5-flash")).toBe("gemini-2.5-pro")
+  // llama → gpt-5-mini (cheap-classify replacement)
+  expect(normalizeCopilotModelId("meta-llama/llama-4-scout")).toBe("gpt-5-mini")
+})
+
+test("normalizeCopilotModelId leaves unknown bare ids alone (Copilot will reject loudly)", async () => {
+  const { normalizeCopilotModelId } = await import("./cheapcode-tiers")
+  expect(normalizeCopilotModelId("nonexistent-model-9999")).toBe("nonexistent-model-9999")
+})
