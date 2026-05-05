@@ -7,6 +7,8 @@ const accountsCli = () => readFileSync("bin/cheapcode-accounts", "utf-8")
 
 test("Homebrew formula installs cheapcode and opencode under libexec", () => {
   const text = formula()
+  expect(text).toContain('depends_on "bun"')
+  expect(text).toContain('depends_on "ripgrep"')
   expect(text).toContain('libexec.install Dir["*"]')
   expect(text).toContain('resource("opencode").stage do')
   expect(text).toContain('(libexec/"opencode").install Dir["*"]')

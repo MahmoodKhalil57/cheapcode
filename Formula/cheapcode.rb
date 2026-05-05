@@ -11,7 +11,12 @@ class Cheapcode < Formula
     strategy :github_latest
   end
 
+  # Vanilla opencode's Homebrew formula installs the published npm tarball with
+  # node + ripgrep. cheapcode is still source-distributed, so Bun is currently
+  # required as the build/runtime until we publish the fork as an npm-style
+  # package with platform artifacts.
   depends_on "bun"
+  depends_on "ripgrep"
   depends_on "git" => :build
 
   resource "opencode" do
@@ -64,6 +69,10 @@ class Cheapcode < Formula
       Homebrew uninstall removes the Cellar files and bin wrappers. To remove
       user config/auth/cache too, run:
         brew uninstall --zap cheapcode
+
+      Packaging note: this formula currently depends on Bun because cheapcode
+      and its opencode fork are installed from source. The vanilla-opencode-like
+      target is a published npm tarball with node + ripgrep only.
 
       Upgrade stable installs with:
         brew update && brew upgrade cheapcode

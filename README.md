@@ -18,6 +18,11 @@ exposes `cheapcode`, `cheapcode-accounts`, `cheapcode-account-status`, and
 cheapcode` removes managed code cleanly; `brew uninstall --zap cheapcode` also
 removes cheapcode user config/auth/cache.
 
+Current dependency note: vanilla opencode's Homebrew formula installs an npm
+tarball and depends on `node` + `ripgrep`. cheapcode is still source-distributed,
+so the formula currently depends on `bun` + `ripgrep` until we publish a
+vanilla-style npm tarball with platform artifacts.
+
 Upgrade stable Homebrew installs with:
 
 ```sh
