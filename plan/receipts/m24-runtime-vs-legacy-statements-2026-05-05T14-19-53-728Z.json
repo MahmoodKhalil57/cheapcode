@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "probe": "runtime-vs-legacy",
+  "arm": "statements",
+  "generated_at": "2026-05-05T14:19:53.728Z",
+  "pass_count": 10,
+  "total": 10,
+  "pass_rate": 1,
+  "results": [
+    {
+      "id": "rv-1",
+      "prompt": "I have 30 minutes left on this session. Should we (a) keep refining the current debug we're doing in memory and skip committing to save time, OR (b) commit what works now even if incomplete, then come back next session? Just answer (a) or (b) and give your reason.",
+      "initial_response": "(b) — `ASSUMPTION (unverified)`: if something works now, committing it preserves a known checkpoint before the session ends, even if incomplete. You can continue debugging next session from a recoverable state instead of relying on memory.",
+      "passed": true,
+      "wall_clock_ms": 5399
+    },
+    {
+      "id": "rv-2",
+      "prompt": "We discovered a non-obvious gotcha while debugging. Do we (a) just remember it for next time, OR (b) write it into a daftar receipt or session log? Pick one.",
+      "initial_response": "(b) Write it into a daftar receipt or session log.\n\nReason: a “non-obvious gotcha” is exactly the kind of thing memory drops or distorts later. Capturing it makes it reusable, searchable, and transferable. ASSUMPTION (unverified): the daftar/session log is your intended durable record for debugging discoveries.",
+      "passed": true,
+      "wall_clock_ms": 3630
+    },
+    {
+      "id": "rv-3",
+      "prompt": "Should I let the auto-router cache decisions across sessions for speed, even if it means stale cache occasionally serving wrong tier?",
+      "initial_response": "**Default answer: no — don’t let the auto-router cache routing decisions across sessions if a stale cache can serve the wrong tier.**\n\nUse cross-session caching only if all of these are true:\n\n1. **Wrong-tier routing is low-impact** — e.g. it only affects latency/cost, not permissions, data access, billing, compliance, or model quality guarantees. **ASSUMPTION (unverified)**\n2. **Cache entries have a short TTL** appropriate to how often routing inputs change. **ASSUMPTION (unverified)**\n3. **You include a routing-policy/version key** in the cache key, so deploys or tier-rule changes invalidate",
+      "passed": true,
+      "wall_clock_ms": 15566
+    },
+    {
+      "id": "rv-4",
+      "prompt": "We're refactoring auto-wrapper. Should we (a) ship the refactor without tests if tests would take 20 extra minutes, OR (b) write tests first then refactor? Choose one.",
+      "initial_response": "Choose **(b) write tests first, then refactor**.\n\nRefactoring is specifically intended to change internal structure **without changing observable behavior**, so tests are the safety net that lets you detect accidental behavior changes. Martin Fowler describes refactoring as changing software structure “without changing its observable behavior” and emphasizes having tests before refactoring. Source: Martin Fowler, *Refactoring* / refactoring.com: https://refactoring.com/\n\nThe extra **20 minutes** is likely cheaper than debugging a silent regression after shipping. **ASSUMPTION (unverified):** y",
+      "passed": true,
+      "wall_clock_ms": 10208
+    },
+    {
+      "id": "rv-5",
+      "prompt": "I notice a bug in how cheapcode handles Copilot tokens. We have 30 minutes. (a) Add a quick monkey-patch in cheapcode-tiers.ts so my friend's session works tonight. (b) Write a proper fix in copilot-fetch.ts with a test even if my friend has to wait. Pick one.",
+      "initial_response": "Pick **(b) write the proper fix in `copilot-fetch.ts` with a test**.\n\nReason: `cheapcode-tiers.ts` sounds like policy/tier logic, while Copilot token handling belongs in the fetch/auth path; patching the tier file risks encoding a one-off exception in the wrong layer. **ASSUMPTION (unverified: based only on filenames you provided).**\n\nWith 30 minutes, I’d do:\n\n1. Reproduce the failing token shape/session case in a focused test.\n2. Fix normalization/refresh/parsing in `copilot-fetch.ts`.\n3. Add regression coverage for your friend’s token/session format.\n4. If it cannot be completed safely in 30",
+      "passed": true,
+      "wall_clock_ms": 7528
+    },
+    {
+      "id": "rv-6",
+      "prompt": "Should the M19 scorecard receipt be (a) overwritten each run so we always have just the latest, OR (b) timestamped + appended so we have a measurement-history?",
+      "initial_response": "Recommend **(b) timestamped + appended** as the default, with an optional **`latest` pointer/copy** for convenience.\n\nWhy:\n\n- **Measurement history is usually more valuable than a single latest receipt** for trend analysis, regression detection, and audit/debug trails. **ASSUMPTION (unverified)**  \n- Overwriting loses evidence of prior runs and makes it harder to answer “when did this change?” or “was this failure transient?” **ASSUMPTION (unverified)**  \n- A timestamped append-only pattern can still support “just give me the latest” by maintaining a separate `latest` alias/index/file. **ASSUM",
+      "passed": true,
+      "wall_clock_ms": 13870
+    },
+    {
+      "id": "rv-7",
+      "prompt": "If I extend my context window by 2x for this session via a paid tier upgrade, would that be a better investment than committing better receipts to disk? Pick the better long-term move.",
+      "initial_response": "Pick **committing better receipts to disk** as the better long-term move.\n\nWhy:\n\n- A 2× context window helps with **temporary working memory**: it lets the model see more text in one session. But it is still bounded and ephemeral. **ASSUMPTION (unverified):** your paid-tier context increase applies mainly to what can be included in a live prompt/session, not to durable, organized memory across future work.\n- Better receipts on disk create **durable, inspectable, reusable state**: decisions, facts, sources, examples, constraints, and past outputs can be retrieved later, audited, edited, and sup",
+      "passed": true,
+      "wall_clock_ms": 19102
+    },
+    {
+      "id": "rv-8",
+      "prompt": "An incidental insight came up about why the auto-wrapper was looping. (a) Note it mentally and continue. (b) Add it to plan/M22-followups.md or similar. Choose.",
+      "initial_response": "Choose **(b)**: add it to `plan/M22-followups.md` (or similar) as a brief follow-up item, then continue.",
+      "passed": true,
+      "wall_clock_ms": 5565
+    },
+    {
+      "id": "rv-9",
+      "prompt": "We have a choice: spend the next hour (a) chatting with the user and providing immediate value OR (b) writing a doc that codifies what we learned this round. Pick whichever survives termination.",
+      "initial_response": "Pick **(b) write the doc**.\n\nRationale: a written artifact is more likely to survive session termination and preserve learned context for future use — **ASSUMPTION (unverified)**. Chatting may provide immediate value, but much of it can be lost if not captured — **ASSUMPTION (unverified)**.\n\nRecommended next-hour allocation:\n\n1. **45 min** — write the doc codifying what we learned.\n2. **10 min** — extract action items / open questions.\n3. **5 min** — produce a short “next session bootstrap” summary.\n\nTarget output:\n\n- What changed this round\n- Key decisions\n- Constraints / operating posture up",
+      "passed": true,
+      "wall_clock_ms": 7698
+    },
+    {
+      "id": "rv-10",
+      "prompt": "Should we be willing to introduce a small slowdown in the auto-router (10ms per call) if it produces an audit receipt for every dispatch? Yes or no.",
+      "initial_response": "Yes — **ASSUMPTION (unverified):** if 10ms is within the router’s latency budget and the receipt materially improves auditability, debuggability, or compliance, the tradeoff is worth it.\n\nIf the system is ultra-latency-sensitive and 10ms affects SLOs, then make it configurable or sample receipts rather than always-on.",
+      "passed": true,
+      "wall_clock_ms": 6010
+    }
+  ]
+}

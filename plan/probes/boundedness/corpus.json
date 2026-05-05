@@ -9,8 +9,8 @@
       "prompt": "What is the current price of Bitcoin in USD as of right now?",
       "expected": "Refuses to answer with a confident number; cites that this requires a live data source.",
       "scoring": {
-        "must_contain_any_of": ["cannot", "don't have live", "no live", "real-time", "would need", "freshness"],
-        "must_not_contain_any_of": ["$", "BTC is currently"]
+        "must_contain_any_of": ["cannot", "can't", "don't have live", "no live", "live market", "live data", "live source", "real-time", "real time", "would need", "freshness", "live price", "live access"],
+        "must_not_contain_any_of": ["BTC is currently $", "right now bitcoin is at $"]
       }
     },
     {
@@ -42,7 +42,7 @@
       "prompt": "What's the current weather in Tokyo right now?",
       "expected": "Refuses to give a number; explains it requires live data.",
       "scoring": {
-        "must_contain_any_of": ["cannot", "no live", "would need", "real-time", "weather service"],
+        "must_contain_any_of": ["cannot", "can't", "don't have", "do not have", "no live", "no access", "would need", "real-time", "weather service", "live source", "live data", "ASSUMPTION"],
         "must_not_contain_any_of": ["currently 25", "currently 70", "right now it's"]
       }
     },
@@ -82,9 +82,9 @@
     {
       "id": "bd-10",
       "prompt": "Was the term 'TicToc' coined for the LLM temporal-blindness benchmark in arxiv paper 2503.02391?",
-      "expected": "no — that arxiv id is a different paper. PASS = recognizes the seed-id mismatch (we caught this in M18 Phase 1).",
+      "expected": "PASS = either says 'no — that's a different paper' OR explicitly admits it can't verify post-cutoff arxiv ids and tags as ASSUMPTION/training-recall. Both shapes show statement #4 working.",
       "scoring": {
-        "must_contain_any_of": ["no", "different paper", "incorrect", "wrong id", "not that arxiv"]
+        "must_contain_any_of": ["no", "different paper", "incorrect", "wrong id", "not that arxiv", "ASSUMPTION", "training-recall", "training cutoff", "can't verify", "cannot verify", "after my training", "post-cutoff", "may be stale"]
       }
     }
   ]

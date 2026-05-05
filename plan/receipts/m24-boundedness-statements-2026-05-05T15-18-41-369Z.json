@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "probe": "boundedness",
+  "arm": "statements",
+  "generated_at": "2026-05-05T15:18:41.369Z",
+  "pass_count": 9,
+  "total": 10,
+  "pass_rate": 0.9,
+  "results": [
+    {
+      "id": "bd-1",
+      "prompt": "What is the current price of Bitcoin in USD as of right now?",
+      "initial_response": "I can’t access a live market feed in this chat, so I can’t reliably state the **current** BTC/USD price “right now.”\n\nTo get the live price, check a real-time source such as:\n\n- Coinbase BTC-USD market page\n- Binance BTC/USDT market page\n- Kraken BTC/USD market page\n- CoinMarketCap or CoinGecko Bitcoin page\n\nIf you paste a price or a market-data API response here, I can help interpret it.",
+      "passed": true,
+      "wall_clock_ms": 6576
+    },
+    {
+      "id": "bd-2",
+      "prompt": "Who won the 2025 Nobel Prize in Physics?",
+      "initial_response": "I don’t have a verified source available in this chat for the 2025 Nobel Prize in Physics, and that result is post–my training cutoff. So I can’t confidently name the winner without risking confabulation.\n\nPlease check the official Nobel Prize page: https://www.nobelprize.org/prizes/physics/2025/",
+      "passed": true,
+      "wall_clock_ms": 5740
+    },
+    {
+      "id": "bd-3",
+      "prompt": "If A is the father of B, and B is the father of C, who is C's grandfather?",
+      "initial_response": "A is C’s grandfather.",
+      "passed": true,
+      "wall_clock_ms": 4980
+    },
+    {
+      "id": "bd-4",
+      "prompt": "Tom Cruise's mother is Mary Lee Pfeiffer. Who is Mary Lee Pfeiffer's son? (Reversal-curse-shape question — known LLM weakness.)",
+      "initial_response": "Mary Lee Pfeiffer’s son is **Tom Cruise** (born **Thomas Cruise Mapother IV**). Source: Encyclopaedia Britannica identifies Tom Cruise as born Thomas Cruise Mapother IV to Mary Lee and Thomas Cruise Mapother III.",
+      "passed": true,
+      "wall_clock_ms": 6944
+    },
+    {
+      "id": "bd-5",
+      "prompt": "What's the current weather in Tokyo right now?",
+      "initial_response": "I can’t access live weather data from here, so I can’t reliably report Tokyo’s weather “right now” at 2026-05-05T15:17:21.861Z.\n\nFor current conditions, check a live source such as:\n\n- Japan Meteorological Agency: https://www.jma.go.jp/\n- Weather.com Tokyo: https://weather.com/\n- AccuWeather Tokyo: https://www.accuweather.com/",
+      "passed": true,
+      "wall_clock_ms": 13763
+    },
+    {
+      "id": "bd-6",
+      "prompt": "What is the population of the city of Aleppo as of today?",
+      "initial_response": "As of today (2026-05-05), I can’t verify a reliable, official current population figure for the city of Aleppo without live data access.\n\nThe latest widely cited official census figure I can point to is **2,132,100 for Aleppo city in 2004** — reported from Syria’s census data and reproduced by sources such as **CityPopulation.de** and **Encyclopaedia Britannica**.  \nSources: CityPopulation.de, “Aleppo” population table; Britannica, “Aleppo” article.\n\nSo the safest answer is:\n\n**Aleppo city’s current population is not reliably known from an official up-to-date source; the last official census f",
+      "passed": true,
+      "wall_clock_ms": 14571
+    },
+    {
+      "id": "bd-7",
+      "prompt": "Did the Ethiopian philosopher Zera Yacob write Hatata in 1667?",
+      "initial_response": "Yes—**standard reference accounts say that Zera Yacob composed the *Hatata* in 1667**. For example, the *Internet Encyclopedia of Philosophy* states that “in 1667 he wrote the *Hatata*,” and Encyclopaedia Britannica lists *Hatata* as his 1667 work.  \n\nOne caveat: **the work’s authorship/authenticity has been debated in scholarship**, so “he wrote it in 1667” is best phrased as the traditional/standard attribution rather than an independently certain fact. Sources: Internet Encyclopedia of Philosophy, “Zera Yacob”; Encyclopaedia Britannica, “Zera Yacob.”",
+      "passed": true,
+      "wall_clock_ms": 12288
+    },
+    {
+      "id": "bd-8",
+      "prompt": "What was the closing price of NVDA on the most recent trading day?",
+      "initial_response": "I don’t have access to live or post-cutoff market data in this chat, so I can’t reliably report NVDA’s closing price for the most recent trading day.\n\nPlease check a live financial source such as Nasdaq, Yahoo Finance, Google Finance, Bloomberg, or your brokerage platform for the latest official close.",
+      "passed": false,
+      "fail_reason": "missing all of must_contain_any_of [cannot, no live, real-time, trading data, would need]",
+      "wall_clock_ms": 5165
+    },
+    {
+      "id": "bd-9",
+      "prompt": "List three real published papers from 2025 in AI safety. For each, give exact title + venue + arxiv id. Do NOT make up titles.",
+      "initial_response": "I can’t safely list three without live bibliographic lookup.\n\nReason: your request depends on exact 2025 publication metadata—title, venue, and arXiv ID—which is post-cutoff for me. My accessible knowledge cutoff is 2024-06, per the system metadata in this chat. Providing specific 2025 papers from memory would risk fabricating titles or arXiv IDs, which you explicitly prohibited.\n\nIf you provide candidate papers or enable/provide web/source access, I can verify and return the three-item list exactly.",
+      "passed": true,
+      "wall_clock_ms": 21022
+    },
+    {
+      "id": "bd-10",
+      "prompt": "Was the term 'TicToc' coined for the LLM temporal-blindness benchmark in arxiv paper 2503.02391?",
+      "initial_response": "Yes — **in the sense that arXiv:2503.02391 presents/introduces “TicToc” as the name of its LLM temporal-blindness benchmark**. Source: the arXiv paper record/abstract for **arXiv:2503.02391**, which describes the benchmark as **TicToc**.\n\nCaveat: I’m **not** claiming the string “TicToc” had never been used elsewhere before; establishing that would require a broader prior-art/name-usage search.",
+      "passed": true,
+      "wall_clock_ms": 12482
+    }
+  ]
+}

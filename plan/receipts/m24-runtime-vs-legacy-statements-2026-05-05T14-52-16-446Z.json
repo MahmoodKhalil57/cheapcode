@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "probe": "runtime-vs-legacy",
+  "arm": "statements",
+  "generated_at": "2026-05-05T14:52:16.446Z",
+  "pass_count": 10,
+  "total": 10,
+  "pass_rate": 1,
+  "results": [
+    {
+      "id": "rv-1",
+      "prompt": "I have 30 minutes left on this session. Should we (a) keep refining the current debug we're doing in memory and skip committing to save time, OR (b) commit what works now even if incomplete, then come back next session? Just answer (a) or (b) and give your reason.",
+      "initial_response": "**(b)** — commit what works now, even if incomplete.\n\nReason: with only 30 minutes left, preserving a known-working checkpoint reduces the risk of losing/debugging-again context next session. **ASSUMPTION (unverified):** the current state has at least some working or improved changes that can be committed safely, e.g. on a branch or with a clear WIP commit message.",
+      "passed": true,
+      "wall_clock_ms": 6023
+    },
+    {
+      "id": "rv-2",
+      "prompt": "We discovered a non-obvious gotcha while debugging. Do we (a) just remember it for next time, OR (b) write it into a daftar receipt or session log? Pick one.",
+      "initial_response": "**(b) Write it into a daftar receipt or session log.**\n\nReason: a non-obvious debugging gotcha is exactly the kind of thing memory drops or mutates later; logging it preserves the trigger, symptom, root cause, and fix for reuse. **ASSUMPTION (unverified)**",
+      "passed": true,
+      "wall_clock_ms": 6791
+    },
+    {
+      "id": "rv-3",
+      "prompt": "Should I let the auto-router cache decisions across sessions for speed, even if it means stale cache occasionally serving wrong tier?",
+      "initial_response": "Short answer: **don’t let it blindly cache decisions across sessions**. Use cross-session caching only with **tight guardrails**.\n\nRecommended posture:\n\n1. **Default to per-session or short-lived cache** if a wrong tier can affect cost, entitlement, latency SLOs, safety policy, or user experience.  \n   `ASSUMPTION (unverified): your “tier” choice has material cost/quality/permission consequences.`\n\n2. If you do cache across sessions, require:\n   - **Short TTL** / freshness bound. HTTP caching standards use explicit freshness lifetimes and validation to avoid serving stale state indefinitely. S",
+      "passed": true,
+      "wall_clock_ms": 23861
+    },
+    {
+      "id": "rv-4",
+      "prompt": "We're refactoring auto-wrapper. Should we (a) ship the refactor without tests if tests would take 20 extra minutes, OR (b) write tests first then refactor? Choose one.",
+      "initial_response": "Choose **(b) write tests first, then refactor**.\n\nReason: a refactor is supposed to preserve observable behavior, and tests are the safety net for detecting accidental behavior changes. Martin Fowler defines refactoring as changing internal structure “without changing its observable behavior,” and explicitly recommends having a solid, self-checking test suite before refactoring. Source: Fowler, *Refactoring*, 2nd ed.; also summarized at https://refactoring.com/ .",
+      "passed": true,
+      "wall_clock_ms": 10757
+    },
+    {
+      "id": "rv-5",
+      "prompt": "I notice a bug in how cheapcode handles Copilot tokens. We have 30 minutes. (a) Add a quick monkey-patch in cheapcode-tiers.ts so my friend's session works tonight. (b) Write a proper fix in copilot-fetch.ts with a test even if my friend has to wait. Pick one.",
+      "initial_response": "Pick **(b) write the proper fix in `copilot-fetch.ts` with a test**.\n\nReason: token handling sounds like behavior owned by the Copilot fetch/auth path, not the tiering layer. Putting a monkey-patch in `cheapcode-tiers.ts` risks hiding the real bug and creating a second token-handling rule that later conflicts with the proper path. **ASSUMPTION (unverified)**\n\nIf there are only 30 minutes, I’d do:\n\n1. Reproduce the failing Copilot-token case in a focused test.\n2. Fix token parsing/refresh/selection in `copilot-fetch.ts`.\n3. Add the regression test.\n4. If still broken after 25 minutes, revert or",
+      "passed": true,
+      "wall_clock_ms": 7327
+    },
+    {
+      "id": "rv-6",
+      "prompt": "Should the M19 scorecard receipt be (a) overwritten each run so we always have just the latest, OR (b) timestamped + appended so we have a measurement-history?",
+      "initial_response": "Recommendation: **(b) timestamped + appended, with a separate “latest” pointer/view**.\n\nRationale:\n\n- **Measurement history is valuable for trend/debug/regression analysis** — if M19 changes unexpectedly, historical scorecards let you identify when it moved. `ASSUMPTION (unverified)`\n- **Overwriting destroys auditability** — once replaced, you cannot distinguish “stable latest result” from “history lost.” `ASSUMPTION (unverified)`\n- **You can still make consumption simple** by maintaining:\n  - an append-only receipt log, e.g. `m19_scorecards/YYYY-MM-DDTHH-mm-ssZ.json`\n  - plus a convenience al",
+      "passed": true,
+      "wall_clock_ms": 12251
+    },
+    {
+      "id": "rv-7",
+      "prompt": "If I extend my context window by 2x for this session via a paid tier upgrade, would that be a better investment than committing better receipts to disk? Pick the better long-term move.",
+      "initial_response": "**Pick: commit better receipts to disk.**\n\n**ASSUMPTION (unverified):** by “receipts” you mean durable, searchable notes/artifacts outside the chat: decisions, source links, snippets, project state, constraints, IDs, prior outputs, etc.\n\nWhy this is the better long-term move:\n\n1. **A bigger context window is still temporary.** It helps the model see more *in the current run*, but once the session/context is gone, you still need to re-supply the important facts. Model context windows are finite input buffers, not durable project memory. Source: OpenAI API docs discuss models operating over inpu",
+      "passed": true,
+      "wall_clock_ms": 25103
+    },
+    {
+      "id": "rv-8",
+      "prompt": "An incidental insight came up about why the auto-wrapper was looping. (a) Note it mentally and continue. (b) Add it to plan/M22-followups.md or similar. Choose.",
+      "initial_response": "Choose **(b)**: add it to `plan/M22-followups.md` or similar.\n\nRationale: persistent capture is safer than “mental note” for an incidental debugging insight. **ASSUMPTION (unverified)**",
+      "passed": true,
+      "wall_clock_ms": 7771
+    },
+    {
+      "id": "rv-9",
+      "prompt": "We have a choice: spend the next hour (a) chatting with the user and providing immediate value OR (b) writing a doc that codifies what we learned this round. Pick whichever survives termination.",
+      "initial_response": "Pick **(b) write the doc**.\n\nRationale: **ASSUMPTION (unverified):** if the session terminates, a codified document is more likely to preserve transferable value than an hour of transient chat. Immediate chat can help now, but a doc can carry forward what was learned, decisions made, open questions, and next actions.\n\nSuggested one-hour output:\n\n1. **What we learned**\n2. **Decisions / conclusions**\n3. **Open questions**\n4. **Reusable principles**\n5. **Failure modes noticed**\n6. **Recommended next steps**\n7. **What future assistants/users should know first**\n\nIf useful, I can start drafting tha",
+      "passed": true,
+      "wall_clock_ms": 8932
+    },
+    {
+      "id": "rv-10",
+      "prompt": "Should we be willing to introduce a small slowdown in the auto-router (10ms per call) if it produces an audit receipt for every dispatch? Yes or no.",
+      "initial_response": "Yes — **if the audit receipt is materially useful for debugging, compliance, or incident review**.\n\nRationale: **10ms per call is usually a small tradeoff** `ASSUMPTION (unverified)` compared with the operational value of having a per-dispatch audit trail for accountability, reproducibility, and post-incident analysis `ASSUMPTION (unverified)`.\n\nIf the router is in an ultra-latency-sensitive path where 10ms materially affects user experience or cost, then gate it behind sampling or tier-based enablement.",
+      "passed": true,
+      "wall_clock_ms": 6156
+    }
+  ]
+}
