@@ -6,6 +6,30 @@
 
 ## install
 
+**macos / linuxbrew (Homebrew):**
+
+```sh
+brew install --HEAD ./Formula/cheapcode.rb
+```
+
+The Homebrew formula installs cheapcode-owned code under Homebrew's Cellar and
+exposes `cheapcode`, `cheapcode-accounts`, `cheapcode-account-status`, and
+`cheapcode-accounts-mcp` through Homebrew-managed bin wrappers. `brew uninstall
+cheapcode` removes managed code cleanly; `brew uninstall --zap cheapcode` also
+removes cheapcode user config/auth/cache.
+
+Upgrade stable Homebrew installs with:
+
+```sh
+brew update && brew upgrade cheapcode
+```
+
+Upgrade `--HEAD` installs with:
+
+```sh
+brew update && brew reinstall --HEAD cheapcode
+```
+
 **linux / macos:**
 
 ```sh

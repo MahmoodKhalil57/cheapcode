@@ -1,0 +1,138 @@
+{
+  "burhan_snapshot_version": 1,
+  "claims": {},
+  "created_at": "2026-05-05T00:57:34.264071Z",
+  "joints": {},
+  "joints_semantics": "INDEPENDENT-PRODUCT floor. Walks both claim\u2192claim cites AND claim\u2192theorem\u2192claim assume-references. Treats all claims as independent \u2014 overstates dilution per khazina atom 0015. For correlation-aware joints, defer to project-level tooling.",
+  "sources": [
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/01-substrate-citations.bn",
+      "sha256": "b7756809a1a46cf10757db4c53b83382bd089c7462da56d14b96eee007266c55"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/02-cheapllm-receipts.bn",
+      "sha256": "14d9af7d03a9f949dd804400c815d71eab63fc6f1fd7bbdac21d62cc80ff05aa"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/03-research-papers.bn",
+      "sha256": "75fc4dc8b95d6d6880b46de0a89dd05b1aff061749cd2dd8244ca273fb7886e7"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/04-khazina-atoms.bn",
+      "sha256": "2e1aabdf0656238187fffcfd0ea9a422b574ec3632c32882c40eee24355b1390"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/05-production-deployment-evidence.bn",
+      "sha256": "ac015a453f9e425843ab4fa9435689ca957b3d8e3302a471dfc5e8b318244e76"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/06-test-time-compute-bleeding-edge.bn",
+      "sha256": "202aa2853710e6451e302010c6e05028f8fd34de4aa68ae969e3e48e8e84ee4b"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/07-thin-fork-and-compound-production-evidence.bn",
+      "sha256": "176a6cd5c742689976cd9aa702bb16f19b08639610e08da2449dd6c97865d58b"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/08-frontier-model-failure-envelopes.bn",
+      "sha256": "6c914d8e5038a2681726a8fa5a6e8d042062f8b4d7d3baa9d34b2411e1fc7cc4"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/09-task-shape-routing-matrix.bn",
+      "sha256": "046cf2859ab361580f15ad085ae3d24c598290341c1dc0b5676ab306dc98c519"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/10-cross-witness-runtime.bn",
+      "sha256": "1278d5c42e8d4f1b20f64b4937c10dbb21c20c758ce054955182917249aa624a"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/11-grounded-test-results.bn",
+      "sha256": "dd4b64fa2258b7160caa2e5a729d782920b10e8678a505479f36ffbf1d923594"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/12-grounded-pricing-snapshot.bn",
+      "sha256": "886c52ae4e8f9059e49a2c798ca79c36c18579b3fc46b307930e08a1dae9ef10"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/13-grounded-architecture.bn",
+      "sha256": "a4089d9e04e9bf0f90ec130c90e8634945dbaf836843674ac7bcb07a29b17ad1"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/14-panel-of-experts-mutawatir.bn",
+      "sha256": "54133ad9668f5ea41284ac8df935c06f850d52edd7975d08fd692184a1656967"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/15-bounded-coexistence-of-absolutes.bn",
+      "sha256": "20f4763b2e7fd3bf82614adc2b689394600348e2ae3d3c939508871145540493"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/16-human-task-benchmark-corpora.bn",
+      "sha256": "a35f3f1643dd95b798981a2365228f17ef095a07e1aa26d946b0c59bfaad98aa"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/17-empirical-saturation-gap-frontier-vs-human.bn",
+      "sha256": "c7e9468d388addb68b3d024863444ac660743c7ecf68cd85f40e98db2e2ed1ec"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/18-production-compound-agent-evidence.bn",
+      "sha256": "6f3552cc5d512b06b524e282ad5f83776f090b536afd769d6a04ee37af0894ba"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/19-cheapcode-current-state-anchor.bn",
+      "sha256": "eade5b35b4727276d2187689f7b01bd8fd66631b49c59fb03c09c753961dc300"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/20-condorcet-jury-theorem-l0.bn",
+      "sha256": "acc965878dba60dd96a043f212cb8c492f1eb3d93be320415d5ced3ff92467c3"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/21-mas-failure-disambiguation.bn",
+      "sha256": "019b4013f31dfec2197bc5833194cf95bb37943366e8b15a92a6ad9538cf7d9a"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/22-parallel-aggregation-multi-tradition-mutawatir.bn",
+      "sha256": "d142ef7555d6360307e176441e443e0cc7ca4a604e8429ec7e5cd1ab2ce3f85f"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/23-source-grading-system.bn",
+      "sha256": "25d4e8ad81b9f3b75e47164ac40d8e8c67ca77e122027eabb9982f06a3a9690e"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/24-graded-practitioner-receipts.bn",
+      "sha256": "438c5ea63b6a8e245ce384894aee86435256fe53c57cfc42c6eb667df33dd6fa"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/25-contrarian-honest-extraction-strategy.bn",
+      "sha256": "cd47ac83df483aed8d2b311201c62892909ae8a84f08d2e4956de6881fb32a38"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/26-che-pass-1-unintuitive-but-correct-findings.bn",
+      "sha256": "6f50109d3f1d5d0c694d2307348e3808afeaf0d5bfa9a4d48d7f42c4971bafd9"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/27-che-passes-2-through-6.bn",
+      "sha256": "3d471b0d2f63ffa172277645660f0524422f2eeea18332bce3e8e9bad9e95a08"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/28-round-96-substrate-as-runtime.bn",
+      "sha256": "e9aea9d19c16dd3d48ff90b7ec642ed84231da781029bc2a35d7ba05e77ead69"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/facts/29-gouy-stodola-cheapcode-objective.bn",
+      "sha256": "e42ecdfa79f0aaf5e2a81c8283d8a6a497ce11f5fad82e7b2915b9282b690ed8"
+    },
+    {
+      "path": "/home/mk/apps/cheapcode/plan/PLAN.bn",
+      "sha256": "16b7833865c9d06f3121376282f42176775befb7e6e999153807785adb7446c4"
+    }
+  ],
+  "tracked_files": [
+    {
+      "path": "/home/mk/apps/cheapcode/MAIN.md",
+      "sha256": "011b3fdc44071940695a0d6039de8fd5a7c8b8f5117c6273b301df2e858b82a9"
+    }
+  ],
+  "warnings": [
+    "evaluator-error: SyntaxError: Unexpected indentation at line 3513"
+  ]
+}

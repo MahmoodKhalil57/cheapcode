@@ -238,8 +238,9 @@ function cmdUpdate(id: string, kvArgs: string[]): number {
 
 function cmdLogin(provider: string): number {
   // Delegate to opencode's native auth flow. Don't reimplement.
-  console.log(C.cyan(`delegating to: opencode providers login ${provider}`))
-  const r = spawnSync("opencode", ["providers", "login", provider], { stdio: "inherit" })
+  const delegate = process.env.CHEAPCODE_OPENCODE ? "cheapcode" : "opencode"
+  console.log(C.cyan(`delegating to: ${delegate} providers login ${provider}`))
+  const r = spawnSync(delegate, ["providers", "login", provider], { stdio: "inherit" })
   if (r.status !== 0) {
     return r.status ?? 1
   }

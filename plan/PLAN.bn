@@ -32,6 +32,8 @@ claim obs_propagation_at_provider_registry_layer1_fails: Bool @>=0.99 = False
 claim obs_or_provider_inheritance_breaks_clients: Bool @>=0.99 = False
 claim obs_surgical_fork_loc_budget_breached: Bool @>=0.99 = False
 claim obs_upstream_files_modified_gt_2: Bool @>=0.99 = False
+claim obs_default_provider_self_heal_fails: Bool @>=0.99 = False
+claim obs_homebrew_formula_not_cellar_native: Bool @>=0.99 = False
 
 # Competitive observations
 claim obs_cheapcode_beats_codex_falsified: Bool @>=0.99 = False
@@ -39,6 +41,23 @@ claim obs_cheapcode_beats_vanilla_opencode_falsified: Bool @>=0.99 = False
 
 # Maintainability observations
 claim obs_weekly_rebase_breaks: Bool @>=0.99 = False
+
+# M24 default-config availability: cheapcode's synthetic tier provider must be
+# available whenever the cheapcode CLI starts, even if the installer skipped an
+# existing/missing split-brain config. Falsifier: with no cheapcode-isolated
+# opencode.json, running the guard fails to create provider.cheapcode with all
+# six tier IDs and the cheapcode-accounts MCP server, or overwrites an existing
+# user-defined provider entry.
+claim default_provider_self_heals_on_cli_start: Bool @>=0.90 = not obs_default_provider_self_heal_fails
+falsified_when obs_default_provider_self_heal_fails
+
+# M25 Homebrew packaging: brew installs cheapcode-owned code under the Cellar
+# (via libexec) and exposes only Homebrew-managed bin wrappers. Falsifier: the
+# formula writes managed source into ~/.cheapcode, mutates shell rc files, uses
+# curl-pipe install logic, self-updates Cellar code outside brew, or lacks a
+# zap stanza for user config/auth cleanup.
+claim homebrew_formula_is_cellar_native_and_uninstall_clean: Bool @>=0.90 = not obs_homebrew_formula_not_cellar_native
+falsified_when obs_homebrew_formula_not_cellar_native
 
 # ============================================================
 # SECTION A - per-tier OR model choices (cheapllm-receipt-backed)

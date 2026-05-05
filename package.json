@@ -11,6 +11,7 @@
   },
   "files": [
     "src/cheapcode-tiers.ts",
+    "src/default-config.ts",
     "src/auto-wrapper.ts",
     "src/cross-witness-voter.ts",
     "src/router.ts",

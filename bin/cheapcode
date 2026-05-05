@@ -28,6 +28,7 @@ import { existsSync, readFileSync, mkdirSync } from "node:fs"
 import { homedir } from "node:os"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
+import { ensureCheapcodeDefaults } from "../src/default-config"
 
 // ============================================================
 // Version + paths
@@ -74,6 +75,14 @@ function getCheapcodeRoot(): string {
 }
 
 const CHEAPCODE_ROOT = getCheapcodeRoot()
+
+function ensureDefaultOpencodeConfig(): ReturnType<typeof ensureCheapcodeDefaults> {
+  return ensureCheapcodeDefaults({
+    opencodeConfigPath: CHEAPCODE_FORK_OPENCODE_JSON,
+    cheapcodeRoot: CHEAPCODE_ROOT,
+    accountsMcpCommand: join(CHEAPCODE_ROOT, "bin", "cheapcode-accounts-mcp"),
+  })
+}
 
 // ============================================================
 // Output (color codes; no emojis per CLAUDE.md)
@@ -176,6 +185,7 @@ function cmdVersion(): number {
 // ============================================================
 
 function cmdDoctor(): number {
+  const defaults = ensureDefaultOpencodeConfig()
   console.log(C.bold("cheapcode doctor — system health check\n"))
   let issues = 0
 
@@ -194,6 +204,7 @@ function cmdDoctor(): number {
     try {
       JSON.parse(readFileSync(CHEAPCODE_FORK_OPENCODE_JSON, "utf-8"))
       console.log(`  ${C.green("[OK]")} cheapcode opencode.json valid: ${CHEAPCODE_FORK_OPENCODE_JSON}`)
+      if (defaults.changed) console.log(`    ${C.dim("self-healed missing cheapcode provider/MCP defaults")}`)
     } catch (e) {
       console.log(`  ${C.red("[FAIL]")} cheapcode opencode.json malformed: ${(e as Error).message}`)
       issues++
@@ -268,6 +279,7 @@ function cmdDoctor(): number {
 
 async function cmdWeb(extraArgs: string[]): Promise<number> {
   ensureOpencodeFork()
+  ensureDefaultOpencodeConfig()
   const portIdx = extraArgs.indexOf("--port")
   const port = portIdx === -1 ? DEFAULT_WEB_PORT : parseInt(extraArgs[portIdx + 1] ?? `${DEFAULT_WEB_PORT}`, 10)
   if (isNaN(port)) fail(`invalid --port value`)
@@ -363,6 +375,7 @@ async function cmdWeb(extraArgs: string[]): Promise<number> {
 // ============================================================
 
 async function cmdTui(extraArgs: string[]): Promise<number> {
+  ensureDefaultOpencodeConfig()
   // Banner before launching the TUI so it appears in the operator's terminal
   // before the TUI takes over the screen.
   await printUpdateBannerIfAvailable()
@@ -377,6 +390,7 @@ async function cmdTui(extraArgs: string[]): Promise<number> {
 // ============================================================
 
 function cmdRun(extraArgs: string[]): number {
+  ensureDefaultOpencodeConfig()
   const child = spawnOpencodeFork(["run", ...extraArgs])
   return new Promise<number>((resolve) => {
     child.on("close", (code) => resolve(code ?? 0))
@@ -388,6 +402,7 @@ function cmdRun(extraArgs: string[]): number {
 // ============================================================
 
 function cmdProviders(extraArgs: string[]): number {
+  ensureDefaultOpencodeConfig()
   const child = spawnOpencodeFork(["providers", ...extraArgs])
   return new Promise<number>((resolve) => {
     child.on("close", (code) => resolve(code ?? 0))
@@ -564,6 +579,22 @@ function updateRepo(repo: RepoUpdate, force: boolean): { ok: boolean; updated: b
 }
 
 async function cmdUpdate(extraArgs: string[]): Promise<number> {
+  if (process.env.CHEAPCODE_HOMEBREW === "1") {
+    console.log(C.bold("cheapcode update"))
+    console.log()
+    console.log("  this cheapcode install is managed by Homebrew.")
+    console.log("  use Homebrew to upgrade the Cellar package and relink wrappers:")
+    console.log()
+    console.log(`    ${C.cyan("brew update && brew upgrade cheapcode")}`)
+    console.log()
+    console.log("  if you installed the HEAD formula:")
+    console.log()
+    console.log(`    ${C.cyan("brew update && brew reinstall --HEAD cheapcode")}`)
+    console.log()
+    console.log(C.dim("  user config/auth remains in ~/.config/cheapcode and ~/.local/share/cheapcode."))
+    return 0
+  }
+
   const force = extraArgs.includes("--force") || extraArgs.includes("-f")
   const skipBuild = extraArgs.includes("--no-build")
   const skipDeps = extraArgs.includes("--no-install")
