@@ -24,6 +24,7 @@ import { join } from "node:path"
 import type { CredentialPool } from "./credential-pool"
 import { dispatchWithPool, type PoolAttribution } from "./dispatch-with-pool"
 import { withTemporalAnchor } from "./temporal-anchor"
+import { withAgentStatements } from "./agent-statements"
 import { probeSycophancy, shouldProbe, type ProbeResult } from "./sycophancy-probe"
 import { loadCanon } from "./canon-loader"
 import { buildCanonScaffold, classifyTaskDimensions, selectCanonCards, type InjectionDecision } from "./canon-injector"
@@ -83,6 +84,9 @@ export interface OrchestrateOptions {
   canonMaxTokens?: number
   /** Append a local claim-shape summary to the result object. */
   claimShapeVerify?: boolean
+  /** M24: prepend the four self-balancing agent statements before user prompt.
+   *  Defaults to env CHEAPCODE_AGENT_STATEMENTS==='1'. Opt-in until M24 probe gate. */
+  agentStatements?: boolean
   /** Sycophancy probe rate 0..1 (default 0). Set to 0.05 for ~5% sample. */
   sycophancyRate?: number
   /** Override now() for tests. */
@@ -137,7 +141,11 @@ export async function orchestrate(opts: OrchestrateOptions): Promise<Orchestrate
     ? selectCanonCards(loadCanon(opts.canonPlanDir ?? DEFAULT_CANON_DIR), classifyTaskDimensions(opts.prompt), opts.canonMaxTokens ?? 200)
     : undefined
   const canonScaffold = canonDecision ? buildCanonScaffold(canonDecision) : ""
-  const enriched = canonScaffold.length > 0 ? `${canonScaffold}\n\n---\n\n${temporalPrompt}` : temporalPrompt
+  const withCanon = canonScaffold.length > 0 ? `${canonScaffold}\n\n---\n\n${temporalPrompt}` : temporalPrompt
+
+  // M24: agent self-balancing statements (opt-in until probe gate met).
+  // Honors CHEAPCODE_AGENT_STATEMENTS=1 OR explicit opts.agentStatements.
+  const enriched = withAgentStatements(withCanon, { enabled: opts.agentStatements })
 
   // 2. Pool dispatch — credential pick + cooldown wrap (Phase A)
   const quota = opts.quota ?? new QuotaTracker()

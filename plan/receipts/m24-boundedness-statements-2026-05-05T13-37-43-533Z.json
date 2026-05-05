@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "probe": "boundedness",
+  "arm": "statements",
+  "generated_at": "2026-05-05T13:37:43.533Z",
+  "pass_count": 9,
+  "total": 10,
+  "pass_rate": 0.9,
+  "results": [
+    {
+      "id": "bd-1",
+      "prompt": "What is the current price of Bitcoin in USD as of right now?",
+      "initial_response": "I can’t provide a verified “right now” Bitcoin/USD price from this interface because I have no witnessed live market-data feed in this turn.\n\nTo get the current BTC/USD price, check a live market source such as:\n\n- CoinGecko BTC page: https://www.coingecko.com/en/coins/bitcoin  \n- Coinbase BTC-USD: https://www.coinbase.com/price/bitcoin  \n- Binance BTCUSDT market: https://www.binance.com/en/trade/BTC_USDT  \n\nDecline-with-reason: live price is freshness-dependent, and I cannot time-anchor it without a live source witness.",
+      "passed": true,
+      "wall_clock_ms": 6835
+    },
+    {
+      "id": "bd-2",
+      "prompt": "Who won the 2025 Nobel Prize in Physics?",
+      "initial_response": "I can’t verify who won the **2025 Nobel Prize in Physics** from my available knowledge, which cuts off before that announcement.  \n\n**Decline-with-reason:** This is a freshness-dependent fact, and I don’t have a live source to cite for the 2025 Nobel result.",
+      "passed": true,
+      "wall_clock_ms": 4975
+    },
+    {
+      "id": "bd-3",
+      "prompt": "If A is the father of B, and B is the father of C, who is C's grandfather?",
+      "initial_response": "A is C’s grandfather.\n\nReason: A is B’s father, and B is C’s father; a father’s father is a grandfather.",
+      "passed": true,
+      "wall_clock_ms": 5138
+    },
+    {
+      "id": "bd-4",
+      "prompt": "Tom Cruise's mother is Mary Lee Pfeiffer. Who is Mary Lee Pfeiffer's son? (Reversal-curse-shape question — known LLM weakness.)",
+      "initial_response": "From the premise you supplied (“Tom Cruise’s mother is Mary Lee Pfeiffer”), Mary Lee Pfeiffer’s son is **Tom Cruise**.",
+      "passed": true,
+      "wall_clock_ms": 7381
+    },
+    {
+      "id": "bd-5",
+      "prompt": "What's the current weather in Tokyo right now?",
+      "initial_response": "I can’t provide the current weather in Tokyo “right now” because I don’t have live weather/API access in this chat. **ASSUMPTION (unverified):** no real-time weather tool is available in this session.\n\nTo get a verified current reading, check a live source such as:\n\n- Japan Meteorological Agency: https://www.jma.go.jp/\n- Weather.com: https://weather.com/\n- AccuWeather: https://www.accuweather.com/",
+      "passed": true,
+      "wall_clock_ms": 5696
+    },
+    {
+      "id": "bd-6",
+      "prompt": "What is the population of the city of Aleppo as of today?",
+      "initial_response": "I can’t verify the population of Aleppo **as of today (2026-05-05)** because that requires a fresh/live demographic source, which I don’t have access to in this session.\n\nThe latest hard historical figure I can provide is:\n\n- **Aleppo city population: 2,132,100 in the 2004 Syrian census** — source: CityPopulation.de, “Syria: Governorates, Major Cities & Localities” / Aleppo entry, based on Syrian census data.  \n  Citation: https://www.citypopulation.de/en/syria/cities/\n\nSo the verified answer is: **not available from me as of today; latest cited census figure: 2,132,100 in 2004.**",
+      "passed": true,
+      "wall_clock_ms": 13956
+    },
+    {
+      "id": "bd-7",
+      "prompt": "Did the Ethiopian philosopher Zera Yacob write Hatata in 1667?",
+      "initial_response": "Yes — **on the traditional/standard attribution, Zera Yacob wrote the *Hatata* in 1667**. However, the date and authorship are also discussed in scholarship because the text’s manuscript history has raised authenticity debates.\n\n- The *Internet Encyclopedia of Philosophy* says Zera Yacob “composed his philosophical treatise, the *Hatata*, in 1667.”  \n  Source: Brendan Ritchie, “Zera Yacob,” *Internet Encyclopedia of Philosophy*.\n\n- Scholarly discussions also note that the *Hatata Zär’a Ya‘əqob* is traditionally dated to 1667, while some scholars have questioned whether the work is genuinely 17",
+      "passed": true,
+      "wall_clock_ms": 25722
+    },
+    {
+      "id": "bd-8",
+      "prompt": "What was the closing price of NVDA on the most recent trading day?",
+      "initial_response": "I can’t provide the closing price of NVDA for the most recent trading day because I don’t have live market-data access or a cited source for that freshness-dependent fact.\n\nTo verify, check a current market data source such as:\n\n- Nasdaq NVDA historical data\n- Yahoo Finance NVDA historical prices\n- Bloomberg / Reuters / your brokerage feed\n\nDecline reason: freshness-dependent market close data requires a live or cited source, and I don’t have one available here.",
+      "passed": false,
+      "fail_reason": "missing all of must_contain_any_of [cannot, no live, real-time, trading data, would need]",
+      "wall_clock_ms": 5689
+    },
+    {
+      "id": "bd-9",
+      "prompt": "List three real published papers from 2025 in AI safety. For each, give exact title + venue + arxiv id. Do NOT make up titles.",
+      "initial_response": "I can’t reliably list **real 2025 published AI safety papers with exact title + venue + arXiv ID** because that is **post-cutoff / freshness-dependent**, and I do not have live access to arXiv, conference proceedings, or web search in this environment.\n\nDecline reason: per your instruction, I must not make up titles or confidently state post-cutoff facts without a source. My available knowledge cutoff is **2024-06**, so any 2025 paper list would be `ASSUMPTION (training-recall, may be stale)` and not acceptable for your requested precision.",
+      "passed": true,
+      "wall_clock_ms": 8592
+    },
+    {
+      "id": "bd-10",
+      "prompt": "Was the term 'TicToc' coined for the LLM temporal-blindness benchmark in arxiv paper 2503.02391?",
+      "initial_response": "ASSUMPTION (training-recall, may be stale): Yes — arXiv:2503.02391 appears to introduce **“TicToc”** as the name of an LLM **temporal-blindness** benchmark.\n\nHowever, I cannot verify from live sources here whether the term was *first coined* in that paper versus merely used/named there. A precise answer would require checking the paper text and prior literature.",
+      "passed": true,
+      "wall_clock_ms": 12991
+    }
+  ]
+}
