@@ -110,16 +110,23 @@ export async function resolveCopilotBaseUrl(opts: CopilotFetchOptions): Promise<
  * "temp" string). Used by tier-pick fallback when a tierOverride doesn't
  * specify one. Names match how Copilot's own catalog ids them; brands track
  * the friend's spelling so the tier defaults map cleanly.
+ *
+ * NOTE: Copilot's actual catalog gates each model with `policy.state` —
+ * presence in this set does NOT mean the friend's account has it enabled.
+ * The runtime catalog probe (fetchEnabledCopilotModels) filters to
+ * `policy.state === "enabled"` and is the source of truth for dispatch.
  */
 export const COPILOT_FRIEND_KNOWN_MODELS = new Set([
   "claude-haiku-4.5",
   "claude-opus-4",
   "claude-opus-4.5",
   "claude-opus-4.6",
+  "claude-opus-4.7",
   "claude-sonnet-4",
   "claude-sonnet-4.5",
   "claude-sonnet-4.6",
   "gemini-2.5-pro",
+  "gemini-3.1-pro-preview",
   "gpt-4.1",
   "gpt-4o",
   "gpt-5-mini",
@@ -127,4 +134,82 @@ export const COPILOT_FRIEND_KNOWN_MODELS = new Set([
   "gpt-5.2-codex",
   "gpt-5.3-codex",
   "gpt-5.4",
+  "gpt-5.5",
 ])
+
+interface CopilotCatalogModel {
+  id: string
+  policy?: { state?: string }
+  capabilities?: { family?: string }
+  supported_endpoints?: string[]
+}
+
+interface CopilotCatalogCacheEntry {
+  fetched_at: number
+  enabled_ids: string[]
+  /** Map of id → family ('gpt-4.1', 'claude', 'gemini', etc.) for tier-fallback. */
+  by_family: Record<string, string[]>
+}
+
+const COPILOT_CATALOG_TTL_MS = 60 * 60 * 1000 // 1h
+const _copilotCatalogCache: Map<string, CopilotCatalogCacheEntry> = new Map()
+
+/**
+ * Fetch Copilot's live catalog and return only enabled-policy model ids.
+ * Cached per (authPath+authKey) for 1h. Fail-soft: returns undefined when
+ * the network call fails so tier-pick falls back to the static defaults.
+ */
+export async function fetchEnabledCopilotModels(opts: CopilotFetchOptions): Promise<CopilotCatalogCacheEntry | undefined> {
+  const cacheKey = `${opts.authPath}#${opts.authKey}`
+  const cached = _copilotCatalogCache.get(cacheKey)
+  if (cached && Date.now() - cached.fetched_at < COPILOT_CATALOG_TTL_MS) return cached
+  try {
+    const auth = await loadCopilotAuth(opts.authPath, opts.authKey)
+    const baseUrl = copilotBaseUrl(auth.enterpriseUrl)
+    const res = await fetch(`${baseUrl}/models`, {
+      headers: {
+        authorization: `Bearer ${auth.refresh}`,
+        "user-agent": "cheapcode/0.1.0-pre",
+      },
+      signal: AbortSignal.timeout(8_000),
+    })
+    if (!res.ok) return undefined
+    const body = (await res.json()) as { data?: CopilotCatalogModel[] }
+    const enabled = (body.data ?? []).filter((m) => m.policy?.state === "enabled")
+    const by_family: Record<string, string[]> = {}
+    const enabled_ids: string[] = []
+    for (const m of enabled) {
+      enabled_ids.push(m.id)
+      const fam = (m.capabilities?.family ?? m.id.split(/[-.]/)[0] ?? "other").toLowerCase()
+      if (!by_family[fam]) by_family[fam] = []
+      by_family[fam].push(m.id)
+    }
+    const entry: CopilotCatalogCacheEntry = { fetched_at: Date.now(), enabled_ids, by_family }
+    _copilotCatalogCache.set(cacheKey, entry)
+    return entry
+  } catch {
+    return undefined
+  }
+}
+
+/** Load the cached Copilot catalog synchronously if available. */
+export function getCachedCopilotCatalog(opts: CopilotFetchOptions): CopilotCatalogCacheEntry | undefined {
+  const cacheKey = `${opts.authPath}#${opts.authKey}`
+  const cached = _copilotCatalogCache.get(cacheKey)
+  if (cached && Date.now() - cached.fetched_at < COPILOT_CATALOG_TTL_MS) return cached
+  return undefined
+}
+
+export function _clearCopilotCatalogCache(): void {
+  _copilotCatalogCache.clear()
+}
+
+/**
+ * Synchronous cached version — populated by fetchEnabledCopilotModels at provider
+ * construction. Used by buildCopilotModel hot path. Falls back to undefined
+ * (no enabled-set known) when the catalog hasn't been probed yet.
+ */
+function loadAuthEntryCachedSync(_authPath: string, _authKey: string): unknown {
+  return undefined // placeholder so this function exists; sync cache is via getCachedCopilotCatalog above
+}
+export { loadAuthEntryCachedSync as _ignoreSyncShim }

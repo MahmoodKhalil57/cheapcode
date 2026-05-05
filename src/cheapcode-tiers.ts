@@ -43,7 +43,7 @@ import { defaultOpencodeAuthPath } from "./auth-resolver"
 import { createOAuthLanguageModel } from "./oauth-language-model"
 import { createPoolOAuthLanguageModel } from "./pool-oauth-language-model"
 import { CODEX_ALLOWED_MODELS as CODEX_ALLOWED_MODELS_GLOBAL } from "./chatgpt-oauth-fetch"
-import { buildCopilotFetch, COPILOT_FRIEND_KNOWN_MODELS } from "./copilot-fetch"
+import { buildCopilotFetch, COPILOT_FRIEND_KNOWN_MODELS, fetchEnabledCopilotModels, getCachedCopilotCatalog } from "./copilot-fetch"
 import { CooldownTracker } from "./cooldown"
 import { homedir } from "node:os"
 import { join as pathJoin } from "node:path"
@@ -360,10 +360,20 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
     // bubbles up. v2 polish: add @ai-sdk/anthropic SDK dispatch for
     // claude-* model ids on the same baseURL.
     if (account.provider === "github-copilot" && auth.kind === "oauth") {
-      const modelId = target.startsWith("github-copilot/")
+      const authPath = defaultOpencodeAuthPath()
+      // Warm catalog cache so buildCopilotModel can filter to enabled models.
+      void fetchEnabledCopilotModels({ authPath, authKey: account.id })
+      const cachedCatalog = getCachedCopilotCatalog({ authPath, authKey: account.id })
+      const rawId = target.startsWith("github-copilot/")
         ? target.slice("github-copilot/".length)
         : target
-      return buildCopilotModel(defaultOpencodeAuthPath(), account.id, modelId)
+      // If the openrouter-style target normalizes to a gated model, fall back
+      // to a tier-equivalent that IS enabled on the friend's subscription.
+      const normalized = normalizeCopilotModelId(rawId)
+      const final = cachedCatalog && !cachedCatalog.enabled_ids.includes(normalized)
+        ? pickCopilotModelForTier("smart", options, cachedCatalog)
+        : normalized
+      return buildCopilotModel(authPath, account.id, final)
     }
 
     // Default path: route through OpenRouter with the chosen apiKey.
@@ -410,10 +420,15 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
       const copilot = detectCopilotOAuth()
       const consumerPlus = detectConsumerPlusOAuth()
       if (copilot) {
-        const tierModelId = pickCopilotModelForTier(modelId, options)
+        // Warm the live Copilot catalog cache (1h TTL) so tier-pick can filter
+        // to policy.state==="enabled" models. Fire-and-forget on first call;
+        // subsequent calls within 1h get the cached catalog synchronously.
+        void fetchEnabledCopilotModels({ authPath: copilot.authPath, authKey: copilot.authKey })
+        const cachedCatalog = getCachedCopilotCatalog({ authPath: copilot.authPath, authKey: copilot.authKey })
+        const tierModelId = pickCopilotModelForTier(modelId, options, cachedCatalog)
         if (modelId === "auto" && autoEnabled) {
-          const smartC = pickCopilotModelForTier("smart", options)
-          const cheapC = pickCopilotModelForTier("cheap", options)
+          const smartC = pickCopilotModelForTier("smart", options, cachedCatalog)
+          const cheapC = pickCopilotModelForTier("cheap", options, cachedCatalog)
           // Cross-family verifier per atom 0010 cross-witness: when smart is
           // claude-* default the verifier to gpt-5.4, and vice versa. Honors
           // explicit verifierTarget override when provided.
@@ -800,34 +815,56 @@ export function detectCopilotOAuth(): { authPath: string; authKey: string } | un
 }
 
 /**
- * Pick a Copilot model for a tier. Defaults are mixed-family across the
- * operator's full catalog (gpt-* via OpenAI Chat Completions, claude-* via
- * Anthropic Messages, gemini-* via OpenAI-compat — buildCopilotModel routes
- * automatically by model id). Operators can override via tierOverrides.
+ * Static fallback defaults. Used when we can't probe Copilot's live catalog
+ * (no auth path / network failure). Only includes models that are commonly
+ * enabled on the default ChatGPT-Copilot subscription tier.
+ *   cheap, cheap-fast  → claude-haiku-4.5  (Anthropic via Copilot)
+ *   smart, auto        → gpt-5-mini        (OpenAI via Copilot)
+ *   smart-fast         → gpt-5-mini
+ */
+function staticCopilotTierDefault(tierId: string): string {
+  if (tierId === "smart" || tierId === "auto") return "gpt-5-mini"
+  if (tierId === "smart-fast") return "gpt-5-mini"
+  return "claude-haiku-4.5"
+}
+
+/**
+ * Pick a Copilot model for a tier. Algorithm:
+ *   1. Honor explicit tierOverrides (operator-set in cheapcode.toml / opencode.json).
+ *   2. If a live Copilot catalog is cached AND the static default is in the
+ *      enabled set, use it.
+ *   3. If a live catalog is cached BUT the static default is gated, pick the
+ *      first enabled model in the same family (claude-* → claude_haiku-*; gpt-*
+ *      → smallest gpt-*).
+ *   4. Otherwise fall back to the static default and let the dispatch produce
+ *      a clear "model_not_supported" error if Copilot rejects.
  *
- * Defaults:
- *   cheap, cheap-fast  → claude-haiku-4.5  (fast + cheap, Anthropic via Copilot)
- *   smart              → claude-sonnet-4.6 (frontier-class, multi-step)
- *   smart-fast         → gpt-5.4           (lower latency than Claude Opus)
- *   auto               → claude-sonnet-4.6 (smart slot of the auto wrapper)
- *   verifier (auto)    → gpt-5.4           (cross-family from smart for atom 0010)
- *
- * The cross-family default for the auto-wrapper's smart-vs-verifier pair is
- * deliberate: per atom 0010 cross-witness, the verifier should be a different
- * model family than the smart. Friend's catalog gives us this naturally
- * (Claude Sonnet → GPT-5.4 verifier).
+ * Per atom 0007 anti-fab: we never invent a model id — the live catalog is
+ * the source of truth, and the static fallback names a model that's
+ * empirically common on default subscriptions.
  */
 export function pickCopilotModelForTier(
   tierId: string,
   options: CheapcodeProviderOptions,
+  catalog?: { enabled_ids: string[]; by_family: Record<string, string[]> },
 ): string {
   const override = options.tierOverrides?.[tierId as TierId]
   if (override) {
     return override.startsWith("github-copilot/") ? override.slice("github-copilot/".length) : override
   }
-  if (tierId === "smart" || tierId === "auto") return "claude-sonnet-4.6"
-  if (tierId === "smart-fast") return "gpt-5.4"
-  return "claude-haiku-4.5" // cheap, cheap-fast
+  const staticPick = staticCopilotTierDefault(tierId)
+  if (!catalog) return staticPick
+  // If our static pick is enabled, use it.
+  if (catalog.enabled_ids.includes(staticPick)) return staticPick
+  // Otherwise, pick the first enabled model in the same family.
+  const isClaude = /^claude-/i.test(staticPick)
+  const candidates = isClaude
+    ? catalog.enabled_ids.filter((id) => /^claude-/i.test(id))
+    : catalog.enabled_ids.filter((id) => /^gpt-/i.test(id) && !/^gpt-3/.test(id))
+  if (candidates.length > 0) return candidates[0]
+  // Last resort: any enabled model
+  if (catalog.enabled_ids.length > 0) return catalog.enabled_ids[0]
+  return staticPick
 }
 
 /**
@@ -895,17 +932,23 @@ function buildCopilotModel(authPath: string, authKey: string, modelId: string): 
   const fetchFn = buildCopilotFetch({ authPath, authKey })
   let model: LanguageModelV2
   if (isClaudeModelId(normalizedId)) {
+    // Anthropic models on Copilot use /v1/messages
     model = createAnthropic({
       apiKey: "dummy-overridden-by-fetch",
       baseURL: "https://api.githubcopilot.com/v1",
       fetch: fetchFn,
     })(normalizedId) as unknown as LanguageModelV2
   } else {
-    model = createOpenAI({
+    // GPT / Gemini / others on Copilot use /chat/completions, NOT /v1/responses.
+    // createOpenAI(client)(modelId) defaults to the Responses API for newer
+    // model ids — Copilot 400s those with "The requested model is not
+    // supported." at /responses. .chat(modelId) forces /chat/completions.
+    const openai = createOpenAI({
       apiKey: "dummy-overridden-by-fetch",
       baseURL: "https://api.githubcopilot.com",
       fetch: fetchFn,
-    })(normalizedId)
+    })
+    model = openai.chat(normalizedId) as unknown as LanguageModelV2
   }
   return generateBackedStreamModelForOpencode(model)
 }

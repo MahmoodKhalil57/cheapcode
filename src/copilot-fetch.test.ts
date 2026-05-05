@@ -111,13 +111,39 @@ test("COPILOT_FRIEND_KNOWN_MODELS contains expected ids", () => {
   expect(COPILOT_FRIEND_KNOWN_MODELS.has("gpt-99")).toBe(false)
 })
 
-test("pickCopilotModelForTier defaults span all three families", async () => {
+test("pickCopilotModelForTier static defaults (no catalog) target commonly-enabled models", async () => {
   const { pickCopilotModelForTier } = await import("./cheapcode-tiers")
   expect(pickCopilotModelForTier("cheap", { apiKey: "" })).toBe("claude-haiku-4.5")
   expect(pickCopilotModelForTier("cheap-fast", { apiKey: "" })).toBe("claude-haiku-4.5")
-  expect(pickCopilotModelForTier("smart", { apiKey: "" })).toBe("claude-sonnet-4.6")
-  expect(pickCopilotModelForTier("smart-fast", { apiKey: "" })).toBe("gpt-5.4")
-  expect(pickCopilotModelForTier("auto", { apiKey: "" })).toBe("claude-sonnet-4.6")
+  expect(pickCopilotModelForTier("smart", { apiKey: "" })).toBe("gpt-5-mini")
+  expect(pickCopilotModelForTier("smart-fast", { apiKey: "" })).toBe("gpt-5-mini")
+  expect(pickCopilotModelForTier("auto", { apiKey: "" })).toBe("gpt-5-mini")
+})
+
+test("pickCopilotModelForTier with catalog: keeps static default when enabled", async () => {
+  const { pickCopilotModelForTier } = await import("./cheapcode-tiers")
+  const catalog = {
+    enabled_ids: ["gpt-5-mini", "claude-haiku-4.5"],
+    by_family: { gpt: ["gpt-5-mini"], claude: ["claude-haiku-4.5"] },
+  }
+  expect(pickCopilotModelForTier("smart", { apiKey: "" }, catalog)).toBe("gpt-5-mini")
+  expect(pickCopilotModelForTier("cheap", { apiKey: "" }, catalog)).toBe("claude-haiku-4.5")
+})
+
+test("pickCopilotModelForTier with catalog: falls back to enabled family member when static is gated", async () => {
+  const { pickCopilotModelForTier } = await import("./cheapcode-tiers")
+  // gpt-5-mini disabled, gpt-4o enabled instead — should pick gpt-4o
+  const catalog = {
+    enabled_ids: ["gpt-4o", "claude-haiku-4.5"],
+    by_family: { gpt: ["gpt-4o"], claude: ["claude-haiku-4.5"] },
+  }
+  expect(pickCopilotModelForTier("smart", { apiKey: "" }, catalog)).toBe("gpt-4o")
+})
+
+test("pickCopilotModelForTier with empty catalog: falls back to static default", async () => {
+  const { pickCopilotModelForTier } = await import("./cheapcode-tiers")
+  const empty = { enabled_ids: [], by_family: {} }
+  expect(pickCopilotModelForTier("smart", { apiKey: "" }, empty)).toBe("gpt-5-mini")
 })
 
 test("pickCopilotModelForTier honors tierOverrides for gemini routing", async () => {
