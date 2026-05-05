@@ -1,8 +1,13 @@
 class Cheapcode < Formula
   desc "Substrate-disciplined opencode fork with smart model switchers"
   homepage "https://github.com/MahmoodKhalil57/cheapcode"
-  url "https://github.com/MahmoodKhalil57/cheapcode.git", branch: "main"
-  version "1.0.0"
+  if OS.linux? && Hardware::CPU.intel?
+    url "https://github.com/MahmoodKhalil57/cheapcode/releases/download/v1.0.1/cheapcode-1.0.1-linux-x64.tar.gz"
+    sha256 "70fe147cc5040824c499b4dc0f8507bace07b5b949e062a2e0f13ecf487d1156"
+  else
+    odie "prebuilt cheapcode Homebrew artifact is not published for this platform yet"
+  end
+  version "1.0.1"
   license "MIT"
   head "https://github.com/MahmoodKhalil57/cheapcode.git", branch: "main"
 
@@ -13,32 +18,23 @@ class Cheapcode < Formula
 
   depends_on "node"
   depends_on "ripgrep"
-  depends_on "bun" => :build
-  depends_on "git" => :build
 
-  resource "opencode" do
-    url "https://github.com/MahmoodKhalil57/opencode.git", revision: "d5171dbe412e9da932bebf177ceefec1b293a9da"
+  on_system do
+    depends_on "bun" => :build if build.head?
+    depends_on "git" => :build if build.head?
   end
 
   def install
-    system "bun", "install", "--silent"
-    system "bun", "run", "build:npm"
-
-    resource("opencode").stage do
-      (buildpath/"opencode-src").install Dir["*"]
-    end
-    cd buildpath/"opencode-src" do
+    if build.head?
       system "bun", "install", "--silent"
-      system "bun", "run", "--cwd", "packages/opencode", "build", "--single"
+      odie "HEAD builds require CHEAPCODE_OPENCODE_BIN pointing at a prebuilt cheapcode-opencode binary" unless ENV["CHEAPCODE_OPENCODE_BIN"]
+      system "bun", "run", "build:homebrew-artifact"
+      artifact = Dir[".release/homebrew/cheapcode-*.tar.gz"].first
+      odie "Homebrew artifact build failed" if artifact.nil?
+      system "tar", "-xzf", artifact, "-C", buildpath
     end
 
-    opencode_binary = Dir["#{buildpath}/opencode-src/packages/opencode/dist/opencode-*/bin/opencode"].first
-    odie "opencode binary build failed" if opencode_binary.nil?
-    (libexec/"opencode-bin").install opencode_binary => "opencode"
-
-    cd buildpath/".release/npm" do
-      system "npm", "install", *std_npm_args
-    end
+    libexec.install "lib", "opencode-bin"
 
     %w[cheapcode cheapcode-accounts cheapcode-account-status cheapcode-accounts-mcp].each do |command|
       write_homebrew_wrapper(command)
@@ -70,9 +66,9 @@ class Cheapcode < Formula
       user config/auth/cache too, run:
         brew uninstall --zap cheapcode
 
-      Packaging note: this formula currently depends on Bun because cheapcode
-      and its opencode fork are installed from source. The vanilla-opencode-like
-      target is a published npm tarball with node + ripgrep only.
+      Packaging note: stable installs use a prebuilt GitHub release artifact and
+      do not contact npm during brew install. HEAD builds are developer-only and
+      require Bun plus CHEAPCODE_OPENCODE_BIN.
 
       Upgrade stable installs with:
         brew update && brew upgrade cheapcode

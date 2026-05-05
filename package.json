@@ -1,10 +1,11 @@
 {
   "name": "@cheapcode/ai-sdk-provider",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "General-agent routing intelligence for opencode. 5 tier-IDs (cheap/cheap-fast/smart/smart-fast/auto); auto tier classifies tasks by failure-mode signature and dispatches to the documented value-optimum frontier model. Zero patches to opencode upstream.",
   "type": "module",
   "scripts": {
-    "build:npm": "bun script/build-npm-package.ts"
+    "build:npm": "bun script/build-npm-package.ts",
+    "build:homebrew-artifact": "bun script/build-homebrew-artifact.ts"
   },
   "main": "src/cheapcode-tiers.ts",
   "exports": {

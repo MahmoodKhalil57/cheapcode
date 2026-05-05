@@ -9,7 +9,7 @@
 **macos / linuxbrew (Homebrew):**
 
 ```sh
-brew install --HEAD ./Formula/cheapcode.rb
+brew install https://raw.githubusercontent.com/MahmoodKhalil57/cheapcode/main/Formula/cheapcode.rb
 ```
 
 The Homebrew formula installs cheapcode-owned code under Homebrew's Cellar and
@@ -18,10 +18,10 @@ exposes `cheapcode`, `cheapcode-accounts`, `cheapcode-account-status`, and
 cheapcode` removes managed code cleanly; `brew uninstall --zap cheapcode` also
 removes cheapcode user config/auth/cache.
 
-Dependency note: the formula now runs cheapcode through Node and a compiled
-opencode binary, matching vanilla opencode's runtime shape (`node` + `ripgrep`).
-It still uses Bun as a build-only dependency until release artifacts are
-published, because the opencode fork binary is compiled during install.
+Dependency note: stable Homebrew installs use a prebuilt GitHub release artifact
+and do not contact npm during `brew install`. The runtime shape matches vanilla
+opencode: `node` + `ripgrep` plus a compiled opencode binary. `--HEAD` builds
+are developer-only and require Bun.
 
 Upgrade stable Homebrew installs with:
 

@@ -9,11 +9,10 @@ test("Homebrew formula installs cheapcode and opencode under libexec", () => {
   const text = formula()
   expect(text).toContain('depends_on "node"')
   expect(text).toContain('depends_on "ripgrep"')
-  expect(text).toContain('depends_on "bun" => :build')
-  expect(text).toContain('system "bun", "run", "build:npm"')
-  expect(text).toContain('resource("opencode").stage do')
-  expect(text).toContain('system "bun", "run", "--cwd", "packages/opencode", "build", "--single"')
-  expect(text).toContain('system "npm", "install", *std_npm_args')
+  expect(text).toContain('cheapcode-1.0.1-linux-x64.tar.gz')
+  expect(text).toContain('libexec.install "lib", "opencode-bin"')
+  expect(text).not.toContain('system "npm", "install", *std_npm_args')
+  expect(text).not.toContain('resource("opencode")')
 })
 
 test("Homebrew formula exposes wrapper bins instead of ~/.cheapcode symlinks", () => {
@@ -56,4 +55,11 @@ test("CLI can run a packaged opencode binary without Bun", () => {
   const text = cheapcodeCli()
   expect(text).toContain("const OPENCODE_BIN = process.env.CHEAPCODE_OPENCODE_BIN")
   expect(text).toContain("return spawn(OPENCODE_BIN, args")
+})
+
+test("stable Homebrew install does not need blocked npm dependencies", () => {
+  const text = formula()
+  for (const blocked of ["typescript", "@ai-sdk/anthropic", "@ai-sdk/openai", "@openrouter/ai-sdk-provider", '"ai"']) {
+    expect(text).not.toContain(blocked)
+  }
 })
