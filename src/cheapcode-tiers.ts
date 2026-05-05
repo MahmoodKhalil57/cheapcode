@@ -30,6 +30,7 @@
 
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
 import { createOpenAI } from "@ai-sdk/openai"
+import { createAnthropic } from "@ai-sdk/anthropic"
 import type { LanguageModelV2 } from "@ai-sdk/provider"
 import { existsSync, readFileSync } from "node:fs"
 import { CheapcodeAutoModel, type AutoWrapperConfig } from "./auto-wrapper"
@@ -362,13 +363,7 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
       const modelId = target.startsWith("github-copilot/")
         ? target.slice("github-copilot/".length)
         : target
-      const authPath = defaultOpencodeAuthPath()
-      const fetchFn = buildCopilotFetch({ authPath, authKey: account.id })
-      return createOpenAI({
-        apiKey: "dummy-overridden-by-fetch",
-        baseURL: "https://api.githubcopilot.com",
-        fetch: fetchFn,
-      })(modelId)
+      return buildCopilotModel(defaultOpencodeAuthPath(), account.id, modelId)
     }
 
     // Default path: route through OpenRouter with the chosen apiKey.
@@ -419,10 +414,20 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
         if (modelId === "auto" && autoEnabled) {
           const smartC = pickCopilotModelForTier("smart", options)
           const cheapC = pickCopilotModelForTier("cheap", options)
+          // Cross-family verifier per atom 0010 cross-witness: when smart is
+          // claude-* default the verifier to gpt-5.4, and vice versa. Honors
+          // explicit verifierTarget override when provided.
+          const verifierC = options.auto?.verifierTarget
+            ? options.auto.verifierTarget.startsWith("github-copilot/")
+              ? options.auto.verifierTarget.slice("github-copilot/".length)
+              : options.auto.verifierTarget
+            : isClaudeModelId(smartC)
+              ? "gpt-5.4"
+              : "claude-sonnet-4.6"
           const cfg: AutoWrapperConfig = {
             smart: buildCopilotModel(copilot.authPath, copilot.authKey, smartC),
             cheap: buildCopilotModel(copilot.authPath, copilot.authKey, cheapC),
-            verifier: buildCopilotModel(copilot.authPath, copilot.authKey, smartC),
+            verifier: buildCopilotModel(copilot.authPath, copilot.authKey, verifierC),
             k,
             maxRetries,
             perCallTimeoutMs: options.auto?.perCallTimeoutMs,
@@ -792,10 +797,22 @@ export function detectCopilotOAuth(): { authPath: string; authKey: string } | un
 }
 
 /**
- * Pick a Copilot model for a tier. Defaults map to the OpenAI-family models
- * in the friend's catalog (gpt-* via Copilot's chat/completions endpoint).
- * Operators can override via tierOverrides (including claude-* / gemini-*
- * once those endpoints are wired in v2).
+ * Pick a Copilot model for a tier. Defaults are mixed-family across the
+ * operator's full catalog (gpt-* via OpenAI Chat Completions, claude-* via
+ * Anthropic Messages, gemini-* via OpenAI-compat — buildCopilotModel routes
+ * automatically by model id). Operators can override via tierOverrides.
+ *
+ * Defaults:
+ *   cheap, cheap-fast  → claude-haiku-4.5  (fast + cheap, Anthropic via Copilot)
+ *   smart              → claude-sonnet-4.6 (frontier-class, multi-step)
+ *   smart-fast         → gpt-5.4           (lower latency than Claude Opus)
+ *   auto               → claude-sonnet-4.6 (smart slot of the auto wrapper)
+ *   verifier (auto)    → gpt-5.4           (cross-family from smart for atom 0010)
+ *
+ * The cross-family default for the auto-wrapper's smart-vs-verifier pair is
+ * deliberate: per atom 0010 cross-witness, the verifier should be a different
+ * model family than the smart. Friend's catalog gives us this naturally
+ * (Claude Sonnet → GPT-5.4 verifier).
  */
 export function pickCopilotModelForTier(
   tierId: string,
@@ -805,18 +822,46 @@ export function pickCopilotModelForTier(
   if (override) {
     return override.startsWith("github-copilot/") ? override.slice("github-copilot/".length) : override
   }
-  if (tierId === "smart" || tierId === "auto") return "gpt-5.4"
+  if (tierId === "smart" || tierId === "auto") return "claude-sonnet-4.6"
   if (tierId === "smart-fast") return "gpt-5.4"
-  return "gpt-5-mini" // cheap, cheap-fast — cheapest gpt in the friend's catalog
+  return "claude-haiku-4.5" // cheap, cheap-fast
 }
 
 /**
- * Build a Copilot LanguageModelV2 for a given model id. Wraps createOpenAI
- * with the api.githubcopilot.com baseURL + the customFetch that injects the
- * GitHub Bearer + Copilot headers from auth.json.
+ * Detect whether a Copilot model id should be routed through the Anthropic
+ * /v1/messages endpoint vs the standard OpenAI Chat Completions endpoint.
+ * Mirrors opencode's plugin/github-copilot/models.ts isMsgApi logic — Claude
+ * models on Copilot expose a /v1/messages supported_endpoint and require
+ * @ai-sdk/anthropic body shape. gpt-* / gemini-* / others go through the
+ * default OpenAI-compat path.
  */
-function buildCopilotModel(authPath: string, authKey: string, modelId: string) {
+function isClaudeModelId(modelId: string): boolean {
+  return /^claude-/i.test(modelId)
+}
+
+/**
+ * Build a Copilot LanguageModelV2 for a given model id, branching by family:
+ *   - claude-*   → @ai-sdk/anthropic at api.githubcopilot.com/v1 (Messages API)
+ *   - everything → @ai-sdk/openai     at api.githubcopilot.com   (Chat Completions)
+ *
+ * The customFetch handles the GitHub Bearer + Copilot headers identically for
+ * both SDKs (both honor `Authorization` header from the fetch hook; we strip
+ * the SDK's pre-set authorization / x-api-key in copilot-fetch.ts).
+ *
+ * Gemini models on Copilot route through the OpenAI-compat path (Copilot
+ * wraps Google's API). If a model id arrives that the catalog doesn't
+ * actually serve in that format, the upstream call returns a Copilot 4xx,
+ * which the caller surfaces.
+ */
+function buildCopilotModel(authPath: string, authKey: string, modelId: string): LanguageModelV2 {
   const fetchFn = buildCopilotFetch({ authPath, authKey })
+  if (isClaudeModelId(modelId)) {
+    return createAnthropic({
+      apiKey: "dummy-overridden-by-fetch",
+      baseURL: "https://api.githubcopilot.com/v1",
+      fetch: fetchFn,
+    })(modelId) as unknown as LanguageModelV2
+  }
   return createOpenAI({
     apiKey: "dummy-overridden-by-fetch",
     baseURL: "https://api.githubcopilot.com",

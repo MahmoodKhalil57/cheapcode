@@ -35,5 +35,8 @@
     "router",
     "ai-sdk",
     "provider"
-  ]
+  ],
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.74"
+  }
 }

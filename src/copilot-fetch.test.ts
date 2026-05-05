@@ -110,3 +110,28 @@ test("COPILOT_FRIEND_KNOWN_MODELS contains expected ids", () => {
   expect(COPILOT_FRIEND_KNOWN_MODELS.has("gemini-2.5-pro")).toBe(true)
   expect(COPILOT_FRIEND_KNOWN_MODELS.has("gpt-99")).toBe(false)
 })
+
+test("pickCopilotModelForTier defaults span all three families", async () => {
+  const { pickCopilotModelForTier } = await import("./cheapcode-tiers")
+  expect(pickCopilotModelForTier("cheap", { apiKey: "" })).toBe("claude-haiku-4.5")
+  expect(pickCopilotModelForTier("cheap-fast", { apiKey: "" })).toBe("claude-haiku-4.5")
+  expect(pickCopilotModelForTier("smart", { apiKey: "" })).toBe("claude-sonnet-4.6")
+  expect(pickCopilotModelForTier("smart-fast", { apiKey: "" })).toBe("gpt-5.4")
+  expect(pickCopilotModelForTier("auto", { apiKey: "" })).toBe("claude-sonnet-4.6")
+})
+
+test("pickCopilotModelForTier honors tierOverrides for gemini routing", async () => {
+  const { pickCopilotModelForTier } = await import("./cheapcode-tiers")
+  expect(
+    pickCopilotModelForTier("smart", {
+      apiKey: "",
+      tierOverrides: { smart: "github-copilot/gemini-2.5-pro" },
+    }),
+  ).toBe("gemini-2.5-pro")
+  expect(
+    pickCopilotModelForTier("cheap", {
+      apiKey: "",
+      tierOverrides: { cheap: "claude-haiku-4.5" },
+    }),
+  ).toBe("claude-haiku-4.5")
+})
