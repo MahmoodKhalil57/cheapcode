@@ -108,7 +108,31 @@ test("doGenerate skips already-cooled keys on next call (no wasted attempt)", as
   expect(arg.authKey).toBe("openai-2")
 })
 
-test("doGenerate throws PoolOAuthExhaustedError when every key is cooled", async () => {
+test("doGenerate revalidates 429-cooled keys when every key is cooled", async () => {
+  const { authPath, cdPath } = await setupAuth()
+  const cooldown = new CooldownTracker(cdPath)
+  cooldown.mark("openai", "429", 60_000)
+  cooldown.mark("openai-2", "429", 60_000)
+  const codexCaller = mock(async (opts: { authKey: string }) => ({
+    text: `served by ${opts.authKey}`,
+    raw_event_count: 1,
+  }))
+  const m = createPoolOAuthLanguageModel({
+    authPath,
+    authKeys: ["openai", "openai-2"],
+    modelId: "gpt-5.5",
+    cooldown,
+    codexCaller: codexCaller as never,
+  })
+  const r = await m.doGenerate({
+    prompt: [{ role: "user", content: [{ type: "text", text: "hi" }] }],
+  } as never)
+  expect((r.content[0] as { type: "text"; text: string }).text).toBe("served by openai")
+  expect(codexCaller).toHaveBeenCalledTimes(1)
+  expect(cooldown.isAvailable("openai")).toBe(true)
+})
+
+test("doGenerate still exhausts when revalidated cooled keys are actually capped", async () => {
   const { authPath, cdPath } = await setupAuth()
   const cooldown = new CooldownTracker(cdPath)
   cooldown.mark("openai", "429", 60_000)
@@ -119,14 +143,14 @@ test("doGenerate throws PoolOAuthExhaustedError when every key is cooled", async
     modelId: "gpt-5.5",
     cooldown,
     codexCaller: (async () => {
-      throw new Error("should-not-be-called")
+      throw codex429(3600)
     }) as never,
   })
   await expect(
     m.doGenerate({
       prompt: [{ role: "user", content: [{ type: "text", text: "hi" }] }],
     } as never),
-  ).rejects.toThrow("every credential is on cooldown")
+  ).rejects.toThrow("tried and failed")
 })
 
 test("doGenerate exhaustion message lists the keys it actually tried", async () => {

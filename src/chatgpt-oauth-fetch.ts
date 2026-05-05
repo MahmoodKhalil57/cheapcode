@@ -204,6 +204,7 @@ export async function callChatGptCodex(opts: {
   let buffer = ""
   let text = ""
   let events = 0
+  let completed = false
   while (true) {
     const { done, value } = await reader.read()
     if (done) break
@@ -220,18 +221,26 @@ export async function callChatGptCodex(opts: {
       try {
         const evt = JSON.parse(payload) as { type?: string; delta?: string; text?: string }
         if (evt.type === "response.output_text.delta" && typeof evt.delta === "string") {
-          text += evt.delta
+          // The Codex endpoint may emit either true incremental deltas or
+          // full-text snapshots. If the new delta already contains the text we
+          // have, treat it as canonical-so-far rather than appending repeats.
+          text = evt.delta.startsWith(text) ? evt.delta : text + evt.delta
         } else if (evt.type === "response.output_text.done" && typeof evt.text === "string") {
           // final canonical text — prefer over accumulated deltas if present
           text = evt.text
+          completed = true
+          break
         } else if (evt.type === "response.completed") {
-          // best to break out; some servers don't send [DONE]
+          // best to break out of the outer read loop; some servers don't send [DONE]
+          completed = true
           break
         }
       } catch {
         // skip malformed events
       }
     }
+    if (completed) break
   }
+  await reader.cancel().catch(() => undefined)
   return { text, raw_event_count: events }
 }

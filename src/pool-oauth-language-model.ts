@@ -127,9 +127,7 @@ export class PoolOAuthLanguageModelV2 implements LanguageModelV2 {
   }): Promise<{ result: CodexCallResult; usedKey: string }> {
     const tried: string[] = []
     let lastErr: unknown
-    while (true) {
-      const authKey = this.pickAvailable()
-      if (!authKey) break
+    const tryKey = async (authKey: string): Promise<{ result: CodexCallResult; usedKey: string } | undefined> => {
       tried.push(authKey)
       try {
         const r = await (this.opts.codexCaller ?? defaultCallChatGptCodex)({
@@ -140,6 +138,7 @@ export class PoolOAuthLanguageModelV2 implements LanguageModelV2 {
           prompt: input.userText,
           signal: input.signal,
         })
+        this.cooldown.clear(authKey)
         return { result: r, usedKey: authKey }
       } catch (err) {
         lastErr = err
@@ -148,6 +147,27 @@ export class PoolOAuthLanguageModelV2 implements LanguageModelV2 {
         const resetMs = parseCodexQuotaResetMs(err)
         this.cooldown.mark(authKey, reason, resetMs)
         this.cooldown.save().catch(() => undefined)
+        return undefined
+      }
+    }
+
+    while (true) {
+      const authKey = this.pickAvailable()
+      if (!authKey) break
+      const result = await tryKey(authKey)
+      if (result) return result
+    }
+
+    // A persisted 429 cooldown can be stale if the server-side Plus bucket was
+    // replenished out-of-band. When every key is cooled, revalidate 429 entries
+    // once instead of treating the cache as authoritative.
+    if (tried.length === 0) {
+      const pending = this.cooldown.pending()
+      const revalidateKeys = this.opts.authKeys.filter((k) => pending[k]?.reason === "429")
+      for (const authKey of revalidateKeys) {
+        this.cooldown.clear(authKey)
+        const result = await tryKey(authKey)
+        if (result) return result
       }
     }
     // Build an honest exhaustion message that distinguishes "tried and all

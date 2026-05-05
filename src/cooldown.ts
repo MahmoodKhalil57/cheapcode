@@ -62,6 +62,10 @@ export class CooldownTracker {
     this.entries[authKey] = { until: Date.now() + ms, reason }
   }
 
+  clear(authKey: string): void {
+    delete this.entries[authKey]
+  }
+
   isAvailable(authKey: string, now: number = Date.now()): boolean {
     const e = this.entries[authKey]
     if (!e) return true
