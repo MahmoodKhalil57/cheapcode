@@ -195,10 +195,17 @@ JSON
 fi
 
 # ============================================================
-# Register cheapcode in opencode.json (additive — doesn't clobber existing)
+# Register cheapcode in cheapcode-isolated opencode.json
 # ============================================================
+#
+# Cheapcode runtime ALWAYS reads from ~/.config/cheapcode/opencode/opencode.json
+# (because the fork's global.ts honors CHEAPCODE_FORK=1 and nests the XDG app
+# under cheapcode/opencode). We never read or write vanilla opencode's
+# ~/.config/opencode/opencode.json — friend's existing vanilla setup is
+# completely untouched.
 
-OPENCODE_CFG="$HOME/.config/opencode/opencode.json"
+XDG_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}"
+OPENCODE_CFG="$XDG_CONFIG/cheapcode/opencode/opencode.json"
 mkdir -p "$(dirname "$OPENCODE_CFG")"
 
 if [ ! -f "$OPENCODE_CFG" ]; then
@@ -230,32 +237,18 @@ if [ ! -f "$OPENCODE_CFG" ]; then
 }
 JSON
 else
-  # Existing config — surface a non-destructive warning + suggest manual edit if cheapcode entries missing
-  if ! grep -q '"cheapcode"' "$OPENCODE_CFG"; then
-    warn "your existing $OPENCODE_CFG does not contain a 'cheapcode' provider entry"
-    warn "add this manually under the 'provider' key:"
-    say ""
-    say "    \"cheapcode\": {"
-    say "      \"npm\": \"$CHEAPCODE_LIB\","
-    say "      \"name\": \"cheapcode tiers\","
-    say "      \"options\": { \"apiKey\": \"{env:OPENROUTER_API_KEY}\" },"
-    say "      \"models\": {"
-    say "        \"auto\": { \"name\": \"auto\", \"tools\": true },"
-    say "        \"smart-fast\": { \"name\": \"smart-fast\", \"tools\": true }"
-    say "      }"
-    say "    }"
-    say ""
-  fi
-  if ! grep -q '"cheapcode-accounts"' "$OPENCODE_CFG"; then
-    warn "your existing $OPENCODE_CFG does not contain the 'cheapcode-accounts' MCP server"
-    warn "add this manually under the 'mcp' key:"
-    say ""
-    say "    \"cheapcode-accounts\": {"
-    say "      \"type\": \"local\","
-    say "      \"command\": [\"$CHEAPCODE_BIN/cheapcode-accounts-mcp\"]"
-    say "    }"
-    say ""
-  fi
+  ok "cheapcode opencode.json already exists at $OPENCODE_CFG (skipping)"
+fi
+
+# Optional courtesy: if vanilla opencode auth.json exists AND cheapcode's
+# isolated auth.json doesn't, suggest the migrate command.
+XDG_DATA="${XDG_DATA_HOME:-$HOME/.local/share}"
+if [ -f "$XDG_DATA/opencode/auth.json" ] && [ ! -f "$XDG_DATA/cheapcode/opencode/auth.json" ]; then
+  say ""
+  info "vanilla opencode auth.json detected at $XDG_DATA/opencode/auth.json"
+  info "to copy your existing connected providers into cheapcode's isolated store:"
+  say "    cheapcode migrate-from-vanilla"
+  info "(the vanilla file is left untouched — this is a copy, not a move.)"
 fi
 
 # ============================================================

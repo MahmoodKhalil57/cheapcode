@@ -37,6 +37,20 @@ const CHEAPCODE_VERSION = "0.1.0-pre" // bumped per release
 const CHEAPCODE_HOME = process.env.CHEAPCODE_HOME ?? join(homedir(), ".cheapcode")
 const DEFAULT_WEB_PORT = 4096
 
+// cheapcode-isolated XDG paths — must match the fork's global.ts logic
+// when CHEAPCODE_FORK=1 (path.join("cheapcode", "opencode")). These are the
+// paths the forked runtime ACTUALLY reads/writes, so doctor + status must
+// inspect these, not the vanilla opencode locations.
+const XDG_DATA_HOME = process.env.XDG_DATA_HOME ?? join(homedir(), ".local", "share")
+const XDG_CONFIG_HOME = process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config")
+const CHEAPCODE_FORK_DATA = join(XDG_DATA_HOME, "cheapcode", "opencode")
+const CHEAPCODE_FORK_CONFIG = join(XDG_CONFIG_HOME, "cheapcode", "opencode")
+const CHEAPCODE_FORK_OPENCODE_JSON = join(CHEAPCODE_FORK_CONFIG, "opencode.json")
+const CHEAPCODE_FORK_AUTH_JSON = join(CHEAPCODE_FORK_DATA, "auth.json")
+// vanilla locations (only used by migrate / doctor read-only checks)
+const VANILLA_OPENCODE_JSON = join(XDG_CONFIG_HOME, "opencode", "opencode.json")
+const VANILLA_AUTH_JSON = join(XDG_DATA_HOME, "opencode", "auth.json")
+
 function getCheapcodeRoot(): string {
   // The repo this binary was built/run from. When installed via curl-install,
   // this is ~/.cheapcode/lib/cheapcode. During development it's the repo path.
@@ -121,8 +135,12 @@ function getOpencodeVersion(): string | null {
 /**
  * Spawn the forked opencode from source. Mirrors opencode's own `bun dev`
  * convention: bun --cwd <pkg> --conditions=browser src/index.ts
+ *
+ * Always sets CHEAPCODE_FORK=1 in the child env so the forked runtime nests
+ * its XDG paths under cheapcode/opencode/. Vanilla opencode (different binary,
+ * default app="opencode") sees ZERO shared filesystem state.
  */
-function spawnOpencodeFork(args: string[], opts: { stdio?: "inherit" | "pipe" } = {}) {
+function spawnOpencodeFork(args: string[], opts: { stdio?: "inherit" | "pipe"; env?: NodeJS.ProcessEnv } = {}) {
   ensureOpencodeFork()
   return spawn(
     "bun",
@@ -133,7 +151,10 @@ function spawnOpencodeFork(args: string[], opts: { stdio?: "inherit" | "pipe" } 
       OPENCODE_FORK_ENTRY,
       ...args,
     ],
-    { stdio: opts.stdio ?? "inherit" },
+    {
+      stdio: opts.stdio ?? "inherit",
+      env: { ...process.env, ...(opts.env ?? {}), CHEAPCODE_FORK: "1" },
+    },
   )
 }
 
@@ -168,39 +189,36 @@ function cmdDoctor(): number {
     issues++
   }
 
-  // 2. opencode config
-  const opCfg = join(homedir(), ".config", "opencode", "opencode.json")
-  if (existsSync(opCfg)) {
+  // 2. cheapcode-isolated opencode config
+  if (existsSync(CHEAPCODE_FORK_OPENCODE_JSON)) {
     try {
-      JSON.parse(readFileSync(opCfg, "utf-8"))
-      console.log(`  ${C.green("[OK]")} opencode config valid: ${opCfg}`)
+      JSON.parse(readFileSync(CHEAPCODE_FORK_OPENCODE_JSON, "utf-8"))
+      console.log(`  ${C.green("[OK]")} cheapcode opencode.json valid: ${CHEAPCODE_FORK_OPENCODE_JSON}`)
     } catch (e) {
-      console.log(`  ${C.red("[FAIL]")} opencode config malformed: ${(e as Error).message}`)
+      console.log(`  ${C.red("[FAIL]")} cheapcode opencode.json malformed: ${(e as Error).message}`)
       issues++
     }
   } else {
-    console.log(`  ${C.yellow("[WARN]")} no opencode config at ${opCfg}`)
+    console.log(`  ${C.yellow("[WARN]")} no cheapcode opencode.json at ${CHEAPCODE_FORK_OPENCODE_JSON}`)
+    console.log(`    ${C.dim("re-run install.sh to scaffold; or run cheapcode migrate-from-vanilla if you have an existing vanilla setup.")}`)
   }
 
-  // 3. cheapcode provider registered in opencode
-  if (existsSync(opCfg)) {
-    const cfg = JSON.parse(readFileSync(opCfg, "utf-8"))
+  // 3. cheapcode provider registered in cheapcode opencode.json
+  if (existsSync(CHEAPCODE_FORK_OPENCODE_JSON)) {
+    const cfg = JSON.parse(readFileSync(CHEAPCODE_FORK_OPENCODE_JSON, "utf-8"))
     if (cfg.provider?.cheapcode) {
-      console.log(`  ${C.green("[OK]")} cheapcode provider registered in opencode.json`)
+      console.log(`  ${C.green("[OK]")} cheapcode provider registered`)
     } else {
-      console.log(`  ${C.yellow("[WARN]")} cheapcode provider NOT in opencode.json`)
-      console.log(`    ${C.dim(`add "cheapcode": { "npm": "${CHEAPCODE_ROOT}", ... } to provider section`)}`)
+      console.log(`  ${C.yellow("[WARN]")} cheapcode provider NOT registered`)
     }
     if (cfg.mcp?.["cheapcode-accounts"]) {
       console.log(`  ${C.green("[OK]")} cheapcode-accounts MCP server registered`)
     } else {
-      console.log(`  ${C.yellow("[WARN]")} cheapcode-accounts MCP server NOT in opencode.json mcp section`)
+      console.log(`  ${C.yellow("[WARN]")} cheapcode-accounts MCP server NOT registered`)
     }
   }
 
   // 4. accounts.json
-  const acc = join(CHEAPCODE_HOME, "..", ".config", "cheapcode", "accounts.json")
-  // actually use defaultRegistryPath logic
   const accPath = join(homedir(), ".config", "cheapcode", "accounts.json")
   if (existsSync(accPath)) {
     try {
@@ -214,18 +232,25 @@ function cmdDoctor(): number {
     console.log(`  ${C.dim("[INFO]")} no accounts.json yet (single-account mode active)`)
   }
 
-  // 5. opencode auth.json
-  const auth = join(homedir(), ".local", "share", "opencode", "auth.json")
-  if (existsSync(auth)) {
+  // 5. cheapcode-isolated auth.json
+  if (existsSync(CHEAPCODE_FORK_AUTH_JSON)) {
     try {
-      const a = JSON.parse(readFileSync(auth, "utf-8"))
-      console.log(`  ${C.green("[OK]")} opencode auth.json: ${Object.keys(a).length} provider(s)`)
+      const a = JSON.parse(readFileSync(CHEAPCODE_FORK_AUTH_JSON, "utf-8"))
+      console.log(`  ${C.green("[OK]")} cheapcode auth.json: ${Object.keys(a).length} provider(s)`)
     } catch {
-      console.log(`  ${C.red("[FAIL]")} opencode auth.json malformed`)
+      console.log(`  ${C.red("[FAIL]")} cheapcode auth.json malformed`)
       issues++
     }
   } else {
-    console.log(`  ${C.yellow("[WARN]")} no opencode auth.json (run 'cheapcode providers login' first)`)
+    console.log(`  ${C.yellow("[WARN]")} no cheapcode auth.json (connect a provider via 'cheapcode web')`)
+    if (existsSync(VANILLA_AUTH_JSON)) {
+      console.log(
+        `    ${C.dim(`note: vanilla opencode auth.json detected at ${VANILLA_AUTH_JSON}.`)}`,
+      )
+      console.log(
+        `    ${C.dim("run 'cheapcode migrate-from-vanilla' to copy those credentials into cheapcode's isolated store.")}`,
+      )
+    }
   }
 
   console.log()
@@ -303,9 +328,13 @@ async function cmdWeb(extraArgs: string[]): Promise<number> {
     ],
     {
       stdio: "inherit",
-      env: existsSync(uiDist)
-        ? { ...process.env, OPENCODE_UI_DIST: uiDist }
-        : process.env,
+      env: {
+        ...process.env,
+        // CHEAPCODE_FORK=1 nests XDG paths under cheapcode/opencode/ so we
+        // never read or write vanilla opencode's auth.json / opencode.json.
+        CHEAPCODE_FORK: "1",
+        ...(existsSync(uiDist) ? { OPENCODE_UI_DIST: uiDist } : {}),
+      },
     },
   )
 
@@ -393,6 +422,83 @@ function cmdStatus(extraArgs: string[]): number {
   return new Promise<number>((resolve) => {
     child.on("close", (code) => resolve(code ?? 0))
   }) as never
+}
+
+// ============================================================
+// Subcommand: migrate-from-vanilla
+// ============================================================
+//
+// One-shot helper for operators who installed cheapcode AFTER having vanilla
+// opencode. Copies credentials (auth.json) + MCP/provider config from
+// ~/.config/opencode + ~/.local/share/opencode into cheapcode's isolated
+// store at ~/.config/cheapcode/opencode + ~/.local/share/cheapcode/opencode.
+// Vanilla files are left UNTOUCHED; this is a copy, not a move.
+//
+// --dry-run prints what would be copied without doing it.
+// --force overwrites existing cheapcode files.
+
+async function cmdMigrateFromVanilla(extraArgs: string[]): Promise<number> {
+  const dryRun = extraArgs.includes("--dry-run") || extraArgs.includes("-n")
+  const force = extraArgs.includes("--force") || extraArgs.includes("-f")
+
+  console.log(C.bold("cheapcode migrate-from-vanilla"))
+  console.log()
+  console.log(C.dim("  copies vanilla opencode credentials + config into cheapcode's isolated store."))
+  console.log(C.dim("  vanilla files are NOT modified — this is a copy, not a move."))
+  console.log()
+
+  type Mig = { from: string; to: string; label: string; transform?: (raw: string) => string }
+  const migrations: Mig[] = [
+    { from: VANILLA_AUTH_JSON, to: CHEAPCODE_FORK_AUTH_JSON, label: "auth.json (connected providers)" },
+    { from: VANILLA_OPENCODE_JSON, to: CHEAPCODE_FORK_OPENCODE_JSON, label: "opencode.json (config)" },
+  ]
+
+  let copied = 0
+  let skipped = 0
+  for (const m of migrations) {
+    if (!existsSync(m.from)) {
+      console.log(`  ${C.dim("[skip]")} ${m.label}: source missing (${m.from})`)
+      skipped++
+      continue
+    }
+    if (existsSync(m.to) && !force) {
+      console.log(`  ${C.yellow("[skip]")} ${m.label}: destination exists (pass --force to overwrite)`)
+      console.log(`    ${C.dim(`from: ${m.from}`)}`)
+      console.log(`    ${C.dim(`to:   ${m.to}`)}`)
+      skipped++
+      continue
+    }
+    if (dryRun) {
+      console.log(`  ${C.cyan("[would-copy]")} ${m.label}`)
+      console.log(`    ${C.dim(`from: ${m.from}`)}`)
+      console.log(`    ${C.dim(`to:   ${m.to}`)}`)
+      copied++
+      continue
+    }
+    try {
+      const raw = readFileSync(m.from, "utf-8")
+      const out = m.transform ? m.transform(raw) : raw
+      mkdirSync(dirname(m.to), { recursive: true })
+      const fs = await import("node:fs/promises")
+      await fs.writeFile(m.to, out, { mode: 0o600 })
+      console.log(`  ${C.green("[copied]")} ${m.label} → ${m.to}`)
+      copied++
+    } catch (e) {
+      console.log(`  ${C.red("[fail]")} ${m.label}: ${(e as Error).message}`)
+    }
+  }
+
+  console.log()
+  if (dryRun) {
+    console.log(C.dim(`dry-run complete: ${copied} would be copied, ${skipped} skipped.`))
+    console.log(C.dim(`re-run without --dry-run to apply.`))
+  } else {
+    console.log(C.green(`migration complete: ${copied} copied, ${skipped} skipped.`))
+    if (copied > 0) {
+      console.log(C.dim(`  next: run 'cheapcode web' — your providers should appear in Settings → Providers.`))
+    }
+  }
+  return 0
 }
 
 // ============================================================
@@ -593,7 +699,8 @@ ${C.bold("commands:")}
   ${C.cyan("status")}             diagnostic: account registry + auth resolution
   ${C.cyan("doctor")}             system health check (opencode + configs + MCP)
   ${C.cyan("version")}            print version
-  ${C.cyan("update")}             self-update (skeleton)
+  ${C.cyan("update")}             pull latest cheapcode + fork from GitHub (--force, --no-build, --no-install)
+  ${C.cyan("migrate-from-vanilla")} copy vanilla opencode auth.json + opencode.json into cheapcode's isolated store
   ${C.cyan("help")}               this text
 
 ${C.bold("simple flow (non-technical user):")}
@@ -631,6 +738,7 @@ async function main(): Promise<number> {
   if (cmd === "accounts" || cmd === "acc") return await (cmdAccounts(rest) as unknown as Promise<number>)
   if (cmd === "status") return await (cmdStatus(rest) as unknown as Promise<number>)
   if (cmd === "update") return await cmdUpdate(rest)
+  if (cmd === "migrate-from-vanilla" || cmd === "migrate") return await cmdMigrateFromVanilla(rest)
   // Unknown — passthrough to forked opencode (so e.g. `cheapcode models` works)
   console.log(C.dim(`(unknown cheapcode command "${cmd}"; passing through to opencode fork)`))
   const child = spawnOpencodeFork(argv)
