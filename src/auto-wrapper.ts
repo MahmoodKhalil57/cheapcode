@@ -610,7 +610,25 @@ export class CheapcodeAutoModel {
       }
       const cap = shapeDefaults[decision.shape] ?? 4096
       const maxOutputTokens = Math.min(reqMax, cap)
-      const direct = await generateText({ model: directModel, prompt: task, maxOutputTokens })
+
+      // PASSTHROUGH: hand the original V2 call options (tools, messages,
+      // toolChoice, system, providerOptions, abortSignal, ...) straight to
+      // the underlying model. Previously we extracted prompt-as-string and
+      // dropped tools — opencode's build agent registers cheapcode tiers
+      // with tools:true and looped the agent when it never saw tool calls.
+      const passOptions = {
+        ...(options as Record<string, unknown>),
+        maxOutputTokens,
+      } as never
+      const directResult = (await (directModel as any).doGenerate(passOptions)) as {
+        content?: Array<{ type: string; text?: string }>
+        finishReason?: string
+        usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number }
+        warnings?: unknown[]
+        response?: unknown
+        providerMetadata?: Record<string, unknown>
+      }
+
       // M3.53 — track dispatch for quota awareness on next route() call
       try {
         const { trackDispatch } = await import("./mizan-shim")
@@ -622,11 +640,15 @@ export class CheapcodeAutoModel {
       } catch {
         /* ignore — quota tracking is best-effort */
       }
+
       return {
-        content: [{ type: "text", text: direct.text }],
-        finishReason: (direct as any).finishReason ?? "stop",
-        usage: (direct as any).usage ?? { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+        content: directResult.content ?? [{ type: "text", text: "" }],
+        finishReason: directResult.finishReason ?? "stop",
+        usage:
+          directResult.usage ?? { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+        response: directResult.response,
         providerMetadata: {
+          ...(directResult.providerMetadata ?? {}),
           cheapcode: {
             route: {
               shape: decision.shape,
@@ -638,8 +660,8 @@ export class CheapcodeAutoModel {
             },
           },
         },
-        warnings: [],
-      }
+        warnings: (directResult.warnings as never[]) ?? [],
+      } as never
     }
 
     // Compound dispatch path (conditional): only fires when the routing
@@ -675,15 +697,30 @@ export class CheapcodeAutoModel {
   }
 
   async doStream(options: GenerateOptions): Promise<StreamResult> {
+    // PASSTHROUGH: when the routing decision is direct dispatch (no compound,
+    // no voter), stream directly from the underlying model so opencode sees
+    // real tool-call events / reasoning chunks / etc. instead of a synthetic
+    // text-only stream that would suppress agentic tool calls.
+    const task = extractPrompt((options as any).prompt ?? (options as any).messages ?? options)
+    const substrateState = await this.ensureSubstrateState()
+    const quotaState = await this.ensureQuotaState()
+    const decision = route(task, { ...this.routerOptions, substrateState, quotaState })
+
+    if (!decision.use_compound && decision.target_model && !decision.declined && !decision.use_voter) {
+      const directModel = this.adapter(decision.target_model)
+      if (typeof (directModel as any).doStream === "function") {
+        return (directModel as any).doStream(options) as StreamResult
+      }
+    }
+
+    // Fallback for compound / voter / declined paths: synthesize a stream
+    // from the doGenerate result. These paths return a single composed text
+    // (not tool calls), so the synthetic stream is correct.
     const result = await this.doGenerate(options)
     const textChunk = result.content?.[0]?.text ?? ""
     return {
       stream: new ReadableStream({
         start(controller) {
-          // Round 96 fix (atom 0021 recursive-substrate-use receipt): processor.ts
-          // text-delta handler bails early when no preceding text-start initialized
-          // ctx.currentText. Synthetic streams MUST emit text-start before deltas
-          // and text-end after, mirroring real provider streams.
           controller.enqueue({ type: "stream-start", warnings: [] })
           controller.enqueue({ type: "text-start", id: "0" })
           controller.enqueue({ type: "text-delta", id: "0", delta: textChunk })
