@@ -31,6 +31,7 @@
 import { generateText } from "ai"
 import { route, type RouterOptions, type RouteDecision } from "./router"
 import { runCrossWitnessVoter } from "./cross-witness-voter"
+import { applyStanceAnchor } from "./stance-anchor"
 
 // Use loose typing for LanguageModelV3 — exact interface varies by AI SDK
 // version. Runtime behavior is the contract that matters; opencode calls
@@ -616,8 +617,23 @@ export class CheapcodeAutoModel {
       // the underlying model. Previously we extracted prompt-as-string and
       // dropped tools — opencode's build agent registers cheapcode tiers
       // with tools:true and looped the agent when it never saw tool calls.
+      // M24 iter 4: stance-anchor — when CHEAPCODE_STANCE_ANCHOR=1 AND the
+      // current turn is detected as user-pushback-on-prior-claim, inject
+      // a structural stance constraint that forces the model to either
+      // re-cite the prior claim's source OR mark it ASSUMPTION before
+      // responding. Pass-through when disabled or not fired.
+      let workingPrompt: unknown = (options as Record<string, unknown>).prompt
+      let stanceFired = false
+      let stanceReason: string | undefined
+      if (process.env.CHEAPCODE_STANCE_ANCHOR === "1" && workingPrompt) {
+        const sa = applyStanceAnchor(workingPrompt, { mode: "inject-user" })
+        workingPrompt = sa.prompt
+        stanceFired = sa.decision.fired
+        stanceReason = sa.decision.reason
+      }
       const passOptions = {
         ...(options as Record<string, unknown>),
+        prompt: workingPrompt,
         maxOutputTokens,
       } as never
       const directResult = (await (directModel as any).doGenerate(passOptions)) as {
@@ -657,6 +673,10 @@ export class CheapcodeAutoModel {
               rule: decision.rule,
               evidence_tier: decision.evidence_tier,
               compound: false,
+            },
+            stance_anchor: {
+              fired: stanceFired,
+              reason: stanceReason,
             },
           },
         },
