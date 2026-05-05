@@ -64,10 +64,24 @@ export class AuthResolutionError extends Error {
 // ============================================================
 
 /**
- * Default opencode auth.json path. Resolves ~ → homedir.
+ * Default opencode auth.json path. After M22 (filesystem isolation), this
+ * points at the cheapcode-isolated location — `~/.local/share/cheapcode/
+ * opencode/auth.json` (matching the fork's CHEAPCODE_FORK=1 XDG nesting in
+ * packages/core/src/global.ts).
+ *
+ * Pre-M22 vanilla path is preserved as `defaultVanillaOpencodeAuthPath()`
+ * for the migrate-from-vanilla helper that copies vanilla credentials into
+ * the cheapcode store.
  */
 export function defaultOpencodeAuthPath(): string {
-  return join(homedir(), ".local", "share", "opencode", "auth.json")
+  const dataHome = process.env.XDG_DATA_HOME ?? join(homedir(), ".local", "share")
+  return join(dataHome, "cheapcode", "opencode", "auth.json")
+}
+
+/** Pre-M22 vanilla opencode auth.json path. Read-only by cheapcode (migrate). */
+export function defaultVanillaOpencodeAuthPath(): string {
+  const dataHome = process.env.XDG_DATA_HOME ?? join(homedir(), ".local", "share")
+  return join(dataHome, "opencode", "auth.json")
 }
 
 /**

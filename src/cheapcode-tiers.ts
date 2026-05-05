@@ -42,6 +42,7 @@ import { defaultOpencodeAuthPath } from "./auth-resolver"
 import { createOAuthLanguageModel } from "./oauth-language-model"
 import { createPoolOAuthLanguageModel } from "./pool-oauth-language-model"
 import { CODEX_ALLOWED_MODELS as CODEX_ALLOWED_MODELS_GLOBAL } from "./chatgpt-oauth-fetch"
+import { buildCopilotFetch, COPILOT_FRIEND_KNOWN_MODELS } from "./copilot-fetch"
 import { CooldownTracker } from "./cooldown"
 import { homedir } from "node:os"
 import { join as pathJoin } from "node:path"
@@ -346,6 +347,30 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
       }
       return createOpenAI({ apiKey: auth.key })(modelId)
     }
+
+    // M23: github-copilot dispatch via api.githubcopilot.com (OpenAI-compat
+    // chat/completions). The Bearer is the GitHub token stored in the
+    // auth.json oauth `refresh` field (opencode storage convention; see
+    // copilot-fetch.ts header). createOpenAI's customFetch handles the
+    // header swap + Copilot-specific headers; the AI SDK speaks standard
+    // OpenAI Chat Completions which Copilot accepts for gpt-* models.
+    // Claude/Gemini-via-Copilot need /v1/messages (Anthropic format) — the
+    // friend's first request will route here regardless; if it fails it
+    // bubbles up. v2 polish: add @ai-sdk/anthropic SDK dispatch for
+    // claude-* model ids on the same baseURL.
+    if (account.provider === "github-copilot" && auth.kind === "oauth") {
+      const modelId = target.startsWith("github-copilot/")
+        ? target.slice("github-copilot/".length)
+        : target
+      const authPath = defaultOpencodeAuthPath()
+      const fetchFn = buildCopilotFetch({ authPath, authKey: account.id })
+      return createOpenAI({
+        apiKey: "dummy-overridden-by-fetch",
+        baseURL: "https://api.githubcopilot.com",
+        fetch: fetchFn,
+      })(modelId)
+    }
+
     // Default path: route through OpenRouter with the chosen apiKey.
     // Works for any "vendor/model" target.
     const apiKey = auth.kind === "api-key" ? auth.key : auth.access
@@ -378,14 +403,49 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
       return localOpenAI(resolveTierTarget("local", 0, options))
     }
 
-    // M20.1: when the operator has no OpenRouter key but DOES have consumer
-    // ChatGPT-Plus OAuth in auth.json, route all non-local tiers through
-    // chatgpt.com/backend-api/codex/responses via PoolOAuthLanguageModelV2.
-    // The pool-aware model fails over across ALL openai-OAuth keys when one
-    // hits its weekly Plus quota (codex 429 'usage_limit_reached'), honoring
-    // the server's resets_in_seconds for cooldown duration.
+    // M20.1 / M23: when the operator has no OpenRouter key, fall through to
+    // OAuth-based dispatch.
+    //   - consumer ChatGPT-Plus OAuth → chatgpt.com/backend-api/codex/responses
+    //     via PoolOAuthLanguageModelV2 (multi-account failover, codex 429
+    //     'usage_limit_reached' honors resets_in_seconds).
+    //   - GitHub Copilot OAuth → api.githubcopilot.com/chat/completions via
+    //     createOpenAI with customFetch (default OpenAI-compat for gpt-*
+    //     models in the operator's Copilot catalog).
     if (apiKeyMissing && modelId !== "local") {
       const consumerPlus = detectConsumerPlusOAuth()
+      const copilot = !consumerPlus ? detectCopilotOAuth() : undefined
+      if (copilot) {
+        const tierModelId = pickCopilotModelForTier(modelId, options)
+        if (modelId === "auto" && autoEnabled) {
+          const smartC = pickCopilotModelForTier("smart", options)
+          const cheapC = pickCopilotModelForTier("cheap", options)
+          const cfg: AutoWrapperConfig = {
+            smart: buildCopilotModel(copilot.authPath, copilot.authKey, smartC),
+            cheap: buildCopilotModel(copilot.authPath, copilot.authKey, cheapC),
+            verifier: buildCopilotModel(copilot.authPath, copilot.authKey, smartC),
+            k,
+            maxRetries,
+            perCallTimeoutMs: options.auto?.perCallTimeoutMs,
+          }
+          const routerOpts: RouterOptions = {
+            smartTarget: `github-copilot/${smartC}`,
+            cheapTarget: `github-copilot/${cheapC}`,
+            longContextTarget: `github-copilot/${smartC}`,
+            routeOverrides: options.auto?.routeOverrides,
+            forceCompoundOnMultistep: options.auto?.forceCompoundOnMultistep ?? false,
+            hardClassDetection:
+              process.env.CHEAPCODE_HARD_CLASS === "1" || process.env.CHEAPCODE_HARD_CLASS === "true",
+          }
+          return new CheapcodeAutoModel(cfg, routerOpts, (orId) =>
+            buildCopilotModel(
+              copilot.authPath,
+              copilot.authKey,
+              orId.startsWith("github-copilot/") ? orId.slice("github-copilot/".length) : tierModelId,
+            ),
+          )
+        }
+        return buildCopilotModel(copilot.authPath, copilot.authKey, tierModelId)
+      }
       if (consumerPlus) {
         const tierModelId = pickOAuthModelForTier(modelId, options)
         if (modelId === "auto" && autoEnabled) {
@@ -441,9 +501,10 @@ export function createCheapcodeProvider(options: CheapcodeProviderOptions): Chea
       }
       throw new Error(
         `cheapcode: no dispatchable credentials for non-local tier "${modelId}". ` +
-          `Either set OPENROUTER_API_KEY, OR connect openai (consumer ChatGPT-Plus) ` +
-          `via 'cheapcode web' → Settings → Providers, OR use --model=cheapcode/local ` +
-          `with iai-katib running on ${process.env.CHEAPCODE_LOCAL_BASE_URL ?? "http://127.0.0.1:8000/v1"}.`,
+          `Set OPENROUTER_API_KEY, OR connect a provider (openai consumer ChatGPT-Plus, ` +
+          `github-copilot, or any api-key provider) via 'cheapcode web' → Settings → Providers, ` +
+          `OR use --model=cheapcode/local with iai-katib running on ` +
+          `${process.env.CHEAPCODE_LOCAL_BASE_URL ?? "http://127.0.0.1:8000/v1"}.`,
       )
     }
 
@@ -699,6 +760,68 @@ export function detectConsumerPlusOAuth():
     // malformed auth.json — treat as no consumer-Plus available
   }
   return undefined
+}
+
+/**
+ * Detect "operator has GitHub Copilot OAuth" mode. Returns the authPath +
+ * auth.json key of the first github-copilot oauth entry (canonical or
+ * alias from M16 multi-account). Read once per provider construction.
+ */
+export function detectCopilotOAuth(): { authPath: string; authKey: string } | undefined {
+  const authPath = defaultOpencodeAuthPath()
+  if (!existsSync(authPath)) return undefined
+  try {
+    const map = JSON.parse(readFileSync(authPath, "utf8")) as Record<
+      string,
+      { type?: string; providerID?: string; refresh?: string }
+    >
+    if (map["github-copilot"]?.type === "oauth" && map["github-copilot"]?.refresh) {
+      return { authPath, authKey: "github-copilot" }
+    }
+    for (const [key, entry] of Object.entries(map)) {
+      if (key === "github-copilot") continue
+      if (entry?.type !== "oauth" || !entry?.refresh) continue
+      if (entry.providerID === "github-copilot" || key.startsWith("github-copilot")) {
+        return { authPath, authKey: key }
+      }
+    }
+  } catch {
+    // malformed auth.json — treat as no copilot available
+  }
+  return undefined
+}
+
+/**
+ * Pick a Copilot model for a tier. Defaults map to the OpenAI-family models
+ * in the friend's catalog (gpt-* via Copilot's chat/completions endpoint).
+ * Operators can override via tierOverrides (including claude-* / gemini-*
+ * once those endpoints are wired in v2).
+ */
+export function pickCopilotModelForTier(
+  tierId: string,
+  options: CheapcodeProviderOptions,
+): string {
+  const override = options.tierOverrides?.[tierId as TierId]
+  if (override) {
+    return override.startsWith("github-copilot/") ? override.slice("github-copilot/".length) : override
+  }
+  if (tierId === "smart" || tierId === "auto") return "gpt-5.4"
+  if (tierId === "smart-fast") return "gpt-5.4"
+  return "gpt-5-mini" // cheap, cheap-fast — cheapest gpt in the friend's catalog
+}
+
+/**
+ * Build a Copilot LanguageModelV2 for a given model id. Wraps createOpenAI
+ * with the api.githubcopilot.com baseURL + the customFetch that injects the
+ * GitHub Bearer + Copilot headers from auth.json.
+ */
+function buildCopilotModel(authPath: string, authKey: string, modelId: string) {
+  const fetchFn = buildCopilotFetch({ authPath, authKey })
+  return createOpenAI({
+    apiKey: "dummy-overridden-by-fetch",
+    baseURL: "https://api.githubcopilot.com",
+    fetch: fetchFn,
+  })(modelId)
 }
 
 /**

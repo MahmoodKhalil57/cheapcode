@@ -289,8 +289,8 @@ describe("isAuthExpired", () => {
 // ============================================================
 
 describe("defaultOpencodeAuthPath", () => {
-  test("returns ~/.local/share/opencode/auth.json", () => {
+  test("returns cheapcode-isolated path (post-M22)", () => {
     const p = defaultOpencodeAuthPath()
-    expect(p.endsWith("/.local/share/opencode/auth.json")).toBe(true)
+    expect(p.endsWith("/.local/share/cheapcode/opencode/auth.json")).toBe(true)
   })
 })
