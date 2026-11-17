@@ -1,8 +1,22 @@
 # cheapcode
 
-> A general-agent **routing intelligence layer** for opencode. Knows where each top frontier model fails (speed limits, intelligence limits, cost per task) and dispatches each task to its documented value-optimum model.
+cheapcode is a model router for the [opencode](https://github.com/sst/opencode) coding agent. Not every task needs the most expensive model, so cheapcode looks at each task and sends it to the model that suits it best on cost, speed or reasoning, across OpenRouter, ChatGPT and GitHub Copilot.
 
-**Status:** v1.x (M16–M19 shipped, 2026-05-04). Multi-account-per-provider in the fork UI (M16), credential-aware auto-router with cooldown / quota / temporal-anchor / sycophancy-probe / orchestrate composition (M17, 388 tests, first real paired-benchmark receipt), Eve-curated human-design canon (M18 + M19, 52 fetched candidates across 8 dimensions), runtime canon-injection + claim-shape tagging gated behind a 7-axis scorecard (M19 internal threshold met, external claim still blocked behind operator spot-check per atom 0007 anti-fab). See [SESSION-2026-05-04.md](SESSION-2026-05-04.md) for the honest log.
+It ships as a separate provider package, so opencode itself needs no patches.
+
+**What it does**
+
+- **Routes each task.** Pick a fixed tier (`cheap`, `cheap-fast`, `smart`, `smart-fast`), or let `auto` choose a model from the kind of task.
+- **Keeps working when a provider is rate-limited.** It pools credentials across several accounts per provider, and tracks cooldowns and quotas.
+- **Lets you override it.** Set per-tier and per-task model picks in `cheapcode.toml`.
+
+**How it's tested**
+
+- Written test-first, with about 470 tests.
+- Routing choices are checked against paired benchmarks, and the results are logged.
+- One feature, a compound "ask several models" mode, failed to beat a single frontier model on cost and latency in two tests. It is off by default, and the results are written up below rather than hidden.
+
+Status: v1.x. The detailed model card below lists what it was measured on and where it falls short. The full development log is in [SESSION-2026-05-04.md](SESSION-2026-05-04.md).
 
 ## install
 
